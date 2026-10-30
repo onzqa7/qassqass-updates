@@ -17,7 +17,7 @@
   A.glStyle = (sc, E) => {
     const st = E.st, L = sc.look, gr = E.grade; const hex = (h, d) => h ? S.rgb(h) : d;
     return {
-      sat: gr.sat * (L.sat == null ? 1 : L.sat), bri: gr.bri * (L.bri == null ? 1 : L.bri), con: gr.con * (L.con == null ? 1 : L.con), warm: L.warm || 0, tint: gr.tint, tintAmt: gr.tintAmt || 0, gamma: gr.gamma || 1, ge: gr.ge || 0, geW: gr.geW, geT: gr.geT, geS: gr.geS, geL: gr.geL,
+      sat: gr.sat * (L.sat == null ? 1 : L.sat), bri: gr.bri * (L.bri == null ? 1 : L.bri), con: gr.con * (L.con == null ? 1 : L.con), warm: L.warm || 0, tint: gr.tint, tintAmt: gr.tintAmt || 0, gamma: (gr.gamma || 1) * (L.gamma == null ? 1 : L.gamma), ge: gr.ge || 0, geW: gr.geW, geT: gr.geT, geS: gr.geS, geL: gr.geL,
       light: L.light || st.light || 0, sunLon: L.sunLon, sunLat: L.sunLat, nightAmt: 1,
       space: st.space, space2: st.space2, atmoCol: st.atmo, atmo: L.atmo == null ? 1 : L.atmo, stars: E.stars,
       bgFlat: hex(st.bgFlat || st.ocean, [0.02, 0.03, 0.05]),

@@ -88,14 +88,16 @@
   };
 
   /* ---------------- text ---------------- */
-  function font(px, weight, fam, italic) { return `${italic ? 'italic ' : ''}${weight || 700} ${Math.max(1, px).toFixed(1)}px "${fam}", "Cairo", "Segoe UI", sans-serif`; }
+  // fam = installed or bundled family; Thmanyah families (installed by the user, never bundled) fall back to "thmanyah sans" then Cairo
+  function font(px, weight, fam, italic) { const f = String(fam || 'Cairo'); return `${italic ? 'italic ' : ''}${weight || 700} ${Math.max(1, px).toFixed(1)}px "${f}", ${f.startsWith('thmanyah') && f !== 'thmanyah sans' ? '"thmanyah sans", ' : ''}"Cairo", "Segoe UI", sans-serif`; }
   V.font = font;
   function haloText(ctx, s, x, y, px, ink, halo, fam, weight, align, spacing) {
     ctx.font = font(px, weight, fam); ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.direction = isAr(s) ? 'rtl' : 'ltr';
     if ('letterSpacing' in ctx) ctx.letterSpacing = isAr(s) ? '0px' : ((spacing || 0) * px).toFixed(1) + 'px';
     if (halo === 'soft' || (halo && halo.startsWith && halo.startsWith('soft'))) { // documentary 'soft shadow': blurred drop shadow, no hard stroke
-      ctx.save(); ctx.fillStyle = ink; ctx.shadowColor = 'rgba(0,0,0,.78)'; ctx.shadowBlur = Math.max(4, px * .45); ctx.shadowOffsetY = Math.max(1, px * .07); ctx.fillText(s, x, y);
-      ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = Math.max(2, px * .14); ctx.shadowOffsetY = Math.max(1, px * .03); ctx.fillText(s, x, y); ctx.restore();
+      const sc = halo.length > 5 ? halo.slice(5) : 'rgba(0,0,0,.78)'; // 'soft:<colour>' = coloured soft shadow
+      ctx.save(); ctx.fillStyle = ink; ctx.shadowColor = sc; ctx.shadowBlur = Math.max(4, px * .45); ctx.shadowOffsetY = Math.max(1, px * .07); ctx.fillText(s, x, y);
+      ctx.shadowColor = halo.length > 5 ? sc : 'rgba(0,0,0,.45)'; ctx.shadowBlur = Math.max(2, px * .14); ctx.shadowOffsetY = Math.max(1, px * .03); ctx.fillText(s, x, y); ctx.restore();
       if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; return;
     }
     if (halo) { ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(2, px * .22); ctx.strokeStyle = halo; ctx.strokeText(s, x, y); }
@@ -264,6 +266,8 @@
       else { b.fillStyle = st.ocean; b.fillRect(0, 0, W, H); }
       if (land) { b.beginPath(); pb(land); b.fillStyle = st.land; b.fill(); }
     }
+    // land tint over imagery (raster styles): translucent colour on the land polygons
+    if (!E.vector && E.landTint && E.landA > 0 && land) { b.save(); b.globalAlpha = E.landA; b.beginPath(); pb(land); b.fillStyle = E.landTint; b.fill(); b.restore(); }
     const fillMode = E.fill;
     if (fillMode !== 'none' && fv.length) {
       b.save();
@@ -274,14 +278,14 @@
       if (era.src === 'cs') { for (const f of fv) { const s0 = f.properties.st; if (s0 === 'independent') continue; b.beginPath(); pb(f); b.globalAlpha = E.fillA * .55; b.fillStyle = pattern(b, s0 === 'occupied' ? 'cross' : 'hatch', 'rgba(0,0,0,.35)', k); b.fill(); } }
       b.restore();
     }
-    if (st.grid || L.graticule) { b.beginPath(); pb(d3.geoGraticule10()); b.lineWidth = .8 * k; b.strokeStyle = st.gridC || (E.vector ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.22)'); b.stroke(); }
+    if (st.grid || L.graticule) { b.beginPath(); pb(E.gridStep && E.gridStep !== 10 ? d3.geoGraticule().step([E.gridStep, E.gridStep]) : d3.geoGraticule10()); b.lineWidth = .8 * k; b.strokeStyle = st.gridC || (E.vector ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.22)'); b.stroke(); }
 
     }
     /* ---- war layers: fills (under borders) ---- */
     const layers = (sc.layers || []).map(Ly0 => { const s = S.state(Ly0, t, cd); if (!s) return null; const Ly = S.resolve(Ly0, s.lt); if (Ly.opacity != null) s.a *= clamp(+Ly.opacity, 0, 1); return { Ly, s }; }).filter(Boolean);
     for (const { Ly, s } of layers) {
       if (Ly.type === 'country') {
-        const fs = Ly.keys.map(kk => byKey.get(kk)).filter(Boolean); fs.forEach(f => { inv.add(f.key); if (!invLab.has(f.key)) invLab.set(f.key, { show: Ly.label !== 0, style: Ly.labelStyle || (st.halo === 'soft' ? 'soft' : 'plate'), size: Ly.labelSize || 1, text: fs.length === 1 ? Ly.labelText : '', a: s.a * S.easeOut(s.pin) }); }); if (!fs.length) continue;
+        const fs = Ly.keys.map(kk => byKey.get(kk)).filter(Boolean); fs.forEach(f => { inv.add(f.key); if (!invLab.has(f.key)) invLab.set(f.key, { show: Ly.label !== 0, style: Ly.labelStyle || (st.halo && String(st.halo).startsWith('soft') ? 'soft' : 'plate'), size: Ly.labelSize || 1, text: fs.length === 1 ? Ly.labelText : '', a: s.a * S.easeOut(s.pin) }); }); if (!fs.length) continue;
         const pin = S.easeOut(s.pin); const a = s.a * (Ly.pulse ? .75 + .25 * Math.sin(s.lt * 4) : 1);
         if (Ly.dim) { b.save(); b.beginPath(); vw.mode === 'globe' ? pb(sphere) : b.rect(0, 0, W, H); for (const f of fs) pb(f); b.fillStyle = `rgba(0,0,0,${.55 * pin * s.a})`; b.fill('evenodd'); b.restore(); }
         b.save();
@@ -342,6 +346,8 @@
       g.lineWidth = bw; g.strokeStyle = st.border; g.stroke(); g.restore();
     }
     if (L.coast && E.vector && land) { g.beginPath(); pg(land); g.lineWidth = 1.1 * k; g.strokeStyle = st.coast || st.border; g.stroke(); }
+    // disputed / dependent territories (CShapes: colonies, occupied) — border style override
+    if (L.borders && era.src === 'cs' && E.disputed !== 'dashed') { for (const f of fv) { if (f.properties.st === 'independent') continue; g.save(); g.beginPath(); pg(f); if (E.disputed === 'hidden') { g.globalCompositeOperation = 'destination-out'; g.lineWidth = 3 * k; g.strokeStyle = '#000'; g.stroke(); } else { g.lineWidth = (st.bw || 1) * (L.borderW || 1) * k; g.strokeStyle = st.border; g.stroke(); } g.restore(); } }
 
     }
     /* ---- war layers: strokes, arrows, markers ---- */
@@ -438,18 +444,18 @@
       if (L.cities) {
         const lvl = L.cities; const maxRank = clamp(Math.floor(vw.zoom * 1.45 - 5 + (lvl - 1) * 1.6), -1, 10); // fewer, calmer city labels by default
         const histOK = era.src === 'modern' || lvl >= 2;
-        if (histOK) for (const p of G.places || []) { if (p[4] > maxRank) continue; if (era.src !== 'modern' && p[4] > 3) continue; const sp = vw.project(p[0], p[1]); if (!sp || sp[0] < 0 || sp[1] < 0 || sp[0] > W || sp[1] > H) continue; const cap = (p[6] & 1) && era.src === 'modern'; cand.push({ pr: 3000 - p[4] * 200 + (cap ? 400 : 0) + Math.min(400, p[5] / 30), sp, name: lang === 'en' ? p[2] : (p[3] || p[2]), px: (cap ? 15 : 13 - Math.min(3, p[4] * .3)) * k * ls, kind: 'city', cap }); }
-        if (era.src === 'cs') for (const f of fv) { const pr = f.properties; if (!pr.cap || f.properties.st !== 'independent') continue; const sp = vw.project(pr.cx, pr.cy); if (!sp) continue; cand.push({ pr: 3500, sp, name: lang === 'en' ? pr.cap : capAr(pr.cap), px: 14 * k * ls, kind: 'city', cap: 1 }); }
+        if (histOK) for (const p of G.places || []) { if (p[4] > maxRank) continue; if (era.src !== 'modern' && p[4] > 3) continue; const sp = vw.project(p[0], p[1]); if (!sp || sp[0] < 0 || sp[1] < 0 || sp[0] > W || sp[1] > H) continue; const cap = (p[6] & 1) && era.src === 'modern'; if (E.capOnly && !cap) continue; cand.push({ pr: 3000 - p[4] * 200 + (cap ? 400 : 0) + Math.min(400, p[5] / 30), sp, name: lang === 'en' ? p[2] : (p[3] || p[2]), px: (cap ? 15 : 13 - Math.min(3, p[4] * .3)) * k * ls * E.cityLabel, kind: 'city', cap }); }
+        if (era.src === 'cs') for (const f of fv) { const pr = f.properties; if (!pr.cap || f.properties.st !== 'independent') continue; const sp = vw.project(pr.cx, pr.cy); if (!sp) continue; cand.push({ pr: 3500, sp, name: lang === 'en' ? pr.cap : capAr(pr.cap), px: 14 * k * ls * E.cityLabel, kind: 'city', cap: 1 }); }
       }
       cand.sort((a, b2) => b2.pr - a.pr);
       for (const c of cand) {
         if (c.kind === 'city') {
-          const w = measure(g, c.name, c.px, fam, 700); const r0 = c.px * .32; const bx = [c.sp[0] - r0, c.sp[1] - c.px * .6, c.sp[0] + r0 + 5 * k + w, c.sp[1] + c.px * .6];
+          const w = measure(g, c.name, c.px, fam, 700); const r0 = c.px * .32 * E.citySize; const bx = [c.sp[0] - r0, c.sp[1] - c.px * .6, c.sp[0] + r0 + 5 * k + w, c.sp[1] + c.px * .6];
           if (!place(bx)) continue; out.labels.push(bx);
-          if (E.cityDot !== 'none') V.icon(g, E.cityDot === 'dot' ? 'dot' : E.cityDot === 'star' ? 'star' : c.cap ? 'capital' : 'city', c.sp[0], c.sp[1], c.px * (E.cityDot === 'star' ? 1.2 : c.cap ? 1.05 : .9), E.cityC || (E.cityDot === 'dot' || E.cityDot === 'star' ? '#ffffff' : E.vector ? '#222' : '#111'), 0, 0);
+          if (E.cityDot !== 'none') V.icon(g, E.cityDot === 'dot' ? 'dot' : E.cityDot === 'star' ? 'star' : c.cap ? 'capital' : 'city', c.sp[0], c.sp[1], c.px * E.citySize * (E.cityDot === 'star' ? 1.2 : c.cap ? 1.05 : .9), E.cityC || (E.cityDot === 'dot' || E.cityDot === 'star' ? '#ffffff' : E.vector ? '#222' : '#111'), 0, 0);
           haloText(g, c.name, c.sp[0] + r0 + 5 * k, c.sp[1], c.px, ink, halo, fam, E.labelW || 700, 'left');
         } else {
-          const sp = c.kind === 'sea' || c.kind === 'region' ? 0 : .08; const nm = (lang === 'en' && c.kind === 'country') ? c.name.toUpperCase() : c.name;
+          const sp = c.kind === 'sea' || c.kind === 'region' ? 0 : .08; const nm = (lang === 'en' && c.kind === 'country' && E.labelUp) ? c.name.toUpperCase() : c.name;
           const w = measure(g, nm, c.px, fam, c.kind === 'country' ? (c.il && c.il.style === 'soft' ? 900 : 800) : 600, lang === 'en' ? .12 : 0); const bx = [c.sp[0] - w / 2 - 3, c.sp[1] - c.px * .62, c.sp[0] + w / 2 + 3, c.sp[1] + c.px * .62];
           if (!place(bx)) { if (!(c.il && c.il.style !== 'plate' && (c.tries = (c.tries || 0) + 1) < 4)) continue; c.px *= .8; cand.splice(cand.indexOf(c) + 1, 0, c); continue; } // big soft labels shrink instead of disappearing
           out.labels.push(bx);

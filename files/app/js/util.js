@@ -118,7 +118,7 @@ GW.toast = (msg, kind) => {
 GW.modal = ({ title, body, buttons, width, onClose }) => {
   const wrap = document.createElement('div'); wrap.className = 'modal';
   const dlg = document.createElement('div'); dlg.className = 'dlg'; dlg.dir = 'rtl'; if (width) dlg.style.width = `min(${width}px, 100%)`;
-  dlg.innerHTML = `<div class="dlg-h"><b>${GW.esc(title || '')}</b><button class="x" aria-label="إغلاق">✕</button></div><div class="dlg-b"></div><div class="dlg-f"></div>`;
+  dlg.innerHTML = `<div class="dlg-h"><b>${GW.esc(title || '')}</b><button class="x" aria-label="إغلاق">${GW.ico ? GW.ico('close', 14) : '✕'}</button></div><div class="dlg-b"></div><div class="dlg-f"></div>`;
   const b = dlg.querySelector('.dlg-b'); if (typeof body === 'string') b.innerHTML = body; else if (body) b.append(body);
   const f = dlg.querySelector('.dlg-f');
   const close = (v) => { wrap.remove(); onClose && onClose(v); };

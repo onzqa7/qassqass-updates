@@ -229,7 +229,7 @@
   }
   const C = {
     trackV: '#232323', trackA: '#222222', trackT: '#292929', rowLine: '#161616', sep: '#121212', io: 'rgba(255,255,255,.035)',
-    ruler: '#1c1c1c', tick: '#4d4d4d', tickM: '#6a6a6a', label: '#9b9b9b', play: '#3d8ee8', snap: '#e8e8e8', razor: '#e5484d',
+    ruler: '#151617', tick: '#45464b', tickM: '#6a6b71', label: '#9a9b9f', play: '#3d8ee8', snap: '#e8e8e8', razor: '#e5484d',
     ghost: 'rgba(110,160,230,.28)', ghostL: '#6ea0e6', marq: 'rgba(160,190,230,.10)', marqL: '#8fb3e6', band: '#d8c35c', trans: '#5b5b63', transSel: '#5f86c0'
   };
 

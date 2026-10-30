@@ -4,6 +4,8 @@
   const A = GW.Atlas; const S = A.Scene = {};
   const rgb = (h) => { h = String(h).replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join(''); const n = parseInt(h, 16); return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255]; };
   S.rgb = rgb;
+  // default label font: the user-installed Thmanyah fonts when present (never bundled), otherwise the bundled Cairo (V.font adds the fallbacks)
+  S.DEF_FONT = 'thmanyah serif display';
   const PAL = {
     vivid: ['#e4572e', '#29a3d6', '#f2c14e', '#5aa469', '#9b5de5', '#f15bb5', '#00bbf9', '#ff924c', '#8ac926'],
     pastel: ['#f3b7a8', '#a8d0e6', '#f6dc9b', '#b5d9a6', '#cdb4e6', '#f2b6cf', '#9ed8db', '#f7c59f', '#c6e2a5'],
@@ -15,7 +17,7 @@
   S.PAL = PAL;
   // style presets. base: tile provider; baseTex: bundled equirect fallback; vector: draw own ocean/land
   S.STYLES = {
-    satellite: { ar: 'قمر صناعي (Google Earth)', base: 'esri_img', baseTex: 'sat', grade: { sat: 1.08, bri: .97, con: 1.18, gamma: 1.04, ge: 0 }, oceanTint: '#0f2f5c', tintA: .5, post: { vig: .32 }, border: 'rgba(228,231,236,.62)', bw: .85, ink: '#f4f0e8', halo: 'soft', font: 'Tajawal', labelW: 700, labelK: 1.12, atmo: [.42, .66, 1], stars: .6, space: [.004, .006, .014] },
+    satellite: { ar: 'قمر صناعي (Google Earth)', base: 'esri_img', baseTex: 'sat', grade: { sat: 1.08, bri: .97, con: 1.18, gamma: 1.04, ge: 0 }, oceanTint: '#0f2f5c', tintA: .5, post: { vig: .32 }, border: 'rgba(228,231,236,.62)', bw: .85, ink: '#f4f0e8', halo: 'soft', font: 'thmanyah serif display', labelW: 800, labelK: 1.12, atmo: [.42, .66, 1], stars: .6, space: [.004, .006, .014] },
     s2: { ar: 'قمر صناعي بلا غيوم', base: 's2', baseTex: 'sat', grade: { sat: 1.1, bri: 1.03, con: 1.08 }, border: 'rgba(255,255,255,.7)', bw: 1.1, ink: '#ffffff', halo: 'rgba(0,0,0,.75)', atmo: [.35, .6, 1], stars: .8 },
     // documentary look (YouTube history maps): dark desaturated imagery, deep navy sea, soft-shadow labels, faint borders
     doc_dark: { ar: 'وثائقي داكن (الأندلس)', base: 'esri_img', baseTex: 'sat', doc: 1, grade: { sat: .78, bri: .82, con: 1.22, gamma: 1.04, ge: 0 }, oceanTint: '#07182b', tintA: .8, labelW: 800, border: 'rgba(240,232,210,.14)', bw: .7, ink: '#f2efe9', halo: 'soft', atmo: [.16, .22, .3], stars: .2, space: [.003, .004, .006], post: { vig: .45 } },
@@ -41,12 +43,12 @@
     neon: { ar: 'نيون', vector: 1, ocean: '#05040c', ocean2: '#0b0920', land: '#0c0b1e', fill: 'political', palette: 'neon', fillA: .12, border: '#7a5cff', bw: 1.1, glow: 1, coast: '#38e1ff', ink: '#eeeaff', halo: 'rgba(10,8,26,.9)', atmo: [.48, .36, 1], stars: .8, grid: 1, gridC: 'rgba(122,92,255,.12)' },
     desert: { ar: 'عمليات صحراوية', vector: 1, ocean: '#151a16', ocean2: '#1d241e', land: '#6d6047', border: '#a69169', bw: 1, coast: '#cdb98e', hill: .5, ink: '#f5ecd8', halo: 'rgba(24,22,16,.85)', atmo: [.75, .65, .45], stars: .4 },
   };
-  S.STYLE_ORDER = ['doc_dark', 'satellite', 'doc_light', 's2', 'ghost', 'daynight', 'night', 'natgeo', 'physical', 'relief', 'topo', 'oceans', 'carto_dark', 'voyager', 'political', 'history', 'parchment', 'news', 'newsdark', 'ops', 'desert', 'blueprint', 'neon', 'streets'];
+  S.STYLE_ORDER = ['satellite', 'doc_dark', 'doc_light', 's2', 'ghost', 'daynight', 'night', 'natgeo', 'physical', 'relief', 'topo', 'oceans', 'carto_dark', 'voyager', 'political', 'history', 'parchment', 'news', 'newsdark', 'ops', 'desert', 'blueprint', 'neon', 'streets'];
 
   S.blank = () => ({
-    v: 3, mode: 'globe', style: 'doc_dark', year: GW.P(2025), eraMode: 'auto',
+    v: 3, mode: 'globe', style: 'satellite', year: GW.P(2025), eraMode: 'auto',
     cam: { lon: 42, lat: 26, zoom: 3.2, tilt: 0, heading: 0, keys: [], orbit: 0, drift: 0, shake: 0 },
-    look: { lang: (window.GW && GW.lang) || 'ar', font: '', labels: 1, labelSize: 1, countryLabels: 1, cities: 1, oceans: 1, regions: 0, provinces: 0, rivers: 0, lakes: 1, borders: 1, coast: 1, graticule: 0, hill: null, fill: null, fillA: null, atmo: 1, stars: null, light: 0, sunLon: 20, sunLat: 10, vig: null, grain: .04, paper: null, letter: 0, quality: 1, refLabels: 0, sat: 1, bri: 1, attrib: 1, borderW: 1 },
+    look: { lang: (window.GW && GW.lang) || 'ar', font: 'thmanyah serif display', labelW: 800, labels: 1, labelSize: 1, countryLabels: 1, cities: 1, oceans: 1, regions: 0, provinces: 0, rivers: 0, lakes: 1, borders: 1, coast: 1, graticule: 0, hill: null, fill: null, fillA: null, atmo: 1, stars: null, light: 0, sunLon: 20, sunLat: 10, vig: null, grain: .04, paper: null, letter: 0, quality: 1, refLabels: 0, sat: 1, bri: 1, attrib: 1, borderW: 1 },
     layers: [], images: {}
   });
   S.normalize = (sc) => {
@@ -67,13 +69,16 @@
     if (L.borderStyle) { st.glow = L.borderStyle === 'glow' ? 1 : 0; st.dash = L.borderStyle === 'dashed' ? 1 : 0; }
     if (L.ink) st.ink = L.ink; if (L.haloT) st.halo = L.haloT === 'soft' ? 'soft' : L.haloT === 'none' ? '' : L.haloT === 'outline' ? (st0.halo && st0.halo !== 'soft' ? st0.halo : 'rgba(0,0,0,.8)') : st0.halo;
     if (L.gridC) st.gridC = L.gridC;
+    if (L.haloC) { const c = rgb(L.haloC); const rg = `rgba(${c[0] * 255 | 0},${c[1] * 255 | 0},${c[2] * 255 | 0},.8)`; st.halo = st.halo === 'soft' || (st.halo && st.halo.startsWith && st.halo.startsWith('soft')) ? 'soft:' + rg : st.halo ? rg : st.halo; }
+    if (L.coastC) st.coast = L.coastC;
+    if (L.atmoC) st.atmo = rgb(L.atmoC);
     return {
       st, vector: !!st.vector, base: st.base || null, baseTex: st.baseTex || null,
       fill: pick('fill', st.fill || 'none'), fillA: pick('fillA', st.fillA != null ? st.fillA : .4), palette: PAL[st.palette || 'vivid'],
-      hill: pick('hill', st.hill || 0), stars: pick('stars', st.stars || 0), font: L.font || st.font || 'Cairo',
+      hill: pick('hill', st.hill || 0), stars: pick('stars', st.stars || 0), font: L.font || st.font || S.DEF_FONT,
       post: { vig: L.vig != null ? L.vig : ((st.post || {}).vig || 0), grain: L.grain, paper: L.paper != null ? L.paper : ((st.post || {}).paper || 0), sepia: (st.post || {}).sepia || 0, letter: L.letter || 0 },
       grade: Object.assign({ sat: 1, bri: 1, con: 1 }, st.grade || {}, L.ge != null ? { ge: L.ge } : {}),
-      labelW: L.labelW || st.labelW || 0, labelK: st.labelK || 1, oceanTint: L.tintA === 0 ? null : (L.oceanTint || st.oceanTint || null), tintA: L.tintA != null ? L.tintA : (st.tintA || 0), labelSp: L.labelSp || 0, cityDot: L.cityDot || 'auto', cityC: L.cityC || '',
+      labelW: L.labelW || st.labelW || 0, labelUp: L.labelUp == null ? 1 : L.labelUp, capOnly: L.capOnly || 0, citySize: L.citySize || 1, cityLabel: L.cityLabel || 1, gridStep: L.gridStep || 10, landTint: L.landTint || '', landA: L.landA || 0, bathy: L.bathy == null ? 1 : L.bathy, disputed: L.disputed || 'dashed', labelK: st.labelK || 1, oceanTint: L.tintA === 0 ? null : (L.oceanTint || st.oceanTint || null), tintA: L.bathy === 0 && !st.vector ? 1 : (L.tintA != null ? L.tintA : (st.tintA || 0)), labelSp: L.labelSp || 0, cityDot: L.cityDot || 'auto', cityC: L.cityC || '',
     };
   };
 

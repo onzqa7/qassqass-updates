@@ -1,8 +1,8 @@
 {
- "version": "2.2.8",
- "date": "2026-10-30T17:21:20.822Z",
- "notes_ar": "خريطة أوضح في المعاينة (صور بدقة أعلى) وألوان وثائقية أغنى وأقل بهتاناً.",
- "notes_en": "Sharper map preview (higher-res tiles) and richer, less faded documentary colours.",
+ "version": "2.3.0",
+ "date": "2026-10-30T18:49:22.412Z",
+ "notes_ar": "الإصدار 2.3: تصميم واجهة جديد أكثر احترافية، كاميرا خرائط مثل GeoLayers (ارتفاع، زاوية عدسة، دوران، إزاحة الهدف، تنعيم لكل مفتاح، تركيز على دولة، حركات جاهزة)، قسم خيارات الخريطة التفصيلي (أسماء، مدن، حدود، بحر وأرض، صورة، غلاف جوي، شبكة)، واستخدام خط ثمانية المثبّت على جهازك تلقائياً مع استيراد خطوط.",
+ "notes_en": "2.3: refreshed professional UI, GeoLayers-style map camera (altitude, FOV, roll, target offset, per-key easing, focus on country, presets), detailed map options groups, automatic use of the installed Thmanyah font plus font import.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -24,8 +24,8 @@
   },
   {
    "path": "app/css/app.css",
-   "size": 41361,
-   "sha256": "2f6257a1c1b4952ac5779b83e14d11e91688c495ee1d27e2e38b4c374118825d"
+   "size": 71363,
+   "sha256": "26194cc037923efd449ad12d6a0bcbc9e49753bc3e53eafdebad55a10067ab4a"
   },
   {
    "path": "app/fonts/amiri-arabic-400-normal.woff2",
@@ -684,13 +684,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 132737,
-   "sha256": "fe81fd14535f2fe5f8854f8b8bef7204f4be8b0d73997ee79fa9e5d9ca876410"
+   "size": 137369,
+   "sha256": "6e1f3f7c53aea2a2501bccf1db03807fd86fdbf58c5fd0eb0372ab6e55076640"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 129510,
-   "sha256": "f71cdeefca47a50a96746e3d8e5bab9c6204988a2146a75db83ff13a02f515fa"
+   "size": 134445,
+   "sha256": "405874ae06f89f65dacce53521a67e50019db5409263d3484ade6871c8c80b19"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -744,13 +744,13 @@
   },
   {
    "path": "app/js/atlas/atlas.js",
-   "size": 5096,
-   "sha256": "d883a2ccded2b944ecdbd61239e3e3e0165e425a0b6b7896709542e833949ee6"
+   "size": 5132,
+   "sha256": "4c930c182a3c21a7ad08c744121d6814c4bd213a77f702286b1cbe68581568e8"
   },
   {
    "path": "app/js/atlas/camera.js",
-   "size": 13026,
-   "sha256": "816fdee0c2f72125f6f112677ec489e08dbc57fd6a382a45d2f34d466c305ecd"
+   "size": 15662,
+   "sha256": "e1a848ff33d218d4a311cde57438631cb676753ef1b7cb4d7a97d4082f403a70"
   },
   {
    "path": "app/js/atlas/geo.js",
@@ -759,8 +759,8 @@
   },
   {
    "path": "app/js/atlas/globe.js",
-   "size": 36446,
-   "sha256": "760bde83c91f21ccbe763483e6bb129d17695f6245434a5eee2dd22e4477cfd6"
+   "size": 36616,
+   "sha256": "7a0cc207e3990ab18edacccfc5d227fbdc93135eb2cbb292a0d3441ad4038743"
   },
   {
    "path": "app/js/atlas/providers.js",
@@ -769,13 +769,13 @@
   },
   {
    "path": "app/js/atlas/scene.js",
-   "size": 16726,
-   "sha256": "26784f41649701657deb1c0ca3891f23ccdb67651a2ef6a35b771e99c815e887"
+   "size": 17613,
+   "sha256": "44e2ad96cb90f684866300312edfbb6a7ba978b7bc8c643ed6fb69ff977847f9"
   },
   {
    "path": "app/js/atlas/vector.js",
-   "size": 57400,
-   "sha256": "77bc7a85e9079ad5ceec15fcdae190d4d43bd348d2c96181e65f0c9593644581"
+   "size": 58757,
+   "sha256": "5c9c72b6c8132e569de7254b94e69a12012024cac32707934f1547e26141c087"
   },
   {
    "path": "app/js/atlas/vtiles.js",
@@ -814,8 +814,8 @@
   },
   {
    "path": "app/js/icons.js",
-   "size": 3828,
-   "sha256": "18abdb8f0ca1842c3bfa3669f7324cecdc55680fc39c2eb5a45d0cc8de7743cc"
+   "size": 5773,
+   "sha256": "a58ea8b92d0035538611ee792e2fa6453b328075b70af2cbc9ebbc6be7a43140"
   },
   {
    "path": "app/js/lut.js",
@@ -874,8 +874,8 @@
   },
   {
    "path": "app/js/ui_fxc.js",
-   "size": 45839,
-   "sha256": "df13fdd25c844914ac6a2ccacdf39aff907c5815455ad1b1c2990c60c5c121e0"
+   "size": 46049,
+   "sha256": "a644495a99a5949fddf98861f1fc17c08c451a413cc7bc9ea326150ef06cbb22"
   },
   {
    "path": "app/js/ui_home.js",
@@ -884,8 +884,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 84323,
-   "sha256": "5146da08ac46a76d3d5eef4019296df54078a42540603e7f8f496614b1f7aadf"
+   "size": 96170,
+   "sha256": "292635219f145032e806414888226202c643dabe64199d7f30e18cbd0b248730"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -899,8 +899,8 @@
   },
   {
    "path": "app/js/ui_project.js",
-   "size": 14321,
-   "sha256": "e05af605ec77751eb977e543f0e86eb3140d22ff1c4fae1f7879742ba7ad03c3"
+   "size": 14339,
+   "sha256": "df11b89249ac1333f145186014e9590ed96de3b530466038a7f172c48d1dd366"
   },
   {
    "path": "app/js/ui_sfx.js",
@@ -910,7 +910,7 @@
   {
    "path": "app/js/ui_timeline.js",
    "size": 82778,
-   "sha256": "2cab8292846762293409515ec558da801564878b25c9685859edcfe20067b2bc"
+   "sha256": "0950bbee192638a8d65431ec641ea3a1cf6ef94ac50a4867676f5a355a1eaec4"
   },
   {
    "path": "app/js/ui_update.js",
@@ -929,8 +929,8 @@
   },
   {
    "path": "app/js/util.js",
-   "size": 12877,
-   "sha256": "a7fd5cade549c2b4ad67a6d87831e03a895b9be8d7cb59599189b41fa6a38fbb"
+   "size": 12913,
+   "sha256": "af85ae99c1d3a9ea03e875f1b8ad55b99aa00eb5c2bcf82e6f87bfc9ebb455ae"
   },
   {
    "path": "app/js/xform.js",
@@ -4249,13 +4249,13 @@
   },
   {
    "path": "main.js",
-   "size": 38070,
-   "sha256": "b23b6741fd2baa1924553ba457c550a0eb6b737183969fae823d9d23de718fd8"
+   "size": 38147,
+   "sha256": "9ce46d2a648ec9f151544a30d18a987a9eb83bb940ba040778f7b870f0460f14"
   },
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "aea5508be22511287e874653058bcdbd62395059c9df25f397b014764cfb1aa8"
+   "sha256": "7cad9a745036e643fc63705eb7daa9c0553ad51b7ae02be21c42b15a60f421ea"
   },
   {
    "path": "preload.js",
@@ -4268,5 +4268,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "1IJ+Rc5EEoHYyKHSeXKevVXvg1LkdscsjsB/iKPpyazDe4W1oZ+1hgWsAWnNeLp+kHsnlzTLcyGtugLs8wo1Cw=="
+ "sig": "rmxt5oq6PICZ+Fzktrg676fZ0IjwqQYOOKgnZ5Co1HlXBWHo/MDGUfIFtsxv9KtIrwcmCbHSsXdzT5pZ7kaGAA=="
 }

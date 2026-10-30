@@ -27,15 +27,15 @@
     const pv = document.createElement('span'); pv.className = 'pv'; if (ctl) pv.append(ctl);
     const kn = document.createElement('span'); kn.className = 'kn';
     if (p && !opts.noAnim) {
-      const prev = document.createElement('button'); prev.textContent = '◀'; prev.title = 'المفتاح السابق';
-      const dia = document.createElement('button'); dia.className = 'kd' + (GW.keyAt(p, lt(c)) ? ' on' : ''); dia.textContent = GW.keyAt(p, lt(c)) ? '◆' : '◇'; dia.title = 'إضافة/حذف مفتاح';
-      const next = document.createElement('button'); next.textContent = '▶'; next.title = 'المفتاح التالي';
+      const prev = document.createElement('button'); prev.className = 'kprev'; prev.innerHTML = GW.ico('keyprev', 12); prev.title = 'المفتاح السابق';
+      const dia = document.createElement('button'); dia.className = 'kd' + (GW.keyAt(p, lt(c)) ? ' on' : ''); dia.innerHTML = GW.ico(GW.keyAt(p, lt(c)) ? 'keydiaon' : 'keydia', 12); dia.title = 'إضافة/حذف مفتاح';
+      const next = document.createElement('button'); next.className = 'knext'; next.innerHTML = GW.ico('keynext', 12); next.title = 'المفتاح التالي';
       prev.onclick = () => { if (!p.k) return; const t = lt(c); const k = p.k.filter(k => k.t < t - 1e-4).pop(); if (k) GW.seek(c.start + k.t); };
       next.onclick = () => { if (!p.k) return; const t = lt(c); const k = p.k.find(k => k.t > t + 1e-4); if (k) GW.seek(c.start + k.t); };
       dia.onclick = () => { const t = clamp(GW.snapFrame(lt(c), GW.seq().fps), 0, c.dur); const k = GW.keyAt(p, t); if (k) { p.k = p.k.filter(x => x !== k); if (!p.k.length) { p.v = k.v; delete p.k; } } else { if (!p.k) p.k = []; p.k.push({ t, v: GW.clone(GW.pv(p, t)), e: 'linear' }); p.k.sort((a, b) => a.t - b.t); } GW.commit('مفتاح'); F.render(); };
       kn.append(prev, dia, next);
     }
-    const rs = document.createElement('button'); rs.className = 'reset btn sm ico ghost'; rs.textContent = '↺'; rs.title = 'إعادة الضبط';
+    const rs = document.createElement('button'); rs.className = 'reset btn sm ico ghost'; rs.innerHTML = GW.ico('reset', 13); rs.title = 'إعادة الضبط';
     if (opts.def !== undefined && p) rs.onclick = () => { GW.setPv(p, lt(c), GW.clone(opts.def)); GW.commit('إعادة الضبط'); F.render(); }; else rs.style.visibility = 'hidden';
     kn.append(rs);
     r.append(sw, nm, pv, kn); r._p = p; r._c = c;
@@ -57,7 +57,7 @@
   function section(title, opts = {}) {
     const sec = document.createElement('div'); sec.className = 'fx-sec';
     const h = document.createElement('div'); h.className = 'fx-h' + (F.open[opts.key] === false ? ' closed' : '') + (opts.selected ? ' sel' : '');
-    h.innerHTML = `<button class="tw">▾</button><span class="fxbadge ${opts.off ? 'off' : ''}">fx</span><span class="fxn">${esc(title)}</span>`;
+    h.innerHTML = `<button class="tw">${GW.ico('down', 12)}</button><span class="fxbadge ${opts.off ? 'off' : ''}">fx</span><span class="fxn">${esc(title)}</span>`;
     const body = document.createElement('div'); body.hidden = F.open[opts.key] === false;
     h.querySelector('.tw').onclick = () => { F.open[opts.key] = body.hidden; body.hidden = !body.hidden; h.classList.toggle('closed', body.hidden); F.drawKeys(); };
     if (opts.toggle) { const b = h.querySelector('.fxbadge'); b.style.cursor = 'pointer'; b.title = 'تفعيل/تعطيل التأثير'; b.onclick = opts.toggle; }
@@ -414,6 +414,6 @@
   GW.bus.on('changed', () => F.render()); GW.bus.on('hist', () => F.render()); GW.bus.on('project', () => F.render());
   GW.bus.on('time', () => { if (!F.left) return; if (GW.pb.playing) { F.drawKeys(); return; } F.rows.forEach(r => { const sc = r.querySelector('.scrub'); }); F._tq || (F._tq = requestAnimationFrame(() => { F._tq = null; refreshValues(); })); });
   GW.bus.on('param', () => refreshValues());
-  function refreshValues() { if (!F.left || !F.left.isConnected) return; F.left.querySelectorAll('.scrub').forEach(s => s.refresh && s.refresh()); F.rows.forEach(r => { const d = r.querySelector('.kd'); if (d && r._p) { const on = !!GW.keyAt(r._p, GW.seq().t - r._c.start); d.classList.toggle('on', on); d.textContent = on ? '◆' : '◇'; } }); F.drawKeys(); }
+  function refreshValues() { if (!F.left || !F.left.isConnected) return; F.left.querySelectorAll('.scrub').forEach(s => s.refresh && s.refresh()); F.rows.forEach(r => { const d = r.querySelector('.kd'); if (d && r._p) { const on = !!GW.keyAt(r._p, GW.seq().t - r._c.start); d.classList.toggle('on', on); if (d.dataset.on !== String(on)) { d.dataset.on = String(on); d.innerHTML = GW.ico(on ? 'keydiaon' : 'keydia', 12); } } }); F.drawKeys(); }
   GW.bus.on('layout', () => F.drawKeys());
 })();

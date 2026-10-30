@@ -16,7 +16,7 @@
   GW.registerPanel('project', 'المشروع', (el) => {
     el.innerHTML = `<div class="ptool" dir="rtl">
       <button class="btn sm" data-a="import" title="استيراد (Ctrl+I)">استيراد</button>
-      <button class="btn sm" data-a="new" title="عنصر جديد">جديد ▾</button>
+      <button class="btn sm" data-a="new" title="عنصر جديد">جديد ${GW.ico('down', 12)}</button>
       <span class="grow"></span><small data-a="pxq" style="color:var(--yellow);white-space:nowrap"></small>
       <input class="inp" data-a="q" placeholder="بحث…" style="width:120px">
       <button class="btn sm ico ghost" data-a="list" title="عرض قائمة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>

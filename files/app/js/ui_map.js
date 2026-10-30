@@ -23,12 +23,21 @@
     const cam = sc(c).cam; const t = lt(c);
     if (cam.keys && cam.keys.length) {
       const fps = GW.seq().fps; let k = cam.keys.find(k => Math.abs(k.t - t) < .5 / fps);
-      if (!k) { const cur = Cm.at({ ...cam, orbit: 0, drift: 0, shake: 0 }, t, sc(c).mode); k = { t, lon: cur.lon, lat: cur.lat, zoom: cur.zoom, tilt: cur.tilt, heading: cur.heading, ease: 'inout' }; cam.keys.push(k); cam.keys.sort((a, b) => a.t - b.t); }
+      if (!k) { const cur = Cm.at({ ...cam, orbit: 0, drift: 0, shake: 0 }, t, sc(c).mode); k = { t, ...Cm.full(cur), ease: 'inout' }; cam.keys.push(k); cam.keys.sort((a, b) => a.t - b.t); }
       Object.assign(k, v);
     } else Object.assign(cam, v);
     changed(label || 'تحريك كاميرا الخريطة', true); M.refreshCam();
   };
-  M.addKey = (c) => { const cam = sc(c).cam; const t = lt(c); const cur = Cm.at({ ...cam, orbit: 0, drift: 0, shake: 0 }, t, sc(c).mode); cam.keys = cam.keys || []; const fps = GW.seq().fps; const ex = cam.keys.find(k => Math.abs(k.t - t) < .5 / fps); if (ex) Object.assign(ex, cur, { t }); else { cam.keys.push({ t, lon: cur.lon, lat: cur.lat, zoom: cur.zoom, tilt: cur.tilt || 0, heading: cur.heading || 0, ease: 'inout' }); cam.keys.sort((a, b) => a.t - b.t); } changed('مفتاح كاميرا'); renderPanel(); };
+  M.addKey = (c) => { const cam = sc(c).cam; const t = lt(c); const cur = Cm.at({ ...cam, orbit: 0, drift: 0, shake: 0 }, t, sc(c).mode); cam.keys = cam.keys || []; const fps = GW.seq().fps; const ex = cam.keys.find(k => Math.abs(k.t - t) < .5 / fps); if (ex) Object.assign(ex, Cm.full(cur), { t }); else { cam.keys.push({ t, ...Cm.full(cur), ease: 'inout' }); cam.keys.sort((a, b) => a.t - b.t); } changed('مفتاح كاميرا'); renderPanel(); };
+  // write explicit values into the key at the playhead (creating it from the current camera when needed)
+  M.keyAt = (c, vals, label) => { const cam = sc(c).cam; const t = lt(c); cam.keys = cam.keys || []; const fps = GW.seq().fps; let k = cam.keys.find(k => Math.abs(k.t - t) < .5 / fps); if (!k) { const cur = Cm.at({ ...cam, orbit: 0, drift: 0, shake: 0 }, t, sc(c).mode); k = { t, ...Cm.full(cur), ease: 'inout' }; cam.keys.push(k); } Object.assign(k, vals); cam.keys.sort((a, b) => a.t - b.t); changed(label || 'مفتاح كاميرا'); renderPanel(); return k; };
+  // GeoLayers-like "focus on country": key the camera so the searched country fits the frame (frac = how much of the frame it fills)
+  M.focusCountry = (c, name, frac = .6) => {
+    const scn = sc(c); const era = G.era(GW.pv(scn.year, lt(c)), scn.eraMode); const r = G.search(name, G.features(era, 0), scn.look.lang, era, 6).find(x => x.kind === 'country') || G.search(name, G.features(era, 0), scn.look.lang, era, 1)[0];
+    if (!r) { GW.toast('لم أتعرف على: ' + name, 'err'); return null; }
+    const v = camNow(c); const fit = r.bounds ? Cm.fit(r.bounds, v.tilt, v.heading, frac) : { lon: r.lon, lat: r.lat, zoom: r.kind === 'city' ? 9 : 6, tilt: v.tilt, heading: v.heading };
+    M.keyAt(c, { lon: +fit.lon.toFixed(4), lat: +fit.lat.toFixed(4), zoom: +fit.zoom.toFixed(3), tilt: fit.tilt, heading: fit.heading }, 'تركيز على ' + r.name); return r;
+  };
   M.flyTo = (c, target, label) => { // target {lon,lat,zoom?,bounds?}
     let v = target.bounds ? Cm.fit(target.bounds, camNow(c).tilt, camNow(c).heading) : { lon: target.lon, lat: target.lat, zoom: target.zoom || Math.max(camNow(c).zoom, 5) };
     M.flyAnim(c, { lon: v.lon, lat: v.lat, zoom: v.zoom });
@@ -66,7 +75,7 @@
     const F = keyOf(o.from, era); const Ts = o.targets.map(n => keyOf(n, era));
     if (!F) { GW.toast('لم أتعرف على الدولة المهاجمة: ' + o.from, 'err'); return; }
     if (!Ts.length || Ts.some(x => !x)) { GW.toast('تحقق من أسماء الدول المستهدفة', 'err'); return; }
-    const scn = A.newScene({ style: o.style || 'doc_dark', mode: o.mode || 'globe', year: GW.P(year) });
+    const scn = A.newScene({ style: o.style || 'satellite', mode: o.mode || 'globe', year: GW.P(year) });
     const dur = 4 + Ts.length * 1.6 + 5;
     const wide = fitFeats(F, Ts, .62), tight = fitFeats(null, Ts, .8); tight.tilt = 35;
     scn.cam.keys = [{ t: 0, ...wide, zoom: wide.zoom - .6, ease: 'inout' }, { t: 1.6, ...wide, ease: 'inout' }, { t: 1.6 + 2.4 + Ts.length * .8, ...tight, ease: 'inout' }, { t: dur, ...tight, zoom: tight.zoom + .25, heading: 6, ease: 'linear' }];
@@ -156,8 +165,8 @@
   };
   M.dbl = (X, Y) => { const k = ctx(); if (!k || M.mode !== 'nav') return false; const ll = pickAt(k, X, Y); if (!ll) return true; const f = G.hit(G.features(k.era, 0), ll); const to = f ? Cm.fit(f.bounds, camNow(k.c).tilt, camNow(k.c).heading) : { ...camNow(k.c), lon: ll[0], lat: ll[1], zoom: camNow(k.c).zoom + 1.5 }; M.flyAnim(k.c, to); return true; };
   // animated fly (van Wijk) between the current camera and a target, ~1.2 s
-  M.flyAnim = (c, to, dur = 1.2) => { const from = camNow(c); const t0 = performance.now(); const path = { keys: [{ t: 0, ...from, ease: 'inout' }, { t: 1, lon: to.lon, lat: to.lat, zoom: to.zoom, tilt: to.tilt != null ? to.tilt : from.tilt, heading: to.heading != null ? to.heading : from.heading }] };
-    M.anim(() => { const p = Math.min(1, (performance.now() - t0) / (dur * 1000)); const v = Cm.at(path, p, sc(c).mode); M.setCam(c, { lon: v.lon, lat: v.lat, zoom: v.zoom, tilt: v.tilt, heading: v.heading }); return p < 1; }, () => { GW.commit('انتقال الكاميرا'); renderPanel(); }); };
+  M.flyAnim = (c, to, dur = 1.2) => { const from = camNow(c); const t0 = performance.now(); const dst = Cm.full(from); for (const q of ['lon', 'lat', 'zoom', 'tilt', 'heading', ...Cm.EXTRA]) if (to[q] != null) dst[q] = +to[q]; const path = { keys: [{ t: 0, ...Cm.full(from), ease: 'inout' }, { t: 1, ...dst }] };
+    M.anim(() => { const p = Math.min(1, (performance.now() - t0) / (dur * 1000)); const v = Cm.at(path, p, sc(c).mode); M.setCam(c, Cm.full(v)); return p < 1; }, () => { GW.commit('انتقال الكاميرا'); renderPanel(); }); };
   M.move = (X, Y) => { const k = ctx(); if (!k) return; const ll = pickAt(k, X, Y); const f = ll && (M.mode === 'pick' || M.mode === 'nav') ? G.hit(G.features(k.era, 0), ll) : null; const h = f ? G.name(f, 'ar', k.era) : null; const ch = (M.hover && M.hover.n) !== h || M.mode === 'draw'; M.hover = { n: h, X, Y, ll, f }; if (ch) GW.Mon && GW.Mon.redraw(); };
   M.overlay = (g) => {
     const k = ctx(); if (!k || M.mode === 'off') return false; const c = k.c; const L = layer(c);
@@ -308,7 +317,7 @@
         const it = h('div', 'mp-res', `<b>${esc(x.name)}</b><span>${esc({ country: 'دولة', province: 'محافظة / إقليم', city: 'مدينة', region: 'منطقة' }[x.kind] || '')} ${x.sub ? '· ' + esc(x.sub) : ''}</span>`);
         const acts = h('span', 'mp-acts');
         acts.append(btn('انتقال', (e) => { e.stopPropagation(); M.flyTo(c, x.bounds ? { bounds: x.bounds } : { lon: x.lon, lat: x.lat, zoom: x.kind === 'city' ? 9 : 6 }); }));
-        if (x.kind === 'country' || x.kind === 'province') acts.append(btn('تمييز', (e) => { e.stopPropagation(); addLayer(c, 'country', { keys: [x.key], name: 'تمييز ' + x.name }); }));
+        if (x.kind === 'country' || x.kind === 'province') acts.append(btn('تمييز', (e) => { e.stopPropagation(); addLayer(c, 'country', { keys: [x.key], name: 'تمييز ' + x.name }); }), btn(GW.ico('key', 12) + ' تركيز', (e) => { e.stopPropagation(); M.focusCountry(c, x.name, M.focusPad || .6); }));
         acts.append(btn('علامة', (e) => { e.stopPropagation(); addLayer(c, 'marker', { lon: x.lon, lat: x.lat, text: x.name, icon: x.kind === 'city' ? 'capital' : 'pin', start: lt(c) - (c.in || 0) }); }));
         it.append(acts); it.onclick = () => M.flyTo(c, x.bounds ? { bounds: x.bounds } : { lon: x.lon, lat: x.lat, zoom: x.kind === 'city' ? 9 : 6 }); res.append(it);
       }
@@ -342,14 +351,26 @@
     return s0;
   }
   function setYear(c, v, soon) { const scn = sc(c); const t = lt(c); if (GW.isAnim(scn.year)) GW.setPv(scn.year, t, v); else scn.year = GW.P(v); changed('تغيير السنة', soon); if (!soon) renderPanel(); }
-  M.refreshCam = () => { if (!P) return; const c = selMap(); if (!c) return; const v = camNow(c); for (const k of ['lon', 'lat', 'zoom', 'tilt', 'heading']) { const i = P.querySelector(`[data-cam=${k}]`); if (i && document.activeElement !== i) i.value = (+v[k] || 0).toFixed(k === 'zoom' ? 2 : 3); } const al = P.querySelector('[data-a=alt]'); if (al) al.textContent = fmtAlt(Cm.altitudeKm(v.zoom, v.lat)); };
+  M.refreshCam = () => { if (!P) return; const c = selMap(); if (!c) return; const v = camNow(c); for (const k of ['lon', 'lat', 'zoom', 'tilt', 'heading', 'fov', 'roll', 'offX', 'offY']) { const i = P.querySelector(`[data-cam=${k}]`); if (i && document.activeElement !== i) i.value = k === 'offX' || k === 'offY' ? Math.round((+v[k] || 0) * 100) : (+v[k] || 0).toFixed(k === 'zoom' ? 2 : k === 'fov' || k === 'roll' ? 1 : 3); } const al = P.querySelector('[data-cam=alt]'); if (al && document.activeElement !== al) al.value = fmtKm(Cm.altitudeKm(v.zoom, v.lat, v.fov)); const at = P.querySelector('[data-a=alt]'); if (at) at.textContent = fmtAlt(Cm.altitudeKm(v.zoom, v.lat, v.fov)); };
+  const fmtKm = (km) => km >= 100 ? Math.round(km) : +km.toFixed(km >= 10 ? 1 : 2);
   const fmtAlt = (km) => km > 1000 ? (km / 1000).toFixed(1) + ' ألف كم' : km > 2 ? km.toFixed(0) + ' كم' : (km * 1000).toFixed(0) + ' م';
   function camSec(c) {
     const scn = sc(c); const cam = scn.cam; const s0 = sec('الكاميرا', true, 'cam'); const v = camNow(c);
     s0.body.append(row('العرض', sel([['globe', 'كرة أرضية ثلاثية الأبعاد'], ['flat', 'خريطة مسطحة (مركاتور)']], scn.mode, val => { scn.mode = val; changed('نوع العرض'); renderPanel(); })));
-    const f = (k, step) => { const i = num((+v[k] || 0).toFixed(3), step, val => M.setCam(c, { [k]: val })); i.dataset.cam = k; return i; };
-    s0.body.append(row('خط الطول / العرض', f('lon', .1), f('lat', .1)), row('التقريب', f('zoom', .1), h('span', 'kv', `<span data-a="alt">${fmtAlt(Cm.altitudeKm(v.zoom, v.lat))}</span>`)), row('الإمالة / الاتجاه', f('tilt', 1), f('heading', 1)));
-    const kr = h('div', 'mp-row'); kr.append(btn(GW.ico('key', 13) + ' مفتاح كاميرا عند المؤشر', () => M.addKey(c), 'pri'), btn('شمال للأعلى', () => M.setCam(c, { heading: 0 })), btn('بدون إمالة', () => M.setCam(c, { tilt: 0 }))); s0.body.append(kr);
+    const f = (k, step, opts) => { const i = num((+v[k] || 0).toFixed(k === 'fov' || k === 'roll' ? 1 : 3), step, val => M.setCam(c, { [k]: val }), opts); i.dataset.cam = k; return i; };
+    const flat = scn.mode === 'flat';
+    // altitude (km) is the zoom seen from the other side: editing it writes zoom (GeoLayers shows both)
+    const alt = num(fmtKm(Cm.altitudeKm(v.zoom, v.lat, v.fov)), 1, val => { if (val > 0) M.setCam(c, { zoom: +Cm.zoomForAlt(val, camNow(c).lat, camNow(c).fov).toFixed(4) }); }, { min: .1 }); alt.dataset.cam = 'alt'; alt.title = 'ارتفاع الكاميرا فوق الهدف بالكيلومتر';
+    const pct = (k) => { const i = num(Math.round((+v[k] || 0) * 100), 1, val => M.setCam(c, { [k]: clamp(val, -45, 45) / 100 }), { min: -45, max: 45 }); i.dataset.cam = k; i.title = 'إزاحة الهدف عن مركز الإطار (٪) لترك مكان للنص'; return i; };
+    s0.body.append(row('خط الطول / العرض', f('lon', .1), f('lat', .1)), row('التقريب / الارتفاع (كم)', f('zoom', .1), alt), row('الإمالة / الاتجاه', f('tilt', 1), f('heading', 1)));
+    const fr = row('زاوية الرؤية / الدوران', f('fov', 1, { min: 5, max: 120 }), f('roll', 1)); fr.title = 'زاوية الرؤية (FOV) بالدرجات — أصغر = عدسة مقرّبة، أكبر = عدسة واسعة. الدوران (Roll) يميل الأفق.'; s0.body.append(fr);
+    s0.body.append(row('إزاحة الهدف أفقي / عمودي ٪', pct('offX'), pct('offY')));
+    if (flat) s0.body.append(h('div', 'mp-note', 'الخريطة المسطحة تتجاهل الإمالة والدوران وزاوية الرؤية — اختر «كرة أرضية» للعرض ثلاثي الأبعاد.'));
+    const kr = h('div', 'mp-row'); kr.append(btn(GW.ico('key', 13) + ' مفتاح كاميرا عند المؤشر', () => M.addKey(c), 'pri'), btn('شمال للأعلى', () => M.setCam(c, { heading: 0 })), btn('بدون إمالة', () => M.setCam(c, { tilt: 0, roll: 0 })), btn('توسيط الهدف', () => M.setCam(c, { offX: 0, offY: 0 })), btn('عدسة قياسية', () => M.setCam(c, { fov: 35 }))); s0.body.append(kr);
+    // focus on a country: search + fit with padding, written as a key at the playhead
+    const fq = txt(M.focusQ || '', val => { M.focusQ = val; }, 'اسم دولة…'); fq.dataset.k = 'focusq'; fq.onkeydown = (e) => { e.stopPropagation(); if (e.key === 'Enter') M.focusCountry(c, fq.value, M.focusPad || .6); };
+    const fp = sel([[.85, 'ملء الإطار'], [.6, 'مع هامش'], [.42, 'مكان للنص'], [.3, 'بعيد']], String(M.focusPad || .6), val => { M.focusPad = +val; });
+    const frow = row('تركيز على دولة', fq, fp, btn(GW.ico('key', 13) + ' تركيز', () => M.focusCountry(c, fq.value, M.focusPad || .6), 'pri')); frow.title = 'يبحث عن الدولة ويضيف مفتاح كاميرا عند المؤشر يجعلها تملأ الإطار بالهامش المختار'; s0.body.append(frow);
     // 3D: tilt + terrain in one click (globe mode; terrain needs zoom ≥ 5)
     const is3D = (v.tilt || 0) > 5 && scn.mode === 'globe' && (scn.look.terrain > 0);
     const b3 = btn(GW.ico('globe', 13) + (is3D ? ' ثلاثي الأبعاد مفعّل' : ' تفعيل ثلاثي الأبعاد (3D)'), () => {
@@ -359,25 +380,30 @@
     }, is3D ? 'pri on' : 'pri'); b3.dataset.a = 'btn3d';
     s0.body.append(h('div', 'mp-row'), row('تضخيم التضاريس', rng(scn.look.terrain || 0, 0, 8, .1, val => { scn.look.terrain = val; GW.invalidate(); })));
     s0.body.children[s0.body.children.length - 2].append(b3);
-    if (scn.mode === 'flat') s0.body.append(h('div', 'mp-note', 'الخريطة المسطحة لا تدعم الإمالة والتضاريس — اختر «كرة أرضية» للعرض ثلاثي الأبعاد.'));
     s0.body.append(keyRuler(c, cam.keys || [], (k) => k.t, (k, t) => { k.t = t; }, () => { (cam.keys || []).sort((a, b) => a.t - b.t); }, (k) => { cam.keys.splice(cam.keys.indexOf(k), 1); }, 'مفاتيح الكاميرا'));
     const ks = cam.keys || []; const list = h('div', 'mp-keys');
+    // one motion choice per key (how the camera travels from this key to the next): fly arc / eased straight / linear / hold
+    const motionOf = (k) => (k.path !== 'linear') ? 'fly' : (k.ease || 'inout');
+    const MOTION = [['fly', 'طيران (قوس)'], ['inout', 'ناعم (دخول وخروج)'], ['in', 'تسارع'], ['out', 'تباطؤ'], ['linear', 'خطي'], ['hold', 'ثبات']];
     ks.forEach((k, i) => {
-      const r = h('div', 'mp-key' + (Math.abs(k.t - lt(c)) < .5 / GW.seq().fps ? ' on' : ''), `<span class="kv">${GW.fmtTC(k.t, GW.seq().fps)}</span><span>${k.zoom.toFixed(1)}×</span>`);
-      r.append(sel([['inout', 'ناعم'], ['ease', 'سلس'], ['in', 'تسارع'], ['out', 'تباطؤ'], ['linear', 'ثابت'], ['hold', 'ثبات']], k.ease || 'inout', val => { k.ease = val; changed('نوع الحركة'); }), sel([['fly', 'طيران'], ['linear', 'مباشر']], k.path || 'fly', val => { k.path = val; changed('مسار الكاميرا'); }),
-        btn(GW.ico('goto', 13), () => GW.seek(c.start + k.t - (c.in || 0))), btn(GW.ico('close', 13), () => { ks.splice(i, 1); changed('حذف مفتاح'); renderPanel(); }));
+      const r = h('div', 'mp-key' + (Math.abs(k.t - lt(c)) < .5 / GW.seq().fps ? ' on' : ''), `<span class="kv">${GW.fmtTC(k.t, GW.seq().fps)}</span><span class="kv">${(+k.zoom || 0).toFixed(1)}×${k.tilt ? ' ' + Math.round(k.tilt) + '°' : ''}${k.fov && k.fov !== 35 ? ' f' + Math.round(k.fov) : ''}${k.roll ? ' r' + Math.round(k.roll) : ''}</span>`);
+      const ms = sel(MOTION, motionOf(k), val => { if (val === 'fly') { k.path = 'fly'; k.ease = 'inout'; } else { k.path = 'linear'; k.ease = val; } changed('نوع الحركة'); }); ms.title = 'طريقة الانتقال من هذا المفتاح إلى التالي';
+      r.append(ms, btn(GW.ico('goto', 13), () => GW.seek(c.start + k.t - (c.in || 0))), btn(GW.ico('close', 13), () => { ks.splice(i, 1); changed('حذف مفتاح'); renderPanel(); }));
       list.append(r);
     });
     if (!ks.length) list.append(h('div', 'mp-note', 'الكاميرا ثابتة. حرّك الخريطة في الشاشة ثم أضف مفاتيح عند أوقات مختلفة لتصنع حركة طيران سينمائية (مثل Google Earth).'));
     s0.body.append(list);
     s0.body.append(row('دوران مداري', rng(cam.orbit || 0, -20, 20, .5, val => { cam.orbit = val; GW.invalidate(); })), row('اقتراب تدريجي', rng(cam.drift || 0, -.5, .5, .01, val => { cam.drift = val; GW.invalidate(); })), row('اهتزاز', rng(cam.shake || 0, 0, 3, .05, val => { cam.shake = val; GW.invalidate(); })));
-    const pres = h('div', 'mp-chips'); for (const [n, fn] of [['جولة ثلاثية الأبعاد', () => camPreset(c, 'tour3d')], ['دخول من الفضاء', () => camPreset(c, 'space')], ['طيران للهدف', () => camPreset(c, 'push')], ['دوران حول الهدف', () => camPreset(c, 'orbit')], ['إمالة سينمائية', () => camPreset(c, 'tilt')]]) { const b = h('button', 'chip'); b.textContent = n; b.onclick = fn; pres.append(b); }
+    const pres = h('div', 'mp-chips'); for (const [n, fn] of [['رحلة طيران إلى الهدف', () => camPreset(c, 'flight')], ['دوران حول الهدف', () => camPreset(c, 'orbit')], ['كشف (إمالة للأعلى)', () => camPreset(c, 'reveal')], ['اقتراب العدسة (Dolly)', () => camPreset(c, 'dolly')], ['جولة ثلاثية الأبعاد', () => camPreset(c, 'tour3d')], ['دخول من الفضاء', () => camPreset(c, 'space')], ['طيران للهدف', () => camPreset(c, 'push')], ['إمالة سينمائية', () => camPreset(c, 'tilt')]]) { const b = h('button', 'chip'); b.textContent = n; b.onclick = fn; pres.append(b); }
     s0.body.append(h('div', 'mp-sub', 'حركات جاهزة'), pres);
     return s0;
   }
   function camPreset(c, kind) {
-    const cam = sc(c).cam; const v = camNow(c); const d = c.dur; const base = { lon: v.lon, lat: v.lat, zoom: v.zoom, tilt: v.tilt || 0, heading: v.heading || 0 };
-    if (kind === 'space') cam.keys = [{ t: 0, ...base, zoom: 1.6, tilt: 0, heading: 0, ease: 'inout' }, { t: Math.min(d * .6, 4), ...base, ease: 'inout' }];
+    const cam = sc(c).cam; const v = camNow(c); const d = c.dur; const base = Cm.full(v);
+    if (kind === 'flight') cam.keys = [{ t: 0, ...base, zoom: 1.4, tilt: 0, heading: 0, roll: 0, ease: 'inout', path: 'fly' }, { t: Math.min(d * .7, 6), ...base, tilt: Math.max(base.tilt, 25), ease: 'inout', path: 'fly' }, { t: d, ...base, tilt: Math.max(base.tilt, 25), heading: base.heading + 8, zoom: base.zoom + .15, ease: 'linear', path: 'linear' }];
+    else if (kind === 'reveal') cam.keys = [{ t: 0, ...base, tilt: 72, zoom: base.zoom + .4, ease: 'inout', path: 'linear' }, { t: Math.min(d * .75, 7), ...base, tilt: Math.min(base.tilt, 10), ease: 'out', path: 'linear' }];
+    else if (kind === 'dolly') cam.keys = [{ t: 0, ...base, fov: 55, ease: 'inout', path: 'linear' }, { t: d, ...base, zoom: base.zoom + 1.4, fov: 24, ease: 'inout', path: 'linear' }];
+    else if (kind === 'space') cam.keys = [{ t: 0, ...base, zoom: 1.6, tilt: 0, heading: 0, ease: 'inout' }, { t: Math.min(d * .6, 4), ...base, ease: 'inout' }];
     else if (kind === 'push') cam.keys = [{ t: 0, ...base, ease: 'inout' }, { t: d * .8, ...base, zoom: base.zoom + 2.2, tilt: Math.max(base.tilt, 40), ease: 'inout' }];
     else if (kind === 'orbit') { cam.keys = [{ t: 0, ...base, tilt: Math.max(45, base.tilt), ease: 'linear' }, { t: d, ...base, tilt: Math.max(45, base.tilt), heading: base.heading + 90, ease: 'linear' }]; }
     else if (kind === 'tour3d') { sc(c).mode = 'globe'; if (sc(c).look.terrain == null || sc(c).look.terrain < 2.5) sc(c).look.terrain = 3; const z = Math.max(base.zoom, 6.5); const n = 4; cam.keys = []; for (let i = 0; i <= n; i++) cam.keys.push({ t: d * i / n, ...base, zoom: z + (i === 0 ? -.6 : 0), tilt: i === 0 ? 20 : 58, heading: base.heading + i * 30, ease: i === 0 ? 'inout' : 'linear' }); }
@@ -435,47 +461,95 @@
     for (const u of M.userStyles()) { const b = h('button', 'mp-st'); const bs = S.STYLES[u.base] || S.STYLES.satellite; b.innerHTML = `<i style="background:linear-gradient(135deg, ${esc(u.look.oceanTint || u.look.ocean || bs.oceanTint || bs.ocean || '#0b1c36')} 0 50%, ${esc(u.look.ink || bs.ink || '#fff')} 50% 100%)"></i><span>${esc(u.name)}</span>`; b.title = 'نمط محفوظ — زر أيمن للحذف'; b.onclick = () => { scn.style = u.base; Object.assign(scn.look, GW.clone(u.look)); changed('نمط الخريطة'); renderPanel(); }; b.oncontextmenu = (e) => { e.preventDefault(); M.userStyles(M.userStyles().filter(x => x.id !== u.id)); renderPanel(); }; grid.append(b); }
     const qa = h('div', 'mp-row');
     qa.append(btn(GW.ico('wand', 13) + ' مظهر وثائقي بنقرة واحدة', () => { M.docLook(c, 'doc_dark'); }, 'pri'), btn('وثائقي فاتح', () => M.docLook(c, 'doc_light')),
-      btn(GW.ico('plus', 13) + ' حفظ كنمط', async () => { const name = await GW.prompt('حفظ كنمط', 'اسم النمط', 'نمطي ' + (M.userStyles().length + 1)); if (!name) return; const keep = ['font', 'labelSize', 'labelW', 'ink', 'haloT', 'labelSp', 'countryLabels', 'cities', 'cityDot', 'cityC', 'oceans', 'regions', 'borders', 'borderC', 'borderW', 'borderA', 'borderStyle', 'coast', 'rivers', 'lakes', 'provinces', 'ocean', 'land', 'bgCol', 'oceanTint', 'tintA', 'fill', 'fillA', 'hill', 'bri', 'con', 'sat', 'warm', 'vig', 'ge', 'grain', 'paper', 'letter', 'graticule', 'gridC', 'atmo', 'stars', 'terrain']; const look = {}; for (const k of keep) if (scn.look[k] != null) look[k] = scn.look[k]; M.userStyles([...M.userStyles(), { id: GW.uid(), name, base: scn.style, look }]); GW.toast('تم حفظ النمط: ' + name); renderPanel(); }));
+      btn(GW.ico('plus', 13) + ' حفظ كنمط', async () => { const name = await GW.prompt('حفظ كنمط', 'اسم النمط', 'نمطي ' + (M.userStyles().length + 1)); if (!name) return; const keep = ['font', 'labelSize', 'labelW', 'ink', 'haloT', 'haloC', 'labelSp', 'labelUp', 'countryLabels', 'cities', 'capOnly', 'cityDot', 'citySize', 'cityC', 'cityLabel', 'oceans', 'regions', 'borders', 'borderC', 'borderW', 'borderA', 'borderStyle', 'disputed', 'coast', 'coastC', 'rivers', 'lakes', 'provinces', 'ocean', 'land', 'bgCol', 'oceanTint', 'tintA', 'landTint', 'landA', 'bathy', 'fill', 'fillA', 'hill', 'bri', 'con', 'sat', 'warm', 'gamma', 'vig', 'ge', 'grain', 'paper', 'letter', 'graticule', 'gridC', 'gridStep', 'atmoC', 'atmo', 'stars', 'terrain']; const look = {}; for (const k of keep) if (scn.look[k] != null) look[k] = scn.look[k]; M.userStyles([...M.userStyles(), { id: GW.uid(), name, base: scn.style, look }]); GW.toast('تم حفظ النمط: ' + name); renderPanel(); }));
     s0.body.append(grid, qa, h('div', 'mp-note', 'الأنماط الفضائية والطبوغرافية تُحمّل صوراً عالية الدقة من الإنترنت حسب التقريب وتُحفظ للعمل بدون إنترنت لاحقاً.'));
     return s0;
   }
+  /* ---- user fonts: installed system fonts by name + imported font files (copied to <userData>/fonts, registered with FontFace; nothing is bundled) ---- */
+  M.userFonts = (v) => { const K = 'qq.userFonts'; if (v) { try { localStorage.setItem(K, JSON.stringify(v)); } catch (e) {} return v; } try { return JSON.parse(localStorage.getItem(K) || '[]') || []; } catch (e) { return []; } };
+  M.registerFonts = () => { if (!window.gws || !gws.mediaUrl || !window.FontFace) return; for (const f of M.userFonts()) { if (f.path && !M._regF?.[f.name]) { (M._regF = M._regF || {})[f.name] = 1; try { new FontFace(f.name, `url(${gws.mediaUrl(f.path)})`).load().then(ff => document.fonts.add(ff)).catch(() => {}); } catch (e) {} } } };
+  try { M.registerFonts(); } catch (e) {}
+  M.importFont = async (c) => {
+    if (!window.gws || !gws.open) { GW.toast('استيراد الخطوط متاح في تطبيق سطح المكتب', 'err'); return null; }
+    const f = await gws.open({ filter: 'font', title: 'اختيار ملف خط (ttf / otf)' }); if (!f || !f.length) return null;
+    const src = f[0].path || f[0]; const base = String(src).split(/[\\/]/).pop(); const name = base.replace(/\.[^.]+$/, '');
+    try {
+      const pth = await gws.paths(); const dst = pth.userData + pth.sep + 'fonts' + pth.sep + base;
+      const buf = await (await fetch(gws.mediaUrl(src))).arrayBuffer(); await gws.writeBin(dst, buf);
+      const list = M.userFonts().filter(x => x.name !== name); list.push({ name, path: dst }); M.userFonts(list); M.registerFonts();
+      if (c) { sc(c).look.font = name; changed('خط مستورد'); } GW.toast('تم استيراد الخط: ' + name); renderPanel(); return name;
+    } catch (e) { GW.toast('تعذر استيراد الخط', 'err'); return null; }
+  };
+  // installed (not bundled) families offered in the picker: the user's Thmanyah fonts, exactly as the installer registers them
+  const SYS_FONTS = ['thmanyah serif display', 'thmanyah sans', 'thmanyah serif text'];
+  // default look values (used by the per-group reset buttons)
+  const LOOK_DEF = () => S.blank().look;
   function lookSec(c) {
-    const scn = sc(c); const L = scn.look; const s0 = sec('الطبقات والمظهر', false, 'look'); const E = S.eff(scn); const st = E.st;
+    const scn = sc(c); const L = scn.look; const s0 = sec('خيارات الخريطة (التفاصيل)', false, 'look'); const E = S.eff(scn); const st = E.st;
+    const def = LOOK_DEF();
+    // live controls: update the value in place + redraw while dragging, commit to history only at the end (no panel rebuild per event)
     const set = (k) => (v) => { L[k] = v; changed('مظهر الخريطة', true); };
-    const grp = (title, id, ...rows) => { const d = sec(title, false, 'look_' + id); d.classList.add('mp-sub-sec'); d.body.append(...rows); return d; };
-    const ccol = (k, d) => { const w = h('span', 'mp-row'); w.append(col(L[k] || d, v => { L[k] = v; GW.invalidate(); }), btn(GW.ico('close', 11), () => { L[k] = null; changed('إعادة اللون'); renderPanel(); })); return w; };
-    const fontOpts = [['', 'حسب النمط (' + E.font + ')'], ...GW.FONTS.map(f => [f, f])];
+    const live = (k, min, max, step, cur) => { const w = h('span', 'rngw'); const i = h('input'); i.type = 'range'; i.min = min; i.max = max; i.step = step; i.value = cur; const o = h('span', 'val'); o.textContent = +(+cur).toFixed(2); i.dataset.k = 'look_' + k; i.oninput = () => { o.textContent = +(+i.value).toFixed(2); L[k] = +i.value; GW.invalidate(); }; i.onchange = () => GW.commit('مظهر الخريطة'); w.append(i, o); return w; };
+    const lcol = (k, d, label) => { const w = h('span', 'mp-row'); const i = h('input'); i.type = 'color'; i.value = L[k] || d; i.dataset.k = 'look_' + k; i.oninput = () => { L[k] = i.value; GW.invalidate(); }; i.onchange = () => GW.commit(label || 'لون'); const rb = btn(GW.ico('close', 11), () => { L[k] = null; changed('إعادة اللون'); renderPanel(); }); rb.title = 'حسب النمط'; w.append(i, rb); return w; };
+    const reset = (keys, label) => { const b = btn(GW.ico('close', 11) + ' إعادة الافتراضي', () => { for (const k of keys) { if (def[k] === undefined) delete L[k]; else L[k] = def[k]; } changed('إعادة ' + label); renderPanel(); }); b.title = 'إعادة خيارات هذه المجموعة إلى الافتراضي'; b.classList.add('mp-reset'); return b; };
+    const grp = (title, id, keys, ...rows) => { const d = sec(title, false, 'look_' + id); d.classList.add('mp-sub-sec'); d.body.append(...rows); if (keys) d.body.append(reset(keys, title)); return d; };
+    // fonts: by style, installed Thmanyah families, bundled fonts, imported files, free text
+    const uf = M.userFonts().map(f => f.name); const cur = L.font || '';
+    const fontOpts = [['', 'حسب النمط (' + (st.font || S.DEF_FONT) + ')'], ...SYS_FONTS.map(f => [f, f + ' (مثبّت على الجهاز)']), ...GW.FONTS.map(f => [f, f]), ...uf.map(f => [f, f + ' (مستورد)'])];
+    if (cur && !fontOpts.some(o => o[0] === cur)) fontOpts.push([cur, cur]);
+    const fontSel = sel(fontOpts, cur, set('font')); fontSel.dataset.k = 'look_font';
+    const other = txt('', v => { if (v.trim()) { L.font = v.trim(); changed('خط الأسماء', true); } }, 'خط آخر مثبّت على الجهاز…'); other.dataset.k = 'look_fontx'; other.onkeydown = (e) => { e.stopPropagation(); if (e.key === 'Enter') renderPanel(); };
+    const fontRow = h('div', 'mp-row'); fontRow.append(other, btn(GW.ico('import', 12) + ' استيراد ملف خط (ttf/otf)…', () => M.importFont(c)));
+    const W_OPTS = [[0, 'حسب النمط'], [400, 'عادي 400'], [500, 'متوسط 500'], [600, 'شبه عريض 600'], [700, 'عريض 700'], [800, 'عريض جداً 800'], [900, 'أسود 900']];
+    const vector = E.vector;
     s0.body.append(
       row('لغة الأسماء', sel([['ar', 'العربية'], ['en', 'English']], L.lang, v => { L.lang = v; changed('لغة الخريطة'); })),
-      grp('الأسماء والخطوط', 'labels',
-        row('الخط', sel(fontOpts, L.font || '', set('font'))),
-        row('حجم الأسماء', rng(L.labelSize || 1, .5, 2.5, .05, set('labelSize'))),
-        row('سماكة الخط', sel([[0, 'حسب النمط'], [500, 'عادي'], [600, 'متوسط'], [700, 'عريض'], [800, 'عريض جداً'], [900, 'أسود']], L.labelW || 0, v => set('labelW')(+v))),
-        row('لون الأسماء', ccol('ink', st.ink && st.ink[0] === '#' ? st.ink : '#ffffff')),
+      grp('أسماء الدول', 'labels', ['font', 'labelW', 'labelSize', 'ink', 'labelSp', 'haloT', 'haloC', 'labelUp', 'countryLabels', 'oceans', 'regions', 'refLabels', 'labels'],
+        row('الخط', fontSel), fontRow,
+        row('سماكة الخط', sel(W_OPTS, L.labelW || 0, v => set('labelW')(+v))),
+        row('حجم الأسماء', live('labelSize', .5, 2.5, .05, L.labelSize || 1)),
+        row('لون الأسماء', lcol('ink', st.ink && st.ink[0] === '#' ? st.ink : '#ffffff')),
+        row('تباعد الحروف (لاتيني)', live('labelSp', 0, .5, .01, L.labelSp || 0)),
         row('نوع الظل', sel([['', 'حسب النمط'], ['soft', 'ظل ناعم'], ['outline', 'حد واضح'], ['none', 'بدون']], L.haloT || '', set('haloT'))),
-        row('تباعد الحروف (لاتيني)', rng(L.labelSp || 0, 0, .5, .01, set('labelSp'))),
-        row('أسماء الدول', chk(L.countryLabels, set('countryLabels'))), row('المدن', sel([[0, 'بدون'], [1, 'الرئيسية'], [2, 'أكثر'], [3, 'كثيرة']], L.cities, v => set('cities')(+v))),
-        row('علامة المدن', sel([['auto', 'دائرة (افتراضي)'], ['dot', 'نقطة'], ['star', 'نجمة'], ['none', 'بدون']], L.cityDot || 'auto', set('cityDot'))), row('لون علامة المدن', ccol('cityC', '#ffffff')),
-        row('البحار والمحيطات', chk(L.oceans, set('oceans'))), row('مناطق طبيعية', chk(L.regions, set('regions'))), row('أسماء مرجعية (Esri)', chk(L.refLabels, set('refLabels')))),
-      grp('الحدود والسواحل', 'borders',
-        row('الحدود', chk(L.borders, set('borders'))), row('لون الحدود', ccol('borderC', '#e4e7ec')),
-        row('سماكة الحدود', rng(L.borderW || 1, .3, 4, .1, set('borderW'))), row('شفافية الحدود', rng(L.borderA == null ? .62 : L.borderA, 0, 1, .02, set('borderA'))),
+        row('لون الظل / الحد', lcol('haloC', '#000000')),
+        row('أحرف كبيرة (لاتيني)', chk(L.labelUp == null ? 1 : L.labelUp, set('labelUp'))),
+        h('div', 'mp-sub', 'إظهار الأسماء حسب المستوى'),
+        row('أسماء الدول', chk(L.countryLabels, set('countryLabels'))), row('البحار والمحيطات', chk(L.oceans, set('oceans'))), row('مناطق طبيعية', chk(L.regions, set('regions'))), row('أسماء مرجعية (Esri)', chk(L.refLabels, set('refLabels'))),
+        row('كل الأسماء', chk(L.labels, set('labels')))),
+      grp('المدن', 'cities', ['cities', 'capOnly', 'cityDot', 'citySize', 'cityC', 'cityLabel'],
+        row('إظهار المدن', sel([['0', 'بدون'], ['cap', 'العواصم فقط'], ['1', 'الرئيسية'], ['2', 'أكثر'], ['3', 'كلها']], L.capOnly ? 'cap' : String(L.cities || 0), v => { if (v === 'cap') { L.capOnly = 1; L.cities = Math.max(1, L.cities || 1); } else { L.capOnly = 0; L.cities = +v; } changed('المدن'); })),
+        row('علامة المدن', sel([['auto', 'دائرة (افتراضي)'], ['dot', 'نقطة'], ['star', 'نجمة'], ['none', 'بدون']], L.cityDot || 'auto', set('cityDot'))),
+        row('حجم العلامة', live('citySize', .4, 2.5, .05, L.citySize || 1)), row('لون العلامة', lcol('cityC', '#ffffff')),
+        row('حجم أسماء المدن', live('cityLabel', .5, 2, .05, L.cityLabel || 1))),
+      grp('الحدود', 'borders', ['borders', 'borderC', 'borderW', 'borderA', 'borderStyle', 'provinces', 'coast', 'coastC', 'disputed', 'rivers', 'lakes'],
+        row('الحدود', chk(L.borders, set('borders'))), row('لون الحدود', lcol('borderC', '#e4e7ec')),
+        row('سماكة الحدود', live('borderW', .3, 4, .1, L.borderW || 1)), row('شفافية الحدود', live('borderA', 0, 1, .02, L.borderA == null ? .62 : L.borderA)),
         row('نوع الخط', sel([['', 'حسب النمط'], ['solid', 'متصل'], ['dashed', 'متقطع'], ['glow', 'متوهج']], L.borderStyle || '', set('borderStyle'))),
-        row('المحافظات / الولايات', chk(L.provinces, set('provinces'))), row('السواحل', chk(L.coast, set('coast'))), row('الأنهار', chk(L.rivers, set('rivers'))), row('البحيرات', chk(L.lakes, set('lakes')))),
-      grp('الألوان والتلوين', 'colors',
-        ...(E.vector ? [row('لون المحيط', ccol('ocean', st.ocean)), row('لون اليابسة', ccol('land', st.land && st.land[0] === '#' ? st.land : '#888888')), row('لون الخلفية', ccol('bgCol', '#05070b'))]
-          : [row('لون المحيط', ccol('oceanTint', st.oceanTint || '#0b1c36')), row('تعتيم المحيط', rng(L.tintA == null ? (st.tintA || 0) : L.tintA, 0, 1, .02, set('tintA'))), row('لون الفضاء', ccol('bgCol', '#05070b'))]),
+        row('الحدود المتنازع عليها', sel([['dashed', 'متقطع (افتراضي)'], ['solid', 'متصل'], ['hidden', 'مخفي']], L.disputed || 'dashed', set('disputed'))),
+        row('المحافظات / الولايات', chk(L.provinces, set('provinces'))),
+        row('السواحل', chk(L.coast, set('coast'))), row('لون السواحل', lcol('coastC', st.coast && st.coast[0] === '#' ? st.coast : '#9db2cc')),
+        row('الأنهار', chk(L.rivers, set('rivers'))), row('البحيرات', chk(L.lakes, set('lakes'))),
+        ...(vector ? [] : [h('div', 'mp-note', 'في الأنماط الفضائية تأتي السواحل من الصورة نفسها؛ لون السواحل يظهر في الأنماط المتجهية.')])),
+      grp('البحر والأرض', 'sea', ['ocean', 'land', 'oceanTint', 'tintA', 'landTint', 'landA', 'bathy', 'fill', 'fillA', 'hill'],
+        ...(vector ? [row('لون المحيط', lcol('ocean', st.ocean)), row('لون اليابسة', lcol('land', st.land && st.land[0] === '#' ? st.land : '#888888'))]
+          : [row('لون تعتيم المحيط', lcol('oceanTint', st.oceanTint || '#0b1c36')), row('قوة تعتيم المحيط', live('tintA', 0, 1, .02, L.tintA == null ? (st.tintA || 0) : L.tintA)),
+            row('لون تلوين اليابسة', lcol('landTint', '#c8a862')), row('قوة تلوين اليابسة', live('landA', 0, 1, .02, L.landA || 0)),
+            row('إظهار أعماق البحر', chk(L.bathy == null ? 1 : L.bathy, set('bathy')))]),
         row('تلوين الدول', sel([['', 'حسب النمط'], ['none', 'بدون'], ['political', 'سياسي (لكل دولة لون)'], ['empire', 'الإمبراطوريات والمستعمرات']], L.fill == null ? '' : L.fill, v => { L.fill = v || null; changed('تلوين الدول'); })),
-        row('شفافية التلوين', rng(L.fillA == null ? E.fillA : L.fillA, 0, 1, .02, set('fillA'))), row('ظل التضاريس', rng(L.hill == null ? E.hill : L.hill, 0, 1, .02, set('hill')))),
-      grp('تدرج الصورة', 'grade',
-        row('السطوع', rng(L.bri == null ? 1 : L.bri, .3, 1.8, .02, set('bri'))), row('التباين', rng(L.con == null ? 1 : L.con, .5, 1.8, .02, set('con'))), row('التشبع', rng(L.sat == null ? 1 : L.sat, 0, 2, .02, set('sat'))),
-        row('الدفء', rng(L.warm || 0, -1, 1, .02, set('warm'))), row('تعتيم الأطراف', rng(L.vig == null ? E.post.vig : L.vig, 0, 1, .02, set('vig'))), row('قوة «Google Earth»', rng(L.ge == null ? (E.grade.ge || 0) : L.ge, 0, 1, .02, set('ge'))),
-        row('حبيبات', rng(L.grain || 0, 0, 1, .02, set('grain'))), row('ورق قديم', rng(L.paper == null ? E.post.paper : L.paper, 0, 1, .02, set('paper'))), row('أشرطة سينمائية', rng(L.letter || 0, 0, .3, .01, set('letter'))),
-        btn('إعادة التدرج', () => { for (const k of ['bri', 'con', 'sat', 'warm', 'vig', 'ge', 'grain', 'paper', 'letter']) L[k] = k === 'grain' ? .04 : null; L.bri = 1; L.sat = 1; changed('إعادة التدرج'); renderPanel(); })),
-      grp('الشبكة والغلاف الجوي', 'grid',
-        row('خطوط الطول والعرض', chk(L.graticule, set('graticule'))), row('لون الشبكة', ccol('gridC', '#ffffff')),
-        row('الغلاف الجوي', rng(L.atmo == null ? 1 : L.atmo, 0, 2, .05, set('atmo'))), row('النجوم', rng(L.stars == null ? E.stars : L.stars, 0, 2, .05, set('stars'))),
-        row('ليل / نهار', chk(L.light, set('light'))), row('موقع الشمس', rng(L.sunLon || 0, -180, 180, 1, set('sunLon')))),
+        row('شفافية التلوين', live('fillA', 0, 1, .02, L.fillA == null ? E.fillA : L.fillA)), row('ظل التضاريس', live('hill', 0, 1, .02, L.hill == null ? E.hill : L.hill))),
+      grp('الصورة', 'grade', ['bri', 'con', 'sat', 'warm', 'gamma', 'vig', 'grain', 'ge', 'paper', 'letter'],
+        row('السطوع', live('bri', .3, 1.8, .02, L.bri == null ? 1 : L.bri)), row('التباين', live('con', .5, 1.8, .02, L.con == null ? 1 : L.con)), row('التشبع', live('sat', 0, 2, .02, L.sat == null ? 1 : L.sat)),
+        row('الدفء', live('warm', -1, 1, .02, L.warm || 0)), row('غاما', live('gamma', .5, 1.8, .02, L.gamma == null ? 1 : L.gamma)),
+        row('تعتيم الأطراف', live('vig', 0, 1, .02, L.vig == null ? E.post.vig : L.vig)), row('حبيبات', live('grain', 0, 1, .02, L.grain || 0)),
+        row('قوة «Google Earth»', live('ge', 0, 1, .02, L.ge == null ? (E.grade.ge || 0) : L.ge)),
+        row('ورق قديم', live('paper', 0, 1, .02, L.paper == null ? E.post.paper : L.paper)), row('أشرطة سينمائية', live('letter', 0, .3, .01, L.letter || 0))),
+      grp('الغلاف الجوي والفضاء', 'sky', ['atmoC', 'atmo', 'stars', 'bgCol', 'light', 'sunLon'],
+        row('لون الغلاف الجوي', lcol('atmoC', '#6ba8ff')), row('قوة الغلاف الجوي', live('atmo', 0, 2, .05, L.atmo == null ? 1 : L.atmo)),
+        row('النجوم', live('stars', 0, 2, .05, L.stars == null ? E.stars : L.stars)), row('لون الفضاء / الخلفية', lcol('bgCol', '#05070b')),
+        row('ليل / نهار', chk(L.light, set('light'))), row('موقع الشمس', live('sunLon', -180, 180, 1, L.sunLon || 0))),
+      grp('الشبكة', 'grid', ['graticule', 'gridC', 'gridStep'],
+        row('خطوط الطول والعرض', chk(L.graticule, set('graticule'))), row('لون الشبكة', lcol('gridC', '#ffffff')),
+        row('المسافة بين الخطوط', sel([[5, '5°'], [10, '10° (افتراضي)'], [15, '15°'], [30, '30°']], String(L.gridStep || 10), v => set('gridStep')(+v)))),
       row('جودة المعاينة', sel([[.6, 'سريعة'], [.85, 'متوازنة'], [1, 'عالية']], GW.mapPreviewQ || .85, v => { GW.mapPreviewQ = +v; GW.invalidate(); })),
       row('مصدر الصور', h('span', 'kv', esc(E.base ? A.Providers.P[E.base].attrib : 'رسم متجهي'))),
       row('خلفية شفافة', chk(c.map.bg === 'alpha', v => { c.map.bg = v ? 'alpha' : 'full'; changed('خلفية الخريطة'); })),

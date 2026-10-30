@@ -144,7 +144,8 @@ const FILTERS = {
   project: [{ name: 'مشروع قص قص', extensions: ['qass', 'gwproj'] }],
   image: [{ name: 'صور', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg'] }],
   json: [{ name: 'JSON', extensions: ['json'] }],
-  cube: [{ name: 'LUT (.cube)', extensions: ['cube'] }]
+  cube: [{ name: 'LUT (.cube)', extensions: ['cube'] }],
+  font: [{ name: 'خطوط', extensions: ['ttf', 'otf', 'woff', 'woff2'] }]
 };
 ipcMain.handle('dlg:open', async (e, o = {}) => {
   const r = await dialog.showOpenDialog(win, { title: o.title || 'فتح', filters: FILTERS[o.filter] || undefined, properties: [o.folder ? 'openDirectory' : 'openFile', ...(o.multi ? ['multiSelections'] : []), 'createDirectory'], defaultPath: o.defaultPath });

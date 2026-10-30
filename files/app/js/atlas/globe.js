@@ -48,12 +48,12 @@
   const G = A.GL = {};
   const VS_SURF = `#version 300 es
   in vec3 a_rel; in vec2 a_uv; in float a_sh; uniform mat4 u_vp; uniform vec3 u_off, u_cam; uniform float u_hc;
-  uniform int u_flat; uniform vec2 u_res, u_cs; uniform float u_k;
+  uniform int u_flat; uniform vec2 u_res, u_cs, u_sc; uniform float u_k;
   out vec2 v_uv; out vec3 v_n; out float v_h; out vec2 v_ll; out float v_sh;
   uniform vec3 u_cen;
   void main(){
     v_uv=a_uv; v_sh=a_sh;
-    if(u_flat==1){ vec2 p=a_rel.xy+u_off.xy; vec2 s=vec2(p.x*u_cs.x+p.y*u_cs.y, -p.x*u_cs.y+p.y*u_cs.x)*u_k; gl_Position=vec4(s.x*2.0/u_res.x, s.y*2.0/u_res.y, 0.0, 1.0); v_h=1.0; v_n=vec3(1.0,0.0,0.0); v_ll=a_rel.xy+u_cen.xy; }
+    if(u_flat==1){ vec2 p=a_rel.xy+u_off.xy; vec2 s=vec2(p.x*u_cs.x+p.y*u_cs.y, -p.x*u_cs.y+p.y*u_cs.x)*u_k; gl_Position=vec4(s.x*2.0/u_res.x+u_sc.x, s.y*2.0/u_res.y+u_sc.y, 0.0, 1.0); v_h=1.0; v_n=vec3(1.0,0.0,0.0); v_ll=a_rel.xy+u_cen.xy; }
     else { vec3 p=a_rel+u_off; gl_Position=u_vp*vec4(p,1.0); v_n=u_cen+a_rel; v_h=dot(a_rel,u_cam)+u_hc; v_ll=vec2(0.0); }
   }`;
   const FS_SURF = `#version 300 es
@@ -87,10 +87,10 @@
   in vec2 a_p; out vec2 v_uv; void main(){ v_uv=a_p*.5+.5; gl_Position=vec4(a_p,0.0,1.0); }`;
   const FS_SKY = `#version 300 es
   precision highp float; in vec2 v_uv; out vec4 o;
-  uniform vec3 u_r,u_u,u_a,u_C,u_space,u_space2,u_atmo; uniform float u_f,u_atmoAmt,u_stars,u_bg,u_hs; uniform vec2 u_res; uniform int u_pass;
+  uniform vec3 u_r,u_u,u_a,u_C,u_space,u_space2,u_atmo; uniform float u_f,u_atmoAmt,u_stars,u_bg,u_hs; uniform vec2 u_res,u_sc; uniform int u_pass;
   float hash(vec3 p){ p=fract(p*.3183099+.1); p*=17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
   void main(){
-    vec2 px=v_uv*u_res; vec3 dir=normalize(u_a+u_r*(px.x-u_res.x*.5)/u_f+u_u*(px.y-u_res.y*.5)/u_f);
+    vec2 px=v_uv*u_res; vec3 dir=normalize(u_a+u_r*(px.x-u_res.x*.5-u_sc.x)/u_f+u_u*(px.y-u_res.y*.5+u_sc.y)/u_f);
     float b=dot(u_C,dir); float c=dot(u_C,u_C)-1.0; float disc=b*b-c; float tg=-1.0; if(disc>=0.0){ tg=-b-sqrt(disc); }
     float R2=(1.0+u_hs)*(1.0+u_hs); float c2=dot(u_C,u_C)-R2; float d2=b*b-c2; float L=0.0;
     if(d2>0.0){ float sq=sqrt(d2); float t0=max(0.0,-b-sq), t1=-b+sq; if(tg>0.0) t1=tg; L=max(0.0,t1-t0); }
@@ -373,7 +373,7 @@
     gl.uniform1f(p.u.u_light, st.light || 0); gl.uniform1f(p.u.u_nightAmt, st.nightAmt == null ? 1 : st.nightAmt);
     const sun = v3.fromLL(st.sunLon || 0, st.sunLat || 0); gl.uniform3f(p.u.u_sun, sun[0], sun[1], sun[2]);
     gl.uniform2f(p.u.u_res, vw.W, vw.H);
-    if (vw.mode === 'flat') { gl.uniform1i(p.u.u_flat, 1); gl.uniform1f(p.u.u_k, vw.kpx); gl.uniform2f(p.u.u_cs, vw.ch, vw.sh); gl.uniform3f(p.u.u_cen, 0, 0, 0); }
+    if (vw.mode === 'flat') { gl.uniform1i(p.u.u_flat, 1); gl.uniform1f(p.u.u_k, vw.kpx); gl.uniform2f(p.u.u_sc, 2 * (vw.offX || 0) / vw.W, -2 * (vw.offY || 0) / vw.H); gl.uniform2f(p.u.u_cs, vw.ch, vw.sh); gl.uniform3f(p.u.u_cen, 0, 0, 0); }
     else {
       gl.uniform1i(p.u.u_flat, 0);
       // vp = projM * view
@@ -395,7 +395,7 @@
   function sky(vw, st, pass, bgAlpha) {
     const gl = G.gl, p = G.sky; gl.useProgram(p.p);
     gl.uniform3fv(p.u.u_r, vw.r); gl.uniform3fv(p.u.u_u, vw.u); gl.uniform3fv(p.u.u_a, vw.a); gl.uniform3fv(p.u.u_C, vw.C);
-    gl.uniform1f(p.u.u_f, vw.f); gl.uniform2f(p.u.u_res, vw.W, vw.H); gl.uniform1i(p.u.u_pass, pass);
+    gl.uniform1f(p.u.u_f, vw.f); gl.uniform2f(p.u.u_res, vw.W, vw.H); gl.uniform2f(p.u.u_sc, vw.offX || 0, vw.offY || 0); gl.uniform1i(p.u.u_pass, pass);
     gl.uniform3fv(p.u.u_space, st.space || [0.01, 0.015, 0.03]); gl.uniform3fv(p.u.u_space2, st.space2 || st.space || [0.02, 0.03, 0.06]); gl.uniform3fv(p.u.u_atmo, st.atmoCol || [0.35, 0.6, 1]);
     gl.uniform1f(p.u.u_atmoAmt, st.atmo == null ? 1 : st.atmo); gl.uniform1f(p.u.u_stars, st.stars || 0); gl.uniform1f(p.u.u_bg, bgAlpha); gl.uniform1f(p.u.u_hs, .025);
     gl.bindVertexArray(G.fullVao); gl.drawArrays(gl.TRIANGLES, 0, 3);

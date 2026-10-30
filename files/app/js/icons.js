@@ -35,6 +35,19 @@
     trackf: '<path d="M5 6v12l7-6zM12 6v12l7-6z"/>', trackb: '<path d="M19 6v12l-7-6zM12 6v12l-7-6z"/>',
     step1f: '<path d="M7 6v12l8-6z"/><path d="M17 6v12"/>', step1b: '<path d="M17 6v12L9 12z"/><path d="M7 6v12"/>',
     mosaic: '<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 9.3h16M4 14.7h16M9.3 4v16M14.7 4v16"/>',
+    /* design v4 additions: chevrons, reset, keyframe navigation (all 1.75px stroke, 24-grid) */
+    left: '<path d="m14.5 6.5-5.5 5.5 5.5 5.5"/>', right: '<path d="m9.5 6.5 5.5 5.5-5.5 5.5"/>',
+    reset: '<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/>',
+    keyprev: '<path d="M16 5.5v13L6 12z" fill="currentColor" stroke="none"/>', keynext: '<path d="M8 5.5v13L18 12z" fill="currentColor" stroke="none"/>',
+    keydia: '<path d="m12 5.5 6.5 6.5-6.5 6.5L5.5 12z"/>', keydiaon: '<path d="m12 5.5 6.5 6.5-6.5 6.5L5.5 12z" fill="currentColor"/>',
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>', grid: '<rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1"/>',
   };
-  GW.ico = (name, size = 16, cls = '') => `<svg class="ico ${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name] || ''}</svg>`;
+  /* design v4: keep the accent fill of horizontal sliders in sync with their value (CSS var --p) */
+  const fill = (r) => { if (!r || r.type !== 'range' || r.getAttribute('orient') === 'vertical') return; const mn = +r.min || 0, mx = r.max === '' ? 100 : +r.max; const p = mx > mn ? (+r.value - mn) / (mx - mn) * 100 : 0; r.style.setProperty('--p', Math.max(0, Math.min(100, p)).toFixed(2) + '%'); };
+  const fillAll = (root) => { if (root && root.querySelectorAll) root.querySelectorAll('input[type=range]').forEach(fill); if (root && root.type === 'range') fill(root); };
+  document.addEventListener('input', e => fill(e.target), true);
+  document.addEventListener('change', e => fill(e.target), true);
+  document.addEventListener('pointerover', e => fill(e.target), true);
+  document.addEventListener('DOMContentLoaded', () => { fillAll(document.body); new MutationObserver(ms => { for (const m of ms) { if (m.type === 'attributes') fill(m.target); else m.addedNodes.forEach(fillAll); } }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['value'] }); });
+  GW.ico = (name, size = 16, cls = '') => `<svg class="ico ${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name] || ''}</svg>`;
 })();
