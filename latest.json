@@ -1,8 +1,8 @@
 {
- "version": "2.2.3",
- "date": "2026-10-30T16:34:39.294Z",
- "notes_ar": "ألوان القمر الصناعي أقرب إلى Google Earth (أهدأ وأغمق قليلاً)، وإصلاح معاينات الأنماط السوداء.",
- "notes_en": "Satellite colours closer to Google Earth; fixed black style thumbnails.",
+ "version": "2.2.4",
+ "date": "2026-10-30T16:40:42.757Z",
+ "notes_ar": "قمر صناعي أوضح: تباين أعلى وبحر أزرق طبيعي تظهر فيه الأعماق.",
+ "notes_en": "Clearer satellite: higher contrast and a natural blue ocean showing bathymetry.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -769,8 +769,8 @@
   },
   {
    "path": "app/js/atlas/scene.js",
-   "size": 16709,
-   "sha256": "e19f9d58b779d18d79c780f8bc58a641f545edaadd042552a6055e0246861300"
+   "size": 16713,
+   "sha256": "9736107905ddd8341f00d85c85f5fe460d236f846dffd55f6b4276996305206c"
   },
   {
    "path": "app/js/atlas/vector.js",
@@ -4255,7 +4255,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "ebc62b31bb63bd8eee3c2017d6dfa5528168ee6bc72be1358d1d501b43e90f35"
+   "sha256": "e5daa8e92bcca02ce8a16cdce9fb58fc59cdd1de9d71badc0a3cc60308f5eccf"
   },
   {
    "path": "preload.js",
@@ -4268,5 +4268,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "88kCCeX8HPMSQ4OIuWVXf/Lf5JBMI7n+UKuYfqk2OqJ1NxCEGjWNu/c3JxlNuT9Dtaru+mu0O3Se1PT17u8rCw=="
+ "sig": "GjmUcV2ukZmB75dK1i57NXwVsdgO6IFPEYxA/6MzMoNxom0Mr22gzwu6kc3OrTlt7mFgJVB2P8vZBOLPdrpjCQ=="
 }

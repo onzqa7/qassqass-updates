@@ -15,7 +15,7 @@
   S.PAL = PAL;
   // style presets. base: tile provider; baseTex: bundled equirect fallback; vector: draw own ocean/land
   S.STYLES = {
-    satellite: { ar: 'قمر صناعي (Google Earth)', base: 'esri_img', baseTex: 'sat', grade: { sat: .86, bri: .8, con: 1.05, gamma: 1, ge: 0 }, oceanTint: '#0b1c36', tintA: .72, post: { vig: .32 }, border: 'rgba(228,231,236,.62)', bw: .85, ink: '#f4f0e8', halo: 'soft', font: 'Tajawal', labelW: 700, labelK: 1.12, atmo: [.42, .66, 1], stars: .6, space: [.004, .006, .014] },
+    satellite: { ar: 'قمر صناعي (Google Earth)', base: 'esri_img', baseTex: 'sat', grade: { sat: 1.08, bri: .97, con: 1.18, gamma: 1.04, ge: 0 }, oceanTint: '#0f2f5c', tintA: .5, post: { vig: .32 }, border: 'rgba(228,231,236,.62)', bw: .85, ink: '#f4f0e8', halo: 'soft', font: 'Tajawal', labelW: 700, labelK: 1.12, atmo: [.42, .66, 1], stars: .6, space: [.004, .006, .014] },
     s2: { ar: 'قمر صناعي بلا غيوم', base: 's2', baseTex: 'sat', grade: { sat: 1.1, bri: 1.03, con: 1.08 }, border: 'rgba(255,255,255,.7)', bw: 1.1, ink: '#ffffff', halo: 'rgba(0,0,0,.75)', atmo: [.35, .6, 1], stars: .8 },
     // documentary look (YouTube history maps): dark desaturated imagery, deep navy sea, soft-shadow labels, faint borders
     doc_dark: { ar: 'وثائقي داكن', base: 'sat_hybrid', baseTex: 'sat', doc: 1, grade: { sat: .45, bri: .7, con: 1.1, gamma: 1.08, ge: 0 }, oceanTint: '#141f2c', tintA: .8, labelW: 800, border: 'rgba(240,232,210,.16)', bw: .7, ink: '#f2efe9', halo: 'soft', atmo: [.22, .3, .42], stars: .25, space: [.004, .005, .008], post: { vig: .5 } },
