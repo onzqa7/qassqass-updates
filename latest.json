@@ -1,8 +1,8 @@
 {
- "version": "2.1.1",
- "date": "2026-10-30T12:59:21.009Z",
- "notes_ar": "أدوات ذكية: حذف الصمت، خفض الموسيقى تلقائياً، علامات الإيقاع، تحسين الصوت وتوحيد مستواه، كشف تغيّر المشاهد، التعديل بالنص وحذف كلمات الحشو، تثبيت الفيديو، والتأطير التلقائي للشورتات.",
- "notes_en": "Smart tools: remove silences, auto-ducking, beat markers, speech enhance & loudness, scene detection, text-based editing & filler removal, stabilize, auto reframe for Shorts.",
+ "version": "2.1.2",
+ "date": "2026-10-30T13:15:51.832Z",
+ "notes_ar": "خرائط بألوان طبيعية مثل Google Earth (بحر أزرق داكن وصحراء طبيعية)، حدود أنعم، وإصلاح المربع الأسود فوق أسماء الدول.",
+ "notes_en": "Natural Google-Earth-like map colours, softer borders, fixed the black box over country names.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -744,8 +744,8 @@
   },
   {
    "path": "app/js/atlas/atlas.js",
-   "size": 4178,
-   "sha256": "daa18a13c575bab0a94b644a6458c2b3bc5898e2bde34d75138b3b66e53da325"
+   "size": 4194,
+   "sha256": "e7feca1ef6c396ef372ae3b14bbf2439dd1ef84f25b12084a4e61ce6e0cca164"
   },
   {
    "path": "app/js/atlas/camera.js",
@@ -759,8 +759,8 @@
   },
   {
    "path": "app/js/atlas/globe.js",
-   "size": 34806,
-   "sha256": "e7f643b816303f680e8d7c702d9511dca7792f9db11a30c2d2b235788101c86f"
+   "size": 35281,
+   "sha256": "9b114e33edd4fd58d722a99b3b35745e4c602aa896569269781a86fd1070a8c5"
   },
   {
    "path": "app/js/atlas/providers.js",
@@ -769,8 +769,8 @@
   },
   {
    "path": "app/js/atlas/scene.js",
-   "size": 12613,
-   "sha256": "44eb1f23d8127d9a8d3a0cf623948e75d0b9400a349a13db4516924e5dea4846"
+   "size": 12610,
+   "sha256": "221037868f28c25a7adc7cd833d27c845d530847d28f621b1bad020f702df092"
   },
   {
    "path": "app/js/atlas/vector.js",
@@ -780,7 +780,7 @@
   {
    "path": "app/js/atlas/vtiles.js",
    "size": 6696,
-   "sha256": "a5bbc50992a235bf85eb844b04c7918819f6873f15881cb29108c7cd2ddd5a53"
+   "sha256": "61b82ef7820f92c944038a5f96ea170831be9f0fb80e5764356dfc0b8701738f"
   },
   {
    "path": "app/js/audio.js",
@@ -864,8 +864,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 65157,
-   "sha256": "487a45f0b1451be278c2760535f60e07cda33c199d2d0344d8782d9bf10e6080"
+   "size": 65159,
+   "sha256": "a930eba534f6ffea05b94f528126e2bdd55bdc42a406d7d0ca9c3547a7119607"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -4185,7 +4185,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "446d3aaa26ed7874e8e443d15d6c24588ac5ecee1551e0f7fc6ea7f6e2e827dd"
+   "sha256": "7aaee173cb72d5ce81d754ea52807444972752209dd66d9121d597b72a8660f6"
   },
   {
    "path": "preload.js",
@@ -4198,5 +4198,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "XsNtnNiApMyTfVj1p3Eapef1mPhhMiC2yPIEpKOjODxo0PBNXV5ZTNomQBYImPST27Xo9QqkC8KSrmoJ2PO0BA=="
+ "sig": "dJGFHDU6LPtFCrcp9PmaChMS+QIfaVbKwhdDEwYA+lXDa9TIEX+z7aWV9TqHIeXB0mhhX3WjvCDgp6c9iJfOCg=="
 }

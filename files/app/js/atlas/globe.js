@@ -58,7 +58,7 @@
   }`;
   const FS_SURF = `#version 300 es
   precision highp float; precision highp int; in vec2 v_uv; in vec3 v_n; in float v_h; in vec2 v_ll; in float v_sh; out vec4 o; uniform float u_shade;
-  uniform sampler2D u_tex, u_night; uniform vec4 u_uvr; uniform float u_alpha, u_sat, u_bri, u_con, u_tintAmt, u_light, u_nightAmt, u_gamma; uniform vec3 u_tint, u_sun; uniform int u_flat, u_mode;
+  uniform sampler2D u_tex, u_night; uniform vec4 u_uvr; uniform float u_alpha, u_sat, u_bri, u_con, u_tintAmt, u_light, u_nightAmt, u_gamma, u_ge; uniform vec3 u_tint, u_sun; uniform int u_flat, u_mode;
   void main(){
     if(v_h<0.0) discard;
     vec4 c=texture(u_tex, u_uvr.xy+v_uv*u_uvr.zw);
@@ -67,6 +67,12 @@
       col=pow(max(col,0.0),vec3(u_gamma));
       float l=dot(col,vec3(.2126,.7152,.0722)); col=mix(vec3(l),col,u_sat); col=(col-.5)*u_con+.5; col*=u_bri;
       col=mix(col, l*u_tint*1.6, u_tintAmt);
+      if(u_ge>0.0){ // 'Google Earth' look: deep navy water, neutral (less orange) land
+        float w=smoothstep(0.015,0.11,col.b-col.r)*smoothstep(0.75,0.45,l);
+        float lw=(col.g+col.b)*.5*1.9; vec3 water=vec3(.20*lw+.01, .33*lw+.02, .68*lw+.04);
+        vec3 land=col*vec3(.97,.96,1.04); float ll2=dot(land,vec3(.2126,.7152,.0722)); land=mix(vec3(ll2),land,.8)*.86;
+        col=mix(col, mix(land, water, w), u_ge);
+      }
       col*=mix(1.0, v_sh, u_shade);
       if(u_light>0.0 && u_flat==0){ vec3 n=normalize(v_n); float d=dot(n,u_sun); float day=smoothstep(-.12,.18,d);
         vec2 ll=vec2(atan(n.y,n.x)/6.2831853+.5, .5-asin(clamp(n.z,-1.0,1.0))/3.14159265);
@@ -359,7 +365,7 @@
     const gl = G.gl, p = G.surf; gl.useProgram(p.p);
     gl.uniform1i(p.u.u_tex, 0); gl.uniform1i(p.u.u_night, 1); gl.uniform1i(p.u.u_mode, mode); gl.uniform1f(p.u.u_alpha, alpha);
     gl.uniform1f(p.u.u_shade, mode === 0 ? (G.terrEx > 0 ? (st.terrShade == null ? .85 : st.terrShade) : 0) : 0);
-    gl.uniform1f(p.u.u_sat, st.sat == null ? 1 : st.sat); gl.uniform1f(p.u.u_bri, st.bri == null ? 1 : st.bri); gl.uniform1f(p.u.u_con, st.con == null ? 1 : st.con); gl.uniform1f(p.u.u_gamma, st.gamma || 1);
+    gl.uniform1f(p.u.u_sat, st.sat == null ? 1 : st.sat); gl.uniform1f(p.u.u_bri, st.bri == null ? 1 : st.bri); gl.uniform1f(p.u.u_con, st.con == null ? 1 : st.con); gl.uniform1f(p.u.u_gamma, st.gamma || 1); gl.uniform1f(p.u.u_ge, st.ge || 0);
     const tint = st.tint || [1, 1, 1]; gl.uniform3f(p.u.u_tint, tint[0], tint[1], tint[2]); gl.uniform1f(p.u.u_tintAmt, st.tintAmt || 0);
     gl.uniform1f(p.u.u_light, st.light || 0); gl.uniform1f(p.u.u_nightAmt, st.nightAmt == null ? 1 : st.nightAmt);
     const sun = v3.fromLL(st.sunLon || 0, st.sunLat || 0); gl.uniform3f(p.u.u_sun, sun[0], sun[1], sun[2]);

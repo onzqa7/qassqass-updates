@@ -65,7 +65,7 @@
       g.save(); if (spec.era.src !== 'modern' && land) { g.beginPath(); path(land); g.clip(); }
       g.beginPath(); for (const f of feats) path(f); g.lineJoin = 'round';
       if (L.glow) { g.shadowColor = L.border; g.shadowBlur = 6 * k; }
-      if (!L.vector) { g.lineWidth = L.bw * 2.4 * k; g.strokeStyle = 'rgba(0,0,0,.35)'; g.stroke(); }
+      if (!L.vector) { g.lineWidth = L.bw * 2.0 * k; g.strokeStyle = 'rgba(0,0,0,.22)'; g.stroke(); }
       g.lineWidth = L.bw * k; g.strokeStyle = L.border; g.stroke(); g.restore();
     }
     if (L.coast && L.vector && land) { g.beginPath(); path(land); g.lineWidth = 1 * k; g.strokeStyle = L.coast; g.stroke(); }

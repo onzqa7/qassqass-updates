@@ -164,7 +164,7 @@
     // selection outline of picked/hovered countries
     const outline = (f, col, w) => { if (!f) return; const path = d3.geoPath(k.vw.proj); const mk = []; g.save(); g.beginPath(); const dpath = d3.geoPath(d3.geoTransform({ point(x, y) { const q = k.vw.proj([x, y]); if (!q) return; const s2 = k.toScreen(q[0], q[1]); this.stream.point(s2[0], s2[1]); } }), g); void path; void mk; g.restore(); };
     void outline;
-    if (M.hover && M.hover.n && (M.mode === 'pick' || M.mode === 'nav')) { g.font = '600 12px Cairo, sans-serif'; const w = g.measureText(M.hover.n).width + 14; g.fillStyle = 'rgba(10,14,20,.85)'; g.fillRect(M.hover.X + 12, M.hover.Y + 10, w, 22); g.fillStyle = '#fff'; g.textAlign = 'left'; g.textBaseline = 'middle'; g.direction = 'rtl'; g.fillText(M.hover.n, M.hover.X + 12 + w - 7, M.hover.Y + 21); g.direction = 'ltr'; }
+    if (M.hover && M.hover.n && (M.mode === 'pick' || M.mode === 'nav')) { g.font = '600 12px Cairo, sans-serif'; const w = g.measureText(M.hover.n).width + 14; g.fillStyle = 'rgba(10,14,20,.85)'; g.fillRect(M.hover.X + 12, M.hover.Y + 10, w, 22); g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.direction = 'rtl'; g.fillText(M.hover.n, M.hover.X + 12 + w / 2, M.hover.Y + 21); g.direction = 'ltr'; }
     if (L && (M.mode === 'draw' || M.mode === 'place')) {
       const pts = M.mode === 'draw' ? drawPts(L, k) : [[L.lon, L.lat]];
       g.strokeStyle = '#ffd34d'; g.fillStyle = '#ffd34d'; g.lineWidth = 1.5; g.beginPath(); let first = true;
@@ -371,7 +371,7 @@
   }
   // real preview thumbnails: each style rendered once by the atlas engine (bundled low-zoom tiles), cached per version
   const TH = M._thumbs = M._thumbs || {}; let thQ = Promise.resolve();
-  const THV = 'qq.sthumb.v1.';
+  const THV = 'qq.sthumb.v2.';
   function styleThumb(k) {
     if (TH[k]) return Promise.resolve(TH[k]);
     try { const u = localStorage.getItem(THV + k); if (u) return Promise.resolve(TH[k] = u); } catch (e) {}
