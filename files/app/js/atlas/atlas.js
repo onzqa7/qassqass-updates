@@ -40,7 +40,7 @@
     const overlays = [];
     if (E.hill > 0) overlays.push({ prov: 'hillshade', mode: 1, alpha: E.hill });
     if (sc.look.refLabels) overlays.push({ prov: 'labels', mode: 2, alpha: 1 });
-    const L = { st: A.glStyle(sc, E), base: E.vector ? null : E.base, baseTex: E.vector ? null : E.baseTex, baseColor: E.vector ? S.rgb(E.st.ocean2 || E.st.ocean) : null, vec, overlays, terrain: sc.look.terrain == null ? 1.4 : +sc.look.terrain, cvBase: cvB, cvTop: cvT, bg: opts.bg || 'full', quality: (sc.look.quality || 1) * (opts.quality || 1), zBias: imgBias(opts), vecBias: imgBias(opts) * .5, post: Object.assign({ seed: t * 7.13 % 100 }, E.post) };
+    const L = { st: A.glStyle(sc, E), base: E.vector ? null : E.base, baseTex: E.vector ? null : E.baseTex, baseColor: E.vector ? S.rgb(E.st.ocean2 || E.st.ocean) : null, vec, overlays, terrain: sc.look.terrain == null ? 0 : +sc.look.terrain, cvBase: cvB, cvTop: cvT, bg: opts.bg || 'full', quality: (sc.look.quality || 1) * (opts.quality || 1), zBias: imgBias(opts), vecBias: imgBias(opts) * .5, post: Object.assign({ seed: t * 7.13 % 100 }, E.post) };
     const tg0 = performance.now(); const r = A.GL.frame(vw, L); A.stats = { vec: tg0 - tv0, gl: performance.now() - tg0 };
     A.last = { vw, era, feats, res, want: r.want, year };
     return r.canvas;

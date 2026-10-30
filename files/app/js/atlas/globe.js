@@ -366,7 +366,7 @@
   function setSurfUniforms(vw, st, mode, alpha) {
     const gl = G.gl, p = G.surf; gl.useProgram(p.p);
     gl.uniform1i(p.u.u_tex, 0); gl.uniform1i(p.u.u_night, 1); gl.uniform1i(p.u.u_mode, mode); gl.uniform1f(p.u.u_alpha, alpha);
-    gl.uniform1f(p.u.u_shade, mode === 0 ? (G.terrEx > 0 ? (st.terrShade == null ? .85 : st.terrShade) : 0) : 0);
+    gl.uniform1f(p.u.u_shade, mode === 0 ? (G.terrEx > 0 ? (st.terrShade == null ? .45 : st.terrShade) : 0) : 0);
     gl.uniform1f(p.u.u_sat, st.sat == null ? 1 : st.sat); gl.uniform1f(p.u.u_bri, st.bri == null ? 1 : st.bri); gl.uniform1f(p.u.u_con, st.con == null ? 1 : st.con); gl.uniform1f(p.u.u_gamma, st.gamma || 1); gl.uniform1f(p.u.u_ge, st.ge || 0);
     const gW = st.geW || [.20, .33, .68], gT = st.geT || [.97, .96, 1.04]; gl.uniform3f(p.u.u_geW, gW[0], gW[1], gW[2]); gl.uniform3f(p.u.u_geT, gT[0], gT[1], gT[2]); gl.uniform1f(p.u.u_geS, st.geS == null ? .8 : st.geS); gl.uniform1f(p.u.u_geL, st.geL == null ? .86 : st.geL); gl.uniform1f(p.u.u_warm, st.warm || 0);
     const tint = st.tint || [1, 1, 1]; gl.uniform3f(p.u.u_tint, tint[0], tint[1], tint[2]); gl.uniform1f(p.u.u_tintAmt, st.tintAmt || 0);

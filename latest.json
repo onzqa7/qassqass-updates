@@ -1,8 +1,8 @@
 {
- "version": "2.2.0",
- "date": "2026-10-30T15:19:01.048Z",
- "notes_ar": "الإصدار 2.2: خرائط طبيعية بمستوى Google Earth ومظهر وثائقي بنقرة، صورة القائد وتحريكه، 3D وكي فريم في الخرائط، تخصيص كامل للخرائط، 28 قالب رسوم متحركة، محرر المنحنيات، LUT، تتبع الحركة، تسجيل تعليق صوتي، إعدادات تصدير جاهزة وقائمة تصدير، وأدوات ذكية للصوت والفيديو.",
- "notes_en": "2.2: natural Google-Earth-like maps and one-click documentary look, leader portrait with movement, map 3D and keyframes, full map customisation, 28 motion templates, graph editor, LUTs, motion tracking, voice-over recording, export presets and queue, smart audio/video tools.",
+ "version": "2.2.1",
+ "date": "2026-10-30T16:02:29.414Z",
+ "notes_ar": "القمر الصناعي يعرض الصور الطبيعية بدون تظليل تضاريس قوي (التضاريس تشتغل فقط عند تفعيل 3D).",
+ "notes_en": "Satellite shows natural imagery without heavy terrain shading (terrain only when 3D is enabled).",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -744,8 +744,8 @@
   },
   {
    "path": "app/js/atlas/atlas.js",
-   "size": 4897,
-   "sha256": "d938998bbbdaaf2d0eec642cbab5895eff20ad328fc67ca46fbb81a9a123996b"
+   "size": 4895,
+   "sha256": "898296a1ffee256e32a0b53e89262e1b6c01e6c382c5aba5a487940b4333c147"
   },
   {
    "path": "app/js/atlas/camera.js",
@@ -760,7 +760,7 @@
   {
    "path": "app/js/atlas/globe.js",
    "size": 36446,
-   "sha256": "d7d4f8c1e37854302e6cee12fe1184f8604fcd8aaadb112681d686b3f6e7f2db"
+   "sha256": "760bde83c91f21ccbe763483e6bb129d17695f6245434a5eee2dd22e4477cfd6"
   },
   {
    "path": "app/js/atlas/providers.js",
@@ -884,8 +884,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 83777,
-   "sha256": "c82a2af948d7eb217d333094e7d8a3b3ef6da9b51c43aa4d9d2663d295abc62f"
+   "size": 83721,
+   "sha256": "a617140e9461496c2343d4333a5c105273db5283550520b5326e88489725726c"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -4255,7 +4255,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "e419c211d6378a402a37dbfc2caa3f94b1e2ccdd88f6dfe72f114fe37687f36b"
+   "sha256": "4d958f461766dd360ab763c06a311de648d2267c3c4dfebecafd7750fa65a7b7"
   },
   {
    "path": "preload.js",
@@ -4268,5 +4268,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "XOTnpsZUtJ+P3vWYxSnkeQevpwYm7KD2SoLT/yUSbfpPtkfO+M7Aax1oaVBSokm2EA5hywQkCwJy8mGZaiqLBA=="
+ "sig": "WxQZRX3cIVKgwN61Wx6N5wtD7SwtJQXjy1PylzwxEnt2ggOGd5eV3XryF7fFncJDXtl6a+SBUCY9IudviGcFCQ=="
 }

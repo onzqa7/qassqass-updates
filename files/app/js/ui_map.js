@@ -351,13 +351,13 @@
     s0.body.append(row('خط الطول / العرض', f('lon', .1), f('lat', .1)), row('التقريب', f('zoom', .1), h('span', 'kv', `<span data-a="alt">${fmtAlt(Cm.altitudeKm(v.zoom, v.lat))}</span>`)), row('الإمالة / الاتجاه', f('tilt', 1), f('heading', 1)));
     const kr = h('div', 'mp-row'); kr.append(btn(GW.ico('key', 13) + ' مفتاح كاميرا عند المؤشر', () => M.addKey(c), 'pri'), btn('شمال للأعلى', () => M.setCam(c, { heading: 0 })), btn('بدون إمالة', () => M.setCam(c, { tilt: 0 }))); s0.body.append(kr);
     // 3D: tilt + terrain in one click (globe mode; terrain needs zoom ≥ 5)
-    const is3D = (v.tilt || 0) > 5 && scn.mode === 'globe' && (scn.look.terrain == null || scn.look.terrain > 0);
+    const is3D = (v.tilt || 0) > 5 && scn.mode === 'globe' && (scn.look.terrain > 0);
     const b3 = btn(GW.ico('globe', 13) + (is3D ? ' ثلاثي الأبعاد مفعّل' : ' تفعيل ثلاثي الأبعاد (3D)'), () => {
       if (is3D) { M.setCam(c, { tilt: 0 }); renderPanel(); return; }
       scn.mode = 'globe'; if (scn.look.terrain == null || scn.look.terrain < 2.5) scn.look.terrain = 3; const z = Math.max(v.zoom, 6.5);
       M.flyAnim(c, { lon: v.lon, lat: v.lat, zoom: z, tilt: 55, heading: v.heading || 0 }); if (v.zoom < 5) GW.toast('التضاريس ثلاثية الأبعاد تظهر عند التقريب (مستوى 5 فأكثر)');
     }, is3D ? 'pri on' : 'pri'); b3.dataset.a = 'btn3d';
-    s0.body.append(h('div', 'mp-row'), row('تضخيم التضاريس', rng(scn.look.terrain == null ? 1.4 : scn.look.terrain, 0, 8, .1, val => { scn.look.terrain = val; GW.invalidate(); })));
+    s0.body.append(h('div', 'mp-row'), row('تضخيم التضاريس', rng(scn.look.terrain || 0, 0, 8, .1, val => { scn.look.terrain = val; GW.invalidate(); })));
     s0.body.children[s0.body.children.length - 2].append(b3);
     if (scn.mode === 'flat') s0.body.append(h('div', 'mp-note', 'الخريطة المسطحة لا تدعم الإمالة والتضاريس — اختر «كرة أرضية» للعرض ثلاثي الأبعاد.'));
     s0.body.append(keyRuler(c, cam.keys || [], (k) => k.t, (k, t) => { k.t = t; }, () => { (cam.keys || []).sort((a, b) => a.t - b.t); }, (k) => { cam.keys.splice(cam.keys.indexOf(k), 1); }, 'مفاتيح الكاميرا'));
