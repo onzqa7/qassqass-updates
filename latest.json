@@ -1,8 +1,8 @@
 {
- "version": "2.2.6",
- "date": "2026-10-30T17:00:40.735Z",
- "notes_ar": "الخريطة تثبت ولا تتغير وأنت واقف، إضاءة أعلى قليلاً للنمط الوثائقي، وخط الدول رفيع وأنيق.",
- "notes_en": "Map stays stable while paused, slightly brighter documentary style, thin elegant country outline.",
+ "version": "2.2.7",
+ "date": "2026-10-30T17:17:41.918Z",
+ "notes_ar": "إصلاح تغيّر جودة الخريطة كل ثانيتين أثناء عمل البروكسي: الإطار يثبت تماماً وأنت واقف.",
+ "notes_en": "Fixed map quality flipping every 2 s while proxies run: the paused frame is now fully stable.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -839,8 +839,8 @@
   },
   {
    "path": "app/js/render.js",
-   "size": 15051,
-   "sha256": "85e6996e0f795c4170004267eecff4588a822b8dc71cff3096a0041532050bfb"
+   "size": 15893,
+   "sha256": "f51b7516a7f8e0e1ea019f4a5c950b5980c4e9c2b7eb1b1b3591e2fcb91be671"
   },
   {
    "path": "app/js/shortcuts.js",
@@ -4255,7 +4255,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "a5171cf46b4b7f126d153449d426f780b569b8b24fd4158dc710d519131d51b3"
+   "sha256": "327111c83da1b6b3624a8aa5d1146692fbe1bc76a1d501498c8cce9bce2acb0d"
   },
   {
    "path": "preload.js",
@@ -4268,5 +4268,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "fG5Yo3u1jw8UDUE7HyCpV56lkk3YXHmmnjwkM0zXTKY88pscywWx8M4GHM5B3AKY6ZHD9puAJkmBAhP55pziDA=="
+ "sig": "9dhG6YgfBhbpzE/GwH9SPtO42+rwE74Cjov0KZ7y93Qw8Fhuoera6++0sNvEDI4sMoX4IjEiXPmZTMUWhf37AQ=="
 }
