@@ -550,8 +550,9 @@
       grp('الشبكة', 'grid', ['graticule', 'gridC', 'gridStep'],
         row('خطوط الطول والعرض', chk(L.graticule, set('graticule'))), row('لون الشبكة', lcol('gridC', '#ffffff')),
         row('المسافة بين الخطوط', sel([[5, '5°'], [10, '10° (افتراضي)'], [15, '15°'], [30, '30°']], String(L.gridStep || 10), v => set('gridStep')(+v)))),
-      row('جودة المعاينة', sel([[.6, 'سريعة'], [.85, 'متوازنة'], [1, 'عالية']], GW.mapPreviewQ || .85, v => { GW.mapPreviewQ = +v; GW.invalidate(); })),
+      row('جودة المعاينة', sel([[.6, 'سريعة'], [.85, 'متوازنة'], [1, 'عالية']], GW.mapPreviewQ || 1, v => { GW.mapPreviewQ = +v; GW.invalidate(); })),
       row('مصدر الصور', h('span', 'kv', esc(E.base ? A.Providers.P[E.base].attrib : 'رسم متجهي'))),
+      row('نص حقوق المصدر', chk(L.attrib == null ? 1 : L.attrib, v => { L.attrib = v; changed('حقوق المصدر'); })),
       row('خلفية شفافة', chk(c.map.bg === 'alpha', v => { c.map.bg = v ? 'alpha' : 'full'; changed('خلفية الخريطة'); })),
     );
     return s0;

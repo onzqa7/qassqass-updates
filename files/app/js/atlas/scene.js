@@ -48,7 +48,7 @@
   S.blank = () => ({
     v: 3, mode: 'globe', style: 'satellite', year: GW.P(2025), eraMode: 'auto',
     cam: { lon: 42, lat: 26, zoom: 3.2, tilt: 0, heading: 0, keys: [], orbit: 0, drift: 0, shake: 0 },
-    look: { lang: (window.GW && GW.lang) || 'ar', font: 'thmanyah serif display', labelW: 800, labels: 1, labelSize: 1, countryLabels: 1, cities: 1, oceans: 1, regions: 0, provinces: 0, rivers: 0, lakes: 1, borders: 1, coast: 1, graticule: 0, hill: null, fill: null, fillA: null, atmo: 1, stars: null, light: 0, sunLon: 20, sunLat: 10, vig: null, grain: .04, paper: null, letter: 0, quality: 1, refLabels: 0, sat: 1, bri: 1, attrib: 1, borderW: 1 },
+    look: { lang: (window.GW && GW.lang) || 'ar', font: 'thmanyah serif display', labelW: 800, labels: 1, labelSize: 1, countryLabels: 1, cities: 1, oceans: 1, regions: 0, provinces: 0, rivers: 0, lakes: 1, borders: 1, coast: 1, graticule: 0, hill: null, fill: null, fillA: null, atmo: 1, stars: null, light: 0, sunLon: 20, sunLat: 10, vig: null, grain: .04, paper: null, letter: 0, quality: 1, refLabels: 0, sat: 1, bri: 1, attrib: 0, borderW: 1 },
     layers: [], images: {}
   });
   S.normalize = (sc) => {

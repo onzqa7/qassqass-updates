@@ -1,8 +1,8 @@
 {
- "version": "2.3.0",
- "date": "2026-10-30T18:49:22.412Z",
- "notes_ar": "الإصدار 2.3: تصميم واجهة جديد أكثر احترافية، كاميرا خرائط مثل GeoLayers (ارتفاع، زاوية عدسة، دوران، إزاحة الهدف، تنعيم لكل مفتاح، تركيز على دولة، حركات جاهزة)، قسم خيارات الخريطة التفصيلي (أسماء، مدن، حدود، بحر وأرض، صورة، غلاف جوي، شبكة)، واستخدام خط ثمانية المثبّت على جهازك تلقائياً مع استيراد خطوط.",
- "notes_en": "2.3: refreshed professional UI, GeoLayers-style map camera (altitude, FOV, roll, target offset, per-key easing, focus on country, presets), detailed map options groups, automatic use of the installed Thmanyah font plus font import.",
+ "version": "2.3.1",
+ "date": "2026-10-30T18:53:06.379Z",
+ "notes_ar": "إزالة نص حقوق المصدر من زاوية الخريطة افتراضياً (خيار في خيارات الخريطة).",
+ "notes_en": "Map attribution text hidden by default (toggle in map options).",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -684,13 +684,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 137369,
-   "sha256": "6e1f3f7c53aea2a2501bccf1db03807fd86fdbf58c5fd0eb0372ab6e55076640"
+   "size": 137462,
+   "sha256": "5e327c71506c95a171d15fa1a8ccccf1dd171bec92e22f83cbc0b0aca53aeda3"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 134445,
-   "sha256": "405874ae06f89f65dacce53521a67e50019db5409263d3484ade6871c8c80b19"
+   "size": 132166,
+   "sha256": "aec9480a432d8094f4de7c312698a7bb9f03c8af9f5c2506688464d079aa17df"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -770,7 +770,7 @@
   {
    "path": "app/js/atlas/scene.js",
    "size": 17613,
-   "sha256": "44e2ad96cb90f684866300312edfbb6a7ba978b7bc8c643ed6fb69ff977847f9"
+   "sha256": "aa07c4823b1ee6ff6e2673aa9a96ea9ae2433d4b898315550c03a818d95c5a8a"
   },
   {
    "path": "app/js/atlas/vector.js",
@@ -884,8 +884,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 96170,
-   "sha256": "292635219f145032e806414888226202c643dabe64199d7f30e18cbd0b248730"
+   "size": 96305,
+   "sha256": "43911edf0741b210f277ebdc2eaf1beadff35f69f9f378554dc1de58cc2dc037"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -4255,7 +4255,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "7cad9a745036e643fc63705eb7daa9c0553ad51b7ae02be21c42b15a60f421ea"
+   "sha256": "8d0755ff0513e1bfa9ab65d37c79921561165d54c512b127af62c774fc3a346f"
   },
   {
    "path": "preload.js",
@@ -4268,5 +4268,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "rmxt5oq6PICZ+Fzktrg676fZ0IjwqQYOOKgnZ5Co1HlXBWHo/MDGUfIFtsxv9KtIrwcmCbHSsXdzT5pZ7kaGAA=="
+ "sig": "lhbouwRKOi7iq82E0hr5wie0OyMNEYCTIGNvbcJaIFILmHaw5OX+ckLl6Zrld/ul2F1ej+rockLd3UXpByTnAQ=="
 }
