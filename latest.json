@@ -1,8 +1,8 @@
 {
- "version": "2.2.1",
- "date": "2026-10-30T16:02:29.414Z",
- "notes_ar": "القمر الصناعي يعرض الصور الطبيعية بدون تظليل تضاريس قوي (التضاريس تشتغل فقط عند تفعيل 3D).",
- "notes_en": "Satellite shows natural imagery without heavy terrain shading (terrain only when 3D is enabled).",
+ "version": "2.2.2",
+ "date": "2026-10-30T16:27:40.749Z",
+ "notes_ar": "صور القمر الصناعي عالية الدقة (Esri) في كل مستويات التقريب مع بحر طبيعي داكن.",
+ "notes_en": "High-resolution Esri satellite imagery at all zoom levels with natural dark ocean.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -769,8 +769,8 @@
   },
   {
    "path": "app/js/atlas/scene.js",
-   "size": 16716,
-   "sha256": "5dab7c28096ea495c0f519b529e3867afc7cccacdf18d0a3c27052e66a92c81a"
+   "size": 16714,
+   "sha256": "f7578d41869fb5eef0c82bc00e507d854de4b54f1a9568cc98336507eaf425cb"
   },
   {
    "path": "app/js/atlas/vector.js",
@@ -4255,7 +4255,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "4d958f461766dd360ab763c06a311de648d2267c3c4dfebecafd7750fa65a7b7"
+   "sha256": "6a4c5f1e39daff26020dea35cf5a885570f0ce6058e9856ced871e79cfc28caa"
   },
   {
    "path": "preload.js",
@@ -4268,5 +4268,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "WxQZRX3cIVKgwN61Wx6N5wtD7SwtJQXjy1PylzwxEnt2ggOGd5eV3XryF7fFncJDXtl6a+SBUCY9IudviGcFCQ=="
+ "sig": "DLeI6q5zHiQHFpjg7Eu6ridSCb3Oj0zOh7rex9GfONQNJQMdngM9CAPuwbBvSGLuzRoeEOl5+rToxVl6nxAiAw=="
 }
