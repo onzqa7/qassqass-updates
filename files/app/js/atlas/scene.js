@@ -18,8 +18,8 @@
     satellite: { ar: 'قمر صناعي (Google Earth)', base: 'esri_img', baseTex: 'sat', grade: { sat: 1.08, bri: .97, con: 1.18, gamma: 1.04, ge: 0 }, oceanTint: '#0f2f5c', tintA: .5, post: { vig: .32 }, border: 'rgba(228,231,236,.62)', bw: .85, ink: '#f4f0e8', halo: 'soft', font: 'Tajawal', labelW: 700, labelK: 1.12, atmo: [.42, .66, 1], stars: .6, space: [.004, .006, .014] },
     s2: { ar: 'قمر صناعي بلا غيوم', base: 's2', baseTex: 'sat', grade: { sat: 1.1, bri: 1.03, con: 1.08 }, border: 'rgba(255,255,255,.7)', bw: 1.1, ink: '#ffffff', halo: 'rgba(0,0,0,.75)', atmo: [.35, .6, 1], stars: .8 },
     // documentary look (YouTube history maps): dark desaturated imagery, deep navy sea, soft-shadow labels, faint borders
-    doc_dark: { ar: 'وثائقي داكن', base: 'sat_hybrid', baseTex: 'sat', doc: 1, grade: { sat: .45, bri: .7, con: 1.1, gamma: 1.08, ge: 0 }, oceanTint: '#141f2c', tintA: .8, labelW: 800, border: 'rgba(240,232,210,.16)', bw: .7, ink: '#f2efe9', halo: 'soft', atmo: [.22, .3, .42], stars: .25, space: [.004, .005, .008], post: { vig: .5 } },
-    doc_light: { ar: 'وثائقي فاتح', base: 'sat_hybrid', baseTex: 'sat', doc: 1, grade: { sat: .62, bri: .88, con: 1.06, gamma: 1.04, ge: 0 }, oceanTint: '#1d2c3e', tintA: .62, labelW: 800, border: 'rgba(245,238,220,.22)', bw: .8, ink: '#f7f4ee', halo: 'soft', atmo: [.3, .42, .6], stars: .3, space: [.006, .008, .012], post: { vig: .35 } },
+    doc_dark: { ar: 'وثائقي داكن (الأندلس)', base: 'esri_img', baseTex: 'sat', doc: 1, grade: { sat: .55, bri: .5, con: 1.14, gamma: 1.1, ge: 0 }, oceanTint: '#040e14', tintA: .9, labelW: 800, border: 'rgba(240,232,210,.14)', bw: .7, ink: '#f2efe9', halo: 'soft', atmo: [.16, .22, .3], stars: .2, space: [.003, .004, .006], post: { vig: .45 } },
+    doc_light: { ar: 'وثائقي فاتح', base: 'esri_img', baseTex: 'sat', doc: 1, grade: { sat: .62, bri: .88, con: 1.06, gamma: 1.04, ge: 0 }, oceanTint: '#1d2c3e', tintA: .62, labelW: 800, border: 'rgba(245,238,220,.22)', bw: .8, ink: '#f7f4ee', halo: 'soft', atmo: [.3, .42, .6], stars: .3, space: [.006, .008, .012], post: { vig: .35 } },
     ghost: { ar: 'قمر صناعي داكن', base: 'esri_img', baseTex: 'sat', grade: { sat: .12, bri: .58, con: 1.25, tint: [.55, .68, .85], tintAmt: .3 }, border: 'rgba(210,225,245,.5)', bw: 1, ink: '#f1f5fa', halo: 'rgba(0,0,0,.8)', atmo: [.3, .45, .7], stars: .6 },
     daynight: { ar: 'ليل ونهار', base: 'esri_img', baseTex: 'sat', light: 1, grade: { sat: 1.05 }, border: 'rgba(255,255,255,.55)', bw: 1, ink: '#ffffff', halo: 'rgba(0,0,0,.75)', atmo: [.35, .6, 1], stars: 1 },
     night: { ar: 'أضواء الليل', base: 'night', baseTex: 'night', grade: { bri: 1.2, con: 1.1 }, border: 'rgba(150,190,255,.45)', bw: 1, ink: '#e9f1ff', halo: 'rgba(0,0,0,.8)', atmo: [.25, .45, .9], stars: 1 },
@@ -41,10 +41,10 @@
     neon: { ar: 'نيون', vector: 1, ocean: '#05040c', ocean2: '#0b0920', land: '#0c0b1e', fill: 'political', palette: 'neon', fillA: .12, border: '#7a5cff', bw: 1.1, glow: 1, coast: '#38e1ff', ink: '#eeeaff', halo: 'rgba(10,8,26,.9)', atmo: [.48, .36, 1], stars: .8, grid: 1, gridC: 'rgba(122,92,255,.12)' },
     desert: { ar: 'عمليات صحراوية', vector: 1, ocean: '#151a16', ocean2: '#1d241e', land: '#6d6047', border: '#a69169', bw: 1, coast: '#cdb98e', hill: .5, ink: '#f5ecd8', halo: 'rgba(24,22,16,.85)', atmo: [.75, .65, .45], stars: .4 },
   };
-  S.STYLE_ORDER = ['satellite', 's2', 'doc_dark', 'doc_light', 'ghost', 'daynight', 'night', 'natgeo', 'physical', 'relief', 'topo', 'oceans', 'carto_dark', 'voyager', 'political', 'history', 'parchment', 'news', 'newsdark', 'ops', 'desert', 'blueprint', 'neon', 'streets'];
+  S.STYLE_ORDER = ['doc_dark', 'satellite', 'doc_light', 's2', 'ghost', 'daynight', 'night', 'natgeo', 'physical', 'relief', 'topo', 'oceans', 'carto_dark', 'voyager', 'political', 'history', 'parchment', 'news', 'newsdark', 'ops', 'desert', 'blueprint', 'neon', 'streets'];
 
   S.blank = () => ({
-    v: 3, mode: 'globe', style: 'satellite', year: GW.P(2025), eraMode: 'auto',
+    v: 3, mode: 'globe', style: 'doc_dark', year: GW.P(2025), eraMode: 'auto',
     cam: { lon: 42, lat: 26, zoom: 3.2, tilt: 0, heading: 0, keys: [], orbit: 0, drift: 0, shake: 0 },
     look: { lang: (window.GW && GW.lang) || 'ar', font: '', labels: 1, labelSize: 1, countryLabels: 1, cities: 1, oceans: 1, regions: 0, provinces: 0, rivers: 0, lakes: 1, borders: 1, coast: 1, graticule: 0, hill: null, fill: null, fillA: null, atmo: 1, stars: null, light: 0, sunLon: 20, sunLat: 10, vig: null, grain: .04, paper: null, letter: 0, quality: 1, refLabels: 0, sat: 1, bri: 1, attrib: 1, borderW: 1 },
     layers: [], images: {}

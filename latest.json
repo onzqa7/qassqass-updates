@@ -1,8 +1,8 @@
 {
- "version": "2.2.4",
- "date": "2026-10-30T16:40:42.757Z",
- "notes_ar": "قمر صناعي أوضح: تباين أعلى وبحر أزرق طبيعي تظهر فيه الأعماق.",
- "notes_en": "Clearer satellite: higher contrast and a natural blue ocean showing bathymetry.",
+ "version": "2.2.5",
+ "date": "2026-10-30T16:43:55.690Z",
+ "notes_ar": "النمط الافتراضي للخرائط صار «وثائقي داكن» بنفس ألوان فيديو كيف ضاعت الأندلس: أرض معتمة هادئة وبحر شبه أسود وأسماء بظل ناعم.",
+ "notes_en": "Default map style is now Documentary Dark, matched to the reference video: muted dark land, near-black sea, soft-shadow labels.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -769,8 +769,8 @@
   },
   {
    "path": "app/js/atlas/scene.js",
-   "size": 16713,
-   "sha256": "9736107905ddd8341f00d85c85f5fe460d236f846dffd55f6b4276996305206c"
+   "size": 16725,
+   "sha256": "4ddfb3bde36abef250d182e4132145a7ed026c291981f5934a9d34be660655de"
   },
   {
    "path": "app/js/atlas/vector.js",
@@ -884,8 +884,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 84041,
-   "sha256": "da4b3fe9a19467a656bf96db1827968ca1884132e9c41b888638396ed45af1af"
+   "size": 84040,
+   "sha256": "d1aa757cc50341dfb5dbdb330c0a93b39141fa23689503a0ebcc84372e268196"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -4255,7 +4255,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "e5daa8e92bcca02ce8a16cdce9fb58fc59cdd1de9d71badc0a3cc60308f5eccf"
+   "sha256": "279c4e6a81cd0f625c634aa93cfc5890a64f87717f12d89ea1d470c15040a963"
   },
   {
    "path": "preload.js",
@@ -4268,5 +4268,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "GjmUcV2ukZmB75dK1i57NXwVsdgO6IFPEYxA/6MzMoNxom0Mr22gzwu6kc3OrTlt7mFgJVB2P8vZBOLPdrpjCQ=="
+ "sig": "pr+NWVuPZao8G7wFFf2NwzaQpjMg7ThiwYd+kGpFNRGSl8c4sPSjuZmRjrVYIjYSuU9OsvPHsOT35q36ribZCA=="
 }
