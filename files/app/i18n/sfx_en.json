@@ -1,0 +1,538 @@
+{
+"shutter_click": {
+"name": "Camera shutter click",
+"use": "Snap a photo or reveal an archive picture"
+},
+"shutter_dslr": {
+"name": "DSLR shutter",
+"use": "Sharp press-photo shutter for news shots"
+},
+"camera_snap": {
+"name": "Vintage camera snap",
+"use": "Archive / historical photo moments"
+},
+"shutter_phone": {
+"name": "Phone camera click",
+"use": "Screenshot or phone photo"
+},
+"shutter_burst": {
+"name": "Shutter burst",
+"use": "Press conference / paparazzi burst"
+},
+"polaroid": {
+"name": "Instant camera (polaroid)",
+"use": "Photo with print-out, for photo reveals"
+},
+"whoosh": {
+"name": "Whoosh",
+"use": "Cut between shots or bring in a title"
+},
+"whoosh_soft": {
+"name": "Soft whoosh",
+"use": "Gentle text/image entrance, message sent"
+},
+"whoosh_dark": {
+"name": "Deep whoosh",
+"use": "Dramatic transition, serious segment"
+},
+"swish": {
+"name": "Quick swish",
+"use": "Fast slide-in or text swap"
+},
+"swing_heavy": {
+"name": "Heavy air swing",
+"use": "Fast camera move, big element entrance"
+},
+"swipe": {
+"name": "Swipe",
+"use": "Swipe between photos or cards"
+},
+"swish_blade": {
+"name": "Blade swish",
+"use": "Sharp cut or line reveal"
+},
+"reverse_cymbal": {
+"name": "Reverse cymbal riser",
+"use": "Short build-up before a reveal or cut"
+},
+"riser_boom": {
+"name": "Deep reverse riser",
+"use": "Build-up into a big title or shock moment"
+},
+"cine_boom": {
+"name": "Cinematic boom",
+"use": "Big title or decisive story moment"
+},
+"impact_thud": {
+"name": "Heavy thud",
+"use": "Big number or shocking image"
+},
+"kick_drum": {
+"name": "Kick drum hit",
+"use": "Emphasize a word or rhythmic text"
+},
+"cymbal_crash": {
+"name": "Cymbal crash",
+"use": "End of a segment or sudden reveal"
+},
+"gong": {
+"name": "Gong",
+"use": "New chapter or major historic event"
+},
+"metal_slam": {
+"name": "Metal slam",
+"use": "Decisive verdict or hard title slam"
+},
+"punch": {
+"name": "Punch",
+"use": "Quick hit with a word or image"
+},
+"glass_shatter": {
+"name": "Glass shatter",
+"use": "Collapse, shock, breaking image"
+},
+"wood_smash": {
+"name": "Wood smash",
+"use": "Smash or break-in"
+},
+"building_collapse": {
+"name": "Building collapse",
+"use": "Building, bridge or dam collapse"
+},
+"tree_fall": {
+"name": "Tree fall",
+"use": "Big fall or end of an era"
+},
+"heartbeat": {
+"name": "Heartbeat",
+"use": "Tension before a decisive moment"
+},
+"mouse_click": {
+"name": "Mouse click",
+"use": "Button or link click in screen recordings"
+},
+"switch": {
+"name": "Toggle switch",
+"use": "Turn on/off or toggle an option"
+},
+"keyboard_typing": {
+"name": "Keyboard typing",
+"use": "On-screen typing or search bar"
+},
+"key_press": {
+"name": "Short key presses",
+"use": "A single word typed or Enter"
+},
+"ding": {
+"name": "Notification ding",
+"use": "Notification, fact or number pops up"
+},
+"desk_bell": {
+"name": "Desk bell",
+"use": "Correct answer or task done"
+},
+"success_chime": {
+"name": "Success chime",
+"use": "Achievement or positive result"
+},
+"error_buzz": {
+"name": "Error buzz",
+"use": "Wrong answer or false claim"
+},
+"pop": {
+"name": "Pop",
+"use": "Icon or portrait pops in"
+},
+"pop_high": {
+"name": "High pop",
+"use": "Small number or element appears"
+},
+"finger_snap": {
+"name": "Finger snap",
+"use": "Sudden change, \"just like that\""
+},
+"beep": {
+"name": "Device beep",
+"use": "Electronic confirm or scanner"
+},
+"phone_ring": {
+"name": "Phone ring",
+"use": "Incoming call"
+},
+"coin": {
+"name": "Coin",
+"use": "Money, prices, costs"
+},
+"cash_register": {
+"name": "Cash register",
+"use": "Profits, deals, budgets"
+},
+"page_turn": {
+"name": "Page turn",
+"use": "Turn to a book page or historic document"
+},
+"page_flip": {
+"name": "Paper flip",
+"use": "Show a document or report"
+},
+"pen_write": {
+"name": "Pen writing",
+"use": "Handwriting, signature or map line"
+},
+"pen_scribble": {
+"name": "Pen scribble",
+"use": "Cross out, circle an area, draw arrow"
+},
+"pen_click": {
+"name": "Pen click",
+"use": "Before writing or a map dot appears"
+},
+"stamp": {
+"name": "Rubber stamp",
+"use": "Stamp a document \"SECRET\" or \"DENIED\""
+},
+"stamp_heavy": {
+"name": "Heavy stamp",
+"use": "Official decision or treaty signed"
+},
+"printer": {
+"name": "Print & tear",
+"use": "A report or document comes out"
+},
+"scissors": {
+"name": "Scissors",
+"use": "Cut out a photo or press clipping"
+},
+"tv_static": {
+"name": "TV static",
+"use": "Signal loss or cut to old archive"
+},
+"radio_static": {
+"name": "Radio static",
+"use": "Old broadcast or tuning a station"
+},
+"radio_chatter": {
+"name": "Radio chatter",
+"use": "Military or police radio comms"
+},
+"morse": {
+"name": "Morse code",
+"use": "Telegram, secret message, old breaking news"
+},
+"siren_long": {
+"name": "Long warning siren",
+"use": "General alarm, raid, emergency"
+},
+"police_siren": {
+"name": "Police siren",
+"use": "Crime and security news"
+},
+"ambulance_siren": {
+"name": "Ambulance siren",
+"use": "Rescue and casualties"
+},
+"car_alarm": {
+"name": "Car alarm",
+"use": "Theft or street incident"
+},
+"alarm_bell": {
+"name": "Alarm bell",
+"use": "Fire, evacuation, danger"
+},
+"factory_whistle": {
+"name": "Factory whistle",
+"use": "Start of a work day, industry news"
+},
+"explosion_huge": {
+"name": "Huge explosion",
+"use": "Major strike or devastating bombing"
+},
+"explosion_big": {
+"name": "Big explosion",
+"use": "Missile impact or target hit on a map"
+},
+"explosion_debris": {
+"name": "Explosion with debris",
+"use": "Building or bridge destroyed"
+},
+"explosion_rumble": {
+"name": "Explosion & falling rubble",
+"use": "Blast followed by collapse"
+},
+"explosion_medium": {
+"name": "Medium explosion",
+"use": "Shell or roadside bomb"
+},
+"explosion_small": {
+"name": "Small explosion",
+"use": "Grenade, mine or explosion icon"
+},
+"explosion_far": {
+"name": "Distant explosion",
+"use": "War in the background, distant shelling"
+},
+"artillery_far": {
+"name": "Distant artillery",
+"use": "Under front-line footage"
+},
+"rifle_shot": {
+"name": "Rifle shot",
+"use": "Single clear shot or sniper"
+},
+"rifle_burst": {
+"name": "Assault rifle burst",
+"use": "Short firefight"
+},
+"machine_gun": {
+"name": "Machine gun",
+"use": "Heavy firefight"
+},
+"ww2_rifle": {
+"name": "WWII rifle (M1 Garand)",
+"use": "World War II scenes"
+},
+"gunshot": {
+"name": "Gunshot",
+"use": "Sharp shot or assassination"
+},
+"pistol": {
+"name": "Pistol shot",
+"use": "Single handgun shot"
+},
+"shotgun": {
+"name": "Shotgun",
+"use": "Powerful close shot"
+},
+"rocket_launch": {
+"name": "Rocket launch",
+"use": "Missile path on a map"
+},
+"mortar": {
+"name": "Launcher / mortar",
+"use": "Mortar or launcher fire"
+},
+"reload_rifle": {
+"name": "Rifle reload",
+"use": "Before a fight or into a military scene"
+},
+"helicopter": {
+"name": "Helicopter",
+"use": "Air drop, rescue, military move"
+},
+"jet_flyby": {
+"name": "Jet fly-by",
+"use": "Air raid or air show"
+},
+"jet_takeoff": {
+"name": "Close jet",
+"use": "Fighter take-off or low pass"
+},
+"airliner_takeoff": {
+"name": "Airliner take-off",
+"use": "Travel or aviation news"
+},
+"prop_plane": {
+"name": "Propeller plane",
+"use": "WWII-era or small aircraft"
+},
+"engine_start": {
+"name": "Engine start",
+"use": "Convoy or vehicle moves out"
+},
+"vehicle_start": {
+"name": "Vehicle start-up",
+"use": "Tanks or armored vehicles move"
+},
+"ship_horn": {
+"name": "Ship horn",
+"use": "Warships, ports, sea voyages"
+},
+"trench_whistle": {
+"name": "Trench whistle",
+"use": "Moment of attack (WWI)"
+},
+"geiger": {
+"name": "Geiger counter",
+"use": "Nuclear weapons, Chernobyl"
+},
+"radar_ping": {
+"name": "Radar ping",
+"use": "Detect target / track aircraft on a map"
+},
+"applause": {
+"name": "Audience applause",
+"use": "End of a speech, achievement, win"
+},
+"slow_clap": {
+"name": "Slow clap",
+"use": "Sarcastic \"well done\""
+},
+"crowd_ooh": {
+"name": "Crowd \"oooh\"",
+"use": "Amazing fact or shocking number"
+},
+"laugh_crowd": {
+"name": "Audience laughter",
+"use": "Funny moment or irony"
+},
+"gasp_male": {
+"name": "Male gasp",
+"use": "Shock or surprise"
+},
+"gasp_female": {
+"name": "Female gasp",
+"use": "Shock or surprise"
+},
+"cough": {
+"name": "Cough",
+"use": "Awkward silence"
+},
+"whistle_human": {
+"name": "Human whistle",
+"use": "Impressed \"wow\""
+},
+"market_crowd": {
+"name": "Market crowd",
+"use": "Old market or busy town background"
+},
+"harbor": {
+"name": "Harbor",
+"use": "Port and sea trade background"
+},
+"steps_concrete": {
+"name": "Footsteps (pavement)",
+"use": "Someone walking / approaching"
+},
+"steps_gravel": {
+"name": "Footsteps (gravel)",
+"use": "Soldiers advancing in the field"
+},
+"steps_floor": {
+"name": "Footsteps (indoor)",
+"use": "Entering a hall or corridor"
+},
+"heels": {
+"name": "Formal shoes steps",
+"use": "An official walks in"
+},
+"steps_snow": {
+"name": "Footsteps (snow)",
+"use": "Winter campaigns"
+},
+"door_close": {
+"name": "Door close",
+"use": "End of a meeting, someone leaves"
+},
+"rain": {
+"name": "Heavy rain",
+"use": "Rainy or sad mood"
+},
+"thunder": {
+"name": "Close thunder",
+"use": "Strong shock or storm"
+},
+"thunder_far": {
+"name": "Distant thunder",
+"use": "Omen of coming danger"
+},
+"thunderstorm": {
+"name": "Thunderstorm",
+"use": "Full storm background"
+},
+"wind": {
+"name": "Wind",
+"use": "Desert, wide shots, maps"
+},
+"wind_storm": {
+"name": "Wind storm",
+"use": "Sand or snow storm"
+},
+"snowstorm": {
+"name": "Snowstorm",
+"use": "Winter campaigns, Eastern Front"
+},
+"fire": {
+"name": "Crackling fire",
+"use": "Burning city or night mood"
+},
+"flames": {
+"name": "Flame burst",
+"use": "Fire ignites, burning a document"
+},
+"waves": {
+"name": "Sea waves",
+"use": "Coasts, naval landings, voyages"
+},
+"waves_crash": {
+"name": "Crashing waves",
+"use": "Rough sea"
+},
+"river": {
+"name": "River",
+"use": "River crossing or calm scene"
+},
+"birds": {
+"name": "Morning birds",
+"use": "Calm morning or countryside"
+},
+"forest_day": {
+"name": "Forest daytime",
+"use": "Nature, countryside, villages"
+},
+"crickets_night": {
+"name": "Night crickets",
+"use": "Quiet night or waiting"
+},
+"crow": {
+"name": "Crow",
+"use": "Ominous, abandoned place, aftermath"
+},
+"dog_bark": {
+"name": "Dog bark",
+"use": "Village, guarding, night"
+},
+"clock_tick": {
+"name": "Clock ticking",
+"use": "Time passing, deadline approaching"
+},
+"clock_tick_fast": {
+"name": "Fast ticking",
+"use": "Time pressure and tension"
+},
+"countdown_beeps": {
+"name": "Countdown beeps",
+"use": "Before a decisive event or launch"
+},
+"church_bell": {
+"name": "Big bell strike",
+"use": "Hour strike or historic moment"
+},
+"bells_far": {
+"name": "Distant bells",
+"use": "Old European town or celebration"
+},
+"boxing_bell": {
+"name": "Boxing bell",
+"use": "Start of a face-off or round"
+},
+"drum_roll": {
+"name": "Drum roll",
+"use": "Before announcing a result"
+},
+"record_scratch": {
+"name": "Record scratch",
+"use": "Sudden stop: \"wait, what?\""
+},
+"rewind": {
+"name": "Rewind",
+"use": "Go back in time or replay"
+},
+"backspin": {
+"name": "Vinyl backspin",
+"use": "Playful transition or stop music"
+},
+"vinyl_crackle": {
+"name": "Old vinyl crackle",
+"use": "Under archive photos and old recordings"
+}
+}

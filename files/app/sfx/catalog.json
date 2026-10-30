@@ -1,0 +1,2317 @@
+[
+{
+"id": "shutter_click",
+"cat": "camera",
+"file": "sfx/camera/shutter_click.mp3",
+"ar": "غالق كاميرا (نقرة)",
+"use": "لحظة التقاط صورة أو ظهور صورة أرشيفية على الشاشة",
+"dur": 0.29,
+"tags": [
+"كاميرا",
+"تصوير",
+"صورة",
+"لقطة",
+"camera",
+"shutter",
+"photo",
+"snap"
+],
+"license": "CC0-1.0",
+"author": "jzielke011 (freesound)",
+"source": "https://freesound.org/people/jzielke011/sounds/439673/"
+},
+{
+"id": "shutter_dslr",
+"cat": "camera",
+"file": "sfx/camera/shutter_dslr.mp3",
+"ar": "غالق كاميرا احترافية",
+"use": "لقطة فوتوغرافية حادة لصور الصحافة والمؤتمرات",
+"dur": 0.29,
+"tags": [
+"كاميرا",
+"غالق",
+"صحافة",
+"dslr",
+"shutter"
+],
+"license": "CC-BY-3.0",
+"author": "caseymoura (freesound) via KDE oxygen-sounds",
+"source": "https://freesound.org/people/caseymoura/sounds/445482/"
+},
+{
+"id": "camera_snap",
+"cat": "camera",
+"file": "sfx/camera/camera_snap.mp3",
+"ar": "كاميرا فيلم قديمة",
+"use": "لصور الأرشيف والتاريخ وكأنها التُقطت بكاميرا قديمة",
+"dur": 0.6,
+"tags": [
+"كاميرا",
+"قديمة",
+"أرشيف",
+"vintage",
+"camera"
+],
+"license": "CC-BY-4.0",
+"author": "Taken from freesound, edited by ketufaispikinut(GitHub)",
+"source": "https://freesound.org/people/thecheeseman/sounds/51360/"
+},
+{
+"id": "shutter_phone",
+"cat": "camera",
+"file": "sfx/camera/shutter_phone.mp3",
+"ar": "كاميرا الجوال",
+"use": "لقطة شاشة أو صورة بالجوال",
+"dur": 0.29,
+"tags": [
+"جوال",
+"لقطة",
+"شاشة",
+"screenshot",
+"phone",
+"camera"
+],
+"license": "Apache-2.0",
+"author": "The Android Open Source Project",
+"source": "https://github.com/aosp-mirror/platform_frameworks_base/blob/master/data/sounds/effects/camera_click.ogg"
+},
+{
+"id": "shutter_burst",
+"cat": "camera",
+"file": "sfx/camera/shutter_burst.mp3",
+"ar": "تصوير متتابع (برست)",
+"use": "مؤتمر صحفي أو وصول شخصية وسط عدسات المصورين",
+"dur": 0.77,
+"tags": [
+"تصوير",
+"متتابع",
+"مصورين",
+"صحفيين",
+"burst",
+"paparazzi"
+],
+"license": "CC0-1.0",
+"author": "jzielke011 (freesound)",
+"source": "https://freesound.org/people/jzielke011/sounds/439673/"
+},
+{
+"id": "polaroid",
+"cat": "camera",
+"file": "sfx/camera/polaroid.mp3",
+"ar": "كاميرا فورية (بولارويد)",
+"use": "التقاط صورة مع خروج الورقة — لصور تُعرض تباعاً",
+"dur": 1.7,
+"tags": [
+"بولارويد",
+"صورة",
+"فورية",
+"polaroid",
+"instant"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "whoosh",
+"cat": "transitions",
+"file": "sfx/transitions/whoosh.mp3",
+"ar": "ووش انتقال",
+"use": "انتقال بين لقطتين أو دخول عنوان",
+"dur": 1.87,
+"tags": [
+"ووش",
+"انتقال",
+"whoosh",
+"transition"
+],
+"license": "CC0-1.0",
+"author": "Halgrimm (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/Halgrimm/sounds/169867/"
+},
+{
+"id": "whoosh_soft",
+"cat": "transitions",
+"file": "sfx/transitions/whoosh_soft.mp3",
+"ar": "ووش ناعم",
+"use": "ظهور نص أو صورة بهدوء، أو إرسال رسالة",
+"dur": 0.31,
+"tags": [
+"ووش",
+"ناعم",
+"سحب",
+"soft",
+"whoosh",
+"swoosh"
+],
+"license": "CC0-1.0",
+"author": "hullum (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/hullum/sounds/415580/"
+},
+{
+"id": "whoosh_dark",
+"cat": "transitions",
+"file": "sfx/transitions/whoosh_dark.mp3",
+"ar": "ووش عميق",
+"use": "انتقال درامي أو بداية فقرة جادة",
+"dur": 3.7,
+"tags": [
+"ووش",
+"عميق",
+"درامي",
+"dark",
+"whoosh"
+],
+"license": "CC0-1.0",
+"author": "EcoDTR (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/EcoDTR/sounds/27281/"
+},
+{
+"id": "swish",
+"cat": "transitions",
+"file": "sfx/transitions/swish.mp3",
+"ar": "سويش سريع",
+"use": "انزلاق سريع لعنصر أو تبديل نص",
+"dur": 0.36,
+"tags": [
+"سويش",
+"سريع",
+"swish"
+],
+"license": "CC0-1.0",
+"author": "qubodup (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/qubodup/sounds/60009/"
+},
+{
+"id": "swing_heavy",
+"cat": "transitions",
+"file": "sfx/transitions/swing_heavy.mp3",
+"ar": "ضربة هواء قوية",
+"use": "حركة كاميرا سريعة أو دخول عنصر كبير",
+"dur": 0.31,
+"tags": [
+"هواء",
+"ضربة",
+"swing",
+"air"
+],
+"license": "CC0-1.0",
+"author": "orangesheepdog (freesound)",
+"source": "https://freesound.org/people/orangesheepdog/sounds/367182/"
+},
+{
+"id": "swipe",
+"cat": "transitions",
+"file": "sfx/transitions/swipe.mp3",
+"ar": "سحب (سوايب)",
+"use": "تمرير بين صور أو بطاقات",
+"dur": 0.41,
+"tags": [
+"سحب",
+"تمرير",
+"سوايب",
+"swipe"
+],
+"license": "CC0-1.0",
+"author": "Danjocross (freesound)",
+"source": "https://freesound.org/people/Danjocross/sounds/507470/"
+},
+{
+"id": "swish_blade",
+"cat": "transitions",
+"file": "sfx/transitions/swish_blade.mp3",
+"ar": "شق الهواء",
+"use": "قطع حاد بين مشهدين أو ظهور خط",
+"dur": 0.29,
+"tags": [
+"شق",
+"قطع",
+"حاد",
+"blade",
+"swish"
+],
+"license": "CC0-1.0",
+"author": "qubodup (freesound)",
+"source": "https://freesound.org/people/qubodup/sounds/59992/"
+},
+{
+"id": "reverse_cymbal",
+"cat": "transitions",
+"file": "sfx/transitions/reverse_cymbal.mp3",
+"ar": "صنج معكوس (تصاعد)",
+"use": "تصاعد قصير قبل الكشف أو القطع",
+"dur": 1.58,
+"tags": [
+"تصاعد",
+"رايزر",
+"معكوس",
+"riser",
+"reverse",
+"cymbal"
+],
+"license": "CC0-1.0",
+"author": "menegass (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/menegass/sounds/100056/"
+},
+{
+"id": "riser_boom",
+"cat": "transitions",
+"file": "sfx/transitions/riser_boom.mp3",
+"ar": "سحب تصاعدي عميق",
+"use": "تصاعد يسبق عنواناً كبيراً أو لحظة صادمة",
+"dur": 3.72,
+"tags": [
+"تصاعد",
+"سحب",
+"رايزر",
+"riser",
+"suck"
+],
+"license": "CC0-1.0",
+"author": "Northern_Monkey (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/Northern_Monkey/sounds/177242/"
+},
+{
+"id": "cine_boom",
+"cat": "cinematic",
+"file": "sfx/cinematic/cine_boom.mp3",
+"ar": "بوم سينمائي",
+"use": "ظهور عنوان كبير أو لحظة حاسمة في القصة",
+"dur": 5.98,
+"tags": [
+"بوم",
+"ضربة",
+"سينمائية",
+"boom",
+"trailer"
+],
+"license": "CC0-1.0",
+"author": "Northern_Monkey (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/Northern_Monkey/sounds/177242/"
+},
+{
+"id": "impact_thud",
+"cat": "cinematic",
+"file": "sfx/cinematic/impact_thud.mp3",
+"ar": "ارتطام ثقيل",
+"use": "ظهور رقم كبير أو صورة صادمة",
+"dur": 1.01,
+"tags": [
+"ارتطام",
+"ضربة",
+"ثقيلة",
+"thud",
+"impact"
+],
+"license": "CC0-1.0",
+"author": "Made by philRacoIndie freesound.org, modified by brainfood1183 (github)",
+"source": "https://freesound.org/people/philRacoIndie/sounds/512483/"
+},
+{
+"id": "kick_drum",
+"cat": "cinematic",
+"file": "sfx/cinematic/kick_drum.mp3",
+"ar": "ضربة طبل",
+"use": "تأكيد على كلمة أو ظهور نص بإيقاع",
+"dur": 0.31,
+"tags": [
+"طبل",
+"ضربة",
+"إيقاع",
+"kick",
+"drum"
+],
+"license": "CC0-1.0",
+"author": "Zajo (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/Zajo/sounds/4832/"
+},
+{
+"id": "cymbal_crash",
+"cat": "cinematic",
+"file": "sfx/cinematic/cymbal_crash.mp3",
+"ar": "صنج",
+"use": "ختام فقرة أو كشف مفاجئ",
+"dur": 2.14,
+"tags": [
+"صنج",
+"crash",
+"cymbal"
+],
+"license": "CC0-1.0",
+"author": "menegass (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/menegass/sounds/100060/"
+},
+{
+"id": "gong",
+"cat": "cinematic",
+"file": "sfx/cinematic/gong.mp3",
+"ar": "غونغ",
+"use": "بداية فصل جديد أو حدث تاريخي مهم",
+"dur": 1.78,
+"tags": [
+"غونغ",
+"gong"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "metal_slam",
+"cat": "cinematic",
+"file": "sfx/cinematic/metal_slam.mp3",
+"ar": "ضربة معدنية",
+"use": "قرار حاسم أو ختم عنوان قوي",
+"dur": 0.84,
+"tags": [
+"معدن",
+"ضربة",
+"slam",
+"metal"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Based on sounds from OpenSourceWeb at edb003dc8ff5009476a9bcb74e79206039fb3390, edited and reworked by mirrorcult",
+"source": "https://github.com/Open-SourceWeb/OpenSourceWeb"
+},
+{
+"id": "punch",
+"cat": "cinematic",
+"file": "sfx/cinematic/punch.mp3",
+"ar": "لكمة",
+"use": "ضربة سريعة مع ظهور كلمة أو صورة",
+"dur": 0.31,
+"tags": [
+"لكمة",
+"ضربة",
+"punch",
+"hit"
+],
+"license": "CC-BY-3.0",
+"author": "Taken from Ryan Conway on freesound.org",
+"source": "https://freesound.org/people/ryanconway/sounds/260739/"
+},
+{
+"id": "glass_shatter",
+"cat": "cinematic",
+"file": "sfx/cinematic/glass_shatter.mp3",
+"ar": "تحطم زجاج",
+"use": "انهيار أو صدمة أو كسر الصورة",
+"dur": 1.13,
+"tags": [
+"زجاج",
+"تحطم",
+"glass",
+"shatter"
+],
+"license": "CC0-1.0",
+"author": "chewiesmissus (freesound)",
+"source": "https://freesound.org/people/chewiesmissus/sounds/244238/"
+},
+{
+"id": "wood_smash",
+"cat": "cinematic",
+"file": "sfx/cinematic/wood_smash.mp3",
+"ar": "تكسر خشب",
+"use": "تحطيم أو اقتحام",
+"dur": 0.89,
+"tags": [
+"خشب",
+"تكسر",
+"wood",
+"smash"
+],
+"license": "CC0-1.0",
+"author": "egomassive (freesound)",
+"source": "https://freesound.org/people/egomassive/sounds/536777/"
+},
+{
+"id": "building_collapse",
+"cat": "cinematic",
+"file": "sfx/cinematic/building_collapse.mp3",
+"ar": "انهيار مبنى",
+"use": "سقوط مبنى أو انهيار جسر أو سد",
+"dur": 5.98,
+"tags": [
+"انهيار",
+"مبنى",
+"هدم",
+"collapse"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "tree_fall",
+"cat": "cinematic",
+"file": "sfx/cinematic/tree_fall.mp3",
+"ar": "سقوط شجرة",
+"use": "سقوط كبير أو نهاية حقبة",
+"dur": 1.94,
+"tags": [
+"سقوط",
+"شجرة",
+"tree",
+"fall"
+],
+"license": "CC0-1.0",
+"author": "\"Tree falls in a forest.\" by felix.blume of Freesound.org. Cropped and mixed from stereo to mono.",
+"source": "https://freesound.org/people/felix.blume/sounds/414093/"
+},
+{
+"id": "heartbeat",
+"cat": "cinematic",
+"file": "sfx/cinematic/heartbeat.mp3",
+"ar": "نبض قلب",
+"use": "توتر وتشويق قبل لحظة حاسمة",
+"dur": 5.98,
+"tags": [
+"نبض",
+"قلب",
+"توتر",
+"heartbeat",
+"tension"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "mouse_click",
+"cat": "ui",
+"file": "sfx/ui/mouse_click.mp3",
+"ar": "نقرة فأرة",
+"use": "الضغط على زر أو رابط في تسجيل شاشة",
+"dur": 0.29,
+"tags": [
+"نقرة",
+"فأرة",
+"ماوس",
+"mouse",
+"click"
+],
+"license": "CC0-1.0",
+"author": "Kenney (kenney.nl) — UI Audio",
+"source": "https://kenney.nl/assets/ui-audio"
+},
+{
+"id": "switch",
+"cat": "ui",
+"file": "sfx/ui/switch.mp3",
+"ar": "مفتاح تبديل",
+"use": "تشغيل أو إطفاء أو تبديل خيار",
+"dur": 0.29,
+"tags": [
+"مفتاح",
+"تبديل",
+"switch",
+"toggle"
+],
+"license": "CC0-1.0",
+"author": "Kenney (kenney.nl) — UI Audio",
+"source": "https://kenney.nl/assets/ui-audio"
+},
+{
+"id": "keyboard_typing",
+"cat": "ui",
+"file": "sfx/ui/keyboard_typing.mp3",
+"ar": "كتابة على لوحة المفاتيح",
+"use": "كتابة نص على الشاشة أو بحث في جوجل",
+"dur": 2.57,
+"tags": [
+"كيبورد",
+"كتابة",
+"لوحة",
+"مفاتيح",
+"keyboard",
+"typing"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "key_press",
+"cat": "ui",
+"file": "sfx/ui/key_press.mp3",
+"ar": "ضغطة مفاتيح قصيرة",
+"use": "كلمة واحدة تُكتب أو ضغط Enter",
+"dur": 0.46,
+"tags": [
+"مفتاح",
+"ضغطة",
+"key",
+"press"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "ding",
+"cat": "ui",
+"file": "sfx/ui/ding.mp3",
+"ar": "دينغ إشعار",
+"use": "وصول إشعار أو ظهور معلومة أو رقم",
+"dur": 0.6,
+"tags": [
+"إشعار",
+"دينغ",
+"تنبيه",
+"ding",
+"notification"
+],
+"license": "CC-BY-4.0",
+"author": "\"Bike, Bell Ding, Single, 01-01.wav\" byInspectorJ (www.jshaw.co.uk) of Freesound.org; The volume has been reduced.",
+"source": "https://freesound.org/people/InspectorJ/sounds/484344/"
+},
+{
+"id": "desk_bell",
+"cat": "ui",
+"file": "sfx/ui/desk_bell.mp3",
+"ar": "جرس مكتب",
+"use": "إجابة صحيحة أو انتهاء مهمة",
+"dur": 0.67,
+"tags": [
+"جرس",
+"مكتب",
+"bell",
+"desk"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Created by SamKolber, shortened and converted to OGG and mono",
+"source": "https://freesound.org/people/SamKolber/sounds/210022/"
+},
+{
+"id": "success_chime",
+"cat": "ui",
+"file": "sfx/ui/success_chime.mp3",
+"ar": "رنين نجاح",
+"use": "إنجاز أو نتيجة إيجابية",
+"dur": 2.74,
+"tags": [
+"نجاح",
+"رنين",
+"chime",
+"success"
+],
+"license": "CC0-1.0",
+"author": "AlaskaRobotics (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/AlaskaRobotics/sounds/221515/"
+},
+{
+"id": "error_buzz",
+"cat": "ui",
+"file": "sfx/ui/error_buzz.mp3",
+"ar": "خطأ (بازر)",
+"use": "إجابة خاطئة أو معلومة مغلوطة",
+"dur": 0.31,
+"tags": [
+"خطأ",
+"بازر",
+"error",
+"wrong",
+"buzz"
+],
+"license": "CC0-1.0",
+"author": "philRacoIndie (freesound)",
+"source": "https://freesound.org/s/551543/"
+},
+{
+"id": "pop",
+"cat": "ui",
+"file": "sfx/ui/pop.mp3",
+"ar": "فرقعة",
+"use": "ظهور أيقونة أو صورة شخصية",
+"dur": 0.29,
+"tags": [
+"فرقعة",
+"pop"
+],
+"license": "CC0-1.0",
+"author": "Taken from 0ne_one111yt on freesound.org",
+"source": "https://freesound.org/people/0ne_one111yt/sounds/478213/"
+},
+{
+"id": "pop_high",
+"cat": "ui",
+"file": "sfx/ui/pop_high.mp3",
+"ar": "فرقعة حادة",
+"use": "ظهور رقم أو عنصر صغير",
+"dur": 0.29,
+"tags": [
+"فرقعة",
+"pop"
+],
+"license": "CC-BY-4.0",
+"author": "\"Pop, High, A (H1).wav\" by InspectorJ (www.jshaw.co.uk) of Freesound.org. Mixed from stereo to mono.",
+"source": "https://freesound.org/people/InspectorJ/sounds/411642/"
+},
+{
+"id": "finger_snap",
+"cat": "ui",
+"file": "sfx/ui/finger_snap.mp3",
+"ar": "طقطقة أصابع",
+"use": "تغيير مفاجئ أو \"هكذا ببساطة\"",
+"dur": 0.29,
+"tags": [
+"طقطقة",
+"أصابع",
+"snap"
+],
+"license": "CC0-1.0",
+"author": "SoundCollectah (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/SoundCollectah/sounds/109400/"
+},
+{
+"id": "beep",
+"cat": "ui",
+"file": "sfx/ui/beep.mp3",
+"ar": "صفير جهاز",
+"use": "تأكيد إلكتروني أو ماسح",
+"dur": 0.48,
+"tags": [
+"صفير",
+"بيب",
+"beep"
+],
+"license": "CC0-1.0",
+"author": "Created by dotY21.",
+"source": "https://freesound.org/people/dotY21/sounds/330726/"
+},
+{
+"id": "phone_ring",
+"cat": "ui",
+"file": "sfx/ui/phone_ring.mp3",
+"ar": "رنين هاتف",
+"use": "اتصال هاتفي أو مكالمة مهمة",
+"dur": 1.22,
+"tags": [
+"هاتف",
+"رنين",
+"مكالمة",
+"phone",
+"ring",
+"call"
+],
+"license": "CC0-1.0",
+"author": "Created by fspera, converted to OGG and modified by chromiumboy.",
+"source": "https://freesound.org/people/fspera/sounds/528111/"
+},
+{
+"id": "coin",
+"cat": "ui",
+"file": "sfx/ui/coin.mp3",
+"ar": "عملة معدنية",
+"use": "أخبار المال والأسعار والتكاليف",
+"dur": 1.58,
+"tags": [
+"عملة",
+"نقود",
+"فلوس",
+"coin",
+"money"
+],
+"license": "CC0-1.0",
+"author": "Sampled from sfx created by Sorce, from freesound",
+"source": "https://freesound.org/people/sorce/sounds/425130"
+},
+{
+"id": "cash_register",
+"cat": "ui",
+"file": "sfx/ui/cash_register.mp3",
+"ar": "آلة نقود (كاشير)",
+"use": "أرقام الأرباح والصفقات والميزانيات",
+"dur": 1.49,
+"tags": [
+"كاشير",
+"فلوس",
+"ربح",
+"cash",
+"register",
+"money"
+],
+"license": "CC-BY-3.0",
+"author": "\"Cash till\" by Janis Lukss — OpenSFX (OpenTTD)",
+"source": "https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo"
+},
+{
+"id": "page_turn",
+"cat": "paper",
+"file": "sfx/paper/page_turn.mp3",
+"ar": "قلب صفحة",
+"use": "الانتقال لصفحة من كتاب أو وثيقة تاريخية",
+"dur": 0.58,
+"tags": [
+"صفحة",
+"كتاب",
+"ورق",
+"page",
+"turn",
+"book"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "page_flip",
+"cat": "paper",
+"file": "sfx/paper/page_flip.mp3",
+"ar": "تقليب ورقة",
+"use": "عرض وثيقة أو تقرير على الشاشة",
+"dur": 0.43,
+"tags": [
+"ورق",
+"تقليب",
+"paper",
+"flip"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "pen_write",
+"cat": "paper",
+"file": "sfx/paper/pen_write.mp3",
+"ar": "كتابة بالقلم",
+"use": "كتابة نص أو توقيع أو رسم خط على الخريطة",
+"dur": 0.86,
+"tags": [
+"قلم",
+"كتابة",
+"رسم",
+"خريطة",
+"pen",
+"write",
+"scribble"
+],
+"license": "CC0-1.0",
+"author": "Originally 'Pen Clicks and Writing on Paper' created by PDaefaul. Cut, spliced and converted by Krunklehorn.",
+"source": "https://freesound.org/people/PDaefaul/sounds/631971/"
+},
+{
+"id": "pen_scribble",
+"cat": "paper",
+"file": "sfx/paper/pen_scribble.mp3",
+"ar": "خربشة قلم",
+"use": "شطب أو تحديد منطقة أو سهم",
+"dur": 0.55,
+"tags": [
+"قلم",
+"خربشة",
+"scribble"
+],
+"license": "CC0-1.0",
+"author": "Originally 'Pen Clicks and Writing on Paper' created by PDaefaul. Cut, spliced and converted by Krunklehorn.",
+"source": "https://freesound.org/people/PDaefaul/sounds/631971/"
+},
+{
+"id": "pen_click",
+"cat": "paper",
+"file": "sfx/paper/pen_click.mp3",
+"ar": "نقرة قلم",
+"use": "قبل الكتابة أو ظهور نقطة على الخريطة",
+"dur": 0.41,
+"tags": [
+"قلم",
+"نقرة",
+"pen",
+"click"
+],
+"license": "CC0-1.0",
+"author": "Created by dslrguide, converted to ogg and mono by Themias",
+"source": "https://freesound.org/people/dslrguide/sounds/321484"
+},
+{
+"id": "stamp",
+"cat": "paper",
+"file": "sfx/paper/stamp.mp3",
+"ar": "ختم",
+"use": "ختم وثيقة \"سري\" أو \"مرفوض\"",
+"dur": 0.6,
+"tags": [
+"ختم",
+"سري",
+"وثيقة",
+"stamp"
+],
+"license": "CC-BY-4.0",
+"author": "Created by kermite607. Converted from WAV to OGG by Lomcastar, then to mono by crazybrain23.",
+"source": "https://freesound.org/people/kermite607/sounds/362624/"
+},
+{
+"id": "stamp_heavy",
+"cat": "paper",
+"file": "sfx/paper/stamp_heavy.mp3",
+"ar": "ختم ثقيل",
+"use": "قرار رسمي أو توقيع معاهدة",
+"dur": 0.29,
+"tags": [
+"ختم",
+"رسمي",
+"stamp",
+"heavy"
+],
+"license": "CC-BY-4.0",
+"author": "Created by newagesoup. Converted from WAV to OGG by Lomcastar, then to mono by crazybrain23.",
+"source": "https://freesound.org/people/newagesoup/sounds/347323/"
+},
+{
+"id": "printer",
+"cat": "paper",
+"file": "sfx/paper/printer.mp3",
+"ar": "طباعة وقطع ورقة",
+"use": "خروج تقرير أو وثيقة",
+"dur": 1.46,
+"tags": [
+"طابعة",
+"طباعة",
+"printer"
+],
+"license": "CC0-1.0",
+"author": "receipt printing.wav by 13F_Panska_Tlolkova_Matilda. This version is cleaned up, shortened, and converted to OGG.",
+"source": "https://freesound.org/people/13F_Panska_Tlolkova_Matilda/sounds/378331"
+},
+{
+"id": "scissors",
+"cat": "paper",
+"file": "sfx/paper/scissors.mp3",
+"ar": "مقص",
+"use": "قص صورة أو قصاصة صحيفة",
+"dur": 1.46,
+"tags": [
+"مقص",
+"قص",
+"scissors",
+"cut"
+],
+"license": "CC0-1.0",
+"author": "User Hanbaal on freesound.org. Converted to ogg by TheShuEd",
+"source": "https://freesound.org/people/Hanbaal/sounds/178669/"
+},
+{
+"id": "tv_static",
+"cat": "news",
+"file": "sfx/news/tv_static.mp3",
+"ar": "تشويش تلفاز",
+"use": "انقطاع البث أو انتقال لأرشيف قديم",
+"dur": 1.03,
+"tags": [
+"تشويش",
+"تلفاز",
+"static",
+"noise",
+"tv"
+],
+"license": "CC-BY-4.0",
+"author": "digifishmusic (freesound)",
+"source": "https://freesound.org/people/digifishmusic/sounds/74936/"
+},
+{
+"id": "radio_static",
+"cat": "news",
+"file": "sfx/news/radio_static.mp3",
+"ar": "تشويش راديو",
+"use": "بث إذاعي قديم أو ضبط موجة",
+"dur": 5.04,
+"tags": [
+"راديو",
+"تشويش",
+"موجة",
+"radio",
+"static",
+"tuning"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "radio_chatter",
+"cat": "news",
+"file": "sfx/news/radio_chatter.mp3",
+"ar": "اتصال لاسلكي",
+"use": "اتصالات عسكرية أو شرطة عبر اللاسلكي",
+"dur": 1.9,
+"tags": [
+"لاسلكي",
+"اتصال",
+"راديو",
+"radio",
+"chatter",
+"walkie"
+],
+"license": "CC-BY-3.0",
+"author": "kwahmah_02 (freesound)",
+"source": "https://freesound.org/people/kwahmah_02/sounds/255851/"
+},
+{
+"id": "morse",
+"cat": "news",
+"file": "sfx/news/morse.mp3",
+"ar": "شيفرة مورس",
+"use": "برقية أو رسالة سرية أو خبر عاجل قديم",
+"dur": 1.54,
+"tags": [
+"مورس",
+"برقية",
+"تلغراف",
+"morse",
+"telegraph"
+],
+"license": "CC-BY-3.0",
+"author": "\"Morse\" by Janis Lukss — OpenSFX (OpenTTD)",
+"source": "https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo"
+},
+{
+"id": "siren_long",
+"cat": "news",
+"file": "sfx/news/siren_long.mp3",
+"ar": "صفارة إنذار طويلة",
+"use": "إنذار عام أو غارة أو حالة طوارئ",
+"dur": 12.02,
+"tags": [
+"صفارة",
+"إنذار",
+"غارة",
+"siren",
+"alarm",
+"raid"
+],
+"license": "CC-BY-4.0",
+"author": "IFartInUrGeneralDirection (freesound) via tgstation",
+"source": "https://freesound.org/s/46092/"
+},
+{
+"id": "police_siren",
+"cat": "news",
+"file": "sfx/news/police_siren.mp3",
+"ar": "صفارة شرطة",
+"use": "أخبار الحوادث والأمن",
+"dur": 2.88,
+"tags": [
+"صفارة",
+"شرطة",
+"siren",
+"police"
+],
+"license": "CC0-1.0",
+"author": "Piotr Zaczek (blukotek) on freesound.org",
+"source": "https://freesound.org/people/blukotek/sounds/431651/"
+},
+{
+"id": "ambulance_siren",
+"cat": "news",
+"file": "sfx/news/ambulance_siren.mp3",
+"ar": "صفارة إسعاف",
+"use": "مشاهد الإنقاذ والضحايا",
+"dur": 1.78,
+"tags": [
+"إسعاف",
+"صفارة",
+"ambulance"
+],
+"license": "CC-BY-3.0",
+"author": "Lalks on freesound.org, small edit by Velken",
+"source": "https://freesound.org/people/Lalks/sounds/336894/"
+},
+{
+"id": "car_alarm",
+"cat": "news",
+"file": "sfx/news/car_alarm.mp3",
+"ar": "إنذار سيارة",
+"use": "سرقة أو حادث في الشارع",
+"dur": 2.26,
+"tags": [
+"إنذار",
+"سيارة",
+"car",
+"alarm"
+],
+"license": "CC-BY-4.0",
+"author": "InspectorJ (freesound)",
+"source": "https://freesound.org/people/InspectorJ/sounds/422051/"
+},
+{
+"id": "alarm_bell",
+"cat": "news",
+"file": "sfx/news/alarm_bell.mp3",
+"ar": "جرس إنذار",
+"use": "حريق أو إخلاء أو تنبيه بخطر",
+"dur": 1.82,
+"tags": [
+"جرس",
+"إنذار",
+"alarm",
+"bell"
+],
+"license": "CC0-1.0",
+"author": "kyles (freesound)",
+"source": "https://freesound.org/people/kyles/sounds/452175/"
+},
+{
+"id": "factory_whistle",
+"cat": "news",
+"file": "sfx/news/factory_whistle.mp3",
+"ar": "صافرة مصنع",
+"use": "بداية يوم عمل أو أخبار الصناعة",
+"dur": 2.35,
+"tags": [
+"صافرة",
+"مصنع",
+"whistle",
+"factory"
+],
+"license": "CC-BY-3.0",
+"author": "\"Factory Whistle\" by Janis Lukss — OpenSFX (OpenTTD)",
+"source": "https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo"
+},
+{
+"id": "explosion_huge",
+"cat": "war",
+"file": "sfx/war/explosion_huge.mp3",
+"ar": "انفجار ضخم",
+"use": "ضربة كبرى أو قصف مدمر",
+"dur": 5.98,
+"tags": [
+"انفجار",
+"ضخم",
+"قصف",
+"explosion",
+"huge",
+"bomb"
+],
+"license": "CC0-1.0",
+"author": "unfa (freesound)",
+"source": "https://freesound.org/people/unfa/sounds/352143/"
+},
+{
+"id": "explosion_big",
+"cat": "war",
+"file": "sfx/war/explosion_big.mp3",
+"ar": "انفجار قوي",
+"use": "سقوط صاروخ أو قصف هدف على الخريطة",
+"dur": 3.14,
+"tags": [
+"انفجار",
+"قصف",
+"explosion",
+"bomb"
+],
+"license": "CC-BY-SA-3.0",
+"author": "vgstation at c5edbfd7179288080f081e2b8ac2496b7e4455db",
+"source": "https://github.com/vgstation-coders/vgstation13/tree/c5edbfd7179288080f081e2b8ac2496b7e4455db/sound/effects"
+},
+{
+"id": "explosion_debris",
+"cat": "war",
+"file": "sfx/war/explosion_debris.mp3",
+"ar": "انفجار مع حطام",
+"use": "تدمير مبنى أو جسر مع تطاير الحطام",
+"dur": 3.14,
+"tags": [
+"انفجار",
+"حطام",
+"debris"
+],
+"license": "CC-BY-SA-3.0",
+"author": "vgstation at c5edbfd7179288080f081e2b8ac2496b7e4455db",
+"source": "https://github.com/vgstation-coders/vgstation13/tree/c5edbfd7179288080f081e2b8ac2496b7e4455db/sound/effects"
+},
+{
+"id": "explosion_rumble",
+"cat": "war",
+"file": "sfx/war/explosion_rumble.mp3",
+"ar": "انفجار وتساقط ركام",
+"use": "انفجار يتبعه انهيار وركام",
+"dur": 3.38,
+"tags": [
+"انفجار",
+"ركام",
+"rubble",
+"explosion"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "explosion_medium",
+"cat": "war",
+"file": "sfx/war/explosion_medium.mp3",
+"ar": "انفجار متوسط",
+"use": "قذيفة أو عبوة ناسفة",
+"dur": 0.94,
+"tags": [
+"انفجار",
+"قذيفة",
+"explosion"
+],
+"license": "CC-BY-3.0",
+"author": "bmlake (freesound)",
+"source": "https://freesound.org/people/bmlake/sounds/251617/"
+},
+{
+"id": "explosion_small",
+"cat": "war",
+"file": "sfx/war/explosion_small.mp3",
+"ar": "انفجار صغير",
+"use": "قنبلة يدوية أو لغم أو أيقونة انفجار",
+"dur": 0.43,
+"tags": [
+"انفجار",
+"صغير",
+"قنبلة",
+"grenade"
+],
+"license": "CC0-1.0",
+"author": "j1987 (freesound)",
+"source": "https://freesound.org/people/j1987/sounds/140727/"
+},
+{
+"id": "explosion_far",
+"cat": "war",
+"file": "sfx/war/explosion_far.mp3",
+"ar": "انفجار بعيد",
+"use": "أجواء حرب في الخلفية أو قصف مدينة من بعيد",
+"dur": 4.7,
+"tags": [
+"بعيد",
+"قصف",
+"distant",
+"explosion"
+],
+"license": "CC-BY-SA-3.0",
+"author": "vgstation at c5edbfd7179288080f081e2b8ac2496b7e4455db",
+"source": "https://github.com/vgstation-coders/vgstation13/tree/c5edbfd7179288080f081e2b8ac2496b7e4455db/sound/effects"
+},
+{
+"id": "artillery_far",
+"cat": "war",
+"file": "sfx/war/artillery_far.mp3",
+"ar": "قصف مدفعي بعيد",
+"use": "تحت لقطات خطوط الجبهة",
+"dur": 4.39,
+"tags": [
+"مدفعية",
+"قصف",
+"artillery",
+"shelling"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "rifle_shot",
+"cat": "war",
+"file": "sfx/war/rifle_shot.mp3",
+"ar": "طلقة بندقية",
+"use": "طلقة واحدة واضحة أو قناص",
+"dur": 0.48,
+"tags": [
+"بندقية",
+"طلقة",
+"رصاص",
+"rifle",
+"shot"
+],
+"license": "CC-BY-4.0",
+"author": "DoctorBoomstick (CDDA-Soundpacks, own recording)",
+"source": "https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/rifles/automatic_rifle/outdoor_gunfire/credits.md"
+},
+{
+"id": "rifle_burst",
+"cat": "war",
+"file": "sfx/war/rifle_burst.mp3",
+"ar": "رشقة بندقية آلية",
+"use": "اشتباك قصير",
+"dur": 0.41,
+"tags": [
+"رشقة",
+"بندقية",
+"آلية",
+"burst",
+"automatic"
+],
+"license": "CC-BY-4.0",
+"author": "DoctorBoomstick (CDDA-Soundpacks, own recording)",
+"source": "https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/rifles/automatic_rifle/outdoor_gunfire/credits.md"
+},
+{
+"id": "machine_gun",
+"cat": "war",
+"file": "sfx/war/machine_gun.mp3",
+"ar": "رشاش",
+"use": "اشتباك عنيف وإطلاق نار كثيف",
+"dur": 0.74,
+"tags": [
+"رشاش",
+"رصاص",
+"machine",
+"gun"
+],
+"license": "CC-BY-3.0",
+"author": "WEL (soundbible)",
+"source": "https://soundbible.com/1575-High-Definition-Machine-Gun.html"
+},
+{
+"id": "ww2_rifle",
+"cat": "war",
+"file": "sfx/war/ww2_rifle.mp3",
+"ar": "بندقية حرب عالمية (غاراند)",
+"use": "مشاهد الحرب العالمية الثانية",
+"dur": 0.67,
+"tags": [
+"حرب",
+"عالمية",
+"بندقية",
+"garand",
+"ww2"
+],
+"license": "CC-BY-3.0",
+"author": "battlestar10 (soundbible)",
+"source": "https://soundbible.com/1666-M1-Garand-Gunfire.html"
+},
+{
+"id": "gunshot",
+"cat": "war",
+"file": "sfx/war/gunshot.mp3",
+"ar": "إطلاق نار",
+"use": "طلقة حادة أو اغتيال",
+"dur": 0.53,
+"tags": [
+"طلقة",
+"إطلاق",
+"نار",
+"gunshot"
+],
+"license": "CC-BY-3.0",
+"author": "Mike Koenig (soundbible)",
+"source": "https://soundbible.com/1998-Gun-Fire.html"
+},
+{
+"id": "pistol",
+"cat": "war",
+"file": "sfx/war/pistol.mp3",
+"ar": "طلقة مسدس",
+"use": "طلقة مسدس واحدة",
+"dur": 1.78,
+"tags": [
+"مسدس",
+"طلقة",
+"pistol"
+],
+"license": "CC-BY-3.0",
+"author": "GoodSoundForYou (soundbible)",
+"source": "https://soundbible.com/2120-9mm-Gunshot.html"
+},
+{
+"id": "shotgun",
+"cat": "war",
+"file": "sfx/war/shotgun.mp3",
+"ar": "بندقية خرطوش",
+"use": "طلقة قوية قريبة",
+"dur": 1.92,
+"tags": [
+"خرطوش",
+"shotgun"
+],
+"license": "CC-BY-4.0",
+"author": "MATRIXXX_ (freesound)",
+"source": "https://freesound.org/people/MATRIXXX_/sounds/473846/"
+},
+{
+"id": "rocket_launch",
+"cat": "war",
+"file": "sfx/war/rocket_launch.mp3",
+"ar": "إطلاق صاروخ",
+"use": "مسار صاروخ على الخريطة أو إطلاق قذيفة",
+"dur": 1.9,
+"tags": [
+"صاروخ",
+"إطلاق",
+"rocket",
+"missile",
+"launch"
+],
+"license": "CC0-1.0 + CC-BY-4.0",
+"author": "morganpurkis (CC0) & CGEffex (CC-BY-4.0) (freesound)",
+"source": "https://freesound.org/people/CGEffex/sounds/100772/"
+},
+{
+"id": "mortar",
+"cat": "war",
+"file": "sfx/war/mortar.mp3",
+"ar": "قاذف / هاون",
+"use": "إطلاق قذيفة هاون أو قاذف",
+"dur": 0.48,
+"tags": [
+"هاون",
+"قاذف",
+"mortar",
+"launcher"
+],
+"license": "CC0-1.0",
+"author": "LeMudCrab (freesound)",
+"source": "https://freesound.org/people/LeMudCrab/sounds/163458/"
+},
+{
+"id": "reload_rifle",
+"cat": "war",
+"file": "sfx/war/reload_rifle.mp3",
+"ar": "تلقيم بندقية",
+"use": "قبل الاشتباك أو للانتقال لمشهد عسكري",
+"dur": 3.07,
+"tags": [
+"تلقيم",
+"سلاح",
+"reload"
+],
+"license": "CC-BY-4.0",
+"author": "DoctorBoomstick (CDDA-Soundpacks, own recording)",
+"source": "https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/reload/mag_fed_bolt_action_rifle/credits.md"
+},
+{
+"id": "helicopter",
+"cat": "war",
+"file": "sfx/war/helicopter.mp3",
+"ar": "مروحية",
+"use": "إنزال جوي أو إنقاذ أو تحرك عسكري",
+"dur": 2.47,
+"tags": [
+"مروحية",
+"هليكوبتر",
+"helicopter"
+],
+"license": "CC-BY-SA-3.0",
+"author": "\"helicopterRaw_16sec.wav\" by lorenzosu, edited by Wuzzy — OpenSFX (OpenTTD)",
+"source": "https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo"
+},
+{
+"id": "jet_flyby",
+"cat": "war",
+"file": "sfx/war/jet_flyby.mp3",
+"ar": "مرور طائرات نفاثة",
+"use": "غارة جوية أو استعراض طيران",
+"dur": 3.02,
+"tags": [
+"طائرة",
+"نفاثة",
+"حربية",
+"jet",
+"flyby"
+],
+"license": "CC0-1.0",
+"author": "\"5_Navy-Blue-Angels-jets_CLIP.wav\" by ibisradio, edited by Wuzzy — OpenSFX (OpenTTD)",
+"source": "https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo"
+},
+{
+"id": "jet_takeoff",
+"cat": "war",
+"file": "sfx/war/jet_takeoff.mp3",
+"ar": "طائرة نفاثة قريبة",
+"use": "إقلاع مقاتلة أو مرور منخفض",
+"dur": 3.98,
+"tags": [
+"طائرة",
+"نفاثة",
+"إقلاع",
+"jet",
+"takeoff"
+],
+"license": "CC-BY-3.0",
+"author": "\"Landing Jet 5 (Close).wav\" by bigpickle51, edited by Wuzzy — OpenSFX (OpenTTD)",
+"source": "https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo"
+},
+{
+"id": "airliner_takeoff",
+"cat": "war",
+"file": "sfx/war/airliner_takeoff.mp3",
+"ar": "إقلاع طائرة ركاب",
+"use": "سفر أو رحلات أو أخبار الطيران",
+"dur": 3.34,
+"tags": [
+"طائرة",
+"إقلاع",
+"مطار",
+"airplane",
+"takeoff"
+],
+"license": "CC-BY-3.0",
+"author": "\"Passenger jet departs 2.wav\" by digifishmusic, edited by Wuzzy — OpenSFX (OpenTTD)",
+"source": "https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo"
+},
+{
+"id": "prop_plane",
+"cat": "war",
+"file": "sfx/war/prop_plane.mp3",
+"ar": "طائرة مروحية قديمة",
+"use": "طيران الحرب العالمية أو الطائرات الصغيرة",
+"dur": 3.1,
+"tags": [
+"طائرة",
+"مروحة",
+"propeller",
+"plane"
+],
+"license": "CC-BY-3.0",
+"author": "\"Plane Cessna start stop.wav\" by Cheeseheadburger, edited by Wuzzy — OpenSFX (OpenTTD)",
+"source": "https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo"
+},
+{
+"id": "engine_start",
+"cat": "war",
+"file": "sfx/war/engine_start.mp3",
+"ar": "تشغيل محرك",
+"use": "تحرك رتل أو آلية",
+"dur": 2.42,
+"tags": [
+"محرك",
+"تشغيل",
+"engine",
+"start"
+],
+"license": "CC-BY-3.0",
+"author": "Frederik_Sunne (freesound)",
+"source": "https://freesound.org/people/Frederik_Sunne/sounds/324138/"
+},
+{
+"id": "vehicle_start",
+"cat": "war",
+"file": "sfx/war/vehicle_start.mp3",
+"ar": "تشغيل مركبة",
+"use": "تحرك دبابات أو مدرعات",
+"dur": 1.66,
+"tags": [
+"مركبة",
+"دبابة",
+"vehicle",
+"tank"
+],
+"license": "CC-BY-4.0",
+"author": "InspectorJ (www.jshaw.co.uk) of Freesound.org",
+"source": "https://freesound.org/people/InspectorJ/sounds/338954/"
+},
+{
+"id": "ship_horn",
+"cat": "war",
+"file": "sfx/war/ship_horn.mp3",
+"ar": "بوق سفينة",
+"use": "سفن حربية أو موانئ أو رحلات بحرية",
+"dur": 2.14,
+"tags": [
+"سفينة",
+"بوق",
+"ميناء",
+"ship",
+"horn"
+],
+"license": "CC-BY-3.0",
+"author": "\"ship2_bergen.aif\" by Leon Milo, edited by Wuzzy — OpenSFX (OpenTTD)",
+"source": "https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo"
+},
+{
+"id": "trench_whistle",
+"cat": "war",
+"file": "sfx/war/trench_whistle.mp3",
+"ar": "صافرة الخنادق",
+"use": "لحظة بدء الهجوم (الحرب العالمية الأولى)",
+"dur": 1.63,
+"tags": [
+"صافرة",
+"هجوم",
+"خنادق",
+"whistle"
+],
+"license": "CC0-1.0",
+"author": "Deleted user on freesound.org.",
+"source": "https://freesound.org/people/deleted_user_2104797/sounds/324539/"
+},
+{
+"id": "geiger",
+"cat": "war",
+"file": "sfx/war/geiger.mp3",
+"ar": "عداد إشعاع (غايغر)",
+"use": "مشاهد السلاح النووي وتشيرنوبل",
+"dur": 1.03,
+"tags": [
+"نووي",
+"إشعاع",
+"غايغر",
+"geiger",
+"nuclear"
+],
+"license": "CC0-1.0",
+"author": "JustLaz (freesound)",
+"source": "https://freesound.org/s/616512/"
+},
+{
+"id": "radar_ping",
+"cat": "war",
+"file": "sfx/war/radar_ping.mp3",
+"ar": "رادار",
+"use": "رصد هدف أو تتبع طائرة على الخريطة",
+"dur": 2.38,
+"tags": [
+"رادار",
+"رصد",
+"radar",
+"ping"
+],
+"license": "CC0-1.0",
+"author": "User unfa from freesound.org Remixed to mono and .ogg by metalgearsloth.",
+"source": "https://freesound.org/people/unfa/sounds/215415/"
+},
+{
+"id": "applause",
+"cat": "people",
+"file": "sfx/people/applause.mp3",
+"ar": "تصفيق جمهور",
+"use": "نهاية خطاب أو إنجاز أو فوز",
+"dur": 3.72,
+"tags": [
+"تصفيق",
+"جمهور",
+"applause",
+"clapping"
+],
+"license": "CC-BY-3.0",
+"author": "\"Approx 850 - Enthusiast Audience.wav\" by lonemonk, edited by Wuzzy — OpenSFX (OpenTTD)",
+"source": "https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo"
+},
+{
+"id": "slow_clap",
+"cat": "people",
+"file": "sfx/people/slow_clap.mp3",
+"ar": "تصفيق بطيء (ساخر)",
+"use": "سخرية أو \"أحسنت!\" بشكل تهكمي",
+"dur": 2.54,
+"tags": [
+"تصفيق",
+"بطيء",
+"ساخر",
+"slow",
+"clap"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "crowd_ooh",
+"cat": "people",
+"file": "sfx/people/crowd_ooh.mp3",
+"ar": "دهشة جماعية (أووه)",
+"use": "معلومة مدهشة أو رقم صادم",
+"dur": 1.73,
+"tags": [
+"دهشة",
+"جمهور",
+"أووه",
+"crowd",
+"ooh",
+"wow"
+],
+"license": "CC-BY-3.0",
+"author": "\"Oooh sound\" by Janis Lukss — OpenSFX (OpenTTD)",
+"source": "https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo"
+},
+{
+"id": "laugh_crowd",
+"cat": "people",
+"file": "sfx/people/laugh_crowd.mp3",
+"ar": "ضحك جمهور",
+"use": "موقف مضحك أو مفارقة",
+"dur": 5.11,
+"tags": [
+"ضحك",
+"جمهور",
+"laugh",
+"audience",
+"sitcom"
+],
+"license": "CC0-1.0",
+"author": "Created by Kinoton, clipped by github Henri215, turned into mono by github lapatison",
+"source": "https://freesound.org/people/Kinoton/sounds/371562/"
+},
+{
+"id": "gasp_male",
+"cat": "people",
+"file": "sfx/people/gasp_male.mp3",
+"ar": "شهقة رجل",
+"use": "صدمة أو مفاجأة",
+"dur": 0.53,
+"tags": [
+"شهقة",
+"صدمة",
+"gasp"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Taken from tgstation at https://github.com/tgstation/tgstation/commit/f7a49c4068f1277e6857baf0892d355f1c055974",
+"source": "https://github.com/tgstation/tgstation/tree/f7a49c4068f1277e6857baf0892d355f1c055974/sound/voice/human"
+},
+{
+"id": "gasp_female",
+"cat": "people",
+"file": "sfx/people/gasp_female.mp3",
+"ar": "شهقة امرأة",
+"use": "صدمة أو مفاجأة",
+"dur": 0.53,
+"tags": [
+"شهقة",
+"صدمة",
+"gasp"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Taken from tgstation at https://github.com/tgstation/tgstation/commit/f7a49c4068f1277e6857baf0892d355f1c055974",
+"source": "https://github.com/tgstation/tgstation/tree/f7a49c4068f1277e6857baf0892d355f1c055974/sound/voice/human"
+},
+{
+"id": "cough",
+"cat": "people",
+"file": "sfx/people/cough.mp3",
+"ar": "سعال",
+"use": "إحراج أو صمت محرج",
+"dur": 0.55,
+"tags": [
+"سعال",
+"إحراج",
+"cough",
+"awkward"
+],
+"license": "CC0-1.0",
+"author": "dastudiospr on freesound.org",
+"source": "https://freesound.org/people/dastudiospr/sounds/537150/"
+},
+{
+"id": "whistle_human",
+"cat": "people",
+"file": "sfx/people/whistle_human.mp3",
+"ar": "صفير إعجاب",
+"use": "إعجاب أو \"واو\"",
+"dur": 0.91,
+"tags": [
+"صفير",
+"إعجاب",
+"whistle",
+"wow"
+],
+"license": "CC0-1.0",
+"author": "Taken from https://freesound.org/",
+"source": "https://freesound.org/people/taure/sounds/411638/"
+},
+{
+"id": "market_crowd",
+"cat": "people",
+"file": "sfx/people/market_crowd.mp3",
+"ar": "سوق وزحام",
+"use": "خلفية لسوق قديم أو مدينة مزدحمة",
+"dur": 20.04,
+"tags": [
+"سوق",
+"زحام",
+"ناس",
+"crowd",
+"market"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "harbor",
+"cat": "people",
+"file": "sfx/people/harbor.mp3",
+"ar": "ميناء",
+"use": "خلفية ميناء وتجارة بحرية",
+"dur": 18.02,
+"tags": [
+"ميناء",
+"بحر",
+"harbor",
+"port"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "steps_concrete",
+"cat": "people",
+"file": "sfx/people/steps_concrete.mp3",
+"ar": "خطوات على رصيف",
+"use": "شخص يمشي أو يقترب",
+"dur": 3.86,
+"tags": [
+"خطوات",
+"مشي",
+"footsteps",
+"walk"
+],
+"license": "CC-BY-4.0",
+"author": "InspectorJ (freesound)",
+"source": "https://freesound.org/people/InspectorJ/sounds/336598/"
+},
+{
+"id": "steps_gravel",
+"cat": "people",
+"file": "sfx/people/steps_gravel.mp3",
+"ar": "خطوات على حصى",
+"use": "جنود يتقدمون في الميدان",
+"dur": 1.94,
+"tags": [
+"خطوات",
+"حصى",
+"جنود",
+"gravel",
+"steps"
+],
+"license": "CC0-1.0",
+"author": "ali-6868 (freesound)",
+"source": "https://freesound.org/people/ali-6868/sounds/384871/"
+},
+{
+"id": "steps_floor",
+"cat": "people",
+"file": "sfx/people/steps_floor.mp3",
+"ar": "خطوات داخل مبنى",
+"use": "دخول قاعة أو ممر",
+"dur": 1.18,
+"tags": [
+"خطوات",
+"أرضية",
+"floor",
+"steps"
+],
+"license": "CC0-1.0",
+"author": "kretopi (freesound)",
+"source": "https://freesound.org/people/kretopi/sounds/406744/"
+},
+{
+"id": "heels",
+"cat": "people",
+"file": "sfx/people/heels.mp3",
+"ar": "خطوات حذاء رسمي",
+"use": "دخول شخصية رسمية",
+"dur": 1.13,
+"tags": [
+"حذاء",
+"خطوات",
+"رسمي",
+"heels"
+],
+"license": "CC0-1.0",
+"author": "Taken from NachtmahrTV on freesound.org, clipped by Centronias",
+"source": "https://freesound.org/people/NachtmahrTV/sounds/571801/"
+},
+{
+"id": "steps_snow",
+"cat": "people",
+"file": "sfx/people/steps_snow.mp3",
+"ar": "خطوات على ثلج",
+"use": "حملات الشتاء (مثل غزو روسيا)",
+"dur": 2.47,
+"tags": [
+"ثلج",
+"خطوات",
+"snow",
+"steps"
+],
+"license": "CC0-1.0",
+"author": "alexo400, split by EmoGarbage404",
+"source": "https://freesound.org/people/alexo400/sounds/543385/"
+},
+{
+"id": "door_close",
+"cat": "people",
+"file": "sfx/people/door_close.mp3",
+"ar": "إغلاق باب",
+"use": "نهاية لقاء أو خروج شخص",
+"dur": 0.46,
+"tags": [
+"باب",
+"إغلاق",
+"door",
+"close"
+],
+"license": "CC0-1.0",
+"author": "kyles (freesound)",
+"source": "https://freesound.org/people/kyles/sounds/407312/"
+},
+{
+"id": "rain",
+"cat": "nature",
+"file": "sfx/nature/rain.mp3",
+"ar": "مطر غزير",
+"use": "أجواء ممطرة أو حزينة",
+"dur": 20.04,
+"tags": [
+"مطر",
+"rain"
+],
+"license": "CC0-1.0",
+"author": "Ali@k (freesound)",
+"source": "https://freesound.org/people/Ali@k/sounds/128907/"
+},
+{
+"id": "thunder",
+"cat": "nature",
+"file": "sfx/nature/thunder.mp3",
+"ar": "رعد قريب",
+"use": "صدمة قوية أو عاصفة",
+"dur": 5.98,
+"tags": [
+"رعد",
+"صاعقة",
+"thunder"
+],
+"license": "CC-BY-3.0",
+"author": "mrsorbias (freesound)",
+"source": "https://freesound.org/people/mrsorbias/sounds/574687/"
+},
+{
+"id": "thunder_far",
+"cat": "nature",
+"file": "sfx/nature/thunder_far.mp3",
+"ar": "رعد بعيد",
+"use": "نذير بخطر قادم",
+"dur": 5.98,
+"tags": [
+"رعد",
+"بعيد",
+"thunder",
+"distant"
+],
+"license": "CC0-1.0",
+"author": "chromakei (freesound)",
+"source": "https://freesound.org/people/chromakei/sounds/398287/"
+},
+{
+"id": "thunderstorm",
+"cat": "nature",
+"file": "sfx/nature/thunderstorm.mp3",
+"ar": "عاصفة رعدية",
+"use": "خلفية عاصفة كاملة",
+"dur": 20.04,
+"tags": [
+"عاصفة",
+"رعد",
+"مطر",
+"thunderstorm"
+],
+"license": "CC0-1.0",
+"author": "bruno.auzet (freesound)",
+"source": "https://freesound.org/people/bruno.auzet/sounds/531041/"
+},
+{
+"id": "wind",
+"cat": "nature",
+"file": "sfx/nature/wind.mp3",
+"ar": "رياح",
+"use": "صحراء أو مشهد واسع أو خريطة",
+"dur": 20.04,
+"tags": [
+"رياح",
+"صحراء",
+"wind",
+"desert"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "wind_storm",
+"cat": "nature",
+"file": "sfx/nature/wind_storm.mp3",
+"ar": "عاصفة رياح",
+"use": "عاصفة رملية أو ثلجية",
+"dur": 20.04,
+"tags": [
+"عاصفة",
+"رياح",
+"windstorm"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "snowstorm",
+"cat": "nature",
+"file": "sfx/nature/snowstorm.mp3",
+"ar": "عاصفة ثلجية",
+"use": "حملات الشتاء والجبهة الشرقية",
+"dur": 20.04,
+"tags": [
+"ثلج",
+"عاصفة",
+"snow",
+"blizzard"
+],
+"license": "CC0-1.0",
+"author": "guyburns (freesound)",
+"source": "https://freesound.org/people/guyburns/sounds/473815/"
+},
+{
+"id": "fire",
+"cat": "nature",
+"file": "sfx/nature/fire.mp3",
+"ar": "نار مشتعلة",
+"use": "مدن تحترق أو أجواء ليلية",
+"dur": 18.02,
+"tags": [
+"نار",
+"حريق",
+"fire"
+],
+"license": "CC-BY-4.0",
+"author": "Taken and edited from source",
+"source": "https://freesound.org/people/juskiddink/sounds/215658/"
+},
+{
+"id": "flames",
+"cat": "nature",
+"file": "sfx/nature/flames.mp3",
+"ar": "اشتعال لهب",
+"use": "اشتعال حريق أو إحراق وثيقة",
+"dur": 1.78,
+"tags": [
+"لهب",
+"اشتعال",
+"flame"
+],
+"license": "CC0-1.0",
+"author": "\"Cardboard burning 2\" by raremess of Freesound.org. Edited",
+"source": "https://freesound.org/people/raremess/sounds/222557/"
+},
+{
+"id": "waves",
+"cat": "nature",
+"file": "sfx/nature/waves.mp3",
+"ar": "أمواج بحر",
+"use": "سواحل وإنزال بحري ورحلات",
+"dur": 20.04,
+"tags": [
+"أمواج",
+"بحر",
+"شاطئ",
+"waves",
+"sea"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "waves_crash",
+"cat": "nature",
+"file": "sfx/nature/waves_crash.mp3",
+"ar": "تلاطم أمواج",
+"use": "بحر هائج أو عاصفة بحرية",
+"dur": 20.04,
+"tags": [
+"أمواج",
+"تلاطم",
+"waves",
+"crash"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "river",
+"cat": "nature",
+"file": "sfx/nature/river.mp3",
+"ar": "نهر جارٍ",
+"use": "عبور نهر أو مشهد هادئ",
+"dur": 20.04,
+"tags": [
+"نهر",
+"ماء",
+"river",
+"water"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "birds",
+"cat": "nature",
+"file": "sfx/nature/birds.mp3",
+"ar": "عصافير صباحية",
+"use": "صباح هادئ أو ريف",
+"dur": 20.04,
+"tags": [
+"عصافير",
+"طيور",
+"صباح",
+"birds",
+"morning"
+],
+"license": "CC0-1.0",
+"author": "Modding (freesound)",
+"source": "https://freesound.org/people/Modding/sounds/574108/"
+},
+{
+"id": "forest_day",
+"cat": "nature",
+"file": "sfx/nature/forest_day.mp3",
+"ar": "غابة نهاراً",
+"use": "طبيعة وريف وقرى",
+"dur": 20.04,
+"tags": [
+"غابة",
+"طبيعة",
+"forest"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "crickets_night",
+"cat": "nature",
+"file": "sfx/nature/crickets_night.mp3",
+"ar": "ليل وصراصير",
+"use": "ليلة هادئة أو ترقب",
+"dur": 20.04,
+"tags": [
+"ليل",
+"صراصير",
+"crickets",
+"night"
+],
+"license": "CC0-1.0",
+"author": "rsn267 (freesound)",
+"source": "https://freesound.org/people/rsn267/sounds/275595/"
+},
+{
+"id": "crow",
+"cat": "nature",
+"file": "sfx/nature/crow.mp3",
+"ar": "غراب",
+"use": "شؤم أو مكان مهجور أو ساحة معركة بعد الحرب",
+"dur": 0.53,
+"tags": [
+"غراب",
+"شؤم",
+"crow"
+],
+"license": "CC0-1.0",
+"author": "davidworksonline (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/davidworksonline/sounds/54973/"
+},
+{
+"id": "dog_bark",
+"cat": "nature",
+"file": "sfx/nature/dog_bark.mp3",
+"ar": "نباح كلب",
+"use": "قرية أو حراسة أو ليل",
+"dur": 0.29,
+"tags": [
+"كلب",
+"نباح",
+"dog",
+"bark"
+],
+"license": "CC0-1.0",
+"author": "Original sound by https://freesound.org/people/abhisheky948/sounds/625497/",
+"source": "https://freesound.org/people/abhisheky948/sounds/625497/"
+},
+{
+"id": "clock_tick",
+"cat": "time",
+"file": "sfx/time/clock_tick.mp3",
+"ar": "تكتكة ساعة",
+"use": "مرور الوقت أو العد نحو موعد",
+"dur": 5.98,
+"tags": [
+"ساعة",
+"تكتكة",
+"وقت",
+"clock",
+"tick"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "clock_tick_fast",
+"cat": "time",
+"file": "sfx/time/clock_tick_fast.mp3",
+"ar": "تكتكة سريعة",
+"use": "ضغط الوقت والتوتر",
+"dur": 4.94,
+"tags": [
+"ساعة",
+"سريعة",
+"توتر",
+"tick",
+"fast"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "countdown_beeps",
+"cat": "time",
+"file": "sfx/time/countdown_beeps.mp3",
+"ar": "عد تنازلي بصفير",
+"use": "قبل حدث حاسم أو انفجار أو إطلاق",
+"dur": 4.97,
+"tags": [
+"عد",
+"تنازلي",
+"صفير",
+"countdown",
+"beep"
+],
+"license": "CC-BY-4.0",
+"author": "\"10 Second Countdown.wav\" by Thomas Evdokimoff of Freesound.org",
+"source": "https://freesound.org/people/thomas_evdokimoff/sounds/202193/"
+},
+{
+"id": "church_bell",
+"cat": "time",
+"file": "sfx/time/church_bell.mp3",
+"ar": "دقة جرس كبير",
+"use": "إعلان الساعة أو حدث تاريخي",
+"dur": 1.54,
+"tags": [
+"جرس",
+"كنيسة",
+"ساعة",
+"bell"
+],
+"license": "CC0-1.0",
+"author": "\"the bell of my schools church.wav\" by fonografico https://freesound.org/s/636113/\". Pitch variations created via edits by Sphiral.",
+"source": "https://freesound.org/people/fonografico/sounds/636113/?"
+},
+{
+"id": "bells_far",
+"cat": "time",
+"file": "sfx/time/bells_far.mp3",
+"ar": "أجراس بعيدة",
+"use": "مدينة أوروبية قديمة أو احتفال",
+"dur": 5.98,
+"tags": [
+"أجراس",
+"مدينة",
+"bells"
+],
+"license": "CC0-1.0",
+"author": "Nox_Sound (freesound)",
+"source": "https://freesound.org/people/Nox_Sound/sounds/563885/"
+},
+{
+"id": "boxing_bell",
+"cat": "time",
+"file": "sfx/time/boxing_bell.mp3",
+"ar": "جرس حلبة",
+"use": "بداية مواجهة أو جولة",
+"dur": 3.46,
+"tags": [
+"جرس",
+"جولة",
+"مواجهة",
+"boxing",
+"bell"
+],
+"license": "CC0-1.0",
+"author": "Taken from Herkules92 on freesound.org",
+"source": "https://freesound.org/people/Herkules92/sounds/520998/"
+},
+{
+"id": "drum_roll",
+"cat": "fun",
+"file": "sfx/fun/drum_roll.mp3",
+"ar": "قرع طبول (ترقب)",
+"use": "قبل إعلان النتيجة أو الكشف",
+"dur": 5.98,
+"tags": [
+"طبول",
+"ترقب",
+"drum",
+"roll"
+],
+"license": "CC0-1.0",
+"author": "Heigh-hoo (freesound) via Sonic Pi",
+"source": "https://freesound.org/people/Heigh-hoo/sounds/19433/"
+},
+{
+"id": "record_scratch",
+"cat": "fun",
+"file": "sfx/fun/record_scratch.mp3",
+"ar": "خدش أسطوانة",
+"use": "توقف مفاجئ: \"لحظة… ماذا؟\"",
+"dur": 0.31,
+"tags": [
+"خدش",
+"أسطوانة",
+"توقف",
+"record",
+"scratch"
+],
+"license": "CC0-1.0",
+"author": "Sonic Pi samples (freesound CC0 originals)",
+"source": "https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/README.md"
+},
+{
+"id": "rewind",
+"cat": "fun",
+"file": "sfx/fun/rewind.mp3",
+"ar": "ترجيع",
+"use": "العودة بالزمن أو إعادة لقطة",
+"dur": 2.57,
+"tags": [
+"ترجيع",
+"رجوع",
+"rewind"
+],
+"license": "CC0-1.0",
+"author": "Sonic Pi samples (freesound CC0 originals)",
+"source": "https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/README.md"
+},
+{
+"id": "backspin",
+"cat": "fun",
+"file": "sfx/fun/backspin.mp3",
+"ar": "لف أسطوانة للخلف",
+"use": "انتقال مرح أو إيقاف الموسيقى",
+"dur": 1.1,
+"tags": [
+"أسطوانة",
+"backspin"
+],
+"license": "CC0-1.0",
+"author": "Sonic Pi samples (freesound CC0 originals)",
+"source": "https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/README.md"
+},
+{
+"id": "vinyl_crackle",
+"cat": "fun",
+"file": "sfx/fun/vinyl_crackle.mp3",
+"ar": "طقطقة أسطوانة قديمة",
+"use": "تحت صور الأرشيف والتسجيلات القديمة",
+"dur": 8.04,
+"tags": [
+"أسطوانة",
+"قديمة",
+"أرشيف",
+"crackle",
+"vinyl",
+"old"
+],
+"license": "CC0-1.0",
+"author": "Sonic Pi samples (freesound CC0 originals)",
+"source": "https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/README.md"
+}
+]

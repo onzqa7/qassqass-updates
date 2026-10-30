@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<title>قص قص</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+  <header id="menubar">
+    <div class="logo" title="قص قص"><span class="lg-mark"></span><b>قص قص</b></div>
+    <nav id="menus" dir="rtl"></nav>
+    <div id="workspaces" dir="rtl"></div>
+    <div class="mb-right" dir="rtl">
+      <span id="ffWarn" class="warn" hidden>محرك التصدير غير متاح</span>
+      <button class="btn pri" id="btnExport" title="تصدير الوسائط (Ctrl+M)">تصدير</button>
+    </div>
+  </header>
+  <main id="ws">
+    <div id="wsMain">
+      <div class="row" id="rowTop">
+        <section class="frame" id="F_tl"><div class="tabs" dir="rtl"></div><div class="fbody"></div></section>
+        <div class="split v" data-var="--c1"></div>
+        <section class="frame" id="F_tr"><div class="tabs" dir="rtl"></div><div class="fbody"></div></section>
+      </div>
+      <div class="split h" data-var="--r1"></div>
+      <div class="row" id="rowBot">
+        <section class="frame" id="F_bl"><div class="tabs" dir="rtl"></div><div class="fbody"></div></section>
+        <div class="split v" data-var="--c4"></div>
+        <section class="frame" id="F_br"><div class="tabs" dir="rtl"></div><div class="fbody"></div></section>
+      </div>
+    </div>
+    <div class="split v" id="sideSplit" data-var="--c3" data-side="1"></div>
+    <section class="frame" id="F_side"><div class="tabs" dir="rtl"></div><div class="fbody"></div></section>
+  </main>
+  <footer id="status" dir="rtl"><span id="stMsg">جاهز</span><span class="grow"></span><span id="stGpu"></span><span id="stSeq"></span></footer>
+</div>
+
+<div id="store" hidden></div>
+<div id="vbin" aria-hidden="true"></div>
+<div id="toast" class="toast" hidden></div>
+<div id="dropHint" hidden><div>أفلت الملفات هنا لاستيرادها</div></div>
+
+<script src="js/i18n.js"></script>
+<script src="js/icons.js"></script>
+<script src="lib/d3-array.min.js"></script>
+<script src="lib/d3-geo.min.js"></script>
+<script src="lib/d3-geo-projection.min.js"></script>
+<script src="lib/topojson-client.min.js"></script>
+<script src="js/ffargs.js"></script>
+<script src="js/util.js"></script>
+<script src="js/model.js"></script>
+<script src="js/media.js"></script>
+<script src="js/gl.js"></script>
+<script src="js/text.js"></script>
+<script src="js/atlas/providers.js"></script>
+<script src="js/atlas/camera.js"></script>
+<script src="js/atlas/scene.js"></script>
+<script src="js/atlas/geo.js"></script>
+<script src="js/atlas/globe.js"></script>
+<script src="js/atlas/vtiles.js"></script>
+<script src="js/atlas/vector.js"></script>
+<script src="js/atlas/atlas.js"></script>
+<script src="js/xform.js"></script>
+<script src="js/render.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/app.js"></script>
+<script src="js/shortcuts.js"></script>
+<script src="js/ui_project.js"></script>
+<script src="js/ui_monitors.js"></script>
+<script src="js/ui_timeline.js"></script>
+<script src="js/ui_fxc.js"></script>
+<script src="js/ui_panels.js"></script>
+<script src="js/ui_map.js"></script>
+<script src="js/ui_home.js"></script>
+<script src="js/ui_sfx.js"></script>
+<script src="js/audio_tools.js"></script>
+<script src="js/ui_export.js"></script>
+<script src="js/ui_update.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui_captions.js"></script>
+<script src="js/ui_vtools.js"></script>
+<script src="js/boot.js"></script>
+</body>
+</html>

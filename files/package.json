@@ -1,0 +1,81 @@
+{
+  "name": "qassqass",
+  "productName": "QassQass",
+  "version": "2.1.1",
+  "description": "قص قص — video editor with 3D war & history maps",
+  "main": "bootstrap.js",
+  "author": "QassQass",
+  "license": "UNLICENSED",
+  "scripts": {},
+  "build": {
+    "appId": "com.qassqass.app",
+    "productName": "QassQass",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "bootstrap.js",
+      "updater.js",
+      "main.js",
+      "preload.js",
+      "app/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "bin/win",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "tools/mcp",
+        "to": "mcp",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "قص قص",
+      "language": "1025",
+      "installerLanguages": [
+        "ar_SA",
+        "en_US"
+      ],
+      "multiLanguageInstaller": false
+    },
+    "electronVersion": "37.10.3",
+    "compression": "normal",
+    "asarUnpack": [
+      "app/sfx/**/*"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^37.10.3",
+    "electron-builder": "^26.0.12",
+    "pe-library": "^1.0.1",
+    "resedit": "^2.0.3"
+  }
+}
