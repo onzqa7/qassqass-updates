@@ -14,7 +14,7 @@
   S.PAL = PAL;
   // style presets. base: tile provider; baseTex: bundled equirect fallback; vector: draw own ocean/land
   S.STYLES = {
-    satellite: { ar: 'قمر صناعي (Google Earth)', base: 'esri_img', baseTex: 'sat', grade: { sat: 1, bri: 1, con: 1, gamma: 1, ge: 1 }, border: 'rgba(255,255,255,.72)', bw: 1.1, ink: '#ffffff', halo: 'rgba(0,0,0,.7)', atmo: [.42, .66, 1], stars: .6, space: [.004, .006, .014] },
+    satellite: { ar: 'قمر صناعي (Google Earth)', base: 'esri_img', baseTex: 'sat', grade: { sat: 1.02, bri: 1, con: 1.04, gamma: 1 }, border: 'rgba(255,255,255,.72)', bw: 1.1, ink: '#ffffff', halo: 'rgba(0,0,0,.7)', atmo: [.42, .66, 1], stars: .6, space: [.004, .006, .014] },
     s2: { ar: 'قمر صناعي بلا غيوم', base: 's2', baseTex: 'sat', grade: { sat: 1.1, bri: 1.03, con: 1.08 }, border: 'rgba(255,255,255,.7)', bw: 1.1, ink: '#ffffff', halo: 'rgba(0,0,0,.75)', atmo: [.35, .6, 1], stars: .8 },
     ghost: { ar: 'قمر صناعي داكن', base: 'esri_img', baseTex: 'sat', grade: { sat: .12, bri: .58, con: 1.25, tint: [.55, .68, .85], tintAmt: .3 }, border: 'rgba(210,225,245,.5)', bw: 1, ink: '#f1f5fa', halo: 'rgba(0,0,0,.8)', atmo: [.3, .45, .7], stars: .6 },
     daynight: { ar: 'ليل ونهار', base: 'esri_img', baseTex: 'sat', light: 1, grade: { sat: 1.05 }, border: 'rgba(255,255,255,.55)', bw: 1, ink: '#ffffff', halo: 'rgba(0,0,0,.75)', atmo: [.35, .6, 1], stars: 1 },
