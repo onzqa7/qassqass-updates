@@ -355,7 +355,7 @@
         g.save(); g.beginPath(); for (const f of fs) pg(f); g.lineJoin = 'round'; g.globalAlpha = s.a * (Ly.in === 'fade' ? pin : 1);
         if (Ly.glow) { g.shadowColor = Ly.color; g.shadowBlur = 16 * k; } else if (Ly.line) { g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 3 * k; }
         if (Ly.outline === 'dashed') { g.setLineDash([6 * k * Ly.stroke, 4.5 * k * Ly.stroke]); g.lineCap = 'butt'; }
-        g.lineWidth = Ly.stroke * 1.4 * k; g.strokeStyle = Ly.line || shade(Ly.color, .25); g.stroke(); g.restore();
+        g.lineWidth = Ly.stroke * 1.2 * k; g.strokeStyle = Ly.line || shade(Ly.color, .25); g.stroke(); g.restore();
       } else if (Ly.type === 'invasion') {
         const F = byKey.get(Ly.from); const Ts = (Ly.to || []).map(kk => byKey.get(kk)).filter(Boolean); if (!F || !Ts.length) continue;
         const travel = Ly.inDur || 4; const stagger = Ly.stagger != null ? Ly.stagger : travel * .35;

@@ -1,8 +1,8 @@
 {
- "version": "2.2.5",
- "date": "2026-10-30T16:43:55.690Z",
- "notes_ar": "النمط الافتراضي للخرائط صار «وثائقي داكن» بنفس ألوان فيديو كيف ضاعت الأندلس: أرض معتمة هادئة وبحر شبه أسود وأسماء بظل ناعم.",
- "notes_en": "Default map style is now Documentary Dark, matched to the reference video: muted dark land, near-black sea, soft-shadow labels.",
+ "version": "2.2.6",
+ "date": "2026-10-30T17:00:40.735Z",
+ "notes_ar": "الخريطة تثبت ولا تتغير وأنت واقف، إضاءة أعلى قليلاً للنمط الوثائقي، وخط الدول رفيع وأنيق.",
+ "notes_en": "Map stays stable while paused, slightly brighter documentary style, thin elegant country outline.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -744,8 +744,8 @@
   },
   {
    "path": "app/js/atlas/atlas.js",
-   "size": 4895,
-   "sha256": "898296a1ffee256e32a0b53e89262e1b6c01e6c382c5aba5a487940b4333c147"
+   "size": 5096,
+   "sha256": "d883a2ccded2b944ecdbd61239e3e3e0165e425a0b6b7896709542e833949ee6"
   },
   {
    "path": "app/js/atlas/camera.js",
@@ -769,13 +769,13 @@
   },
   {
    "path": "app/js/atlas/scene.js",
-   "size": 16725,
-   "sha256": "4ddfb3bde36abef250d182e4132145a7ed026c291981f5934a9d34be660655de"
+   "size": 16726,
+   "sha256": "29ab1af2f80351997ab8dc81c0171774a7f1ba41bc6ee15709f6c32791db0b41"
   },
   {
    "path": "app/js/atlas/vector.js",
    "size": 57400,
-   "sha256": "f7c2417df522cba17c5b821332deab7eee5c870949340eb55538b79cffd16d14"
+   "sha256": "77bc7a85e9079ad5ceec15fcdae190d4d43bd348d2c96181e65f0c9593644581"
   },
   {
    "path": "app/js/atlas/vtiles.js",
@@ -884,8 +884,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 84040,
-   "sha256": "d1aa757cc50341dfb5dbdb330c0a93b39141fa23689503a0ebcc84372e268196"
+   "size": 84323,
+   "sha256": "5146da08ac46a76d3d5eef4019296df54078a42540603e7f8f496614b1f7aadf"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -4255,7 +4255,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "279c4e6a81cd0f625c634aa93cfc5890a64f87717f12d89ea1d470c15040a963"
+   "sha256": "a5171cf46b4b7f126d153449d426f780b569b8b24fd4158dc710d519131d51b3"
   },
   {
    "path": "preload.js",
@@ -4268,5 +4268,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "pr+NWVuPZao8G7wFFf2NwzaQpjMg7ThiwYd+kGpFNRGSl8c4sPSjuZmRjrVYIjYSuU9OsvPHsOT35q36ribZCA=="
+ "sig": "fG5Yo3u1jw8UDUE7HyCpV56lkk3YXHmmnjwkM0zXTKY88pscywWx8M4GHM5B3AKY6ZHD9puAJkmBAhP55pziDA=="
 }

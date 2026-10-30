@@ -18,7 +18,7 @@
     satellite: { ar: 'قمر صناعي (Google Earth)', base: 'esri_img', baseTex: 'sat', grade: { sat: 1.08, bri: .97, con: 1.18, gamma: 1.04, ge: 0 }, oceanTint: '#0f2f5c', tintA: .5, post: { vig: .32 }, border: 'rgba(228,231,236,.62)', bw: .85, ink: '#f4f0e8', halo: 'soft', font: 'Tajawal', labelW: 700, labelK: 1.12, atmo: [.42, .66, 1], stars: .6, space: [.004, .006, .014] },
     s2: { ar: 'قمر صناعي بلا غيوم', base: 's2', baseTex: 'sat', grade: { sat: 1.1, bri: 1.03, con: 1.08 }, border: 'rgba(255,255,255,.7)', bw: 1.1, ink: '#ffffff', halo: 'rgba(0,0,0,.75)', atmo: [.35, .6, 1], stars: .8 },
     // documentary look (YouTube history maps): dark desaturated imagery, deep navy sea, soft-shadow labels, faint borders
-    doc_dark: { ar: 'وثائقي داكن (الأندلس)', base: 'esri_img', baseTex: 'sat', doc: 1, grade: { sat: .55, bri: .5, con: 1.14, gamma: 1.1, ge: 0 }, oceanTint: '#040e14', tintA: .9, labelW: 800, border: 'rgba(240,232,210,.14)', bw: .7, ink: '#f2efe9', halo: 'soft', atmo: [.16, .22, .3], stars: .2, space: [.003, .004, .006], post: { vig: .45 } },
+    doc_dark: { ar: 'وثائقي داكن (الأندلس)', base: 'esri_img', baseTex: 'sat', doc: 1, grade: { sat: .6, bri: .72, con: 1.12, gamma: 1.06, ge: 0 }, oceanTint: '#06131c', tintA: .85, labelW: 800, border: 'rgba(240,232,210,.14)', bw: .7, ink: '#f2efe9', halo: 'soft', atmo: [.16, .22, .3], stars: .2, space: [.003, .004, .006], post: { vig: .45 } },
     doc_light: { ar: 'وثائقي فاتح', base: 'esri_img', baseTex: 'sat', doc: 1, grade: { sat: .62, bri: .88, con: 1.06, gamma: 1.04, ge: 0 }, oceanTint: '#1d2c3e', tintA: .62, labelW: 800, border: 'rgba(245,238,220,.22)', bw: .8, ink: '#f7f4ee', halo: 'soft', atmo: [.3, .42, .6], stars: .3, space: [.006, .008, .012], post: { vig: .35 } },
     ghost: { ar: 'قمر صناعي داكن', base: 'esri_img', baseTex: 'sat', grade: { sat: .12, bri: .58, con: 1.25, tint: [.55, .68, .85], tintAmt: .3 }, border: 'rgba(210,225,245,.5)', bw: 1, ink: '#f1f5fa', halo: 'rgba(0,0,0,.8)', atmo: [.3, .45, .7], stars: .6 },
     daynight: { ar: 'ليل ونهار', base: 'esri_img', baseTex: 'sat', light: 1, grade: { sat: 1.05 }, border: 'rgba(255,255,255,.55)', bw: 1, ink: '#ffffff', halo: 'rgba(0,0,0,.75)', atmo: [.35, .6, 1], stars: 1 },
@@ -97,7 +97,7 @@
   S.newLayer = (type, o = {}) => {
     const base = { id: GW.uid(), type, name: S.LAYERS[type].ar, on: 1, start: 0, dur: null, in: 'fade', inDur: .8, out: 'none', outDur: .5 };
     const D = {
-      country: { keys: [], color: '#b3261e', fill: .5, pattern: 'solid', stroke: 1.1, glow: 0, label: 1, dim: 0, pulse: 0, in: 'fade', outline: 'solid', line: '#f3e6c0', inner: 1, labelStyle: '', labelSize: 1, labelText: '', colors: {} },
+      country: { keys: [], color: '#b3261e', fill: .5, pattern: 'solid', stroke: .8, glow: 0, label: 1, dim: 0, pulse: 0, in: 'fade', outline: 'solid', line: '#f3e6c0', inner: 1, labelStyle: '', labelSize: 1, labelText: '', colors: {} },
       invasion: { from: null, to: [], color: '#e5243b', arrows: 1, arrowStyle: 'military', spread: 1, occupy: 1, impacts: 1, label: 1, dur: null, inDur: 4, curve: .25, width: 1, in: 'grow' },
       arrow: { pts: [], color: '#e5243b', width: 1, style: 'military', curve: 0, outline: 1, glow: 1, head: 1, in: 'draw', inDur: 2 },
       front: { keys: [], pts: [], color: '#e5243b', fill: .45, pattern: 'hatch', stroke: 2, teeth: 1, in: 'fade', inDur: 1 },

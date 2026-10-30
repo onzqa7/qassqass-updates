@@ -27,6 +27,8 @@
   A.imgBias = (opts) => { if (opts.zBias != null) return opts.zBias; if (opts.fast) return 0; const q = opts.quality == null ? 1 : opts.quality; return q >= 1 ? .6 : q >= .8 ? .25 : 0; };
   const imgBias = A.imgBias;
   A.render = (scene, t, W, H, opts = {}) => {
+    // paused / not interacting: finish all vector tiles in this frame so the picture does not keep changing after it is shown
+    A.Tiles.vecBudget = opts.fast ? 14 : (opts.exporting ? 100000 : 120);
     let sc = scene; const E = S.eff(sc);
     let { year, era, vw, lod } = A.evalAt(sc, t, W, H);
     if (opts.fast) { lod = Math.min(lod, 1); sc = Object.assign({}, sc, { look: Object.assign({}, sc.look, { cities: 0, provinces: 0, rivers: 0, oceans: 0, regions: 0 }) }); }

@@ -413,6 +413,8 @@
     try { const u = localStorage.getItem(THV + k); if (u) return Promise.resolve(TH[k] = u); } catch (e) {}
     return (thQ = thQ.then(async () => {
       if (TH[k]) return TH[k];
+      // never steal the GL context while the user is looking at / moving a map: wait for 2.5 s of idle
+      for (let i = 0; i < 40; i++) { if (!(GW.mapFast && performance.now() - GW.mapFast < 2500) && !(GW.pb && GW.pb.playing)) break; await new Promise(r => setTimeout(r, 500)); }
       try {
         const scn = A.newScene({ style: k, cam: { lon: 30, lat: 28, zoom: 2.2, tilt: 0, heading: 0, keys: [] } });
         scn.look.labels = 0; scn.look.countryLabels = 0; scn.look.cities = 0; scn.look.oceans = 0; scn.look.attrib = 0; scn.look.grain = 0;
