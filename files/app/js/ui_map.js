@@ -261,8 +261,9 @@
   const sec = (title, open = true, id) => { const d = h('details', 'mp-sec'); if (open) d.open = true; const s = h('summary'); s.textContent = title; d.append(s); if (id) { d.dataset.id = id; const st = M.secOpen && M.secOpen[id]; if (st != null) d.open = st; d.ontoggle = () => { (M.secOpen = M.secOpen || {})[id] = d.open; }; } const b = h('div', 'mp-body'); d.append(b); d.body = b; return d; };
 
   function renderPanel() {
-    if (!P) return; const c = selMap(); P.innerHTML = '';
+    if (!P) return; const c = selMap(); const old = P.querySelector('.pscroll.mp'); const keepTop = old ? old.scrollTop : 0; P.innerHTML = '';
     const scroll = h('div', 'pscroll mp'); P.append(scroll);
+    requestAnimationFrame(() => { scroll.scrollTop = keepTop; });
     if (!c) { scroll.append(...welcome()); return; }
     const scn = sc(c);
     // header + mode switch
