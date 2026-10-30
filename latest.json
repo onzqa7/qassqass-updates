@@ -1,8 +1,8 @@
 {
- "version": "2.2.2",
- "date": "2026-10-30T16:27:40.749Z",
- "notes_ar": "صور القمر الصناعي عالية الدقة (Esri) في كل مستويات التقريب مع بحر طبيعي داكن.",
- "notes_en": "High-resolution Esri satellite imagery at all zoom levels with natural dark ocean.",
+ "version": "2.2.3",
+ "date": "2026-10-30T16:34:39.294Z",
+ "notes_ar": "ألوان القمر الصناعي أقرب إلى Google Earth (أهدأ وأغمق قليلاً)، وإصلاح معاينات الأنماط السوداء.",
+ "notes_en": "Satellite colours closer to Google Earth; fixed black style thumbnails.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -769,8 +769,8 @@
   },
   {
    "path": "app/js/atlas/scene.js",
-   "size": 16714,
-   "sha256": "f7578d41869fb5eef0c82bc00e507d854de4b54f1a9568cc98336507eaf425cb"
+   "size": 16709,
+   "sha256": "e19f9d58b779d18d79c780f8bc58a641f545edaadd042552a6055e0246861300"
   },
   {
    "path": "app/js/atlas/vector.js",
@@ -884,8 +884,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 83721,
-   "sha256": "a617140e9461496c2343d4333a5c105273db5283550520b5326e88489725726c"
+   "size": 84041,
+   "sha256": "da4b3fe9a19467a656bf96db1827968ca1884132e9c41b888638396ed45af1af"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -4255,7 +4255,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "6a4c5f1e39daff26020dea35cf5a885570f0ce6058e9856ced871e79cfc28caa"
+   "sha256": "ebc62b31bb63bd8eee3c2017d6dfa5528168ee6bc72be1358d1d501b43e90f35"
   },
   {
    "path": "preload.js",
@@ -4268,5 +4268,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "DLeI6q5zHiQHFpjg7Eu6ridSCb3Oj0zOh7rex9GfONQNJQMdngM9CAPuwbBvSGLuzRoeEOl5+rToxVl6nxAiAw=="
+ "sig": "88kCCeX8HPMSQ4OIuWVXf/Lf5JBMI7n+UKuYfqk2OqJ1NxCEGjWNu/c3JxlNuT9Dtaru+mu0O3Se1PT17u8rCw=="
 }

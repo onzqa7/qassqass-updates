@@ -407,17 +407,17 @@
   M.keyRuler = keyRuler;
   // real preview thumbnails: each style rendered once by the atlas engine (bundled low-zoom tiles), cached per version
   const TH = M._thumbs = M._thumbs || {}; let thQ = Promise.resolve();
-  const THV = 'qq.sthumb.v2.';
+  const THV = 'qq.sthumb.v3.';
   function styleThumb(k) {
     if (TH[k]) return Promise.resolve(TH[k]);
     try { const u = localStorage.getItem(THV + k); if (u) return Promise.resolve(TH[k] = u); } catch (e) {}
     return (thQ = thQ.then(async () => {
       if (TH[k]) return TH[k];
       try {
-        const scn = A.newScene({ style: k, cam: { lon: 32, lat: 26, zoom: 1.25, tilt: 0, heading: 0, keys: [] } });
+        const scn = A.newScene({ style: k, cam: { lon: 30, lat: 28, zoom: 2.2, tilt: 0, heading: 0, keys: [] } });
         scn.look.labels = 0; scn.look.countryLabels = 0; scn.look.cities = 0; scn.look.oceans = 0; scn.look.attrib = 0; scn.look.grain = 0;
         await A.ensure(scn, 0, 192, 108, { dur: 1, timeout: 2500 });
-        const cv = A.render(scn, 0, 192, 108, { dur: 1 }); const u = cv.toDataURL('image/jpeg', .82);
+        const cv = A.render(scn, 0, 192, 108, { dur: 1 }); { const g2 = document.createElement('canvas'); g2.width = 24; g2.height = 14; const c2 = g2.getContext('2d'); c2.drawImage(cv, 0, 0, 24, 14); const d = c2.getImageData(0, 0, 24, 14).data; let sm = 0; for (let i = 0; i < d.length; i += 4) sm += d[i] + d[i + 1] + d[i + 2]; if (sm / (d.length / 4 * 3) < 10) return null; } const u = cv.toDataURL('image/jpeg', .82);
         TH[k] = u; try { localStorage.setItem(THV + k, u); } catch (e) {}
         await new Promise(r => setTimeout(r, 30)); return u;
       } catch (e) { return null; }
