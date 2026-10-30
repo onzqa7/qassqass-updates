@@ -1,8 +1,8 @@
 {
- "version": "2.3.1",
- "date": "2026-10-30T18:53:06.379Z",
- "notes_ar": "إزالة نص حقوق المصدر من زاوية الخريطة افتراضياً (خيار في خيارات الخريطة).",
- "notes_en": "Map attribution text hidden by default (toggle in map options).",
+ "version": "2.4.0",
+ "date": "2026-10-30T22:14:46.760Z",
+ "notes_ar": "الإصدار 2.4 الكبير: مقاييس ألوان (Waveform/Vectorscope/Histogram)، منحنيات، HSL Secondary، مطابقة ألوان وتصحيح تلقائي؛ محرّكات نص بمستوى الحرف والكلمة مثل أفتر إفكت؛ طبقات أشكال متجهة مع قلم بيزييه وTrim Paths؛ مجلدات ومجلدات ذكية ومتصفح وسائط؛ تعليق صوتي آلي بدون إنترنت (Piper) عربي وإنجليزي؛ EQ بمنحنى وضاغط وLimiter وDe-esser وReverb وإعدادات Essential Sound؛ مقياس LUFS مباشر؛ وخفض موسيقى فوري.",
+ "notes_en": "2.4: scopes, curves, HSL secondary, colour match/auto; AE-style per-character text animators; vector shape layers with pen tool and trim paths; bins, smart bins, media browser; offline Arabic/English TTS (Piper); parametric EQ, compressor, limiter, de-esser, reverb, Essential Sound presets; live LUFS meter; real-time ducking.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -679,18 +679,18 @@
   },
   {
    "path": "app/i18n/ar_strings.json",
-   "size": 76859,
-   "sha256": "01ad7f3fe5a0ce7d0e3a6d6bc419ea7418ac714a539f32fbd815fe7bb9f26c5c"
+   "size": 87607,
+   "sha256": "9b71c3c4749473e2d20797bff6f7fffec4e47ded8b769fb9153b39a1bced1a05"
   },
   {
    "path": "app/i18n/en.js",
-   "size": 137462,
-   "sha256": "5e327c71506c95a171d15fa1a8ccccf1dd171bec92e22f83cbc0b0aca53aeda3"
+   "size": 151598,
+   "sha256": "6176258895815d49a4d533a17d16f371d694a729f7ec3b3e2ad39270c9291185"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 132166,
-   "sha256": "aec9480a432d8094f4de7c312698a7bb9f03c8af9f5c2506688464d079aa17df"
+   "size": 146850,
+   "sha256": "8412ccbf6e6ce6f35a9c1b81b27b9e158243f32920add8176ad5982d26e7f8ff"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -724,18 +724,18 @@
   },
   {
    "path": "app/index.html",
-   "size": 3833,
-   "sha256": "83ad0b4204d43f42f247428c6d1dedbe56106fc5345a3adf4303998c495660e8"
+   "size": 4104,
+   "sha256": "9be462e87243ceb6735637993f6440b94ecaad4019cfa3a632df05eb69d57779"
   },
   {
    "path": "app/js/api.js",
-   "size": 56540,
-   "sha256": "33480ab58c04468543ed00853dcfc52f198d7f801a3d6ed44eb8213c7ccc7fe3"
+   "size": 61516,
+   "sha256": "d73764254a08706ff47681bde2b587646217f201b77425428b6a9fb1ada9d833"
   },
   {
    "path": "app/js/app.js",
-   "size": 38210,
-   "sha256": "90cd58a6ad7975a3e6c2218268a5a43d8423f2f0c73f83b6329ae5de8aa1f4f6"
+   "size": 38252,
+   "sha256": "38d94e4c3d488c818f90290cd7e31d62ae971fed10ea334caf88e2961187b958"
   },
   {
    "path": "app/js/asr_core.js",
@@ -784,8 +784,13 @@
   },
   {
    "path": "app/js/audio.js",
-   "size": 10783,
-   "sha256": "e7c4c899970d802d74d868bacee4ad39a40c340c3ebc2aac603e21a38f741dc5"
+   "size": 11177,
+   "sha256": "92cbafc320b4eb4784d40d764e559ae7d1e984243b08a399177c756444624fdc"
+  },
+  {
+   "path": "app/js/audio_fx.js",
+   "size": 44678,
+   "sha256": "02fcec9d998c61f72832d59b6e3432343197693effc0d4322fd9fbc84dd3f285"
   },
   {
    "path": "app/js/audio_tools.js",
@@ -798,14 +803,19 @@
    "sha256": "aa4a896ee1f5db789301304288f0beb65d8e3e2ed95dfd0dc84b8b790f224db6"
   },
   {
+   "path": "app/js/color.js",
+   "size": 37891,
+   "sha256": "49bb3963e608f20a70f365be577e4327c748a82621002d25375727cf244a18a2"
+  },
+  {
    "path": "app/js/ffargs.js",
    "size": 9479,
    "sha256": "91cfba0a16d8a1fff2b38e5b9fd989f9921f933da01b8602e14b4e7c319d8417"
   },
   {
    "path": "app/js/gl.js",
-   "size": 60622,
-   "sha256": "b4bdd76293986e22e01ead078aa693ca5be0d159c5422da8303e1ebaea5e248d"
+   "size": 65137,
+   "sha256": "c56df6fa82a9bed7ece705a2710b2a2b7f3b0beca39b198d33a2de2e9112435f"
   },
   {
    "path": "app/js/i18n.js",
@@ -814,8 +824,8 @@
   },
   {
    "path": "app/js/icons.js",
-   "size": 5773,
-   "sha256": "a58ea8b92d0035538611ee792e2fa6453b328075b70af2cbc9ebbc6be7a43140"
+   "size": 7492,
+   "sha256": "0150bef52055bab6c820e920434856043f388e07d2d80e1a814e28ef08e8248b"
   },
   {
    "path": "app/js/lut.js",
@@ -834,13 +844,18 @@
   },
   {
    "path": "app/js/model.js",
-   "size": 34925,
-   "sha256": "d6e455244eb777f9a1fd80b70a68cc2883d937406d4eeae9e616a183e09641ed"
+   "size": 35754,
+   "sha256": "53d201e42604f2c3cbff68f678ec96623fd5c99641a5c5a868b1a1889e90b9bd"
   },
   {
    "path": "app/js/render.js",
-   "size": 15891,
-   "sha256": "061caa7fe9b33595ecd2b7e44af39a4cba847f7f2606d44ef39149c5d3308683"
+   "size": 16233,
+   "sha256": "9c959605396d36635eeef67fdf9cd764209e8c90c866cfaa9953d617c0a54262"
+  },
+  {
+   "path": "app/js/shape.js",
+   "size": 22883,
+   "sha256": "8f91844dfac0c40fb43b1c85b3d1e620babc8f1a127bfbc9c5b04acdf3a97d21"
   },
   {
    "path": "app/js/shortcuts.js",
@@ -849,13 +864,28 @@
   },
   {
    "path": "app/js/text.js",
-   "size": 12624,
-   "sha256": "f3d4dfa4f7c48c27bf24925f595e1e0fa2410fb925b8e095176b0f4a624789da"
+   "size": 12945,
+   "sha256": "fe22a626bfc66c97d994e6afa223779553bdc560e89e12a368a09c4f60667f11"
+  },
+  {
+   "path": "app/js/text_anim.js",
+   "size": 11757,
+   "sha256": "d7b1f4a82e3c804cddbaf7ce4e54320f8525b37b9011f2af5d0903cfde41fd66"
   },
   {
    "path": "app/js/track.js",
    "size": 34933,
    "sha256": "12a9dab7eda6f962bef089d18d3eeee708f5844cdd420a31a740623cc76fe4bc"
+  },
+  {
+   "path": "app/js/tts_core.js",
+   "size": 6805,
+   "sha256": "2481bb839130140189d519791cf5034d4aa282622f76261e1afbb42349cea37c"
+  },
+  {
+   "path": "app/js/ui_browser.js",
+   "size": 10998,
+   "sha256": "7484b152cb761c88c624d8882c0d682bb292c7843df8df7114f08d2a1e99852a"
   },
   {
    "path": "app/js/ui_captions.js",
@@ -874,8 +904,8 @@
   },
   {
    "path": "app/js/ui_fxc.js",
-   "size": 46049,
-   "sha256": "a644495a99a5949fddf98861f1fc17c08c451a413cc7bc9ea326150ef06cbb22"
+   "size": 46726,
+   "sha256": "0cf9193efc779d61d401620e9eb943b89f0a1f442c7b3318c007c941bb62a154"
   },
   {
    "path": "app/js/ui_home.js",
@@ -889,18 +919,18 @@
   },
   {
    "path": "app/js/ui_monitors.js",
-   "size": 33381,
-   "sha256": "73ec0067268e6e6c82f87302885fefbbef8e78630a62bc8a871a2f1b82803d5e"
+   "size": 34045,
+   "sha256": "1a3fff86907ad42e2bd7ccfbe335dfd3bc189b0fecb673238c495940e3a6ca76"
   },
   {
    "path": "app/js/ui_panels.js",
-   "size": 36810,
-   "sha256": "7a870663e053210355f37d65146aee967ff73609376fb2ae025968080686bca7"
+   "size": 40005,
+   "sha256": "276e1863fab5196881bd892579df701516354e072dbd53f8d2900ad35a2211d9"
   },
   {
    "path": "app/js/ui_project.js",
-   "size": 14339,
-   "sha256": "df11b89249ac1333f145186014e9590ed96de3b530466038a7f172c48d1dd366"
+   "size": 28797,
+   "sha256": "1a91433effc347831c53a29167a80376fdf8e1178e3c36277999c32c302ea9b2"
   },
   {
    "path": "app/js/ui_sfx.js",
@@ -908,9 +938,19 @@
    "sha256": "30a29c17d54f5657bc80069e1a3c94a0413192825164c18c9e830b6e135d01ee"
   },
   {
+   "path": "app/js/ui_textanim.js",
+   "size": 9731,
+   "sha256": "38306d178668ffdb885655e32e1f75f1622cb46e27510c52ddfe68b805265b0f"
+  },
+  {
    "path": "app/js/ui_timeline.js",
-   "size": 82778,
-   "sha256": "0950bbee192638a8d65431ec641ea3a1cf6ef94ac50a4867676f5a355a1eaec4"
+   "size": 83245,
+   "sha256": "2d93d6c260c769fb2958075a2174c19566758eae43a1b916c470823b0ceacca4"
+  },
+  {
+   "path": "app/js/ui_tts.js",
+   "size": 21148,
+   "sha256": "e6dcaea371f5f7921bf424742b54cd95ede24e485193d8b6db4e26aa95650366"
   },
   {
    "path": "app/js/ui_update.js",
@@ -4249,18 +4289,18 @@
   },
   {
    "path": "main.js",
-   "size": 38147,
-   "sha256": "9ce46d2a648ec9f151544a30d18a987a9eb83bb940ba040778f7b870f0460f14"
+   "size": 49560,
+   "sha256": "32217c901480370d05a0e1d9f3b52f62a5b40062d0948e1bbe03e5190d576de2"
   },
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "8d0755ff0513e1bfa9ab65d37c79921561165d54c512b127af62c774fc3a346f"
+   "sha256": "de6626a25b0691e8c91abd5e61f54ccc5c8f7daac19e4dd292ab09176397dd45"
   },
   {
    "path": "preload.js",
-   "size": 4484,
-   "sha256": "994a1788ffb87ae6289d49280c848a183508de70da300c5737988ea5c3186ab5"
+   "size": 5516,
+   "sha256": "51d53cf8e69ee8d3139eeaef3c5f5d2a29a1a10d51b2ba659a12ad395bf159fc"
   },
   {
    "path": "updater.js",
@@ -4268,5 +4308,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "lhbouwRKOi7iq82E0hr5wie0OyMNEYCTIGNvbcJaIFILmHaw5OX+ckLl6Zrld/ul2F1ej+rockLd3UXpByTnAQ=="
+ "sig": "s6LuhuqAiyVcLFrEXck4ZvF7Wt+b6cy8aaFvVbfOZzmrWOl1SYs65iXBZ0abDMvLYe5nOKZfvfbXruzFeJy+AQ=="
 }

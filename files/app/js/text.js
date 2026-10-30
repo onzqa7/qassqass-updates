@@ -31,7 +31,8 @@
     let pin = x.animIn && x.animIn !== 'none' ? GW.clamp(lt / ad, 0, 1) : 1;
     let pout = x.animOut && x.animOut !== 'none' ? GW.clamp((dur - lt) / ad, 0, 1) : 1;
     const kst = x.kara && x.kara !== 'none' && T.karaState ? T.karaState(x, lt, dur) : null; // word-timed captions (karaoke)
-    const key = JSON.stringify(x) + '|' + w + 'x' + h + '|' + k + '|' + pin.toFixed(3) + '|' + pout.toFixed(3) + (kst ? '|' + kst.key : '');
+    const anims = x.animators && x.animators.length && GW.TextAnim ? GW.TextAnim : null; // AE-style text animators (js/text_anim.js)
+    const key = JSON.stringify(x) + '|' + w + 'x' + h + '|' + k + '|' + pin.toFixed(3) + '|' + pout.toFixed(3) + (kst ? '|' + kst.key : '') + (anims ? '|A' + anims.key(x, lt) : '');
     let e = cache.get(clip.id);
     if (e && e.key === key) return e;
     if (!e) { e = { canvas: document.createElement('canvas') }; cache.set(clip.id, e); }
@@ -72,6 +73,7 @@
     const totalChars = m.lines.join('').length; let shown = chars < Infinity ? Math.floor(totalChars * chars) : Infinity;
     const allWords = m.lines.join(' ').split(/\s+/).length; let shownW = words < Infinity ? Math.ceil(allWords * words) : Infinity;
     if (kst) { T.drawKara(g, x, m, k, kst, bw, blockH); g.restore(); e.key = key; e.ver = key; return e; }
+    if (anims) { anims.drawLines(g, x, m, k, lt, { bw, blockH, shown, shownW, chars, words }); g.restore(); e.key = key; e.ver = key; return e; }
     m.lines.forEach((line, i) => {
       let s = line;
       if (shown !== Infinity) { const take = Math.max(0, Math.min(s.length, shown)); s = s.slice(0, take); shown -= line.length; }

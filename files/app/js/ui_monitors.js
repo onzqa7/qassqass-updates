@@ -127,6 +127,7 @@
     const cv = GW.R.canvas;
     if (cv.width !== acc.w || cv.height !== acc.h) { cv.width = acc.w; cv.height = acc.h; }
     cv.style.width = box.w + 'px'; cv.style.height = box.h + 'px'; cv.style.left = box.x + 'px'; cv.style.top = box.y + 'px';
+    if (GW.Scopes) GW.Scopes.capture(acc); // scopes panel readback (only on frame changes; never while exporting)
     GW.R.present(acc, [0, 0, 0]); GW.R.free(acc);
     const ms = performance.now() - t0;
     if (PG.res === 'auto' && GW.pb.playing) {
@@ -158,6 +159,7 @@
   }
   function contentRect(c, lt) {
     if (c.kind === 'text' && c.text.mg) return [0, 0, c.sw || GW.seq().w, c.sh || GW.seq().h]; // motion graphics template: full-frame layer
+    if (c.kind === 'shape' && GW.Shape) return GW.Shape.bounds(c, lt); // vector shape layer (shape.js)
     if (c.kind === 'text') { const s = GW.seq(); const m = GW.TextR.measure(c.text, 1); const pad = c.text.bg ? c.text.bgPad : 10; const bw = c.text.boxW || m.w; const h = m.lh * m.lines.length; return [s.w / 2 - bw / 2 - pad, s.h / 2 - h / 2 - pad * .6, bw + pad * 2, h + pad * 1.2]; }
     return [0, 0, c.sw, c.sh];
   }
@@ -178,6 +180,7 @@
     if (PG.safe) { g.strokeStyle = 'rgba(255,255,255,.45)'; g.lineWidth = 1; for (const f of [.9, .8]) { g.strokeRect(b.x + b.w * (1 - f) / 2, b.y + b.h * (1 - f) / 2, b.w * f, b.h * f); } g.beginPath(); g.moveTo(b.x + b.w / 2 - 8, b.y + b.h / 2); g.lineTo(b.x + b.w / 2 + 8, b.y + b.h / 2); g.moveTo(b.x + b.w / 2, b.y + b.h / 2 - 8); g.lineTo(b.x + b.w / 2, b.y + b.h / 2 + 8); g.stroke(); }
     if (GW.MapUI && !GW.pb.playing && GW.MapUI.active()) { PG.hot = null; GW.MapUI.overlay(g); return; }
     if (GW.Track && !GW.pb.playing && GW.Track.active()) { PG.hot = null; GW.Track.overlay(g); return; } // motion tracker (track.js)
+    if (GW.Shape && !GW.pb.playing && GW.Shape.active()) { PG.hot = null; GW.Shape.overlay(g, PG); return; } // shape pen tool (shape.js)
     const c = activeSel(); PG.hot = null; if (!c || GW.pb.playing) return;
     const lt = GW.seq().t - c.start;
     if (c.kind === 'camera') { drawCamera(g, c, lt); return; }
@@ -259,6 +262,8 @@
       if (GW.TL && GW.TL.tool === 'text') { const b = PG.box; const s = GW.seq(); GW.UI.addTextClip(null, [(X - b.x) / b.w * s.w, (Y - b.y) / b.h * s.h]); GW.cmd.tool('select'); return; }
       if (GW.MapUI && !GW.pb.playing && GW.MapUI.active() && GW.MapUI.down(e, X, Y)) { e.preventDefault(); return; }
       if (GW.Track && !GW.pb.playing && GW.Track.active() && GW.Track.down(e, X, Y, ov)) { e.preventDefault(); return; }
+      if (GW.Color && GW.Color.picking && GW.Color.pickAt(X, Y)) { e.preventDefault(); return; } // HSL secondary eyedropper
+      if (GW.Shape && !GW.pb.playing && GW.Shape.active() && GW.Shape.down(e, X, Y, ov)) { e.preventDefault(); return; }
       const h = PG.hot; let mode = null, idx = -1;
       if (h && h.mask) {
         const d = (p) => Math.hypot(p[0] - X, p[1] - Y);
@@ -303,7 +308,7 @@
       const r = ov.getBoundingClientRect(); const X = e.clientX - r.left, Y = e.clientY - r.top; const d = p => Math.hypot(p[0] - X, p[1] - Y);
       ov.style.cursor = h.pts.some(p => d(p) < 8) ? 'nwse-resize' : h.mids.some(p => d(p) < 8) ? 'ew-resize' : d(h.ap) < 10 ? 'crosshair' : hitClip(X, Y) === h.c ? 'move' : h.pts.some(p => d(p) < 28) ? 'alias' : 'default';
     });
-    ov.addEventListener('dblclick', e => { const r = ov.getBoundingClientRect(); if (GW.MapUI && GW.MapUI.active() && GW.MapUI.dbl(e.clientX - r.left, e.clientY - r.top)) return; const c = hitClip(e.clientX - r.left, e.clientY - r.top); if (c && c.kind === 'text') { GW.sel.clips.clear(); GW.sel.clips.add(c.id); GW.bus.emit('selection'); GW.showPanel('graphics'); setTimeout(() => { const ta = document.querySelector('[data-panel=graphics] textarea'); if (ta) { ta.focus(); ta.select(); } }, 50); } else if (c && c.kind === 'map') GW.UI.openMapEditor(c); });
+    ov.addEventListener('dblclick', e => { const r = ov.getBoundingClientRect(); if (GW.Shape && GW.Shape.active() && GW.Shape.dbl()) return; if (GW.MapUI && GW.MapUI.active() && GW.MapUI.dbl(e.clientX - r.left, e.clientY - r.top)) return; const c = hitClip(e.clientX - r.left, e.clientY - r.top); if (c && c.kind === 'text') { GW.sel.clips.clear(); GW.sel.clips.add(c.id); GW.bus.emit('selection'); GW.showPanel('graphics'); setTimeout(() => { const ta = document.querySelector('[data-panel=graphics] textarea'); if (ta) { ta.focus(); ta.select(); } }, 50); } else if (c && c.kind === 'map') GW.UI.openMapEditor(c); });
     ov.addEventListener('wheel', e => { if (GW.MapUI && !e.ctrlKey && GW.MapUI.active()) { const r = ov.getBoundingClientRect(); if (GW.MapUI.wheel(e, e.clientX - r.left, e.clientY - r.top)) { e.preventDefault(); return; } } if (!e.ctrlKey) return; e.preventDefault(); const z = PG.zoom === 'fit' ? PG.box.s : PG.zoom; PG.zoom = clamp(z * (e.deltaY < 0 ? 1.15 : 1 / 1.15), .05, 4); GW.invalidate(); }, { passive: false });
   }
 })();

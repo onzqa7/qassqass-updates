@@ -515,3 +515,143 @@ const MP = (() => {
   return { procs, decs };
 })();
 /* ===== /media perf ===== */
+
+/* ===== tts ===== (offline text-to-speech: Piper engine + voice downloads into userData, synthesis jobs — helpers in app/js/tts_core.js) */
+const TTS = (() => {
+  const core = require('./app/js/tts_core.js');
+  const isWin = process.platform === 'win32';
+  const EXE = isWin ? 'piper.exe' : 'piper';
+  const st = { jobs: new Map(), dls: new Map() };
+  const userDir = () => app.getPath('userData');
+  const voicesDir = () => process.env.QASS_TTS_VOICES || path.join(userDir(), 'voices');
+  const send = (p) => { try { if (win && !win.isDestroyed()) win.webContents.send('tts:progress', p); } catch (e) {} };
+  // engine search order: env override (dev/tests) → bundled (installer) → dev tree → downloaded into userData
+  function engineDirs() {
+    const d = [];
+    if (process.env.QASS_PIPER_DIR) d.push(process.env.QASS_PIPER_DIR);
+    if (app.isPackaged) d.push(path.join(process.resourcesPath, 'bin', 'piper'));
+    d.push(path.join(__dirname, 'bin', 'win', 'piper'), path.join(userDir(), 'piper'));
+    return d;
+  }
+  function engine() { for (const d of engineDirs()) { const exe = path.join(d, EXE); if (fs.existsSync(exe)) return { dir: d, exe }; } return null; }
+  const sz = (f) => { try { return fs.statSync(f).size; } catch (e) { return 0; } };
+  function voiceList() {
+    const vd = voicesDir(); const out = core.VOICES.map(v => ({ id: v.id, lang: v.lang, n: v.n, mb: v.mb, rec: v.rec || 0, url: v.url, installed: sz(path.join(vd, v.onnx)) > 0 && sz(path.join(vd, v.json)) > 0, bytes: sz(path.join(vd, v.onnx)), partial: sz(path.join(vd, v.onnx + '.part')), downloading: st.dls.has('voice:' + v.id) }));
+    try { for (const f of fs.readdirSync(vd)) if (/\.onnx$/i.test(f) && !out.some(v => v.id + '.onnx' === f) && sz(path.join(vd, f + '.json')) > 0) out.push({ id: 'file:' + f.replace(/\.onnx$/i, ''), lang: /^ar/i.test(f) ? 'ar' : /^en/i.test(f) ? 'en' : '', n: f.replace(/\.onnx$/i, ''), custom: 1, installed: true, bytes: sz(path.join(vd, f)), partial: 0, downloading: false }); } catch (e) {}
+    return out;
+  }
+  function status() {
+    const e = engine();
+    return { platform: process.platform, engine: { installed: !!e, dir: e ? e.dir : null, size: core.ENGINE.size, version: core.PVER, downloadable: isWin || !!process.env.QASS_TTS_ENGINE_URL, downloading: st.dls.has('engine:piper') }, voices: voiceList(), voicesDir: voicesDir() };
+  }
+  async function dl(kind, id) {
+    const key = kind + ':' + id; if (st.dls.has(key)) return { ok: false, error: 'busy' };
+    const ac = new AbortController(); st.dls.set(key, ac);
+    const prog = (phase) => (p) => send({ kind: 'download', target: kind, id, phase, got: p.got != null ? p.got : p.done, total: p.total });
+    const fetchImpl = (u, o) => net.fetch(u, o);
+    try {
+      if (kind === 'voice') {
+        const v = core.VOICES.find(x => x.id === id); if (!v) throw new Error('صوت غير معروف');
+        const vd = voicesDir(); const base = process.env.QASS_TTS_BASEURL;
+        // the small JSON first (it tells us the model is what we think it is), then the onnx
+        await core.download(base ? base + v.json : v.jsonUrl, path.join(vd, v.json), { fetch: fetchImpl, signal: ac.signal, onProgress: prog('download') });
+        if (!core.validVoiceJson(fs.readFileSync(path.join(vd, v.json), 'utf8'))) { fs.rmSync(path.join(vd, v.json), { force: true }); throw new Error('ملف إعدادات الصوت غير صالح'); }
+        await core.download(base ? base + v.onnx : v.url, path.join(vd, v.onnx), { fetch: fetchImpl, expectedSize: v.size || 0, sha256: v.sha256, signal: ac.signal, onProgress: prog('download') });
+        if (sz(path.join(vd, v.onnx)) < 1048576) { fs.rmSync(path.join(vd, v.onnx), { force: true }); throw new Error('ملف الصوت أصغر من المتوقع'); }
+      } else {
+        const E = core.ENGINE; const url = process.env.QASS_TTS_ENGINE_URL || E.url;
+        const base = path.join(userDir(), 'piper'); const zip = base + '.zip';
+        await core.download(url, zip, { fetch: fetchImpl, expectedSize: process.env.QASS_TTS_ENGINE_URL ? 0 : E.size, sha256: process.env.QASS_TTS_ENGINE_URL ? null : E.sha256, signal: ac.signal, onProgress: prog('download') });
+        send({ kind: 'download', target: kind, id, phase: 'extract', got: 0, total: 1 });
+        await fs.promises.rm(base, { recursive: true, force: true });
+        await core.unzipTree(zip, base, core.ENGINE_KEEP, 1, prog('extract'));
+        await fs.promises.rm(zip, { force: true });
+        if (!fs.existsSync(path.join(base, EXE))) throw new Error('الملف المضغوط لا يحتوي على ' + EXE);
+      }
+      send({ kind: 'download', target: kind, id, phase: 'done' });
+      return { ok: true };
+    } catch (e) {
+      const err = e.cancelled ? 'cancelled' : String(e.message || e);
+      send({ kind: 'download', target: kind, id, phase: e.cancelled ? 'cancelled' : 'error', error: err });
+      return { ok: false, cancelled: !!e.cancelled, error: err };
+    } finally { st.dls.delete(key); }
+  }
+  // synthesize one text → WAV at o.out (absolute, may contain Arabic: piper only ever sees relative ASCII paths + stdin)
+  async function run(o) {
+    const id = String(o.id || ('t' + Date.now())); const vd = voicesDir(); const e = engine();
+    if (!e) return { ok: false, error: 'engine-missing' };
+    const v = core.VOICES.find(x => x.id === o.voice); const onnx = v ? v.onnx : String(o.voice || '').replace(/^file:/, '') + '.onnx';
+    if (!/^[\w.-]+\.onnx$/i.test(onnx) || !fs.existsSync(path.join(vd, onnx)) || !fs.existsSync(path.join(vd, onnx + '.json'))) return { ok: false, error: 'voice-missing' };
+    const text = core.oneLine(o.text); if (!text) return { ok: false, error: 'empty-text' };
+    await fs.promises.mkdir(path.join(vd, '.jobs'), { recursive: true });
+    const job = { id, procs: new Set(), cancelled: false }; st.jobs.set(id, job);
+    const base = 'tts_' + id.replace(/[^\w]/g, ''); const outRel = path.join('.jobs', base + '.wav');
+    const args = core.buildArgs({ model: onnx, config: onnx + '.json', out: outRel, speed: o.speed, pause: o.pause, speaker: o.speaker, noiseScale: o.noiseScale, noiseW: o.noiseW });
+    const env = Object.assign({}, process.env); if (isWin) env.ESPEAK_DATA_PATH = path.join(e.dir, 'espeak-ng-data');
+    try {
+      send({ kind: 'run', id, phase: 'synth' });
+      const r = await new Promise((resolve) => {
+        let log = '', p;
+        try { p = spawn(e.exe, args, { cwd: vd, env, windowsHide: true }); } catch (err) { resolve({ ok: false, code: -1, log: String(err) }); return; }
+        job.procs.add(p);
+        p.stderr.on('data', d => { log = (log + d).slice(-20000); });
+        p.stdout.on('data', d => { log = (log + d).slice(-20000); });
+        p.on('error', err => { job.procs.delete(p); resolve({ ok: false, code: -1, log: log + '\n' + err }); });
+        p.on('close', code => { job.procs.delete(p); resolve({ ok: code === 0, code, log }); });
+        p.stdin.on('error', () => {}); p.stdin.end(text + '\n', 'utf8');
+      });
+      if (job.cancelled) return { ok: false, cancelled: true };
+      const tmp = path.join(vd, outRel); const info = fs.existsSync(tmp) ? core.wavInfo(fs.readFileSync(tmp)) : null;
+      if (!r.ok || !info || !info.samples) return { ok: false, error: 'code ' + r.code + ': ' + r.log.slice(-1200), code: r.code };
+      await fs.promises.mkdir(path.dirname(o.out), { recursive: true });
+      await fs.promises.copyFile(tmp, o.out); await fs.promises.rm(tmp, { force: true });
+      send({ kind: 'run', id, phase: 'done' });
+      return { ok: true, path: o.out, seconds: info.seconds, rate: info.rate, channels: info.channels, log: r.log.slice(-800) };
+    } catch (err) { return { ok: false, error: String(err.message || err) }; }
+    finally { st.jobs.delete(id); fs.promises.rm(path.join(vd, outRel), { force: true }).catch(() => {}); }
+  }
+  function cancel(id) {
+    const j = st.jobs.get(String(id)); if (j) { j.cancelled = true; for (const p of j.procs) { try { p.kill(); } catch (e) {} } }
+    for (const k of [String(id), 'voice:' + id, 'engine:' + id]) { const a = st.dls.get(k); if (a) a.abort(); }
+    return true;
+  }
+  async function removeVoice(id) {
+    const v = core.VOICES.find(x => x.id === id); const f = v ? v.onnx : String(id).replace(/^file:/, '') + '.onnx';
+    if (!/^[\w.-]+\.onnx$/i.test(f)) return false;
+    for (const x of [f, f + '.json', f + '.part']) await fs.promises.rm(path.join(voicesDir(), x), { force: true });
+    return true;
+  }
+  async function importVoice(src) { // offline install: an .onnx the user already has (its .onnx.json must sit next to it)
+    if (!/\.onnx$/i.test(src) || !fs.existsSync(src + '.json')) return { ok: false, error: 'يلزم ملف .onnx ومعه ملف .onnx.json بنفس الاسم' };
+    const name = path.basename(src).replace(/[^\w.-]+/g, '_');
+    await fs.promises.mkdir(voicesDir(), { recursive: true });
+    await fs.promises.copyFile(src, path.join(voicesDir(), name)); await fs.promises.copyFile(src + '.json', path.join(voicesDir(), name + '.json'));
+    return { ok: true, id: 'file:' + name.replace(/\.onnx$/i, '') };
+  }
+  return { status, dl, run, cancel, removeVoice, importVoice, voicesDir, engine };
+})();
+ipcMain.handle('tts:status', async () => TTS.status());
+ipcMain.handle('tts:download', async (e, kind, id) => TTS.dl(kind, id));
+ipcMain.handle('tts:run', async (e, o) => TTS.run(o || {}));
+ipcMain.handle('tts:cancel', async (e, id) => TTS.cancel(id));
+ipcMain.handle('tts:remove-voice', async (e, id) => TTS.removeVoice(id));
+ipcMain.handle('tts:import-voice', async (e, p) => TTS.importVoice(p));
+ipcMain.handle('tts:open-voices', async () => { await fs.promises.mkdir(TTS.voicesDir(), { recursive: true }); return shell.openPath(TTS.voicesDir()); });
+/* ===== /tts ===== */
+
+/* ===== project organisation / media browser ===== (ui_project.js consolidate, ui_browser.js) */
+ipcMain.handle('fs:copyFile', async (e, src, dst) => { try { await fs.promises.mkdir(path.dirname(dst), { recursive: true }); await fs.promises.copyFile(src, dst); return true; } catch (er) { console.error('copyFile', er.message); return false; } });
+ipcMain.handle('fs:listDir', async (e, dir) => { // → { dir, parent, entries:[{name, path, dir:bool, size, mtimeMs}] } (hidden files skipped)
+  try {
+    const d = dir || require('os').homedir(); const names = await fs.promises.readdir(d);
+    const entries = []; for (const n of names) { if (n.startsWith('.') || n.startsWith('$')) continue; const p = path.join(d, n); try { const st = await fs.promises.stat(p); entries.push({ name: n, path: p, dir: st.isDirectory(), size: st.size, mtimeMs: st.mtimeMs }); } catch (er) {} }
+    entries.sort((a, b) => (b.dir - a.dir) || a.name.localeCompare(b.name));
+    const parent = path.dirname(d); return { dir: d, parent: parent === d ? null : parent, entries };
+  } catch (er) { return { dir, parent: null, entries: [], error: er.message }; }
+});
+ipcMain.handle('fs:roots', async () => { // drives (Windows) or home / root (others)
+  const os = require('os'); const out = [{ name: 'المنزل', path: os.homedir() }];
+  if (process.platform === 'win32') { for (const L of 'CDEFGHIJKLMNOPQRSTUVWXYZ') { const r = L + ':\\'; try { if (fs.existsSync(r)) out.push({ name: r, path: r }); } catch (e) {} } } else out.push({ name: '/', path: '/' });
+  return out;
+});
+/* ===== /project organisation ===== */

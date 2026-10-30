@@ -95,7 +95,7 @@
     el.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { egTab = b.dataset.t; renderEG(); });
     UI.egEl = el; renderEG();
   });
-  function selText() { const c = [...GW.sel.clips].map(id => GW.clipById(id)).find(c => c && (c.kind === 'text' || (c.kind === 'color' && c.masks && c.masks.length))); return c || null; }
+  function selText() { const c = [...GW.sel.clips].map(id => GW.clipById(id)).find(c => c && (c.kind === 'text' || c.kind === 'shape' || (c.kind === 'color' && c.masks && c.masks.length))); return c || null; }
   function renderEG() {
     const el = UI.egEl; if (!el) return; const c = selText(); if (c && egTab === 'browse' && UI._egAuto !== c.id) { egTab = 'edit'; UI._egAuto = c.id; }
     el.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === egTab));
@@ -118,11 +118,19 @@
       const s2 = document.createElement('div'); s2.className = 'form'; s2.innerHTML = '<div class="sec-t">أشكال</div>';
       const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap';
       for (const [k, n] of [['rect', 'مستطيل'], ['ellipse', 'دائرة'], ['bar', 'شريط سفلي']]) { const b = document.createElement('button'); b.className = 'btn sm'; b.textContent = n; b.onclick = () => UI.addShape(k); row.append(b); }
-      s2.append(row); body.append(s2);
+      s2.append(row);
+      if (GW.Shape) { // vector shape layers (shape.js): fill / stroke / gradient / trim paths / pen tool
+        const h2 = document.createElement('div'); h2.className = 'sec-t'; h2.textContent = 'شكل جديد (طبقة متجهات)'; s2.append(h2);
+        const row2 = document.createElement('div'); row2.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap';
+        for (const [k, n] of GW.Shape.TYPES) { const b = document.createElement('button'); b.className = 'btn sm'; b.innerHTML = GW.ico('shape_' + k, 13) + ' ' + esc(n); b.onclick = () => UI.addShapeLayer(k); row2.append(b); }
+        s2.append(row2);
+      }
+      body.append(s2);
       return;
     }
     if (!c) { body.innerHTML = '<div class="empty">حدد مقطع نص في الخط الزمني لتحريره،<br>أو أضف عنوانًا من «استعراض».</div>'; return; }
     if (c.kind === 'color') { const f = document.createElement('div'); f.className = 'form'; f.append(frow('لون الشكل', colorIn(c.color, v => { c.color = v; ch(); }))); body.append(f); return; }
+    if (c.kind === 'shape' && c.shape) { shapeForm(body, c); return; }
     const x = c.text; const f = document.createElement('div'); f.className = 'form';
     const ch = () => { c.name = (x.str.split('\n')[0] || 'نص').slice(0, 40); GW.invalidate(); GW.commitSoon('تعديل النص'); GW.TL.invalidate(); };
     const ta = document.createElement('textarea'); ta.className = 'inp'; ta.rows = 3; ta.dir = 'auto'; ta.value = x.str; ta.oninput = () => { x.str = ta.value; ch(); }; ta.onkeydown = e => e.stopPropagation();
@@ -140,6 +148,18 @@
     f.append(sec('الظل'), frow('تفعيل', checkIn(x.shadow, v => { x.shadow = v; ch(); })), frow('اللون', colorIn(x.shadowColor, v => { x.shadowColor = v; ch(); })), frow('الشفافية', rangeIn(x.shadowOp, 0, 100, 1, v => { x.shadowOp = v; ch(); })), frow('النعومة', rangeIn(x.shadowBlur, 0, 80, 1, v => { x.shadowBlur = v; ch(); })), frow('المسافة', rangeIn(x.shadowDist, 0, 60, 1, v => { x.shadowDist = v; ch(); })), frow('الزاوية', rangeIn(x.shadowAng, 0, 360, 1, v => { x.shadowAng = v; ch(); })));
     f.append(sec('الخلفية'), frow('تفعيل', checkIn(x.bg, v => { x.bg = v; ch(); })), frow('اللون', colorIn(x.bgColor, v => { x.bgColor = v; ch(); })), frow('الشفافية', rangeIn(x.bgOp, 0, 100, 1, v => { x.bgOp = v; ch(); })), frow('الحشو', rangeIn(x.bgPad, 0, 120, 1, v => { x.bgPad = v; ch(); })), frow('الاستدارة', rangeIn(x.bgRad, 0, 80, 1, v => { x.bgRad = v; ch(); })));
     f.append(sec('الحركة'), frow('الدخول', selectIn(GW.TEXT_ANIMS, x.animIn, v => { x.animIn = v; ch(); })), frow('الخروج', selectIn(GW.TEXT_ANIMS, x.animOut, v => { x.animOut = v; ch(); })), frow('مدة الحركة', rangeIn(x.animDur, .1, 3, .05, v => { x.animDur = v; ch(); })));
+    if (UI.textAnimForm) UI.textAnimForm(f, c, ch); // AE-style text animators (ui_textanim.js)
+    body.append(f);
+  }
+  function shapeForm(body, c) { // quick shape editing; the full keyframable set lives in Effect Controls
+    const sh = c.shape, lt = () => GW.clamp(GW.seq().t - c.start, 0, c.dur); const f = document.createElement('div'); f.className = 'form';
+    const ch = () => { GW.invalidate(); GW.commitSoon('تعديل الشكل'); GW.TL.invalidate(); }; const set = (p) => (v) => { GW.setPv(p, lt(), v); ch(); };
+    f.append(sec('الشكل'), frow('النوع', selectIn(GW.Shape.TYPES, sh.type, v => { sh.type = v; ch(); renderEG(); })));
+    f.append(sec('التعبئة'), frow('تفعيل', checkIn(sh.fill.on, v => { sh.fill.on = v; ch(); })), frow('اللون', colorIn(GW.pv(sh.fill.color, lt()), set(sh.fill.color))), frow('الشفافية', rangeIn(GW.pv(sh.fill.opacity, lt()), 0, 100, 1, set(sh.fill.opacity))));
+    f.append(sec('الحد'), frow('تفعيل', checkIn(sh.stroke.on, v => { sh.stroke.on = v; ch(); })), frow('اللون', colorIn(GW.pv(sh.stroke.color, lt()), set(sh.stroke.color))), frow('السماكة', rangeIn(GW.pv(sh.stroke.width, lt()), 0, 200, .5, set(sh.stroke.width))), frow('طول الشرطة', rangeIn(GW.pv(sh.stroke.dash, lt()), 0, 400, 1, set(sh.stroke.dash))), frow('الفجوة', rangeIn(GW.pv(sh.stroke.gap, lt()), 0, 400, 1, set(sh.stroke.gap))));
+    if (sh.type !== 'ellipse' && sh.type !== 'line') f.append(frow('استدارة الزوايا', rangeIn(GW.pv(sh.round, lt()), 0, 400, 1, set(sh.round))));
+    f.append(sec('قص المسار'), frow('البداية', rangeIn(GW.pv(sh.trim.start, lt()), 0, 100, .5, set(sh.trim.start))), frow('النهاية', rangeIn(GW.pv(sh.trim.end, lt()), 0, 100, .5, set(sh.trim.end))), frow('الإزاحة', rangeIn(GW.pv(sh.trim.offset, lt()), -100, 100, .5, set(sh.trim.offset))));
+    const b = document.createElement('button'); b.className = 'btn sm'; b.textContent = 'كل الخصائص والمفاتيح في عناصر التحكم'; b.onclick = () => GW.showPanel('fxc'); f.append(b);
     body.append(f);
   }
   async function loadLocalFonts() {
@@ -156,6 +176,7 @@
   function selectIn(opts, v, on) { const s = document.createElement('select'); s.className = 'sel'; for (const [k, n] of opts) { const o = document.createElement('option'); o.value = k; o.textContent = n; s.append(o); } s.value = v; s.onchange = () => on(s.value); return s; }
   function segIn(opts, v, on) { const w = document.createElement('div'); w.className = 'seg'; w.style.flex = '1'; for (const [k, n] of opts) { const b = document.createElement('button'); b.textContent = n; b.classList.toggle('on', k === v); b.onclick = () => { w.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); on(k); }; w.append(b); } return w; }
   UI.form = { sec, frow, frowEl, rangeIn, colorIn, checkIn, selectIn, segIn };
+  UI.egRefresh = () => renderEG();
   UI.egEdit = () => { egTab = 'edit'; if (GW.isShown && !GW.isShown('graphics')) GW.showPanel('graphics'); renderEG(); };
   UI.egTab = (t) => { egTab = t; if (GW.isShown && !GW.isShown('graphics')) GW.showPanel('graphics'); renderEG(); };
   GW.bus.on('selection', () => renderEG()); GW.bus.on('hist', () => renderEG());
@@ -173,6 +194,7 @@
     egTab = 'edit'; if (!GW.isShown('graphics')) GW.showPanel('graphics'); renderEG();
   };
   UI.addGenerator = (kind) => { const s = GW.seq(); const ti = freeVTrack(s, s.t, 5); const c = GW.newClip(kind, { ti, start: s.t, dur: 5 }); if (kind === 'adjust') c.fx.push(GW.newFx('lumetri')); s.clips.push(c); GW.sel.clips.clear(); GW.sel.clips.add(c.id); GW.commit(kind === 'color' ? 'لون ثابت' : kind === 'null' ? 'طبقة فارغة' : kind === 'camera' ? 'كاميرا' : 'طبقة ضبط'); GW.bus.emit('selection'); };
+  UI.addShapeLayer = (type) => { if (!GW.Shape) return null; const c = GW.Shape.add(type); egTab = 'edit'; renderEG(); return c; }; // «شكل جديد»: vector shape layer (shape.js)
   UI.addShape = (kind) => {
     const s = GW.seq(); const ti = freeVTrack(s, s.t, 5); const c = GW.newClip('color', { ti, start: s.t, dur: 5, color: kind === 'bar' ? '#d6202f' : '#2f8ef0', name: kind === 'ellipse' ? 'دائرة' : kind === 'bar' ? 'شريط' : 'مستطيل' });
     const mk = { id: GW.uid(), type: kind === 'ellipse' ? 'ellipse' : 'rect', on: 1, mode: 'add', inv: 0, feather: GW.P(0), opacity: GW.P(100), expansion: GW.P(0), center: GW.P(kind === 'bar' ? [s.w / 2, s.h * .86] : [s.w / 2, s.h / 2]), size: GW.P(kind === 'bar' ? [s.w * .9, s.h * .1] : kind === 'ellipse' ? [s.h * .4, s.h * .4] : [s.w * .4, s.h * .3]), rot: GW.P(0) };
@@ -210,6 +232,7 @@
       }
     }
     if (GW.LUT) { f.append(sec('LUT')); GW.LUT.panelRows(f, c, fx, UI.form, renderLum); }
+    if (GW.Color) GW.Color.panelRows(f, c, fx, UI.form, renderLum); // curves, HSL secondary, colour match (color.js)
     const rs = document.createElement('button'); rs.className = 'btn'; rs.textContent = 'إعادة الضبط'; rs.onclick = () => { const base = GW.newFx('lumetri'); fx.params = base.params; GW.commit('إعادة ضبط الألوان'); renderLum(); }; f.append(rs);
   }
   GW.bus.on('selection', () => renderLum()); GW.bus.on('hist', () => renderLum());
@@ -268,7 +291,7 @@
     q('preset').onchange = () => { const v = q('preset').value; if (v !== 'custom') { const [w, h] = v.split('x'); q('w').value = w; q('h').value = h; } };
     GW.modal({ title: 'إعدادات التسلسل', body, buttons: [{ label: 'إلغاء' }, { label: 'موافق', primary: true, action: () => {
       const w = Math.max(16, Math.round((+q('w').value || 1920) / 2) * 2), h = Math.max(16, Math.round((+q('h').value || 1080) / 2) * 2);
-      const kx = w / s.w, ky = h / s.h; if (kx !== 1 || ky !== 1) for (const c of s.clips) if (c.motion) { const sc = (p) => { if (p.k) p.k.forEach(k => k.v = [k.v[0] * kx, k.v[1] * ky]); p.v = [p.v[0] * kx, p.v[1] * ky]; }; sc(c.motion.pos); if (c.cam && c.cam.poi) sc(c.cam.poi); if (c.kind === 'text' || c.kind === 'map' || c.kind === 'color' || c.kind === 'adjust') { c.sw = w; c.sh = h; c.motion.anchor = GW.P([w / 2, h / 2]); } }
+      const kx = w / s.w, ky = h / s.h; if (kx !== 1 || ky !== 1) for (const c of s.clips) if (c.motion) { const sc = (p) => { if (p.k) p.k.forEach(k => k.v = [k.v[0] * kx, k.v[1] * ky]); p.v = [p.v[0] * kx, p.v[1] * ky]; }; sc(c.motion.pos); if (c.cam && c.cam.poi) sc(c.cam.poi); if (c.kind === 'text' || c.kind === 'map' || c.kind === 'color' || c.kind === 'adjust' || c.kind === 'shape') { c.sw = w; c.sh = h; c.motion.anchor = GW.P([w / 2, h / 2]); } }
       s.name = q('name').value || s.name; s.w = w; s.h = h; s.fps = +q('fps').value; GW.commit('إعدادات التسلسل'); GW.bus.emit('project');
     } }] });
   };

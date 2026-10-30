@@ -40,7 +40,16 @@ float noise(float x){ float i=floor(x),f=fract(x); float a=hash(vec2(i,1.3)),b=h
         vec3 cs=unp(s), cb=unp(d); vec3 r=(1.-d.a)*s.rgb+(1.-s.a)*d.rgb+s.a*d.a*B(cb,cs); o=vec4(r,s.a+d.a*(1.-s.a)); }`,
     /* ---- effects ---- */
     lumetri: `uniform float exposure,contrast,highlights,shadows,whites,blacks,temp,tint,sat,vib,fade; uniform vec3 shadowTint,highTint;
+      /* curves (t1 = 256×7 R32F: master,R,G,B, hue→sat, hue→hue, luma→sat) and HSL secondary; both gated by uniforms so the untouched path is unchanged */
+      uniform sampler2D t1; uniform float cvOn,cvInt,hslOn,hslShow,hslHue,hslHueW,hslSatLo,hslSatHi,hslLumLo,hslLumHi,hslSoft,hslDen,hslTemp,hslTint,hslCon,hslSat,hslExp;
+      vec3 rgb2hsv(vec3 c){ vec4 K=vec4(0.,-1./3.,2./3.,-1.); vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g)); vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r)); float d=q.x-min(q.w,q.y); return vec3(abs(q.z+(q.w-q.y)/(6.*d+1e-10)),d/(q.x+1e-10),q.x); }
+      vec3 hsv2rgb(vec3 c){ vec3 p=abs(fract(c.xxx+vec3(1.,2./3.,1./3.))*6.-3.); return c.z*mix(vec3(1.),clamp(p-1.,0.,1.),c.y); }
+      float cvS(float x,int row){ float p=clamp(x,0.,1.)*255.; int i=int(floor(p)); float f=p-floor(p); float a=texelFetch(t1,ivec2(i,row),0).r; float b=texelFetch(t1,ivec2(min(i+1,255),row),0).r; return mix(a,b,f); }
+      vec3 curves(vec3 c){ c=clamp(c,0.,1.); vec3 m=vec3(cvS(c.r,0),cvS(c.g,0),cvS(c.b,0)); m=vec3(cvS(m.r,1),cvS(m.g,2),cvS(m.b,3)); vec3 h=rgb2hsv(m); float h0=h.x; h.y=clamp(h.y*cvS(h0,4)*2.,0.,1.); h.x=fract(h.x+cvS(h0,5)-.5); h.y=clamp(h.y*cvS(luma(m),6)*2.,0.,1.); return hsv2rgb(h); }
+      float hslMask(vec3 c){ vec3 h=rgb2hsv(clamp(c,0.,1.)); float L=luma(c); float dh=abs(fract(h.x-hslHue/360.+.5)-.5)*360.; float sf=hslSoft/100.;
+        float m=1.-smoothstep(hslHueW*.5,hslHueW*.5+sf*60.+.5,dh); m*=smoothstep(hslSatLo-sf*.25-.001,hslSatLo,h.y)*(1.-smoothstep(hslSatHi,hslSatHi+sf*.25+.001,h.y)); m*=smoothstep(hslLumLo-sf*.25-.001,hslLumLo,L)*(1.-smoothstep(hslLumHi,hslLumHi+sf*.25+.001,L)); return m; }
       void main(){ vec4 s=texture(t0,uv); vec3 c=unp(s);
+        float mk=0.; if(hslOn>.5){ mk=hslMask(c); if(hslDen>0.){ vec2 e=hslDen*px/res; mk=(mk+hslMask(unp(texture(t0,uv+vec2(e.x,0.))))+hslMask(unp(texture(t0,uv-vec2(e.x,0.))))+hslMask(unp(texture(t0,uv+vec2(0.,e.y))))+hslMask(unp(texture(t0,uv-vec2(0.,e.y)))))/5.; } }
         c*=exp2(exposure);
         float l=luma(c);
         c+=(whites/100.)*.25*smoothstep(.5,1.,l)+(blacks/100.)*.25*(1.-smoothstep(0.,.5,l));
@@ -51,6 +60,8 @@ float noise(float x){ float i=floor(x),f=fract(x); float a=hash(vec2(i,1.3)),b=h
         c=mix(vec3(l),c,(sat/100.)*vs);
         c+=(shadowTint-.5)*.4*(1.-smoothstep(0.,.55,l)); c+=(highTint-.5)*.4*smoothstep(.45,1.,l);
         c=mix(c,c*.85+.08,fade/100.);
+        if(cvOn>.5) c=mix(c,curves(c),cvInt/100.);
+        if(hslOn>.5){ if(hslShow>.5) c=vec3(mk); else { vec3 d=c*exp2(hslExp); d=(d-.5)*(1.+hslCon/100.)+.5; d*=vec3(1.+hslTemp/250.,1.,1.-hslTemp/250.); d*=vec3(1.+hslTint/400.,1.-hslTint/250.,1.+hslTint/400.); d=mix(vec3(luma(d)),d,hslSat/100.); c=mix(c,d,mk); } }
         o=pre(c,s.a); }`,
     bw: `uniform float amount; void main(){ vec4 s=texture(t0,uv); vec3 c=unp(s); o=pre(mix(c,vec3(luma(c)),amount/100.),s.a); }`,
     sepia: `uniform float amount; void main(){ vec4 s=texture(t0,uv); vec3 c=unp(s); vec3 sp=vec3(dot(c,vec3(.393,.769,.189)),dot(c,vec3(.349,.686,.168)),dot(c,vec3(.272,.534,.131))); o=pre(mix(c,sp,amount/100.),s.a); }`,
@@ -374,10 +385,31 @@ float noise(float x){ float i=floor(x),f=fract(x); float a=hash(vec2(i,1.3)),b=h
       for (const d of GW.FX[t].p) if (d.t === 'select' && t !== 'mirror') u[d.k] = Math.max(0, d.opts.findIndex(o => o[0] === pr[d.k]));
       if (t === 'mirror') u.mode = { h: 0, v: 1, q: 2 }[pr.mode] ?? 0;
       if (t === 'lumetri' && fx.lut) cur = R.lutPass(cur, fx.lut.in, pr.lutIn); // Input LUT before the basic correction
-      const out = R.fbo(cur.w, cur.h); R.pass(name, out, [cur.tex], u); R.free(cur); cur = out;
+      const texs = [cur.tex];
+      if (t === 'lumetri') { // curves + HSL secondary (color.js); explicit defaults so an older project without these params renders as before
+        const CV = GW.Curves, cvT = CV && fx.curves && !CV.isIdentity(fx.curves) ? R.curvesTex(fx) : null;
+        u.cvOn = cvT ? 1 : 0; u.cvInt = pr.cvInt == null ? 100 : pr.cvInt; if (cvT) texs.push(cvT);
+        const H = fx.hsl; u.hslOn = H && H.on ? 1 : 0;
+        if (u.hslOn) { u.hslShow = H.show ? 1 : 0; u.hslHue = H.hue; u.hslHueW = H.hueW; u.hslSatLo = H.sat[0] / 100; u.hslSatHi = H.sat[1] / 100; u.hslLumLo = H.lum[0] / 100; u.hslLumHi = H.lum[1] / 100; u.hslSoft = H.soft || 0; u.hslDen = H.denoise || 0; }
+        else { u.hslShow = 0; u.hslHue = 0; u.hslHueW = 0; u.hslSatLo = 0; u.hslSatHi = 0; u.hslLumLo = 0; u.hslLumHi = 0; u.hslSoft = 0; u.hslDen = 0; }
+        for (const [k, d] of [['hslTemp', 0], ['hslTint', 0], ['hslCon', 0], ['hslSat', 100], ['hslExp', 0]]) if (u[k] == null) u[k] = d;
+      }
+      const out = R.fbo(cur.w, cur.h); R.pass(name, out, texs, u); R.free(cur); cur = out;
       if (t === 'lumetri' && fx.lut) cur = R.lutPass(cur, fx.lut.cr, pr.lutCr); // Creative LUT after it
     }
     return cur;
+  };
+  // baked curves of a Lumetri effect → 256×7 R32F texture, cached per effect and re-uploaded only when the curve points change
+  const cvTex = new Map();
+  R.curvesTex = (fx) => {
+    const gl = R.gl, key = JSON.stringify(fx.curves); let e = cvTex.get(fx.id);
+    if (e && e.key === key) return e.tex;
+    if (!e) { const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex); for (const [p, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, p, v); e = { tex, key: null }; cvTex.set(fx.id, e); if (cvTex.size > 64) { const k0 = cvTex.keys().next().value; gl.deleteTexture(cvTex.get(k0).tex); cvTex.delete(k0); } }
+    const data = GW.Curves.bake(fx.curves);
+    gl.bindTexture(gl.TEXTURE_2D, e.tex); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, 256, 7, 0, gl.RED, gl.FLOAT, data);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    e.key = key; return e.tex;
   };
   // one LUT slot ({path}) at intensity amt (0–100, default 100) → new layer; unchanged (same object) when unset / not loaded yet
   R.lutPass = (cur, slot, amt) => {

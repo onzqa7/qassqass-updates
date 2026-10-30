@@ -65,6 +65,21 @@ contextBridge.exposeInMainWorld('gws', {
   , decRead: (id) => ipcRenderer.invoke('mp:decRead', id)
   , decClose: (id) => ipcRenderer.invoke('mp:decClose', id)
   /* ===== /media perf ===== */
+  /* ===== project organisation / media browser ===== (see the block at the end of main.js) */
+  , copyFile: (src, dst) => ipcRenderer.invoke('fs:copyFile', src, dst)
+  , listDir: (dir) => ipcRenderer.invoke('fs:listDir', dir)
+  , fsRoots: () => ipcRenderer.invoke('fs:roots')
+  /* ===== /project organisation ===== */
+  /* ===== tts ===== (offline text-to-speech with Piper; see the tts block in main.js) */
+  , ttsStatus: () => ipcRenderer.invoke('tts:status')
+  , ttsDownload: (kind, id) => ipcRenderer.invoke('tts:download', kind, id)
+  , ttsRun: (o) => ipcRenderer.invoke('tts:run', o)
+  , ttsCancel: (id) => ipcRenderer.invoke('tts:cancel', id)
+  , ttsRemoveVoice: (id) => ipcRenderer.invoke('tts:remove-voice', id)
+  , ttsImportVoice: (p) => ipcRenderer.invoke('tts:import-voice', p)
+  , ttsOpenVoices: () => ipcRenderer.invoke('tts:open-voices')
+  , onTtsProgress: (cb) => { const f = (e, p) => cb(p); ipcRenderer.on('tts:progress', f); return () => ipcRenderer.removeListener('tts:progress', f); }
+  /* ===== /tts ===== */
 });
 
 /* ===== api ===== (assistant automation bridge: main forwards JSON-RPC calls → GW.API in app/js/api.js) */

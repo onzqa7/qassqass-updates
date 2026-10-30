@@ -57,6 +57,7 @@
     const inp = ctx.createGain(); let cur = inp;
     for (const f of fxs || []) {
       if (!f.on || !GW.AFX[f.type]) continue; const p = {}; for (const k in f.params) p[k] = GW.pv(f.params[k], lt);
+      if (GW.AFXX && GW.AFXX[f.type]) { const io = GW.AFXX[f.type](ctx, p, f, lt); cur.connect(io[0]); cur = io[1]; continue; } // audio_fx.js builders (peq / comp / deesser / limiter / reverb kinds)
       let n;
       switch (f.type) {
         case 'gain': n = ctx.createGain(); n.gain.value = dbToGain(p.db); cur.connect(n); cur = n; break;
@@ -75,6 +76,7 @@
     const nodes = [];
     const master = ctx.createGain(); master.gain.value = dbToGain(s.master || 0); master.connect(dest); nodes.push(master);
     const tGain = s.at.map(tr => { const g = ctx.createGain(); g.gain.value = dbToGain(tr.vol || 0); g.connect(master); nodes.push(g); return g; });
+    if (GW.AudioFX && GW.AudioFX.duckTracks) try { GW.AudioFX.duckTracks(ctx, s, t0, when, tGain, tEnd); } catch (e) { console.error(e); } // real-time sidechain ducking per track (audio_fx.js)
     for (const c of s.clips) {
       if (c.kind === 'nest' && c.on !== 0 && (A._depth || 0) < 4) {
         const sub = GW.prj.seqs.find(x => x.id === c.ref); if (!sub || sub === s) continue;

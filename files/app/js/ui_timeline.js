@@ -624,7 +624,7 @@
       setCursor(cur);
     });
     el.addEventListener('pointerleave', () => { if (TL.hover || TL.snapX != null) { TL.hover = null; if (!drag) TL.snapX = null; invOver(); } });
-    el.addEventListener('dblclick', e => { const r = el.getBoundingClientRect(); const h = hit(e.clientX - r.left, e.clientY - r.top); if (!h.c) return; if (h.c.kind === 'nest') { GW.stop(); GW.prj.active = h.c.ref; GW.bus.emit('project'); return; } if (h.c.kind === 'map') GW.UI.openMapEditor(h.c); else if (h.c.kind === 'text') { GW.showPanel('graphics'); } else if (h.c.media) { GW.Source.load(GW.media(h.c.media)); } });
+    el.addEventListener('dblclick', e => { const r = el.getBoundingClientRect(); const h = hit(e.clientX - r.left, e.clientY - r.top); if (!h.c) return; if (h.c.kind === 'nest') { GW.stop(); GW.prj.active = h.c.ref; GW.bus.emit('project'); return; } if (h.c.kind === 'map') GW.UI.openMapEditor(h.c); else if (h.c.kind === 'text') { GW.showPanel('graphics'); } else if (h.c.kind === 'shape') { GW.showPanel('fxc'); } else if (h.c.media) { GW.Source.load(GW.media(h.c.media)); } });
     el.addEventListener('contextmenu', e => { e.preventDefault(); const r = el.getBoundingClientRect(); const h = hit(e.clientX - r.left, e.clientY - r.top); clipMenu(e, h); });
     el.addEventListener('pointerdown', e => {
       if (e.button === 1) { e.preventDefault(); return dragHand(e, el); } // middle mouse pans
@@ -658,6 +658,7 @@
       if (types.includes('application/x-gws-media')) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; const row = TL.rowAt(y); const ids = GW.dragMedia || []; const t = Math.max(0, snapT(TL.t(x))); TL.ghost = ghostFor(ids.map(GW.media).filter(Boolean), t, row); invOver(); }
       else if (types.includes('application/x-gws-fx')) { e.preventDefault(); const h = hit(x, y); if (!TL.hover || TL.hover.c !== h.c) { TL.hover = { c: h.c, fx: true }; invOver(); } }
       else if (types.includes('application/x-gws-sfx')) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }
+      else if (types.includes('application/x-gws-files')) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } // media browser (ui_browser.js)
     });
     el.addEventListener('dragleave', () => { TL.ghost = null; TL.snapX = null; TL.hover = null; invOver(); });
     el.addEventListener('drop', e => {
@@ -666,6 +667,7 @@
       TL.ghost = null; TL.snapX = null; TL.hover = null;
       if (md) { e.preventDefault(); const ids = JSON.parse(md); const row = TL.rowAt(y); const t = Math.max(0, snapT(TL.t(x))); TL.snapX = null; const seqs = ids.map(id => GW.prj.seqs.find(q => q.id === id)).filter(Boolean); if (seqs.length) { TL.insertNest(seqs[0], t, row, e.ctrlKey ? 'insert' : 'overwrite'); return; } TL.insertMedia(ids.map(GW.media).filter(Boolean), t, e.ctrlKey ? 'insert' : 'overwrite', { row }); return; }
       if (fx) { e.preventDefault(); const f = JSON.parse(fx); const h = hit(x, y); GW.UI.applyFxTo(f, h.c, h); }
+      const bf = e.dataTransfer.getData('application/x-gws-files'); if (bf && GW.Browser) { e.preventDefault(); GW.Browser.dropToTimeline(JSON.parse(bf), Math.max(0, snapT(TL.t(x))), TL.rowAt(y), e.ctrlKey ? 'insert' : 'overwrite'); TL.invalidate(); return; }
       const sfx = e.dataTransfer.getData('application/x-gws-sfx'); if (sfx && GW.SFX) { e.preventDefault(); const it = (GW.SFX.list || []).find(q => q.id === sfx); if (it) GW.SFX.insert(it, Math.max(0, snapT(TL.t(x))), TL.rowAt(y)); }
       TL.invalidate();
     });

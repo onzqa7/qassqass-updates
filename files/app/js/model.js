@@ -3,9 +3,9 @@
 (function () {
   const { uid, clamp, clone, P } = GW;
 
-  GW.LABELS = { video: '#8f7fd6', audio: '#3fae8f', image: '#b08bd8', text: '#d8749f', map: '#d9823f', color: '#5f97d1', adjust: '#9da3ad', seq: '#4e9a52', nest: '#4e9a52', null: '#c9a227', camera: '#6f7c8f' };
+  GW.LABELS = { video: '#8f7fd6', audio: '#3fae8f', image: '#b08bd8', text: '#d8749f', shape: '#4fb3c8', map: '#d9823f', color: '#5f97d1', adjust: '#9da3ad', seq: '#4e9a52', nest: '#4e9a52', null: '#c9a227', camera: '#6f7c8f' };
   GW.LABEL_SET = [['بنفسجي', '#8f7fd6'], ['نعناعي', '#3fae8f'], ['لافندر', '#b08bd8'], ['وردي', '#d8749f'], ['برتقالي', '#d9823f'], ['أزرق', '#5f97d1'], ['أصفر', '#d6c04a'], ['أحمر', '#d6544e'], ['أخضر', '#4e9a52'], ['رمادي', '#9da3ad']];
-  GW.KIND_NAME = { video: 'فيديو', audio: 'صوت', image: 'صورة', text: 'نص', map: 'خريطة حربية', color: 'لون ثابت', adjust: 'طبقة ضبط', seq: 'تسلسل', nest: 'تسلسل متداخل', null: 'طبقة فارغة', camera: 'كاميرا' };
+  GW.KIND_NAME = { video: 'فيديو', audio: 'صوت', image: 'صورة', text: 'نص', shape: 'شكل', map: 'خريطة حربية', color: 'لون ثابت', adjust: 'طبقة ضبط', seq: 'تسلسل', nest: 'تسلسل متداخل', null: 'طبقة فارغة', camera: 'كاميرا' };
 
   /* ---------------- effect definitions ---------------- */
   const n = (k, name, def, min, max, step, unit) => ({ k, n: name, t: 'num', def, min, max, step: step || 1, unit: unit || '' });
@@ -15,7 +15,9 @@
   const sel = (k, name, def, opts) => ({ k, n: name, t: 'select', def, opts });
   const ang = (k, name, def) => ({ k, n: name, t: 'num', def, min: -3600, max: 3600, step: 1, unit: '°' });
   GW.FX = {
-    lumetri: { n: 'تصحيح الألوان Lumetri', cat: 'تصحيح الألوان', p: [n('exposure', 'التعريض', 0, -4, 4, .01), n('contrast', 'التباين', 0, -100, 100), n('highlights', 'الإضاءات', 0, -100, 100), n('shadows', 'الظلال', 0, -100, 100), n('whites', 'الأبيض', 0, -100, 100), n('blacks', 'الأسود', 0, -100, 100), n('temp', 'حرارة اللون', 0, -100, 100), n('tint', 'الصبغة', 0, -100, 100), n('sat', 'التشبع', 100, 0, 200), n('vib', 'الحيوية', 0, -100, 100), n('fade', 'بهتان الفيلم', 0, 0, 100), col('shadowTint', 'لون الظلال', '#808080'), col('highTint', 'لون الإضاءات', '#808080'), { ...n('lutIn', 'شدة LUT الإدخال', 100, 0, 100), lut: 'in' }, { ...n('lutCr', 'شدة LUT الإبداعي', 100, 0, 100), lut: 'cr' }] },
+    lumetri: { n: 'تصحيح الألوان Lumetri', cat: 'تصحيح الألوان', p: [n('exposure', 'التعريض', 0, -4, 4, .01), n('contrast', 'التباين', 0, -100, 100), n('highlights', 'الإضاءات', 0, -100, 100), n('shadows', 'الظلال', 0, -100, 100), n('whites', 'الأبيض', 0, -100, 100), n('blacks', 'الأسود', 0, -100, 100), n('temp', 'حرارة اللون', 0, -100, 100), n('tint', 'الصبغة', 0, -100, 100), n('sat', 'التشبع', 100, 0, 200), n('vib', 'الحيوية', 0, -100, 100), n('fade', 'بهتان الفيلم', 0, 0, 100), col('shadowTint', 'لون الظلال', '#808080'), col('highTint', 'لون الإضاءات', '#808080'), { ...n('lutIn', 'شدة LUT الإدخال', 100, 0, 100), lut: 'in' }, { ...n('lutCr', 'شدة LUT الإبداعي', 100, 0, 100), lut: 'cr' },
+      // curves (fx.curves, color.js) and HSL secondary (fx.hsl: range) — grp params are drawn by GW.Color.fxcRows under their own sections
+      { ...n('cvInt', 'شدة المنحنيات', 100, 0, 100), grp: 'curves' }, { ...n('hslTemp', 'حرارة اللون', 0, -100, 100), grp: 'hsl' }, { ...n('hslTint', 'الصبغة', 0, -100, 100), grp: 'hsl' }, { ...n('hslCon', 'التباين', 0, -100, 100), grp: 'hsl' }, { ...n('hslSat', 'التشبع', 100, 0, 200), grp: 'hsl' }, { ...n('hslExp', 'التعريض', 0, -4, 4, .01), grp: 'hsl' }] },
     bw: { n: 'أبيض وأسود', cat: 'تصحيح الألوان', p: [n('amount', 'القوة', 100, 0, 100)] },
     sepia: { n: 'بني قديم (سيبيا)', cat: 'تصحيح الألوان', p: [n('amount', 'القوة', 100, 0, 100)] },
     hue: { n: 'تدرج اللون والتشبع', cat: 'تصحيح الألوان', p: [ang('hue', 'تدوير اللون', 0), n('sat', 'التشبع', 0, -100, 100), n('light', 'الإضاءة', 0, -100, 100)] },
@@ -163,6 +165,7 @@
     }
     if (c.tt === 'a' || o.hasAudio) { c.vol = P(0); c.pan = P(0); c.afx = []; }
     if (kind === 'text') c.text = GW.defaultText(o.textValue);
+    if (kind === 'shape' && GW.Shape) c.shape = GW.Shape.defaults(o.shapeType || 'rect', s, o);
     if (kind === 'color') c.color = o.color || '#1f6feb';
     if (kind === 'map') c.map = { scene: o.scene || null };
     if (kind === 'camera' || kind === 'null') { c.motion.scale = P(100); if (kind === 'null') c.motion.pos = P([s.w / 2, s.h / 2]); }
@@ -190,6 +193,7 @@
     const visit = o => { if (!o || typeof o !== 'object') return; if ('v' in o && (o.k || o.v !== undefined) && Object.keys(o).every(k => k === 'v' || k === 'k')) { fn(o); return; } for (const k in o) if (k !== 'scene') visit(o[k]); };
     visit(c.motion); visit(c.cam); visit({ o: c.opacity }); visit({ v: c.vol }); visit({ p: c.pan });
     (c.fx || []).forEach(f => visit(f.params)); (c.afx || []).forEach(f => visit(f.params)); (c.masks || []).forEach(m => visit(m));
+    if (c.text && c.text.animators) visit(c.text.animators); if (c.shape) visit(c.shape); // text animators (text_anim.js) / shape layers (shape.js)
   }
   GW.eachParam = eachParam;
   GW.shiftKeys = (c, dt, from, to) => eachParam(c, p => { if (!p.k) return; p.k.forEach(k => k.t -= dt); if (from != null) { p.k = p.k.filter(k => k.t >= from - 1e-6 && k.t <= to + 1e-6); if (!p.k.length) delete p.k; } });

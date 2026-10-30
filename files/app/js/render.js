@@ -35,7 +35,7 @@
     if (esWorld != null) es = esWorld; // parented layers: scale from the composed world matrix (shake included)
     else if (c.motion) { const s = GW.pv(c.motion.scale, lt) / 100, sw = c.motion.uni ? s : GW.pv(c.motion.scaleW, lt) / 100; es = Math.max(Math.abs(s), Math.abs(sw)); }
     const sh = esWorld == null && (c.fx || []).find(x => x.type === 'shake' && x.on); if (sh) es *= 1 + GW.pv(sh.params.zoom, lt) / 100;
-    const cap = (c.kind === 'text' || c.kind === 'color') ? 2 : c.kind === 'map' ? 1.5 : 1;
+    const cap = (c.kind === 'text' || c.kind === 'color' || c.kind === 'shape') ? 2 : c.kind === 'map' ? 1.5 : 1;
     let ls = GW.clamp(r * es * 1.02, .05, cap);
     return Math.ceil(ls * 16) / 16;
   };
@@ -49,6 +49,11 @@
     if (c.kind === 'text') {
       const e = GW.TextR.draw(c, lt, lw, lh, lw / s.w);
       const tx = R.upload('t:' + c.id, e.canvas, lw, lh, e.ver);
+      const f = R.fbo(lw, lh); R.pass('copy', f, [tx.tex]); return f;
+    }
+    if (c.kind === 'shape' && GW.Shape) { // vector shape layer (js/shape.js), rasterized like text
+      const e = GW.Shape.draw(c, lt, lw, lh, lw / s.w);
+      const tx = R.upload('sh:' + c.id, e.canvas, lw, lh, e.ver);
       const f = R.fbo(lw, lh); R.pass('copy', f, [tx.tex]); return f;
     }
     if (c.kind === 'map') {
@@ -118,7 +123,7 @@
   /* ---- 3D layers / camera (see xform.js). FC = per-frame camera cache (frames nest for nested sequences) ---- */
   let FC = null;
   const frameCam = (s, t) => FC && FC.s === s && FC.t === t ? (FC.cam || (FC.cam = GW.X.camera(s, t))) : GW.X.camera(s, t);
-  const layerCap = c => (c.kind === 'text' || c.kind === 'color') ? 2 : c.kind === 'map' ? 1.5 : 1;
+  const layerCap = c => (c.kind === 'text' || c.kind === 'color' || c.kind === 'shape') ? 2 : c.kind === 'map' ? 1.5 : 1;
   function placed3D(s, c, t, r, W, H, acc, opts) {
     const X = GW.X, lt = t - c.start, cam = frameCam(s, t);
     const A = X.mul(cam.view, X.world(s, c, t, shakeFx(c, lt)));

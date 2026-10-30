@@ -40,6 +40,17 @@
     reset: '<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/>',
     keyprev: '<path d="M16 5.5v13L6 12z" fill="currentColor" stroke="none"/>', keynext: '<path d="M8 5.5v13L18 12z" fill="currentColor" stroke="none"/>',
     keydia: '<path d="m12 5.5 6.5 6.5-6.5 6.5L5.5 12z"/>', keydiaon: '<path d="m12 5.5 6.5 6.5-6.5 6.5L5.5 12z" fill="currentColor"/>',
+    /* shape layers / bins (text_anim.js, shape.js, ui_project.js) */
+    shape_rect: '<rect x="4" y="6" width="16" height="12" rx="1.5"/>', shape_ellipse: '<ellipse cx="12" cy="12" rx="8.5" ry="6.5"/>',
+    shape_polygon: '<path d="M12 4l7.6 5.5-2.9 9H7.3l-2.9-9z"/>', shape_star: '<path d="m12 3.5 2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 20l1.1-6L3.4 9.8l6-.8z"/>',
+    shape_line: '<path d="M4 19 20 5"/>', shape_path: '<path d="M4 18c3-9 7-12 16-12"/><circle cx="4" cy="18" r="1.6" fill="currentColor"/><circle cx="20" cy="6" r="1.6" fill="currentColor"/><path d="M4 18l5-7M20 6l-6 1"/>',
+    pen: '<path d="m4 20 3.5-1 10-10-2.5-2.5-10 10z"/><path d="m15 6.5 2.5 2.5M12.5 9l2.5 2.5"/>',
+    anim: '<path d="M4 17c4 0 4-10 8-10s4 10 8 10"/><circle cx="4" cy="17" r="1.5" fill="currentColor"/><circle cx="20" cy="17" r="1.5" fill="currentColor"/>',
+    folderplus: '<path d="M3.5 6.5a1.5 1.5 0 0 1 1.5-1.5h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5z"/><path d="M12 10.5v5M9.5 13h5"/>',
+    folderopen: '<path d="M3.5 8.5v-2a1.5 1.5 0 0 1 1.5-1.5h4l2 2h7a1.5 1.5 0 0 1 1.5 1.5V10"/><path d="M3.5 10.5h18l-2.2 8H5.3z"/>',
+    smart: '<path d="M3.5 6.5a1.5 1.5 0 0 1 1.5-1.5h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5z"/><path d="m12 10 1 2.2 2.4.3-1.7 1.6.4 2.4L12 15.4l-2.1 1.1.4-2.4-1.7-1.6 2.4-.3z"/>',
+    sort: '<path d="M6 5v14m0 0-3-3m3 3 3-3M13 6h8M13 11h6M13 16h4"/>', tag: '<path d="M4 4h7l9 9-7 7-9-9z"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/>',
+    trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', drive: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M3.5 14h17M7 17h.01M10 17h.01"/>',
     menu: '<path d="M4 7h16M4 12h16M4 17h16"/>', grid: '<rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1"/>',
   };
   /* design v4: keep the accent fill of horizontal sliders in sync with their value (CSS var --p) */

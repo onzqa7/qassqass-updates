@@ -8,8 +8,8 @@
 
   /* ---------------- workspaces ---------------- */
   GW.WS = {
-    edit: { n: 'تحرير', tl: ['source', 'fxc', 'mixer', 'markers'], tr: ['program'], bl: ['project', 'effects', 'sfx', 'history'], br: ['timeline'], side: [], v: { '--c1': '40%', '--c4': '28%', '--r1': '54%' } },
-    color: { n: 'ألوان', tl: ['fxc', 'source'], tr: ['program'], bl: ['project', 'effects'], br: ['timeline'], side: ['lumetri'], v: { '--c1': '34%', '--c4': '26%', '--r1': '58%', '--c3': '320px' } },
+    edit: { n: 'تحرير', tl: ['source', 'fxc', 'mixer', 'markers'], tr: ['program'], bl: ['project', 'browser', 'effects', 'sfx', 'history'], br: ['timeline'], side: [], v: { '--c1': '40%', '--c4': '28%', '--r1': '54%' } },
+    color: { n: 'ألوان', tl: ['fxc', 'source'], tr: ['program'], bl: ['project', 'effects'], br: ['timeline'], side: ['lumetri', 'scopes'], v: { '--c1': '34%', '--c4': '26%', '--r1': '58%', '--c3': '320px' } },
     effects: { n: 'تأثيرات', tl: ['fxc', 'source'], tr: ['program'], bl: ['project', 'history'], br: ['timeline'], side: ['effects', 'graphics'], v: { '--c1': '38%', '--c4': '24%', '--r1': '55%', '--c3': '300px' } },
     audio: { n: 'صوت', tl: ['mixer', 'fxc'], tr: ['program'], bl: ['project', 'effects'], br: ['timeline'], side: ['sfx'], v: { '--c1': '40%', '--c4': '24%', '--r1': '52%', '--c3': '360px' } },
     graphics: { n: 'رسومات', tl: ['fxc', 'source'], tr: ['program'], bl: ['project'], br: ['timeline'], side: ['graphics'], v: { '--c1': '34%', '--c4': '24%', '--r1': '56%', '--c3': '330px' } },
@@ -276,7 +276,7 @@
     ]],
     ['نافذة', () => [
       ...Object.keys(GW.WS).map(k => ({ label: 'مساحة عمل: ' + GW.WS[k].n, check: GW.active.ws === k, action: () => GW.setWorkspace(k) })), '-',
-      ...['project', 'source', 'program', 'timeline', 'fxc', 'effects', 'graphics', 'lumetri', 'mixer', 'sfx', 'markers', 'history', 'maps'].map(id => ({ label: GW.panels[id] ? GW.panels[id].title : id, action: () => GW.showPanel(id) })),
+      ...['project', 'browser', 'source', 'program', 'timeline', 'fxc', 'effects', 'graphics', 'lumetri', 'scopes', 'mixer', 'sfx', 'markers', 'history', 'maps'].map(id => ({ label: GW.panels[id] ? GW.panels[id].title : id, action: () => GW.showPanel(id) })),
       '-', { label: 'إعادة ضبط مساحة العمل', action: () => { try { localStorage.removeItem('gws.layout.' + GW.active.ws); } catch (e) {} GW.setWorkspace(GW.active.ws); } }
     ]],
     ['مساعدة', () => [{ label: 'الشاشة الرئيسية', action: () => GW.UI.home() }, { label: 'اختصارات لوحة المفاتيح', action: C.shortcuts }, { label: 'حول قص قص', action: C.about }]]

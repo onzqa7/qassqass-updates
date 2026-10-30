@@ -66,6 +66,7 @@
     sec.append(h, body); sec.body = body; return sec;
   }
 
+  F.builders = { section, row, numCtl, pointCtl, colorCtl, boolCtl, selectCtl, lt }; F.extra = F.extra || []; // for additive sections registered by other modules
   /* ---------- render ---------- */
   F.render = () => {
     if (!F.left) return; const L = F.left; const sc = L.scrollTop; L.innerHTML = ''; F.rows = [];
@@ -122,6 +123,7 @@
         bg.value = (c.map && c.map.bg) || 'full'; bg.onchange = () => { c.map.bg = bg.value; GW.commit('خلفية الخريطة'); };
         ms2.body.append(row(c, null, 'الخلفية', bg, { noAnim: true })); L.append(ms2);
       }
+      (F.extra || []).forEach(fn => { try { fn(L, c, s, F); } catch (er) { console.error('fxc extra', er); } }); // text animators (text_anim_ui.js), shape layers (shape.js)
       // effect stack
       (c.fx || []).forEach((fx, i) => L.append(fxBlock(c, fx, i, 'v')));
     }
@@ -193,7 +195,7 @@
       tools: [{ icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>', title: 'حذف التأثير', action: () => { list.splice(list.indexOf(fx), 1); GW.commit('حذف تأثير'); F.render(); } }],
       menu: () => [{ label: 'تحريك للأعلى', disabled: i === 0, action: () => { list.splice(i, 1); list.splice(i - 1, 0, fx); GW.commit('ترتيب التأثيرات'); F.render(); } }, { label: 'تحريك للأسفل', disabled: i === list.length - 1, action: () => { list.splice(i, 1); list.splice(i + 1, 0, fx); GW.commit('ترتيب التأثيرات'); F.render(); } }, { label: 'تكرار', action: () => { const d = GW.clone(fx); d.id = GW.uid(); list.splice(i + 1, 0, d); GW.commit('تكرار تأثير'); F.render(); } }, { label: 'إعادة ضبط كل القيم', action: () => { const n = GW.newFx(fx.type, grp); fx.params = n.params; GW.commit('إعادة الضبط'); F.render(); } }, '-', { label: 'حذف', action: () => { list.splice(list.indexOf(fx), 1); GW.commit('حذف تأثير'); F.render(); } }] });
     for (const p of def.p) {
-      if (p.lut) continue; // LUT intensities live next to their pickers (lut.js)
+      if (p.lut || p.grp) continue; // LUT intensities live next to their pickers (lut.js); curves / HSL params under their sections (color.js)
       const P = fx.params[p.k] || (fx.params[p.k] = GW.P(GW.clone(p.def)));
       let ctl;
       if (p.t === 'num') ctl = numCtl(c, P, { min: p.min, max: p.max, step: Math.max(p.step, (p.max - p.min) / 400), unit: p.unit, dec: p.step < 1 ? 2 : 1 });
@@ -204,6 +206,8 @@
       sec.body.append(row(c, P, p.n, ctl, { def: p.def, noAnim: p.t === 'select' || p.t === 'bool' }));
     }
     if (fx.type === 'lumetri' && GW.LUT) GW.LUT.fxcRows(sec, c, fx, row, numCtl);
+    if (fx.type === 'lumetri' && GW.Color) GW.Color.fxcRows(sec, c, fx, row, numCtl);
+    if (grp === 'a' && GW.AudioFX && GW.AudioFX.fxcRows) try { GW.AudioFX.fxcRows(sec, c, fx, row, numCtl); } catch (e) { console.error(e); } // EQ curve / gain-reduction meters (audio_fx.js)
     return sec;
   }
   function addMask(c, type) {

@@ -55,6 +55,9 @@
    exportStatus()  cancelExport()
    captureFrame({time, maxWidth=960})            → {mime:'image/png', base64, width, height, time}   (what the Program monitor shows)
    listEffects() listTransitions() listSfx({query, cat, limit}) listTitlePresets() listMapStyles() listMethods()
+   addShape({type:'rect'|'ellipse'|'polygon'|'star'|'line'|'path', start, dur, track, center, size, color, pts, closed, stroke:{color,width}, fill}) → clip   vector shape layer (js/shape.js)
+   setTextAnimator({id, preset, unit:'char'|'word'|'line', shape, ease, props:{opacity,scale,rot,tracking,blur,pos,fill}, start|end|offset: value | [{time,value,ease}], replace, remove}) → {id, animators}
+   createBin({name, parent, color, media:[ids]})   → bin   project folder (bins persist in the project file)
    listTemplates()                               → [{id, name, category, dur, fields:[{key, name, type, default}]}]   motion graphics templates (js/mg.js)
    addTemplate({id, start, dur, track, fields:{key: value}}) → clip   animated template clip at the playhead (or start)
    setKeyEase({id, path, index|time|index:'all', ease:'linear'|'hold'|'ease'|'easeIn'|'easeOut'|'bezier', influence (%), in:[x,y], out:[x,y]}) → keys
@@ -303,6 +306,33 @@
     s.clips.push(c); GW.commit(label('إضافة نص')); GW.invalidate();
     return clipInfo(c);
   };
+  /* ---- shape layers (js/shape.js), text animators (js/text_anim.js), project bins (js/ui_project.js) ---- */
+  M.addShape = (p = {}) => { // {type:'rect'|'ellipse'|'polygon'|'star'|'line'|'path', start, dur, track, center:[x,y], size:[w,h], color, pts:[[x,y,inX,inY,outX,outY]…], closed, name}
+    if (!GW.Shape) fail('shape layers unavailable'); const type = p.type || 'rect'; if (!GW.Shape.TYPES.some(t => t[0] === type)) fail('type must be ' + GW.Shape.TYPES.map(t => t[0]).join(' | '));
+    const row = parseTrack(p.track); if (row && row.tt !== 'v') fail('shapes go on video tracks');
+    const c = GW.Shape.add(type, { start: num(p.start, 'start'), dur: num(p.dur, 'dur') || 5, ti: row ? row.ti : null, center: p.center, size: p.size, color: p.color, pts: p.pts, closed: p.closed, name: p.name, insert: p.mode === 'insert' });
+    if (GW.TL && GW.TL.tool === 'pen') GW.TL.setTool('select');
+    if (p.stroke) { c.shape.stroke.on = 1; if (p.stroke.color) c.shape.stroke.color = GW.P(p.stroke.color); if (p.stroke.width != null) c.shape.stroke.width = GW.P(+p.stroke.width); }
+    if (p.fill === false) c.shape.fill.on = 0;
+    GW.hist.labels[GW.hist.idx] = label('شكل جديد'); GW.bus.emit('hist'); GW.invalidate(); return clipInfo(c);
+  };
+  M.setTextAnimator = (p = {}) => { // {id, preset:'typewriter'|'fadeUpWord'|'blurIn'|'bounce'|'slideSide'|'scaleIn'|'fadeOutWord'|'custom', unit, shape, ease, props:{opacity,scale,rot,tracking,blur,pos:[x,y],fill}, start,end,offset (constant or [{time,value}]), replace=false, remove=false}
+    const c = clipOf(p.id); if (c.kind !== 'text' || !c.text) fail('not a text clip'); if (!GW.TextAnim) fail('text animators unavailable');
+    c.text.animators = c.text.animators || []; if (p.remove) { c.text.animators = []; GW.TextR.drop(c.id); GW.commit(label('حذف محرّكات النص')); GW.invalidate(); return { id: c.id, animators: [] }; }
+    if (p.replace) c.text.animators = [];
+    const an = GW.TextAnim.newAnimator(p.preset || 'custom', c.dur); if (p.unit) an.unit = p.unit; if (p.shape) an.sel.shape = p.shape; if (p.ease) an.sel.ease = p.ease; if (p.name) an.name = String(p.name);
+    const setSel = (k) => { if (p[k] == null) return; const v = p[k]; if (Array.isArray(v)) { an.sel[k].k = v.map(o => ({ t: +o.time || 0, v: +o.value, e: o.ease || 'linear' })).sort((a, b) => a.t - b.t); an.sel[k].v = an.sel[k].k[0].v; } else { an.sel[k] = GW.P(+v); } };
+    setSel('start'); setSel('end'); setSel('offset');
+    if (p.props && typeof p.props === 'object') for (const k in p.props) { if (k === 'fill') { an.props.fillOn = 1; an.props.fill = GW.P(String(p.props.fill)); continue; } if (!(k in an.props)) fail('unknown animator property "' + k + '"'); an.props[k] = GW.P(k === 'pos' ? [+p.props[k][0] || 0, +p.props[k][1] || 0] : +p.props[k]); }
+    c.text.animators.push(an); GW.TextR.drop(c.id); GW.commit(label('محرّك نص: ' + an.name)); GW.invalidate(); if (GW.FXC) GW.FXC.render();
+    return { id: c.id, animators: plain(c.text.animators) };
+  };
+  M.createBin = (p = {}) => { // {name, parent (bin id or name), color, media:[ids|names]} → bin
+    if (!GW.Bins) fail('bins unavailable'); let parent = null; if (p.parent) { const b = GW.prj.bins && GW.prj.bins.find(b => b.id === p.parent || b.name === p.parent); if (!b) fail('unknown parent bin'); parent = b.id; }
+    const b = GW.Bins.create(p.name || 'مجلد جديد', parent); if (p.color) GW.Bins.setColor(b.id, p.color);
+    if (Array.isArray(p.media) && p.media.length) GW.Bins.move(p.media.map(x => mediaOf(x).id), b.id);
+    GW.hist.labels[GW.hist.idx] = label('مجلد جديد: ' + b.name); GW.bus.emit('hist'); return plain(b);
+  };
   M.listTitlePresets = () => GW.TITLE_PRESETS.map((p, i) => ({ index: i, name: p.n, text: p.t.str, font: p.t.font, size: p.t.size, pos: p.pos || [.5, .5] }));
 
   /* ----- maps ----- */
@@ -394,7 +424,7 @@
   M.redo = () => { GW.hist.redo(); return { undo: GW.hist.labels[GW.hist.idx] }; };
   M.setSequence = ({ name, w, h, fps } = {}) => {
     const s = seq(); const W = w ? Math.max(16, Math.round(+w / 2) * 2) : s.w, Hh = h ? Math.max(16, Math.round(+h / 2) * 2) : s.h; const kx = W / s.w, ky = Hh / s.h;
-    if (kx !== 1 || ky !== 1) for (const c of s.clips) if (c.motion) { const sc = (p) => { if (p.k) p.k.forEach(k => k.v = [k.v[0] * kx, k.v[1] * ky]); p.v = [p.v[0] * kx, p.v[1] * ky]; }; sc(c.motion.pos); if (['text', 'map', 'color', 'adjust'].includes(c.kind)) { c.sw = W; c.sh = Hh; c.motion.anchor = GW.P([W / 2, Hh / 2]); } }
+    if (kx !== 1 || ky !== 1) for (const c of s.clips) if (c.motion) { const sc = (p) => { if (p.k) p.k.forEach(k => k.v = [k.v[0] * kx, k.v[1] * ky]); p.v = [p.v[0] * kx, p.v[1] * ky]; }; sc(c.motion.pos); if (['text', 'map', 'color', 'adjust', 'shape'].includes(c.kind)) { c.sw = W; c.sh = Hh; c.motion.anchor = GW.P([W / 2, Hh / 2]); } }
     if (name) s.name = String(name); s.w = W; s.h = Hh; if (fps) s.fps = +fps; GW.commit(label('إعدادات التسلسل')); GW.bus.emit('project');
     return M.getState({ clips: false, media: false }).sequence;
   };
@@ -527,6 +557,12 @@
   }
   // applyLut({id|ids, slot:'creative'|'input', look|path, intensity, remove}) → lut.js · trackPoint({id, x, y, t, feat, search, dir, apply, target, mask}) → track.js
   M.applyLut = (p) => { if (!GW.LUT) fail('LUT module not loaded'); return GW.LUT.api(p); };
+  // colour tools (color.js): setCurves({id, curves:{master|r|g|b|hueSat|hueHue|lumaSat:[[x,y]…]}, intensity, reset}) · colorMatch({id, refTime, time})
+  // autoColor({id, time, wb=true, levels=true}) · setHslSecondary({id, on, color|hue, hueW, sat:[lo,hi], lum:[lo,hi], soft, denoise, show, temp, tint, contrast, saturation, exposure})
+  M.setCurves = (p) => { if (!GW.Color) fail('colour module not loaded'); return GW.Color.setCurvesApi(p); };
+  M.colorMatch = (p) => { if (!GW.Color) fail('colour module not loaded'); return GW.Color.matchApi(p); };
+  M.autoColor = (p) => { if (!GW.Color) fail('colour module not loaded'); return GW.Color.autoApi(p); };
+  M.setHslSecondary = (p) => { if (!GW.Color) fail('colour module not loaded'); return GW.Color.hslApi(p); };
   M.trackPoint = (p) => { if (!GW.Track) fail('tracker module not loaded'); return GW.Track.api(p); };
   GW.API = { version: VERSION, methods: M, call, parseTrack, clipInfo };
 
