@@ -28,7 +28,8 @@
    addTransition({id, side:'end'|'start', type='dissolve', dur, align:'center'|'start'|'end'}) → transition
    addText({text, start, dur=5, preset, style:{font,size,color,weight,align,stroke,strokeColor,bg,bgColor,…}, position:[x,y], track, animIn, animOut}) → clip
    addMapScene({kind:'invasion'|'timeline'|'blank', from, targets:[…], year, style, mode:'globe'|'flat', color, headline, sub, date, arrow, start, dur, track, open, y0, y1, region}) → clip
-   addMapLayer({id, type, …props, countries:[names], from, to:[names], place})   → layer   (country/invasion/arrow/front/route/marker/label/range/date/title/legend/inset/data)
+   addMapLayer({id, type, …props, countries:[names], from, to:[names], place, photo:path, via:[places|[lon,lat]], look:'doc'})   → layer   (country/invasion/arrow/front/route/marker/label/range/date/title/legend/inset/data)
+   setMapLook({id, preset:'doc_dark'|'doc_light', style, look:{…}})   → {style, look}
    addSfx({id|query, time, track})                → [clip]
    addMarker({time, name, color, note})           → marker
    Smart audio (js/audio_tools.js; each edit = one undo step):
@@ -54,6 +55,10 @@
    exportStatus()  cancelExport()
    captureFrame({time, maxWidth=960})            → {mime:'image/png', base64, width, height, time}   (what the Program monitor shows)
    listEffects() listTransitions() listSfx({query, cat, limit}) listTitlePresets() listMapStyles() listMethods()
+   listTemplates()                               → [{id, name, category, dur, fields:[{key, name, type, default}]}]   motion graphics templates (js/mg.js)
+   addTemplate({id, start, dur, track, fields:{key: value}}) → clip   animated template clip at the playhead (or start)
+   setKeyEase({id, path, index|time|index:'all', ease:'linear'|'hold'|'ease'|'easeIn'|'easeOut'|'bezier', influence (%), in:[x,y], out:[x,y]}) → keys
+        bezier handles are normalized to the segment: out = [influence 0…1, progress] after the key, in = before it (y=0 → zero speed)
    batch({calls:[{method, params}], stopOnError=true}) → [{ok, result|error}]  */
 (function () {
   const VERSION = 1;
@@ -334,14 +339,29 @@
     const c = clipOf(p.id); if (c.kind !== 'map' || !c.map || !c.map.scene) fail('not a map clip: ' + p.id);
     const S = A().Scene; const type = p.type; if (!S.LAYERS[type]) fail('unknown layer type (one of ' + Object.keys(S.LAYERS).join(', ') + ')');
     const scn = c.map.scene; const era = await eraFor(GW.pv(scn.year, 0));
-    const o = {}; for (const k in p) if (!['id', 'type', 'countries', 'from', 'to', 'place'].includes(k)) o[k] = p[k];
+    const o = {}; for (const k in p) if (!['id', 'type', 'countries', 'from', 'to', 'place', 'photo', 'via', 'look'].includes(k)) o[k] = p[k];
+    if (p.photo) { // image/leader layer: photo file path → embedded (≤640px)
+      const url = window.gws && gws.mediaUrl ? gws.mediaUrl(String(p.photo)) : String(p.photo); const im = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = url; }); if (!im) fail('photo not readable: ' + p.photo);
+      const k = Math.min(1, 640 / Math.max(im.naturalWidth, im.naturalHeight)); const cv = document.createElement('canvas'); cv.width = im.naturalWidth * k | 0; cv.height = im.naturalHeight * k | 0; cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); const iid = GW.uid(); scn.images = scn.images || {}; scn.images[iid] = cv.toDataURL('image/jpeg', .9); o.img = iid;
+    }
+    if (p.via) { const G = Geo(); o.pts = []; for (const n of p.via) { if (Array.isArray(n)) { o.pts.push([+n[0], +n[1]]); continue; } const r = G.search(String(n), G.features(era, 0), 'ar', era, 5)[0]; if (!r) fail('place not found: ' + n); o.pts.push([r.lon, r.lat]); } }
+    if (p.look && type === 'country') Object.assign(o, S.docCountry(Object.assign({}, o)));
     if (p.countries) o.keys = p.countries.map(n => countryKey(n, era));
     if (p.from) o.from = countryKey(p.from, era); if (p.to) o.to = (Array.isArray(p.to) ? p.to : [p.to]).map(n => countryKey(n, era));
     if (p.place) { const G = Geo(); G.loadAdmin1 && G.loadAdmin1(); const r = G.search(String(p.place), G.features(era, 0), 'ar', era, 5)[0]; if (!r) fail('place not found: ' + p.place); o.lon = r.lon; o.lat = r.lat; if (o.text == null && (type === 'marker' || type === 'label' || type === 'range')) o.text = r.name; }
     if (p.pts) o.pts = p.pts.map(pt => Array.isArray(pt) ? [+pt[0], +pt[1]] : fail('pts: [[lon,lat],…]'));
-    const L = S.newLayer(type, o); scn.layers.push(L);
+    const L = S.newLayer(type, o); if (o.lon == null && L.pts && L.pts.length) { L.lon = L.pts[0][0]; L.lat = L.pts[0][1]; } scn.layers.push(L);
     GW.commit(label('طبقة خريطة: ' + S.LAYERS[type].ar)); GW.invalidate(); if (GW.MapUI && GW.MapUI.render) try { GW.MapUI.render(); } catch (e) {}
     return plain(L);
+  };
+  // one-click looks: {id, preset:'doc_dark'|'doc_light'} or {id, style, look:{…overrides}} (labels, borders, colours, grade — see Maps panel)
+  M.setMapLook = async ({ id, preset, style, look } = {}) => {
+    const c = clipOf(id); if (c.kind !== 'map' || !c.map || !c.map.scene) fail('not a map clip: ' + id); const S = A().Scene; const scn = c.map.scene;
+    if (preset) { if (!S.STYLES[preset]) fail('unknown preset'); S.applyDocLook(scn, preset); }
+    if (style) { if (!S.STYLES[style]) fail('unknown style'); scn.style = style; }
+    if (look && typeof look === 'object') Object.assign(scn.look, look);
+    GW.commit(label('مظهر الخريطة')); GW.invalidate(); if (GW.MapUI && GW.MapUI.render) try { GW.MapUI.render(); } catch (e) {}
+    return { style: scn.style, look: plain(scn.look) };
   };
   M.listMapStyles = () => { const S = A().Scene; return { styles: S.STYLE_ORDER.map(k => ({ id: k, name: S.STYLES[k].ar })), layers: Object.entries(S.LAYERS).map(([k, v]) => ({ type: k, name: v.ar })), modes: ['globe', 'flat'], arrows: ['military', 'line', 'dashed', 'double'] }; };
 
@@ -463,6 +483,31 @@
     looks: Object.entries(LOOKS).map(([k, n]) => ({ type: k, name: n, note: 'preset: several effects / keyframes at once' }))
   });
   M.listTransitions = () => ({ video: Object.entries(GW.TRANS).map(([k, v]) => ({ type: k, name: v.n, category: v.cat })), audio: Object.entries(GW.ATRANS).map(([k, v]) => ({ type: k, name: v.n })) });
+  /* ----- motion graphics templates (js/mg.js) + keyframe easing (graph editor) ----- */
+  M.listTemplates = () => GW.MG.list.map(T => ({ id: T.id, name: T.n, category: T.cat, dur: T.dur, fields: T.fields.map(f => ({ key: f.k, name: f.n, type: f.t, default: f.def, min: f.min, max: f.max, options: f.opts ? f.opts.map(o => o[0]) : undefined })) }));
+  M.addTemplate = (p = {}) => {
+    const T = GW.MG.get(p.id || p.template); if (!T) fail('unknown template "' + (p.id || p.template) + '" (see listTemplates)');
+    const fields = p.fields || {}; for (const k in fields) { const fd = T.fields.find(f => f.k === k); if (!fd) fail('unknown field "' + k + '" for ' + T.id + ' (fields: ' + T.fields.map(f => f.k).join(', ') + ')'); if (fd.t === 'num') fields[k] = num(fields[k], k); else fields[k] = String(fields[k]); }
+    const s = seq(); const row = parseTrack(p.track); if (row && row.tt !== 'v') fail('templates go on a video track');
+    const c = GW.MG.add(T.id, { start: num(p.start, 'start') ?? s.t, dur: num(p.dur, 'dur') || T.dur, ti: row ? row.ti : undefined, track: row ? row.ti : undefined, fields, label: label('قالب ' + T.n) });
+    GW.invalidate(); return { ...clipInfo(c), template: T.id, fields: c.text.mg.f };
+  };
+  M.setKeyEase = ({ id, path, index, time, ease, influence, in: hin, out: hout } = {}) => {
+    const c = clipOf(id); const R = resolve(c, path); const p = R.obj; if (!isParam(p) || !p.k || !p.k.length) fail(R.path + ' has no keyframes');
+    let ks; if (index === 'all') ks = p.k.slice(); else if (index != null) { ks = [p.k[+index]]; if (!ks[0]) fail('keyframe index out of range (0…' + (p.k.length - 1) + ')'); }
+    else if (time != null) { const lt = num(time, 'time') - c.start; const k = p.k.reduce((a, b) => Math.abs(b.t - lt) < Math.abs(a.t - lt) ? b : a); if (Math.abs(k.t - lt) > .5 / seq().fps + 1e-6) fail('no keyframe at ' + time); ks = [k]; }
+    else fail('index, time or index:"all" required');
+    const EASES = ['linear', 'hold', 'ease', 'easeIn', 'easeOut', 'bezier'];
+    const hv = (h, n) => { if (h == null) return null; const a = Array.isArray(h) ? h : [h.influence != null ? h.influence / 100 : 1 / 3, h.speed != null ? h.speed : h.y]; if (a.length !== 2 || !a.every(x => isFinite(+x))) fail(n + ': [influence 0…1, progress] or {influence %, y}'); return [clamp01(+a[0]), +a[1]]; };
+    const clamp01 = v => Math.max(0, Math.min(1, v));
+    for (const k of ks) {
+      if (ease) { if (!EASES.includes(ease)) fail('ease: ' + EASES.join(' | ')); if (ease !== 'bezier') { k.e = ease; delete k.bi; delete k.bo; } }
+      if (influence != null && ease && ease !== 'linear' && ease !== 'hold') { const f = clamp01(+influence / 100); if (ease !== 'easeOut') k.bi = [f, 0]; if (ease !== 'easeIn') k.bo = [f, 0]; }
+      const hi = hv(hin, 'in'), ho = hv(hout, 'out'); if (hi) k.bi = hi; if (ho) k.bo = ho;
+    }
+    GW.commit(label('استيفاء المفاتيح')); GW.invalidate(); if (GW.FXC && GW.FXC.render) try { GW.FXC.render(); } catch (e) {}
+    return { id: c.id, path: R.path, keys: p.k.map(k => ({ time: r4(c.start + k.t), value: plain(k.v), ease: k.e || 'linear', in: k.bi ? k.bi.map(r4) : undefined, out: k.bo ? k.bo.map(r4) : undefined })) };
+  };
   M.listMethods = () => Object.keys(M).sort();
   M.batch = async ({ calls = [], stopOnError = true } = {}) => {
     const out = [];
@@ -480,6 +525,9 @@
     try { return plain(await f(params || {})); }
     finally { if (!nested) { busy--; badge(); } }
   }
+  // applyLut({id|ids, slot:'creative'|'input', look|path, intensity, remove}) → lut.js · trackPoint({id, x, y, t, feat, search, dir, apply, target, mask}) → track.js
+  M.applyLut = (p) => { if (!GW.LUT) fail('LUT module not loaded'); return GW.LUT.api(p); };
+  M.trackPoint = (p) => { if (!GW.Track) fail('tracker module not loaded'); return GW.Track.api(p); };
   GW.API = { version: VERSION, methods: M, call, parseTrack, clipInfo };
 
   function badge() {

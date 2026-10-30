@@ -512,3 +512,8 @@ input[type=range],input[type=checkbox]{accent-color:var(--accent)}
 
 #home .hm-lang{position:absolute;top:14px;right:18px;background:transparent;border-color:var(--line2);font-family:Cairo,var(--f-ui)}
 html[lang=en] #home .hm-close{left:auto;right:18px}html[lang=en] #home .hm-lang{right:auto;left:18px}
+/* keyframe stopwatches: clearly visible (Premiere-like) */
+.prow .sw{color:#9aa3ad;opacity:1}
+.prow .sw:hover{color:var(--accent)}
+.prow .sw.on{color:var(--accent)}
+.prow .sw svg{width:14px;height:14px}

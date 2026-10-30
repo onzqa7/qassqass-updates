@@ -93,6 +93,11 @@
   function haloText(ctx, s, x, y, px, ink, halo, fam, weight, align, spacing) {
     ctx.font = font(px, weight, fam); ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.direction = isAr(s) ? 'rtl' : 'ltr';
     if ('letterSpacing' in ctx) ctx.letterSpacing = isAr(s) ? '0px' : ((spacing || 0) * px).toFixed(1) + 'px';
+    if (halo === 'soft' || (halo && halo.startsWith && halo.startsWith('soft'))) { // documentary 'soft shadow': blurred drop shadow, no hard stroke
+      ctx.save(); ctx.fillStyle = ink; ctx.shadowColor = 'rgba(0,0,0,.78)'; ctx.shadowBlur = Math.max(4, px * .45); ctx.shadowOffsetY = Math.max(1, px * .07); ctx.fillText(s, x, y);
+      ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = Math.max(2, px * .14); ctx.shadowOffsetY = Math.max(1, px * .03); ctx.fillText(s, x, y); ctx.restore();
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; return;
+    }
     if (halo) { ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(2, px * .22); ctx.strokeStyle = halo; ctx.strokeText(s, x, y); }
     ctx.fillStyle = ink; ctx.fillText(s, x, y);
     if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
@@ -222,6 +227,13 @@
     return n;
   }
   V.capAr = capAr;
+  // radius (rad) of a feature's largest polygon (islands far away must not inflate the label)
+  const mainRC = new WeakMap();
+  function mainR(f) {
+    let r = mainRC.get(f); if (r != null) return r; const g0 = f.geometry; r = f.rad;
+    if (g0 && g0.type === 'MultiPolygon' && g0.coordinates.length > 1) { let best = null, ba = -1; for (const pc of g0.coordinates) { const a = d3.geoArea({ type: 'Polygon', coordinates: pc }); if (a < 2 * Math.PI && a > ba) { ba = a; best = pc; } } if (best) { const bb = d3.geoBounds({ type: 'Polygon', coordinates: best }); r = Math.min(f.rad, d3.geoDistance(bb[0], bb[1]) / 2); } }
+    mainRC.set(f, r); return r;
+  }
   // choropleth helpers
   V.parseData = (txt) => String(txt || '').split(/\n+/).map(l => l.split(/[,،\t;]+/).map(x => x.trim())).filter(r => r.length >= 2 && r[0] && !isNaN(parseFloat(r[1]))).map(r => [r[0], parseFloat(r[1])]);
   const lerpCol = (a, b, t) => { const A = S.rgb(a), B = S.rgb(b); return `rgb(${(A[0] + (B[0] - A[0]) * t) * 255 | 0},${(A[1] + (B[1] - A[1]) * t) * 255 | 0},${(A[2] + (B[2] - A[2]) * t) * 255 | 0})`; };
@@ -239,6 +251,7 @@
     const fv = (feats || []).filter(visible);
     const byKey = new Map(); for (const f of feats || []) if (!byKey.has(f.key)) byKey.set(f.key, f);
     const inv = new Set(); // involved keys (emphasised labels)
+    const invLab = new Map(); // key -> label look from the country layer
     const sphere = { type: 'Sphere' };
     const pal = E.palette;
     const land = G.landFor(lod);
@@ -265,17 +278,21 @@
 
     }
     /* ---- war layers: fills (under borders) ---- */
-    const layers = (sc.layers || []).map(Ly => ({ Ly, s: S.state(Ly, t, cd) })).filter(x => x.s);
+    const layers = (sc.layers || []).map(Ly0 => { const s = S.state(Ly0, t, cd); if (!s) return null; const Ly = S.resolve(Ly0, s.lt); if (Ly.opacity != null) s.a *= clamp(+Ly.opacity, 0, 1); return { Ly, s }; }).filter(Boolean);
     for (const { Ly, s } of layers) {
       if (Ly.type === 'country') {
-        const fs = Ly.keys.map(kk => byKey.get(kk)).filter(Boolean); fs.forEach(f => inv.add(f.key)); if (!fs.length) continue;
+        const fs = Ly.keys.map(kk => byKey.get(kk)).filter(Boolean); fs.forEach(f => { inv.add(f.key); if (!invLab.has(f.key)) invLab.set(f.key, { show: Ly.label !== 0, style: Ly.labelStyle || (st.halo === 'soft' ? 'soft' : 'plate'), size: Ly.labelSize || 1, text: fs.length === 1 ? Ly.labelText : '', a: s.a * S.easeOut(s.pin) }); }); if (!fs.length) continue;
         const pin = S.easeOut(s.pin); const a = s.a * (Ly.pulse ? .75 + .25 * Math.sin(s.lt * 4) : 1);
         if (Ly.dim) { b.save(); b.beginPath(); vw.mode === 'globe' ? pb(sphere) : b.rect(0, 0, W, H); for (const f of fs) pb(f); b.fillStyle = `rgba(0,0,0,${.55 * pin * s.a})`; b.fill('evenodd'); b.restore(); }
         b.save();
         if (Ly.in === 'spread' && pin < 1) { const f0 = fs[0]; b.beginPath(); pb(blob(f0.lab, Math.max(...fs.map(f => d3.geoDistance(f0.lab, f.lab) + f.rad)) * pin, 3, t, .08)); b.clip(); }
         else if (Ly.in === 'wipe' && pin < 1) { b.beginPath(); b.rect(0, 0, W * pin, H); b.clip(); }
         const fa = Ly.in === 'fade' ? pin : 1;
-        for (const f of fs) { b.beginPath(); pb(f); b.globalAlpha = Ly.fill * fa * a; b.fillStyle = Ly.pattern === 'solid' ? Ly.color : pattern(b, Ly.pattern, Ly.color, k); b.fill(); if (Ly.pattern !== 'solid') { b.globalAlpha = Ly.fill * fa * a * .35; b.fillStyle = Ly.color; b.fill(); } }
+        for (const f of fs) { const fc = (Ly.colors && Ly.colors[f.key]) || Ly.color; b.beginPath(); pb(f); b.globalAlpha = Ly.fill * fa * a; b.fillStyle = Ly.pattern === 'solid' ? fc : pattern(b, Ly.pattern, Ly.pattern === 'hatch' && Ly.outline === 'dashed' ? shade(fc, .35) : fc, k); b.fill(); if (Ly.pattern !== 'solid') { b.globalAlpha = Ly.fill * fa * a * .35; b.fillStyle = fc; b.fill(); } }
+        if (Ly.inner) { // inner edge shading: gives the translucent fill depth (documentary look)
+          const pa = new Path2D(); const pp = d3.geoPath(vw.proj, pa); for (const f of fs) pp(f);
+          b.save(); b.clip(pa, 'evenodd'); b.globalAlpha = .55 * fa * a; b.lineJoin = 'round'; b.lineWidth = 9 * k; b.strokeStyle = shade(Ly.color, -.55); b.filter = `blur(${(4 * k).toFixed(1)}px)`; b.stroke(pa); b.restore();
+        }
         b.restore();
       } else if (Ly.type === 'invasion') {
         const F = byKey.get(Ly.from); const Ts = (Ly.to || []).map(kk => byKey.get(kk)).filter(Boolean); if (!F || !Ts.length) continue; inv.add(F.key); Ts.forEach(f => inv.add(f.key));
@@ -321,6 +338,7 @@
       const bw = (st.bw || 1) * (L.borderW || 1) * k * (vw.zoom > 5 ? 1.3 : 1);
       if (st.glow) { g.shadowColor = st.border; g.shadowBlur = 8 * k; }
       if (!E.vector) { g.lineWidth = bw * 2.6; g.strokeStyle = 'rgba(0,0,0,.35)'; g.stroke(); }
+      if (st.dash) g.setLineDash([5 * bw, 4 * bw]);
       g.lineWidth = bw; g.strokeStyle = st.border; g.stroke(); g.restore();
     }
     if (L.coast && E.vector && land) { g.beginPath(); pg(land); g.lineWidth = 1.1 * k; g.strokeStyle = st.coast || st.border; g.stroke(); }
@@ -333,10 +351,11 @@
     for (const { Ly, s } of layers) {
       const pin = S.easeOut(s.pin);
       if (Ly.type === 'country') {
-        const fs = Ly.keys.map(kk => byKey.get(kk)).filter(Boolean); if (!fs.length || !Ly.stroke) continue;
+        const fs = Ly.keys.map(kk => byKey.get(kk)).filter(Boolean); if (!fs.length || !Ly.stroke || Ly.outline === 'none') continue;
         g.save(); g.beginPath(); for (const f of fs) pg(f); g.lineJoin = 'round'; g.globalAlpha = s.a * (Ly.in === 'fade' ? pin : 1);
-        if (Ly.glow) { g.shadowColor = Ly.color; g.shadowBlur = 16 * k; }
-        g.lineWidth = Ly.stroke * 1.4 * k; g.strokeStyle = shade(Ly.color, .25); g.stroke(); g.restore();
+        if (Ly.glow) { g.shadowColor = Ly.color; g.shadowBlur = 16 * k; } else if (Ly.line) { g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 3 * k; }
+        if (Ly.outline === 'dashed') { g.setLineDash([6 * k * Ly.stroke, 4.5 * k * Ly.stroke]); g.lineCap = 'butt'; }
+        g.lineWidth = Ly.stroke * 1.4 * k; g.strokeStyle = Ly.line || shade(Ly.color, .25); g.stroke(); g.restore();
       } else if (Ly.type === 'invasion') {
         const F = byKey.get(Ly.from); const Ts = (Ly.to || []).map(kk => byKey.get(kk)).filter(Boolean); if (!F || !Ts.length) continue;
         const travel = Ly.inDur || 4; const stagger = Ly.stagger != null ? Ly.stagger : travel * .35;
@@ -371,18 +390,32 @@
       } else if (Ly.type === 'marker') {
         const sp = vw.project(Ly.lon, Ly.lat); if (!sp) continue;
         late.push(() => {
-          const sc2 = Ly.in === 'pop' ? Math.max(0, S.back(s.pin)) : 1; const a = s.a * (Ly.in === 'fade' ? pin : 1); const sz = 30 * k * (Ly.size || 1);
+          const sc2 = Ly.in === 'pop' ? Math.max(0, S.back(s.pin)) : 1; const a = s.a * (Ly.in === 'fade' ? pin : 1); const sz = 30 * k * (Ly.size || 1) * (Ly.scale == null ? 1 : Ly.scale);
           if (Ly.pulse) { for (let i = 0; i < 2; i++) { const ph = (s.lt * .8 + i * .5) % 1; g.save(); g.globalAlpha = a * (1 - ph) * .7; g.strokeStyle = Ly.color; g.lineWidth = 2 * k; g.beginPath(); g.arc(sp[0], sp[1], sz * (.4 + ph * 1.4), 0, 7); g.stroke(); g.restore(); } }
           V.icon(g, Ly.icon, sp[0], sp[1], sz * sc2, Ly.color, 0, s.lt, a);
           if (Ly.text) { const px = 18 * k * (Ly.size || 1); const off = sz * .65 + 6 * k; const pos = Ly.textPos || 'right'; const tx = pos === 'right' ? sp[0] + off : pos === 'left' ? sp[0] - off : sp[0]; const ty = pos === 'top' ? sp[1] - off : pos === 'bottom' ? sp[1] + off : sp[1]; g.save(); g.globalAlpha = a; haloText(g, Ly.text, tx, ty, px, '#ffffff', 'rgba(0,0,0,.85)', fam, 800, pos === 'right' ? 'left' : pos === 'left' ? 'right' : 'center'); g.restore(); }
           out.labels.push([sp[0] - sz, sp[1] - sz, sp[0] + sz, sp[1] + sz]);
         });
       } else if (Ly.type === 'image') {
-        const sp = vw.project(Ly.lon, Ly.lat); if (!sp) continue;
+        let sp = vw.project(Ly.lon, Ly.lat);
+        if (Ly.pts && Ly.pts.length >= 2) { // the leader travels along pts (route-like) between moveStart and moveStart+moveDur
+          const line = smooth(geoLine(vw, Ly.pts, Ly.curve || 0), 2);
+          if (line.length >= 2) {
+            const p = S.ease(clamp((s.lt - (Ly.moveStart || 0)) / Math.max(.05, Ly.moveDur || 4), 0, 1)); const c = cut(line, p); const col = Ly.trailColor || Ly.ring;
+            if (Ly.arrow) { g.save(); g.globalAlpha = s.a * .8 * pin; V.arrow(g, line, { k, width: .42, color: col, style: 'dashed', glow: 0, t: 0 }); g.restore(); }
+            if (Ly.trail && c.length >= 2) { // fading trail: transparent at the origin, solid near the leader
+              g.save(); g.lineCap = 'round'; g.lineJoin = 'round'; const n = c.length;
+              for (let i = 1; i < n; i++) { const f = i / (n - 1); g.globalAlpha = s.a * (.22 + .78 * f * f); g.beginPath(); g.moveTo(c[i - 1][0], c[i - 1][1]); g.lineTo(c[i][0], c[i][1]); g.lineWidth = 8.5 * k; g.strokeStyle = 'rgba(0,0,0,.3)'; g.stroke(); g.lineWidth = 4.6 * k; g.strokeStyle = col; g.stroke(); }
+              g.restore();
+            }
+            sp = c[c.length - 1];
+          }
+        }
+        if (!sp) continue;
         late.push(() => drawPortrait(g, sc, Ly, sp, s, k, fam));
       } else if (Ly.type === 'label') {
         const sp = vw.project(Ly.lon, Ly.lat); if (!sp) continue;
-        late.push(() => { g.save(); g.globalAlpha = s.a * pin; const px = 22 * k * (Ly.size || 1); if (Ly.style === 'plate') { const w = measure(g, Ly.text, px, fam, 800) + px; plate(g, sp[0] - w / 2, sp[1] - px * .8, w, px * 1.6, 'rgba(0,0,0,.65)'); haloText(g, Ly.text, sp[0], sp[1], px, Ly.color, null, fam, 800); } else haloText(g, Ly.text, sp[0], sp[1], px, Ly.color, Ly.style === 'plain' ? null : 'rgba(0,0,0,.8)', fam, 800, 'center', Ly.spacing || 0); g.restore(); out.labels.push([sp[0] - px * 3, sp[1] - px, sp[0] + px * 3, sp[1] + px]); });
+        late.push(() => { g.save(); g.globalAlpha = s.a * pin; const px = 22 * k * (Ly.size || 1) * (Ly.scale == null ? 1 : Ly.scale) * (Ly.style === 'soft' ? 1.6 : 1); if (Ly.style === 'plate') { const w = measure(g, Ly.text, px, fam, 800) + px; plate(g, sp[0] - w / 2, sp[1] - px * .8, w, px * 1.6, 'rgba(0,0,0,.65)'); haloText(g, Ly.text, sp[0], sp[1], px, Ly.color, null, fam, 800); } else haloText(g, Ly.text, sp[0], sp[1], px, Ly.color, Ly.style === 'plain' ? null : (Ly.style === 'soft' || st.halo === 'soft') ? 'soft' : 'rgba(0,0,0,.8)', fam, Ly.style === 'soft' ? 900 : 800, 'center', Ly.spacing || 0); g.restore(); out.labels.push([sp[0] - px * 3, sp[1] - px, sp[0] + px * 3, sp[1] + px]); });
       }
     }
 
@@ -393,16 +426,17 @@
     const ink = st.ink || '#fff', halo = st.halo || 'rgba(0,0,0,.75)'; const ls = L.labelSize || 1;
     if (L.labels) {
       const cand = [];
-      if (L.countryLabels) for (const f of fv) {
+      if (L.countryLabels || inv.size) for (const f of fv) {
         const sp = vw.project(f.lab[0], f.lab[1]); if (!sp) continue; const rpx = f.rad * vw.kpx * (vw.mode === 'flat' ? 1 / Math.max(.2, Math.cos(f.lab[1] * RAD)) : 1);
-        const isInv = inv.has(f.key); if (rpx < 20 && !isInv) continue;
-        const name = G.name(f, lang, era); if (!name) continue;
-        const px = clamp(Math.sqrt(rpx) * 1.55, 11, 30) * k * ls * (isInv ? 1.15 : 1);
-        cand.push({ pr: (isInv ? 1e7 : 0) + rpx, sp, name, px, kind: 'country', inv: isInv });
+        const isInv = inv.has(f.key); if (rpx < 20 && !isInv) continue; if (!isInv && !L.countryLabels) continue;
+        const il = isInv ? invLab.get(f.key) : null; if (il && !il.show) continue;
+        const name = (il && il.text) || G.name(f, lang, era); if (!name) continue;
+        const px = il && il.style === 'soft' ? clamp(Math.sqrt(2 * mainR(f) * vw.kpx) * 3.1, 24, 104) * k * ls * il.size : clamp(Math.sqrt(rpx) * 1.55 * E.labelK, 11, 34) * k * ls * (isInv ? 1.15 * (il ? il.size : 1) : 1);
+        cand.push({ pr: (isInv ? 1e7 : 0) + rpx, sp, name, px, kind: 'country', inv: isInv, il });
       }
       if (L.oceans && vw.zoom < 6.5) for (const p of G.regions || []) { if (p[5] !== 'sea' && !(L.regions && p[4] <= 3)) continue; if (p[4] > vw.zoom * 1.3 + .5) continue; const sp = vw.project(p[0], p[1]); if (!sp) continue; cand.push({ pr: 500 - p[4] * 50, sp, name: lang === 'en' ? p[2] : (p[3] || p[2]), px: (p[5] === 'sea' ? clamp(17 - p[4] * 1.3, 10, 17) : 13) * k * ls, kind: p[5] === 'sea' ? 'sea' : 'region' }); }
       if (L.cities) {
-        const lvl = L.cities; const maxRank = clamp(Math.floor(vw.zoom * 1.45 - 3.6 + (lvl - 1) * 1.6), -1, 10);
+        const lvl = L.cities; const maxRank = clamp(Math.floor(vw.zoom * 1.45 - 5 + (lvl - 1) * 1.6), -1, 10); // fewer, calmer city labels by default
         const histOK = era.src === 'modern' || lvl >= 2;
         if (histOK) for (const p of G.places || []) { if (p[4] > maxRank) continue; if (era.src !== 'modern' && p[4] > 3) continue; const sp = vw.project(p[0], p[1]); if (!sp || sp[0] < 0 || sp[1] < 0 || sp[0] > W || sp[1] > H) continue; const cap = (p[6] & 1) && era.src === 'modern'; cand.push({ pr: 3000 - p[4] * 200 + (cap ? 400 : 0) + Math.min(400, p[5] / 30), sp, name: lang === 'en' ? p[2] : (p[3] || p[2]), px: (cap ? 15 : 13 - Math.min(3, p[4] * .3)) * k * ls, kind: 'city', cap }); }
         if (era.src === 'cs') for (const f of fv) { const pr = f.properties; if (!pr.cap || f.properties.st !== 'independent') continue; const sp = vw.project(pr.cx, pr.cy); if (!sp) continue; cand.push({ pr: 3500, sp, name: lang === 'en' ? pr.cap : capAr(pr.cap), px: 14 * k * ls, kind: 'city', cap: 1 }); }
@@ -412,15 +446,17 @@
         if (c.kind === 'city') {
           const w = measure(g, c.name, c.px, fam, 700); const r0 = c.px * .32; const bx = [c.sp[0] - r0, c.sp[1] - c.px * .6, c.sp[0] + r0 + 5 * k + w, c.sp[1] + c.px * .6];
           if (!place(bx)) continue; out.labels.push(bx);
-          V.icon(g, c.cap ? 'capital' : 'city', c.sp[0], c.sp[1], c.px * (c.cap ? 1.05 : .9), E.vector ? '#222' : '#111', 0, 0);
-          haloText(g, c.name, c.sp[0] + r0 + 5 * k, c.sp[1], c.px, ink, halo, fam, 700, 'left');
+          if (E.cityDot !== 'none') V.icon(g, E.cityDot === 'dot' ? 'dot' : E.cityDot === 'star' ? 'star' : c.cap ? 'capital' : 'city', c.sp[0], c.sp[1], c.px * (E.cityDot === 'star' ? 1.2 : c.cap ? 1.05 : .9), E.cityC || (E.cityDot === 'dot' || E.cityDot === 'star' ? '#ffffff' : E.vector ? '#222' : '#111'), 0, 0);
+          haloText(g, c.name, c.sp[0] + r0 + 5 * k, c.sp[1], c.px, ink, halo, fam, E.labelW || 700, 'left');
         } else {
           const sp = c.kind === 'sea' || c.kind === 'region' ? 0 : .08; const nm = (lang === 'en' && c.kind === 'country') ? c.name.toUpperCase() : c.name;
-          const w = measure(g, nm, c.px, fam, c.kind === 'country' ? 800 : 600, lang === 'en' ? .12 : 0); const bx = [c.sp[0] - w / 2 - 3, c.sp[1] - c.px * .62, c.sp[0] + w / 2 + 3, c.sp[1] + c.px * .62];
-          if (!place(bx)) continue; out.labels.push(bx);
-          if (c.kind === 'sea') { g.save(); g.globalAlpha = .85; haloText(g, nm, c.sp[0], c.sp[1], c.px, E.vector ? shade(st.ocean, st.ink && st.ink.startsWith('#1') ? -.45 : .45) : 'rgba(190,220,255,.9)', null, fam, 600, 'center', .05); g.restore(); }
+          const w = measure(g, nm, c.px, fam, c.kind === 'country' ? (c.il && c.il.style === 'soft' ? 900 : 800) : 600, lang === 'en' ? .12 : 0); const bx = [c.sp[0] - w / 2 - 3, c.sp[1] - c.px * .62, c.sp[0] + w / 2 + 3, c.sp[1] + c.px * .62];
+          if (!place(bx)) { if (!(c.il && c.il.style !== 'plate' && (c.tries = (c.tries || 0) + 1) < 4)) continue; c.px *= .8; cand.splice(cand.indexOf(c) + 1, 0, c); continue; } // big soft labels shrink instead of disappearing
+          out.labels.push(bx);
+          if (c.kind === 'sea') { g.save(); g.globalAlpha = E.vector ? .85 : .62; haloText(g, nm, c.sp[0], c.sp[1], c.px, E.vector ? shade(st.ocean, st.ink && st.ink.startsWith('#1') ? -.45 : .45) : '#b4c6d8', null, fam, E.vector ? 600 : 500, 'center', .05); g.restore(); }
+          else if (c.inv && c.il && c.il.style !== 'plate') { g.save(); g.globalAlpha = c.il.a; haloText(g, nm, c.sp[0], c.sp[1], c.px, c.il.style === 'soft' ? ink : '#ffffff', c.il.style === 'soft' ? 'soft' : 'rgba(0,0,0,.8)', fam, c.il.style === 'soft' ? 900 : 800, 'center', lang === 'en' ? .12 : 0); g.restore(); }
           else if (c.inv) { const w2 = w + c.px * .8; plate(g, c.sp[0] - w2 / 2, c.sp[1] - c.px * .72, w2, c.px * 1.44, 'rgba(0,0,0,.6)', c.px * .25); haloText(g, nm, c.sp[0], c.sp[1], c.px, '#ffffff', null, fam, 800, 'center', lang === 'en' ? .12 : 0); }
-          else haloText(g, nm, c.sp[0], c.sp[1], c.px, ink, halo, fam, c.kind === 'country' ? 800 : 600, 'center', lang === 'en' ? .12 : 0);
+          else haloText(g, nm, c.sp[0], c.sp[1], c.px, ink, halo, fam, E.labelW || (c.kind === 'country' ? 800 : 600), 'center', (lang === 'en' ? .12 : 0) + E.labelSp);
         }
       }
     }
@@ -438,10 +474,12 @@
   };
 
   function drawPortrait(g, sc, Ly, sp, s, k, fam) {
-    const sz = 120 * k * (Ly.size || 1); const pop = Ly.in === 'pop' ? Math.max(0, S.back(s.pin)) : S.easeOut(s.pin); const a = s.a;
-    const dy = (Ly.dy == null ? -1 : Ly.dy) * sz * .85; const cx = sp[0], cy = sp[1] + dy;
+    const sz = 120 * k * (Ly.size || 1) * (Ly.scale == null ? 1 : Ly.scale); const pop = Ly.in === 'pop' ? Math.max(0, S.back(s.pin)) : Ly.in === 'grow' ? S.easeOut(s.pin) : Ly.in === 'zoom' ? 1.6 - .6 * S.easeOut(s.pin) : 1;
+    const a = s.a * (Ly.in === 'fade' || Ly.in === 'zoom' ? S.easeOut(s.pin) : Ly.in === 'pop' ? Math.min(1, s.pin * 3) : 1);
+    const plH = Ly.plate && (Ly.name || Ly.sub) ? (Ly.sub ? 20 * k * 1.3 + 13 * k * 1.4 : 20 * k * 1.5) + 10 * k : 0; const dyk = Ly.dy == null ? -1 : Ly.dy;
+    const dy = dyk < 0 ? dyk * (sz * .5 + plH + 18 * k) : dyk * sz * .85; const cx = sp[0], cy = sp[1] + dy; // above the point: the name plate ends just above the pin
     g.save(); g.globalAlpha = a;
-    if (dy) { g.strokeStyle = Ly.ring; g.lineWidth = 2 * k; g.beginPath(); g.moveTo(sp[0], sp[1]); g.lineTo(cx, cy + Math.sign(-dy) * sz * .5 * pop); g.stroke(); V.icon(g, 'dot', sp[0], sp[1], 12 * k, Ly.ring, 0, 0, 1); }
+    if (dy) { g.strokeStyle = Ly.ring; g.lineWidth = 2 * k; g.beginPath(); g.moveTo(sp[0], sp[1]); g.lineTo(cx, cy + Math.sign(-dy) * (sz * .5 + (dy < 0 ? plH : 0)) * pop); g.stroke(); V.icon(g, 'dot', sp[0], sp[1], 12 * k, Ly.ring, 0, 0, 1); }
     g.translate(cx, cy); g.scale(pop, pop);
     const shp = () => { g.beginPath(); const r = sz / 2; if (Ly.shape === 'square') g.rect(-r, -r, sz, sz); else if (Ly.shape === 'rounded') { if (g.roundRect) g.roundRect(-r, -r, sz, sz, sz * .18); else g.rect(-r, -r, sz, sz); } else if (Ly.shape === 'hex') { for (let i = 0; i < 6; i++) { const an = Math.PI / 6 + i * Math.PI / 3; g.lineTo(Math.cos(an) * r, Math.sin(an) * r); } g.closePath(); } else if (Ly.shape === 'shield') { g.moveTo(-r, -r); g.lineTo(r, -r); g.lineTo(r, r * .2); g.quadraticCurveTo(r * .8, r * .85, 0, r * 1.1); g.quadraticCurveTo(-r * .8, r * .85, -r, r * .2); g.closePath(); } else g.arc(0, 0, r, 0, 7); };
     g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 18 * k; shp(); g.fillStyle = '#1b2230'; g.fill(); g.shadowBlur = 0;
@@ -464,14 +502,14 @@
     const pr = d3.geoOrthographic().rotate([-vw.lon, -Math.max(-60, Math.min(60, vw.lat))]).scale(R).translate([cx, cy]).clipAngle(90).precision(1);
     const path = d3.geoPath(pr, g);
     g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 18 * k; g.beginPath(); g.arc(cx, cy, R + 4 * k, 0, 7); g.fillStyle = Ly.frame || '#0b0f16'; g.fill(); g.shadowBlur = 0;
-    g.beginPath(); path({ type: 'Sphere' }); const gr = g.createRadialGradient(cx - R * .3, cy - R * .3, R * .1, cx, cy, R); gr.addColorStop(0, '#1d4f86'); gr.addColorStop(1, '#0a2242'); g.fillStyle = gr; g.fill();
+    g.beginPath(); path({ type: 'Sphere' }); const gr = g.createRadialGradient(cx - R * .3, cy - R * .3, R * .1, cx, cy, R); gr.addColorStop(0, '#1b3553'); gr.addColorStop(1, '#09172a'); g.fillStyle = gr; g.fill();
     g.beginPath(); path(d3.geoGraticule10()); g.lineWidth = .6 * k; g.strokeStyle = 'rgba(255,255,255,.12)'; g.stroke();
-    if (G.land) { g.beginPath(); path(G.land); g.fillStyle = Ly.land || '#5b6b55'; g.fill(); }
+    if (G.land) { g.beginPath(); path(G.land); g.fillStyle = Ly.land || '#7d7a66'; g.fill(); }
     for (const key of inv) { const f = byKey.get(key); if (!f) continue; g.beginPath(); path(f); g.fillStyle = Ly.color || '#e5243b'; g.fill(); }
     // current view footprint
     const span = Math.min(80, vw.upp * H * .55 * 180 / Math.PI); const pulse = .5 + .5 * Math.sin(s.lt * 3);
-    g.beginPath(); path(d3.geoCircle().center([vw.lon, vw.lat]).radius(Math.max(.6, span))()); g.lineWidth = 2.2 * k; g.strokeStyle = Ly.mark || '#ffd34d'; g.stroke(); g.globalAlpha *= .25 + .2 * pulse; g.fillStyle = Ly.mark || '#ffd34d'; g.fill(); g.globalAlpha = s.a * p;
-    g.beginPath(); g.arc(cx, cy, R, 0, 7); g.lineWidth = 3 * k; g.strokeStyle = Ly.ring || 'rgba(255,255,255,.85)'; g.stroke();
+    g.beginPath(); path(d3.geoCircle().center([vw.lon, vw.lat]).radius(Math.max(.6, span))()); g.lineWidth = 1.6 * k; g.strokeStyle = Ly.mark || '#ffd34d'; g.stroke(); g.globalAlpha *= .14 + .1 * pulse; g.fillStyle = Ly.mark || '#ffd34d'; g.fill(); g.globalAlpha = s.a * p;
+    g.beginPath(); g.arc(cx, cy, R, 0, 7); g.lineWidth = 1.4 * k; g.strokeStyle = Ly.ring || 'rgba(255,255,255,.6)'; g.stroke();
     if (Ly.text) haloText(g, Ly.text, cx, y0 + sz + 14 * k, 15 * k, '#fff', 'rgba(0,0,0,.85)', fam, 800);
     g.restore();
   }
@@ -485,9 +523,9 @@
     g.save(); g.globalAlpha = s.a * S.easeOut(s.pin);
     const w = Math.max(measure(g, txt, px, 'Barlow Condensed', 800), sub ? measure(g, sub, px2, fam, 700) : 0) + 36 * k, h = px * 1.15 + (sub ? px2 * 1.4 : 0) + 18 * k;
     const [x0, y0] = corner(Ly.pos || 'tr', W, H, w, h, k);
-    if (Ly.plate) { plate(g, x0, y0, w, h, 'rgba(6,9,14,.72)', 8 * k); g.fillStyle = Ly.color === '#ffffff' ? '#e5243b' : Ly.color; g.fillRect(x0, y0 + h - 4 * k, w, 4 * k); }
-    if (sub) haloText(g, sub, x0 + w / 2, y0 + 9 * k + px2 * .7, px2, '#d5dde8', null, fam, 700);
-    haloText(g, txt, x0 + w / 2, y0 + h - 9 * k - px * .58, px, Ly.plate ? '#fff' : Ly.color, Ly.plate ? null : 'rgba(0,0,0,.8)', 'Barlow Condensed', 800);
+    if (Ly.plate) { g.save(); g.shadowColor = 'rgba(0,0,0,.35)'; g.shadowBlur = 18 * k; plate(g, x0, y0, w, h, 'rgba(12,16,22,.42)', 4 * k); g.restore(); g.fillStyle = Ly.color === '#ffffff' ? (Ly.accent || '#d9b45a') : Ly.color; g.fillRect(x0 + w * .18, y0 + h - 2 * k, w * .64, 1.6 * k); }
+    if (sub) haloText(g, sub, x0 + w / 2, y0 + 9 * k + px2 * .7, px2, '#e4e8ee', Ly.plate ? null : 'soft', fam, 600);
+    haloText(g, txt, x0 + w / 2, y0 + h - 9 * k - px * .58, px, Ly.plate ? '#f4f0e8' : Ly.color, Ly.plate ? 'soft' : 'rgba(0,0,0,.8)', 'Barlow Condensed', 700);
     g.restore();
   }
   function drawLegend(g, Ly, s, W, H, k, fam) {

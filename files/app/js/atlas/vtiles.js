@@ -16,9 +16,9 @@
   VT.provider = (sc, E, era) => {
     const L = sc.look; const st = E.st;
     const fs0 = G.features(era, 0);
-    const drawsAnything = E.vector || E.fill !== 'none' || L.borders || L.graticule || L.rivers || L.provinces || st.grid;
+    const drawsAnything = (E.oceanTint && E.tintA > 0 && !E.vector) || E.vector || E.fill !== 'none' || L.borders || L.graticule || L.rivers || L.provinces || st.grid;
     if (!drawsAnything) return null;
-    const look = { vector: E.vector ? 1 : 0, ocean: st.ocean, ocean2: st.ocean2, land: st.land, fill: E.fill, fillA: E.fillA, pal: (st.palette || 'vivid'), border: st.border, bw: (st.bw || 1) * (L.borderW || 1), coast: L.coast ? (st.coast || st.border) : null, borders: L.borders ? 1 : 0, glow: st.glow ? 1 : 0,
+    const look = { vector: E.vector ? 1 : 0, ocean: st.ocean, ocean2: st.ocean2, land: st.land, fill: E.fill, fillA: E.fillA, pal: (st.palette || 'vivid'), border: st.border, bw: (st.bw || 1) * (L.borderW || 1), coast: L.coast ? (st.coast || st.border) : null, borders: L.borders ? 1 : 0, glow: st.glow ? 1 : 0, dash: st.dash ? 1 : 0, tint: E.oceanTint && E.tintA > 0 && !E.vector ? E.oceanTint + '@' + E.tintA : null,
       grid: (st.grid || L.graticule) ? (st.gridC || (E.vector ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.22)')) : null, rivers: L.rivers && G.rivers ? 1 : 0, lakes: L.lakes && G.lakes && E.vector ? 1 : 0, prov: L.provinces && era.src === 'modern' && G.admin1 ? 1 : 0, era: era.src === 'cs' ? 'cs' + setSig(fs0) : era.id, land: G.landHi ? 'h' : 'l' };
     const id = 'vec:' + hashStr(JSON.stringify(look));
     if (!VT.specs.has(id)) VT.specs.set(id, { look, era: { ...era } });
@@ -28,6 +28,14 @@
     return id;
   };
 
+  // land split into polygons with bounds, so a tile only paths the land that touches it (the ocean tint needs the land mask on every tile)
+  const lpC = new WeakMap();
+  function landParts(land) {
+    let r = lpC.get(land); if (r) return r; r = [];
+    const geoms = land.type === 'FeatureCollection' ? land.features.map(f => f.geometry) : land.type === 'Feature' ? [land.geometry] : land.type === 'GeometryCollection' ? land.geometries : [land];
+    for (const g0 of geoms) { if (!g0) continue; const polys = g0.type === 'Polygon' ? [g0.coordinates] : g0.type === 'MultiPolygon' ? g0.coordinates : []; for (const pc of polys) { const f = { type: 'Feature', geometry: { type: 'Polygon', coordinates: pc } }; f.bounds = d3.geoBounds(f); r.push(f); } }
+    lpC.set(land, r); return r;
+  }
   const patC = new Map();
   function hatch(ctx, color) { let c = patC.get(color); if (!c) { c = document.createElement('canvas'); c.width = c.height = 16; const g = c.getContext('2d'); g.strokeStyle = color; g.lineWidth = 3; g.beginPath(); g.moveTo(-4, 20); g.lineTo(20, -4); g.moveTo(-4, 4); g.lineTo(4, -4); g.moveTo(12, 20); g.lineTo(20, 12); g.stroke(); patC.set(color, c); } return ctx.createPattern(c, 'repeat'); }
   function boundsHit(b, lo0, lo1, la0, la1) {
@@ -50,6 +58,12 @@
     const k = 2 * Math.max(.8, Math.min(2.2, .75 + z * .12)); // line scale (texels)
     const pal = S.PAL[L.pal] || S.PAL.vivid;
     if (L.vector) { g.fillStyle = L.ocean; g.fillRect(0, 0, SZ, SZ); if (land) { g.beginPath(); path(land); g.fillStyle = L.land; g.fill(); } }
+    if (L.tint && land) { // ocean tint from the real land mask (not colour detection): navy water with faint relief, fades out z8→z10
+      const [tc, ta] = L.tint.split('@'); const a = +ta * Math.max(0, Math.min(1, (10 - z) / 2.5));
+      if (a > 0.003) { const oc = VT._tintCv || (VT._tintCv = document.createElement('canvas')); oc.width = oc.height = SZ; const o = oc.getContext('2d'); o.fillStyle = tc; o.fillRect(0, 0, SZ, SZ);
+        o.globalCompositeOperation = 'destination-out'; o.beginPath(); const lp = d3.geoPath(d3.geoMercator().scale(SZ * n2 / (2 * Math.PI)).translate([SZ * n2 / 2 - x * SZ, SZ * n2 / 2 - y * SZ]).clipExtent([[-6, -6], [SZ + 6, SZ + 6]]).precision(0), o); /* no resampling for the mask (fast; straight in mercator) */ for (const q of landParts(land)) if (boundsHit(q.bounds, lo0 - pad, lo1 + pad, la0 - pad, la1 + pad)) lp(q); o.fill();
+        g.save(); g.globalAlpha = a; g.drawImage(oc, 0, 0); g.restore(); }
+    }
     if (L.fill !== 'none' && feats.length) {
       g.save(); if (spec.era.src !== 'modern' && land) { g.beginPath(); path(land); g.clip(); }
       g.globalAlpha = L.fillA; const byKey = new Map((G.features(spec.era, 0) || []).map(f => [f.key, f]));
@@ -66,6 +80,7 @@
       g.beginPath(); for (const f of feats) path(f); g.lineJoin = 'round';
       if (L.glow) { g.shadowColor = L.border; g.shadowBlur = 6 * k; }
       if (!L.vector) { g.lineWidth = L.bw * 2.0 * k; g.strokeStyle = 'rgba(0,0,0,.22)'; g.stroke(); }
+      if (L.dash) g.setLineDash([5 * k * L.bw, 4 * k * L.bw]);
       g.lineWidth = L.bw * k; g.strokeStyle = L.border; g.stroke(); g.restore();
     }
     if (L.coast && L.vector && land) { g.beginPath(); path(land); g.lineWidth = 1 * k; g.strokeStyle = L.coast; g.stroke(); }

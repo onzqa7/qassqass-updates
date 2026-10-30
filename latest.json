@@ -1,8 +1,8 @@
 {
- "version": "2.1.4",
- "date": "2026-10-30T13:30:22.369Z",
- "notes_ar": "لوحة الخرائط لا ترجع للأعلى عند كل تعديل.",
- "notes_en": "Maps panel keeps its scroll position while editing.",
+ "version": "2.2.0",
+ "date": "2026-10-30T15:19:01.048Z",
+ "notes_ar": "الإصدار 2.2: خرائط طبيعية بمستوى Google Earth ومظهر وثائقي بنقرة، صورة القائد وتحريكه، 3D وكي فريم في الخرائط، تخصيص كامل للخرائط، 28 قالب رسوم متحركة، محرر المنحنيات، LUT، تتبع الحركة، تسجيل تعليق صوتي، إعدادات تصدير جاهزة وقائمة تصدير، وأدوات ذكية للصوت والفيديو.",
+ "notes_en": "2.2: natural Google-Earth-like maps and one-click documentary look, leader portrait with movement, map 3D and keyframes, full map customisation, 28 motion templates, graph editor, LUTs, motion tracking, voice-over recording, export presets and queue, smart audio/video tools.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -24,8 +24,8 @@
   },
   {
    "path": "app/css/app.css",
-   "size": 41157,
-   "sha256": "eb3edc171c4b899cce128f9ba02a6da293a04c922db966096b55515b535f8188"
+   "size": 41361,
+   "sha256": "2f6257a1c1b4952ac5779b83e14d11e91688c495ee1d27e2e38b4c374118825d"
   },
   {
    "path": "app/fonts/amiri-arabic-400-normal.woff2",
@@ -679,18 +679,18 @@
   },
   {
    "path": "app/i18n/ar_strings.json",
-   "size": 53683,
-   "sha256": "48dc23aeacf7467c901c710eccede150bc1c5d7e3f33f843d06aca8fc69ff64d"
+   "size": 76859,
+   "sha256": "01ad7f3fe5a0ce7d0e3a6d6bc419ea7418ac714a539f32fbd815fe7bb9f26c5c"
   },
   {
    "path": "app/i18n/en.js",
-   "size": 109638,
-   "sha256": "966cc3bfb2d4eadc0c89ac042e89cf03c198b85b433b70d37e61e0574fd74455"
+   "size": 132737,
+   "sha256": "fe81fd14535f2fe5f8854f8b8bef7204f4be8b0d73997ee79fa9e5d9ca876410"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 103392,
-   "sha256": "138b099b94dd9e06bbc0061b8a27d8bc9647eb93c0a8d1e2763d85e391a3bc0b"
+   "size": 129510,
+   "sha256": "f71cdeefca47a50a96746e3d8e5bab9c6204988a2146a75db83ff13a02f515fa"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -724,18 +724,18 @@
   },
   {
    "path": "app/index.html",
-   "size": 3639,
-   "sha256": "531ad34f0c74c960b089719deb60da709c079f77d56fefad90014f77a9c0adb9"
+   "size": 3833,
+   "sha256": "83ad0b4204d43f42f247428c6d1dedbe56106fc5345a3adf4303998c495660e8"
   },
   {
    "path": "app/js/api.js",
-   "size": 50212,
-   "sha256": "5a056d837b5b4ab7b895d4123d51cae3dabe388fea57b7d5430113b2ee929fb9"
+   "size": 56540,
+   "sha256": "33480ab58c04468543ed00853dcfc52f198d7f801a3d6ed44eb8213c7ccc7fe3"
   },
   {
    "path": "app/js/app.js",
-   "size": 37644,
-   "sha256": "14820b05c3f4a2a9f36d52730233b6427f996689759fbbbac34bcb0ae10ba0a8"
+   "size": 38210,
+   "sha256": "90cd58a6ad7975a3e6c2218268a5a43d8423f2f0c73f83b6329ae5de8aa1f4f6"
   },
   {
    "path": "app/js/asr_core.js",
@@ -744,8 +744,8 @@
   },
   {
    "path": "app/js/atlas/atlas.js",
-   "size": 4194,
-   "sha256": "e7feca1ef6c396ef372ae3b14bbf2439dd1ef84f25b12084a4e61ce6e0cca164"
+   "size": 4897,
+   "sha256": "d938998bbbdaaf2d0eec642cbab5895eff20ad328fc67ca46fbb81a9a123996b"
   },
   {
    "path": "app/js/atlas/camera.js",
@@ -759,33 +759,33 @@
   },
   {
    "path": "app/js/atlas/globe.js",
-   "size": 35281,
-   "sha256": "9b114e33edd4fd58d722a99b3b35745e4c602aa896569269781a86fd1070a8c5"
+   "size": 36446,
+   "sha256": "d7d4f8c1e37854302e6cee12fe1184f8604fcd8aaadb112681d686b3f6e7f2db"
   },
   {
    "path": "app/js/atlas/providers.js",
-   "size": 4735,
-   "sha256": "25f6ef16edb96a603697851d5f5eab54013e01aa9f63dce5e63614113f097a18"
+   "size": 5334,
+   "sha256": "929e19401c581c6f9cd5d40f2fdf56f27423be597d610990ac4a12aa74a5ba7d"
   },
   {
    "path": "app/js/atlas/scene.js",
-   "size": 12609,
-   "sha256": "c66f6c61ddcc59e9d670c8405dfb35d53b30213f6313e3bd03515bc9f057f925"
+   "size": 16716,
+   "sha256": "5dab7c28096ea495c0f519b529e3867afc7cccacdf18d0a3c27052e66a92c81a"
   },
   {
    "path": "app/js/atlas/vector.js",
-   "size": 51771,
-   "sha256": "850ff5383dff79048f6af74a6f791cd7d19976cdc8191f062e1f530c7c560879"
+   "size": 57400,
+   "sha256": "f7c2417df522cba17c5b821332deab7eee5c870949340eb55538b79cffd16d14"
   },
   {
    "path": "app/js/atlas/vtiles.js",
-   "size": 6696,
-   "sha256": "61b82ef7820f92c944038a5f96ea170831be9f0fb80e5764356dfc0b8701738f"
+   "size": 8653,
+   "sha256": "46559d448fd212216b94a4bdd38426501a8d646c7bd7f871fbb85a0b386ed80d"
   },
   {
    "path": "app/js/audio.js",
-   "size": 10690,
-   "sha256": "f545fb2292630b2df0f14264d7f202539dfe9c3345bd1400301320b9ab84485c"
+   "size": 10783,
+   "sha256": "e7c4c899970d802d74d868bacee4ad39a40c340c3ebc2aac603e21a38f741dc5"
   },
   {
    "path": "app/js/audio_tools.js",
@@ -804,8 +804,8 @@
   },
   {
    "path": "app/js/gl.js",
-   "size": 58896,
-   "sha256": "8585c78aeee5ea3b35d74e9e9043a21ef0a4c2a63e3abc5389b3c7592e73dd96"
+   "size": 60622,
+   "sha256": "b4bdd76293986e22e01ead078aa693ca5be0d159c5422da8303e1ebaea5e248d"
   },
   {
    "path": "app/js/i18n.js",
@@ -814,8 +814,13 @@
   },
   {
    "path": "app/js/icons.js",
-   "size": 3358,
-   "sha256": "6e052c199348178d0b57afb5382b287426fbcc8ee6559b6fd811bdeb2f0ba1cb"
+   "size": 3828,
+   "sha256": "18abdb8f0ca1842c3bfa3669f7324cecdc55680fc39c2eb5a45d0cc8de7743cc"
+  },
+  {
+   "path": "app/js/lut.js",
+   "size": 15612,
+   "sha256": "e9c13c09353011017e486a279904f037a8130b00de58c5069bebb720b8612258"
   },
   {
    "path": "app/js/media.js",
@@ -823,24 +828,34 @@
    "sha256": "92a941592ad0e15921119bf664301fd44668af5f6d842eda11d82bf2d2cea0aa"
   },
   {
+   "path": "app/js/mg.js",
+   "size": 72679,
+   "sha256": "a912308ee824b50bc2bf2ae38b243dd42db2444a8825c04ddb6cbae4f59af140"
+  },
+  {
    "path": "app/js/model.js",
-   "size": 34779,
-   "sha256": "65879ed4cd19d5df1a16f1f522dd37598e7d95e2ae5ec242902b48e2e3a1a854"
+   "size": 34925,
+   "sha256": "d6e455244eb777f9a1fd80b70a68cc2883d937406d4eeae9e616a183e09641ed"
   },
   {
    "path": "app/js/render.js",
-   "size": 14948,
-   "sha256": "47f6dce48e305556579ab99c0eac50cdd05fd69a1c173a7da2597b613ac6c63b"
+   "size": 15051,
+   "sha256": "85e6996e0f795c4170004267eecff4588a822b8dc71cff3096a0041532050bfb"
   },
   {
    "path": "app/js/shortcuts.js",
-   "size": 38457,
-   "sha256": "8dfec36e1d043d2974698df35149d813ec7250302bc9f90a7c464020a1d395b2"
+   "size": 39453,
+   "sha256": "b6af8ebd4f953f5f4fccd2e96b6ef13ea3ab4da68e83ff283c24c1eb002a668b"
   },
   {
    "path": "app/js/text.js",
-   "size": 11802,
-   "sha256": "46e0d31cd0d6829f76c6ceb7c3f5f6818e614d2aa5ba718ca482f820417c3def"
+   "size": 12624,
+   "sha256": "f3d4dfa4f7c48c27bf24925f595e1e0fa2410fb925b8e095176b0f4a624789da"
+  },
+  {
+   "path": "app/js/track.js",
+   "size": 34933,
+   "sha256": "12a9dab7eda6f962bef089d18d3eeee708f5844cdd420a31a740623cc76fe4bc"
   },
   {
    "path": "app/js/ui_captions.js",
@@ -849,13 +864,18 @@
   },
   {
    "path": "app/js/ui_export.js",
-   "size": 17345,
-   "sha256": "78504d057a742e66fbc680496aabfe16f2e0609944cb450c29454df531070560"
+   "size": 17486,
+   "sha256": "b805920477659bb8574d1ab5cbe6aa10d477b605f6900f1137761eea3efe712b"
+  },
+  {
+   "path": "app/js/ui_export_presets.js",
+   "size": 28017,
+   "sha256": "35d42f90c66efaa716d5bfcb530ed289f0a47063fda2cff6b9f78e45507b6474"
   },
   {
    "path": "app/js/ui_fxc.js",
-   "size": 32937,
-   "sha256": "1fd1e6ac33fdde89f66a5fe9e00bc1296a2b36e6e27a424cf9b4a9ca817dc8d7"
+   "size": 45839,
+   "sha256": "df13fdd25c844914ac6a2ccacdf39aff907c5815455ad1b1c2990c60c5c121e0"
   },
   {
    "path": "app/js/ui_home.js",
@@ -864,18 +884,18 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 65310,
-   "sha256": "e8b85f203a601e7d43a164a0bf9c824a7adf5c19e3ae893bcc7a3494c527ad4d"
+   "size": 83777,
+   "sha256": "c82a2af948d7eb217d333094e7d8a3b3ef6da9b51c43aa4d9d2663d295abc62f"
   },
   {
    "path": "app/js/ui_monitors.js",
-   "size": 32806,
-   "sha256": "91cfc14479edfbb45b64478a40b35c3efab135893b4874159be826d940d71ec9"
+   "size": 33381,
+   "sha256": "73ec0067268e6e6c82f87302885fefbbef8e78630a62bc8a871a2f1b82803d5e"
   },
   {
    "path": "app/js/ui_panels.js",
-   "size": 35539,
-   "sha256": "f337e8d82c306e8d8b816180bc9353b984ed8bc9d3325f98014e8263dcd76277"
+   "size": 36810,
+   "sha256": "7a870663e053210355f37d65146aee967ff73609376fb2ae025968080686bca7"
   },
   {
    "path": "app/js/ui_project.js",
@@ -889,13 +909,18 @@
   },
   {
    "path": "app/js/ui_timeline.js",
-   "size": 82156,
-   "sha256": "6aa3aa18a99b7422517f46e429ab281a20dbdbdea9e059907fabb170e4ce9bae"
+   "size": 82778,
+   "sha256": "2cab8292846762293409515ec558da801564878b25c9685859edcfe20067b2bc"
   },
   {
    "path": "app/js/ui_update.js",
    "size": 10477,
    "sha256": "cb32de556ab45af5e4aba9e59e0cfb96474afb609ab29332e809f732ea4e34b1"
+  },
+  {
+   "path": "app/js/ui_voiceover.js",
+   "size": 18776,
+   "sha256": "81292a3435eabe87f18bd3f131ef1b34281f543d68f2e2e5300ec143522e4d80"
   },
   {
    "path": "app/js/ui_vtools.js",
@@ -904,8 +929,8 @@
   },
   {
    "path": "app/js/util.js",
-   "size": 11201,
-   "sha256": "aed047a59cc74cf2bd646ab7efbce63b8a8c1e64f4396487515b6c5d452cfd7f"
+   "size": 12877,
+   "sha256": "a7fd5cade549c2b4ad67a6d87831e03a895b9be8d7cb59599189b41fa6a38fbb"
   },
   {
    "path": "app/js/xform.js",
@@ -931,6 +956,51 @@
    "path": "app/lib/topojson-client.min.js",
    "size": 7169,
    "sha256": "25cd02ae486cc5063e0215a4e4cfb15de83700c87ac48bac4d57dc6aaf3ebb89"
+  },
+  {
+   "path": "app/luts/bleach_bypass.cube",
+   "size": 754847,
+   "sha256": "693b5163dd6c07a5122a0625255e613af58ca7be6b2921bfece567662825ad67"
+  },
+  {
+   "path": "app/luts/bw_contrast.cube",
+   "size": 754836,
+   "sha256": "6a07c28b1075f2a1ad1ee000fe6f78ea7d59fdadced4ac39090e70c5870865ec"
+  },
+  {
+   "path": "app/luts/clog3_to_rec709.cube",
+   "size": 754898,
+   "sha256": "70ef5d38dd9ccf2c63defaa6b01522b84c1408093ed4d423354737a868b4774d"
+  },
+  {
+   "path": "app/luts/cold_war_doc.cube",
+   "size": 754843,
+   "sha256": "7bf68fcc99f1e70a71880399a529e5ab9a04befea94ffa17d866637ad8398f90"
+  },
+  {
+   "path": "app/luts/film_warm.cube",
+   "size": 754841,
+   "sha256": "638f37c86ebbf75c20d535c49592f71c6e5684036a337babeff972e5e0f6d49d"
+  },
+  {
+   "path": "app/luts/slog3_to_rec709.cube",
+   "size": 754899,
+   "sha256": "b335372f480fa7fb8c6541090aeedf8295b7486c6efd7e91cee12c6a4a44b9e5"
+  },
+  {
+   "path": "app/luts/teal_orange.cube",
+   "size": 754838,
+   "sha256": "d146c789552820298ff877490a6fead194aa82f3a7b789a88e59dd0214501e0b"
+  },
+  {
+   "path": "app/luts/vintage_sepia.cube",
+   "size": 754817,
+   "sha256": "18d2b7cb832be94c21a8caed6bea7d166ffc176b6c4e8f09a15bffa21a6731ac"
+  },
+  {
+   "path": "app/luts/vlog_to_rec709.cube",
+   "size": 754890,
+   "sha256": "eff0299c32034f151c66e2a3e416281267ad688715edacca28c9e81c0c57a9ed"
   },
   {
    "path": "app/sfx/CREDITS.txt",
@@ -4179,13 +4249,13 @@
   },
   {
    "path": "main.js",
-   "size": 37438,
-   "sha256": "163819ef4a02a266c12e6493b2985bef216bd8535f755052884e5c7833824edc"
+   "size": 38070,
+   "sha256": "b23b6741fd2baa1924553ba457c550a0eb6b737183969fae823d9d23de718fd8"
   },
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "fd31fd4bd45f15b3d3be02a27d907fe92aad6dc4c1756c9cc2057b85fe747dc3"
+   "sha256": "e419c211d6378a402a37dbfc2caa3f94b1e2ccdd88f6dfe72f114fe37687f36b"
   },
   {
    "path": "preload.js",
@@ -4198,5 +4268,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "83BDlCjfnkr/K4EbR+WUX9wD9zNL6uWhLnNJQhahnlTK2ELiHgZocZKJT2CKWaDCQE/q4FnGhrWeyff2xZB8CA=="
+ "sig": "XOTnpsZUtJ+P3vWYxSnkeQevpwYm7KD2SoLT/yUSbfpPtkfO+M7Aax1oaVBSokm2EA5hywQkCwJy8mGZaiqLBA=="
 }

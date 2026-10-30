@@ -31,6 +31,10 @@
     wand: '<path d="m4 20 11-11M14 4v2.5M20 10h-2.5M18.2 5.8l-1.8 1.8M13 9l2 2"/>',
     scissors: '<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17.5M8.6 15.6 20 6.5"/>',
     beat: '<path d="M3 12h3l2-6 3 12 3-9 2 3h5"/>',
+    track: '<rect x="8" y="8" width="8" height="8"/><path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3"/><path d="M12 11v2M11 12h2"/>',
+    trackf: '<path d="M5 6v12l7-6zM12 6v12l7-6z"/>', trackb: '<path d="M19 6v12l-7-6zM12 6v12l-7-6z"/>',
+    step1f: '<path d="M7 6v12l8-6z"/><path d="M17 6v12"/>', step1b: '<path d="M17 6v12L9 12z"/><path d="M7 6v12"/>',
+    mosaic: '<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 9.3h16M4 14.7h16M9.3 4v16M14.7 4v16"/>',
   };
   GW.ico = (name, size = 16, cls = '') => `<svg class="ico ${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name] || ''}</svg>`;
 })();

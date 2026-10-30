@@ -17,12 +17,15 @@
   A.glStyle = (sc, E) => {
     const st = E.st, L = sc.look, gr = E.grade; const hex = (h, d) => h ? S.rgb(h) : d;
     return {
-      sat: gr.sat * (L.sat == null ? 1 : L.sat), bri: gr.bri * (L.bri == null ? 1 : L.bri), con: gr.con, tint: gr.tint, tintAmt: gr.tintAmt || 0, gamma: gr.gamma || 1, ge: gr.ge || 0,
+      sat: gr.sat * (L.sat == null ? 1 : L.sat), bri: gr.bri * (L.bri == null ? 1 : L.bri), con: gr.con * (L.con == null ? 1 : L.con), warm: L.warm || 0, tint: gr.tint, tintAmt: gr.tintAmt || 0, gamma: gr.gamma || 1, ge: gr.ge || 0, geW: gr.geW, geT: gr.geT, geS: gr.geS, geL: gr.geL,
       light: L.light || st.light || 0, sunLon: L.sunLon, sunLat: L.sunLat, nightAmt: 1,
       space: st.space, space2: st.space2, atmoCol: st.atmo, atmo: L.atmo == null ? 1 : L.atmo, stars: E.stars,
       bgFlat: hex(st.bgFlat || st.ocean, [0.02, 0.03, 0.05]),
     };
   };
+  // imagery LOD bias (Google-Earth-like sharpness): finer tiles at export (and 'high' preview); export ensure() and render agree
+  A.imgBias = (opts) => { if (opts.zBias != null) return opts.zBias; if (opts.fast) return 0; const q = opts.quality == null ? 1 : opts.quality; return q >= 1 ? .6 : q >= .8 ? .25 : 0; };
+  const imgBias = A.imgBias;
   A.render = (scene, t, W, H, opts = {}) => {
     let sc = scene; const E = S.eff(sc);
     let { year, era, vw, lod } = A.evalAt(sc, t, W, H);
@@ -37,7 +40,7 @@
     const overlays = [];
     if (E.hill > 0) overlays.push({ prov: 'hillshade', mode: 1, alpha: E.hill });
     if (sc.look.refLabels) overlays.push({ prov: 'labels', mode: 2, alpha: 1 });
-    const L = { st: A.glStyle(sc, E), base: E.vector ? null : E.base, baseTex: E.vector ? null : E.baseTex, baseColor: E.vector ? S.rgb(E.st.ocean2 || E.st.ocean) : null, vec, overlays, terrain: sc.look.terrain == null ? 1.4 : +sc.look.terrain, cvBase: cvB, cvTop: cvT, bg: opts.bg || 'full', quality: (sc.look.quality || 1) * (opts.quality || 1), post: Object.assign({ seed: t * 7.13 % 100 }, E.post) };
+    const L = { st: A.glStyle(sc, E), base: E.vector ? null : E.base, baseTex: E.vector ? null : E.baseTex, baseColor: E.vector ? S.rgb(E.st.ocean2 || E.st.ocean) : null, vec, overlays, terrain: sc.look.terrain == null ? 1.4 : +sc.look.terrain, cvBase: cvB, cvTop: cvT, bg: opts.bg || 'full', quality: (sc.look.quality || 1) * (opts.quality || 1), zBias: imgBias(opts), vecBias: imgBias(opts) * .5, post: Object.assign({ seed: t * 7.13 % 100 }, E.post) };
     const tg0 = performance.now(); const r = A.GL.frame(vw, L); A.stats = { vec: tg0 - tv0, gl: performance.now() - tg0 };
     A.last = { vw, era, feats, res, want: r.want, year };
     return r.canvas;
@@ -49,6 +52,7 @@
     if (scene.look.rivers || scene.look.lakes) await G.loadWater().catch(() => {});
     if (scene.look.provinces) await G.loadAdmin1().catch(() => {});
     await V.imgsReady(scene);
+    if (document.fonts && document.fonts.load) { const fam = S.eff(scene).font; await Promise.all(['900', '800', '700'].map(w => document.fonts.load(`${w} 40px "${fam}"`, 'عربي').catch(() => {}))); }
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     const vb = A.Tiles.vecBudget; A.Tiles.vecBudget = 100000;
     try {

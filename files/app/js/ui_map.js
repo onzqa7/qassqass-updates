@@ -46,6 +46,7 @@
   UI.openMapEditor = (c) => {
     c = c || selMap(); if (!c) { GW.toast('حدد مقطع خريطة أولاً'); return; }
     if (!c.map.scene || c.map.scene.v !== 3) { c.map.scene = A.newScene(); GW.toast('تم تحويل الخريطة القديمة إلى المحرك الجديد'); }
+    { const s0 = GW.seq(); if (c.sw && c.sh && Math.abs(c.sw / c.sh - s0.w / s0.h) > .01 && c.motion) { c.sw = s0.w; c.sh = s0.h; c.motion.anchor = GW.P([s0.w / 2, s0.h / 2]); if (!GW.isAnim(c.motion.pos)) c.motion.pos = GW.P([s0.w / 2, s0.h / 2]); if (!GW.isAnim(c.motion.scale)) c.motion.scale = GW.P(100); GW.commit('ملاءمة الخريطة للإطار'); GW.toast('تم ضبط مقطع الخريطة ليملأ إطار التسلسل'); } } // map clips made for another aspect (e.g. 16:9 pasted into 9:16) must always fill the frame
     GW.sel.clips.clear(); GW.sel.clips.add(c.id); const s = GW.seq(); if (s.t < c.start || s.t >= c.start + c.dur) GW.seek(c.start + .01);
     GW.bus.emit('selection'); if (GW.setWorkspace && GW.active.ws !== 'maps') GW.setWorkspace('maps'); GW.showPanel('maps'); M.mode = 'nav'; renderPanel();
   };
@@ -109,7 +110,7 @@
       if (hitI >= 0) { dragPoint(e, k, L, hitI); return true; }
       if (!ll) return true; addPoint(k, L, ll); return true;
     }
-    if (M.mode === 'place' && L) { if (ll) { L.lon = +ll[0].toFixed(4); L.lat = +ll[1].toFixed(4); changed('تحديد الموقع'); renderLayerProps(); } return true; }
+    if (M.mode === 'place' && L) { if (ll) { const tt = +(k.t + (c.in || 0) - (L.start || 0)).toFixed(3); for (const [q, v] of [['lon', +ll[0].toFixed(4)], ['lat', +ll[1].toFixed(4)]]) { if (L[q] && typeof L[q] === 'object') GW.setPv(L[q], tt, v); else L[q] = v; } changed('تحديد الموقع'); renderLayerProps(); } return true; }
     if (M.mode === 'pick' && L) { const f = ll && G.hit(A.last && A.last.era && A.last.era.id === k.era.id ? A.last.feats : G.features(k.era, 0), ll); if (f) togglePick(c, L, f); return true; }
     // navigation
     const base = camNow(c); const right = e.button === 2 || e.altKey; const x0 = e.clientX, y0 = e.clientY; let moved = false;
@@ -166,7 +167,7 @@
     void outline;
     if (M.hover && M.hover.n && (M.mode === 'pick' || M.mode === 'nav')) { g.font = '600 12px Cairo, sans-serif'; const w = g.measureText(M.hover.n).width + 14; g.fillStyle = 'rgba(10,14,20,.85)'; g.fillRect(M.hover.X + 12, M.hover.Y + 10, w, 22); g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.direction = 'rtl'; g.fillText(M.hover.n, M.hover.X + 12 + w / 2, M.hover.Y + 21); g.direction = 'ltr'; }
     if (L && (M.mode === 'draw' || M.mode === 'place')) {
-      const pts = M.mode === 'draw' ? drawPts(L, k) : [[L.lon, L.lat]];
+      const pts = M.mode === 'draw' ? drawPts(L, k) : [[GW.pv(L.lon, k.t + (c.in || 0) - (L.start || 0)), GW.pv(L.lat, k.t + (c.in || 0) - (L.start || 0))]];
       g.strokeStyle = '#ffd34d'; g.fillStyle = '#ffd34d'; g.lineWidth = 1.5; g.beginPath(); let first = true;
       for (const p of pts || []) { const q = sp(p); if (!q) { first = true; continue; } first ? g.moveTo(q[0], q[1]) : g.lineTo(q[0], q[1]); first = false; }
       if (L.type === 'front' && pts && pts.length > 2) g.closePath(); g.stroke();
@@ -261,9 +262,10 @@
   const sec = (title, open = true, id) => { const d = h('details', 'mp-sec'); if (open) d.open = true; const s = h('summary'); s.textContent = title; d.append(s); if (id) { d.dataset.id = id; const st = M.secOpen && M.secOpen[id]; if (st != null) d.open = st; d.ontoggle = () => { (M.secOpen = M.secOpen || {})[id] = d.open; }; } const b = h('div', 'mp-body'); d.append(b); d.body = b; return d; };
 
   function renderPanel() {
-    if (!P) return; const c = selMap(); const old = P.querySelector('.pscroll.mp'); const keepTop = old ? old.scrollTop : 0; P.innerHTML = '';
+    if (!P) return; const c = selMap(); const old = P.querySelector('.pscroll.mp'); const keepTop = old ? old.scrollTop : 0; const fe = document.activeElement; const feKey = fe && P.contains(fe) && fe.dataset ? fe.dataset.k || null : null; P.innerHTML = '';
     const scroll = h('div', 'pscroll mp'); P.append(scroll);
-    requestAnimationFrame(() => { scroll.scrollTop = keepTop; });
+    // keep the scroll position after every change (the panel is rebuilt on each edit)
+    requestAnimationFrame(() => { scroll.scrollTop = keepTop; if (feKey) { const n = scroll.querySelector(`[data-k="${feKey}"]`); if (n && n.focus) n.focus({ preventScroll: true }); } }); scroll.scrollTop = keepTop;
     if (!c) { scroll.append(...welcome()); return; }
     const scn = sc(c);
     // header + mode switch
@@ -348,6 +350,17 @@
     const f = (k, step) => { const i = num((+v[k] || 0).toFixed(3), step, val => M.setCam(c, { [k]: val })); i.dataset.cam = k; return i; };
     s0.body.append(row('خط الطول / العرض', f('lon', .1), f('lat', .1)), row('التقريب', f('zoom', .1), h('span', 'kv', `<span data-a="alt">${fmtAlt(Cm.altitudeKm(v.zoom, v.lat))}</span>`)), row('الإمالة / الاتجاه', f('tilt', 1), f('heading', 1)));
     const kr = h('div', 'mp-row'); kr.append(btn(GW.ico('key', 13) + ' مفتاح كاميرا عند المؤشر', () => M.addKey(c), 'pri'), btn('شمال للأعلى', () => M.setCam(c, { heading: 0 })), btn('بدون إمالة', () => M.setCam(c, { tilt: 0 }))); s0.body.append(kr);
+    // 3D: tilt + terrain in one click (globe mode; terrain needs zoom ≥ 5)
+    const is3D = (v.tilt || 0) > 5 && scn.mode === 'globe' && (scn.look.terrain == null || scn.look.terrain > 0);
+    const b3 = btn(GW.ico('globe', 13) + (is3D ? ' ثلاثي الأبعاد مفعّل' : ' تفعيل ثلاثي الأبعاد (3D)'), () => {
+      if (is3D) { M.setCam(c, { tilt: 0 }); renderPanel(); return; }
+      scn.mode = 'globe'; if (scn.look.terrain == null || scn.look.terrain < 2.5) scn.look.terrain = 3; const z = Math.max(v.zoom, 6.5);
+      M.flyAnim(c, { lon: v.lon, lat: v.lat, zoom: z, tilt: 55, heading: v.heading || 0 }); if (v.zoom < 5) GW.toast('التضاريس ثلاثية الأبعاد تظهر عند التقريب (مستوى 5 فأكثر)');
+    }, is3D ? 'pri on' : 'pri'); b3.dataset.a = 'btn3d';
+    s0.body.append(h('div', 'mp-row'), row('تضخيم التضاريس', rng(scn.look.terrain == null ? 1.4 : scn.look.terrain, 0, 8, .1, val => { scn.look.terrain = val; GW.invalidate(); })));
+    s0.body.children[s0.body.children.length - 2].append(b3);
+    if (scn.mode === 'flat') s0.body.append(h('div', 'mp-note', 'الخريطة المسطحة لا تدعم الإمالة والتضاريس — اختر «كرة أرضية» للعرض ثلاثي الأبعاد.'));
+    s0.body.append(keyRuler(c, cam.keys || [], (k) => k.t, (k, t) => { k.t = t; }, () => { (cam.keys || []).sort((a, b) => a.t - b.t); }, (k) => { cam.keys.splice(cam.keys.indexOf(k), 1); }, 'مفاتيح الكاميرا'));
     const ks = cam.keys || []; const list = h('div', 'mp-keys');
     ks.forEach((k, i) => {
       const r = h('div', 'mp-key' + (Math.abs(k.t - lt(c)) < .5 / GW.seq().fps ? ' on' : ''), `<span class="kv">${GW.fmtTC(k.t, GW.seq().fps)}</span><span>${k.zoom.toFixed(1)}×</span>`);
@@ -358,7 +371,7 @@
     if (!ks.length) list.append(h('div', 'mp-note', 'الكاميرا ثابتة. حرّك الخريطة في الشاشة ثم أضف مفاتيح عند أوقات مختلفة لتصنع حركة طيران سينمائية (مثل Google Earth).'));
     s0.body.append(list);
     s0.body.append(row('دوران مداري', rng(cam.orbit || 0, -20, 20, .5, val => { cam.orbit = val; GW.invalidate(); })), row('اقتراب تدريجي', rng(cam.drift || 0, -.5, .5, .01, val => { cam.drift = val; GW.invalidate(); })), row('اهتزاز', rng(cam.shake || 0, 0, 3, .05, val => { cam.shake = val; GW.invalidate(); })));
-    const pres = h('div', 'mp-chips'); for (const [n, fn] of [['دخول من الفضاء', () => camPreset(c, 'space')], ['طيران للهدف', () => camPreset(c, 'push')], ['دوران حول الهدف', () => camPreset(c, 'orbit')], ['إمالة سينمائية', () => camPreset(c, 'tilt')]]) { const b = h('button', 'chip'); b.textContent = n; b.onclick = fn; pres.append(b); }
+    const pres = h('div', 'mp-chips'); for (const [n, fn] of [['جولة ثلاثية الأبعاد', () => camPreset(c, 'tour3d')], ['دخول من الفضاء', () => camPreset(c, 'space')], ['طيران للهدف', () => camPreset(c, 'push')], ['دوران حول الهدف', () => camPreset(c, 'orbit')], ['إمالة سينمائية', () => camPreset(c, 'tilt')]]) { const b = h('button', 'chip'); b.textContent = n; b.onclick = fn; pres.append(b); }
     s0.body.append(h('div', 'mp-sub', 'حركات جاهزة'), pres);
     return s0;
   }
@@ -367,9 +380,31 @@
     if (kind === 'space') cam.keys = [{ t: 0, ...base, zoom: 1.6, tilt: 0, heading: 0, ease: 'inout' }, { t: Math.min(d * .6, 4), ...base, ease: 'inout' }];
     else if (kind === 'push') cam.keys = [{ t: 0, ...base, ease: 'inout' }, { t: d * .8, ...base, zoom: base.zoom + 2.2, tilt: Math.max(base.tilt, 40), ease: 'inout' }];
     else if (kind === 'orbit') { cam.keys = [{ t: 0, ...base, tilt: Math.max(45, base.tilt), ease: 'linear' }, { t: d, ...base, tilt: Math.max(45, base.tilt), heading: base.heading + 90, ease: 'linear' }]; }
+    else if (kind === 'tour3d') { sc(c).mode = 'globe'; if (sc(c).look.terrain == null || sc(c).look.terrain < 2.5) sc(c).look.terrain = 3; const z = Math.max(base.zoom, 6.5); const n = 4; cam.keys = []; for (let i = 0; i <= n; i++) cam.keys.push({ t: d * i / n, ...base, zoom: z + (i === 0 ? -.6 : 0), tilt: i === 0 ? 20 : 58, heading: base.heading + i * 30, ease: i === 0 ? 'inout' : 'linear' }); }
     else if (kind === 'tilt') cam.keys = [{ t: 0, ...base, tilt: 0, ease: 'inout' }, { t: d * .7, ...base, tilt: 60, zoom: base.zoom + .8, heading: base.heading + 15, ease: 'inout' }];
     changed('حركة كاميرا جاهزة'); renderPanel();
   }
+  // Premiere/AE-like key ruler: diamonds on the clip's time range; click = seek, drag = retime, right-click = delete
+  function keyRuler(c, keys, getT, setT, done, del, title, off = 0) {
+    const w = h('div', 'mp-ruler'); w.style.cssText = 'position:relative;height:26px;margin:6px 0 4px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);cursor:pointer';
+    if (title) w.title = title + ' — انقر للانتقال • اسحب لتغيير الوقت • زر أيمن للحذف';
+    const t0 = c.in || 0, span = Math.max(.01, c.dur); const X = (t) => clamp((t - t0 - off) / span, 0, 1) * 100;
+    const ph = h('i'); ph.style.cssText = `position:absolute;top:0;bottom:0;width:1px;background:var(--accent);left:${X(lt(c))}%`; w.append(ph);
+    w.onclick = (e) => { if (e.target !== w) return; const r = w.getBoundingClientRect(); GW.seek(c.start + clamp((e.clientX - r.left) / r.width, 0, 1) * span); };
+    for (const k of keys) {
+      const d = h('i'); const on = Math.abs(getT(k) + off - lt(c)) < .5 / GW.seq().fps;
+      d.style.cssText = `position:absolute;top:50%;left:${X(getT(k) + off)}%;width:10px;height:10px;margin:-5px 0 0 -5px;transform:rotate(45deg);border:1px solid var(--accent);background:${on ? 'var(--accent)' : 'rgba(20,24,30,.9)'};cursor:ew-resize`;
+      d.onpointerdown = (e) => {
+        if (e.button === 2) return; e.stopPropagation(); d.setPointerCapture(e.pointerId); const r = w.getBoundingClientRect(); let moved = false; const x0 = e.clientX;
+        d.onpointermove = (ev) => { if (Math.abs(ev.clientX - x0) > 2) moved = true; if (!moved) return; const tt = +(clamp((ev.clientX - r.left) / r.width, 0, 1) * span + t0 - off).toFixed(3); setT(k, Math.max(0, tt)); d.style.left = X(tt + off) + '%'; GW.invalidate(); };
+        d.onpointerup = () => { d.onpointermove = null; d.onpointerup = null; if (moved) { done(); changed('تحريك مفتاح'); renderPanel(); } else GW.seek(c.start + getT(k) + off - t0); };
+      };
+      d.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); del(k); done(); changed('حذف مفتاح'); renderPanel(); };
+      w.append(d);
+    }
+    return w;
+  }
+  M.keyRuler = keyRuler;
   // real preview thumbnails: each style rendered once by the atlas engine (bundled low-zoom tiles), cached per version
   const TH = M._thumbs = M._thumbs || {}; let thQ = Promise.resolve();
   const THV = 'qq.sthumb.v2.';
@@ -388,30 +423,57 @@
       } catch (e) { return null; }
     }));
   }
+  M.userStyles = (v) => { const K = 'qq.mapUserStyles'; if (v) { try { localStorage.setItem(K, JSON.stringify(v)); } catch (e) {} return v; } try { return JSON.parse(localStorage.getItem(K) || '[]') || []; } catch (e) { return []; } };
+  // one-click documentary look: dark desaturated imagery, translucent fills with a light outline, big soft-shadow labels
+  M.docLook = (c, style = 'doc_dark') => { S.applyDocLook(sc(c), style); changed('مظهر وثائقي'); renderPanel(); };
   function styleSec(c) {
     const scn = sc(c); const s0 = sec('نمط الخريطة', true, 'style'); const grid = h('div', 'mp-styles');
     for (const k of S.STYLE_ORDER) { const st = S.STYLES[k]; const b = h('button', 'mp-st' + (scn.style === k ? ' on' : '')); const sw = st.vector ? `linear-gradient(135deg, ${st.ocean} 0 45%, ${st.land} 45% 100%)` : ''; b.innerHTML = `<i style="${sw ? 'background:' + sw : ''}" class="${st.vector ? '' : 'img-' + (st.base || '')}"></i><span>${esc(st.ar)}</span>`; b.onclick = () => { scn.style = k; changed('نمط الخريطة'); renderPanel(); }; grid.append(b); const ii = b.querySelector('i'); styleThumb(k).then(u => { if (u && ii.isConnected) { ii.className = ''; ii.style.background = `url(${u}) center/cover`; } }); }
-    s0.body.append(grid, h('div', 'mp-note', 'الأنماط الفضائية والطبوغرافية تُحمّل صوراً عالية الدقة من الإنترنت حسب التقريب وتُحفظ للعمل بدون إنترنت لاحقاً.'));
+    // user styles (saved looks) — stored in localStorage, applied as base style + look overrides (the scene keeps them, so projects stay portable)
+    for (const u of M.userStyles()) { const b = h('button', 'mp-st'); const bs = S.STYLES[u.base] || S.STYLES.satellite; b.innerHTML = `<i style="background:linear-gradient(135deg, ${esc(u.look.oceanTint || u.look.ocean || bs.oceanTint || bs.ocean || '#0b1c36')} 0 50%, ${esc(u.look.ink || bs.ink || '#fff')} 50% 100%)"></i><span>${esc(u.name)}</span>`; b.title = 'نمط محفوظ — زر أيمن للحذف'; b.onclick = () => { scn.style = u.base; Object.assign(scn.look, GW.clone(u.look)); changed('نمط الخريطة'); renderPanel(); }; b.oncontextmenu = (e) => { e.preventDefault(); M.userStyles(M.userStyles().filter(x => x.id !== u.id)); renderPanel(); }; grid.append(b); }
+    const qa = h('div', 'mp-row');
+    qa.append(btn(GW.ico('wand', 13) + ' مظهر وثائقي بنقرة واحدة', () => { M.docLook(c, 'doc_dark'); }, 'pri'), btn('وثائقي فاتح', () => M.docLook(c, 'doc_light')),
+      btn(GW.ico('plus', 13) + ' حفظ كنمط', async () => { const name = await GW.prompt('حفظ كنمط', 'اسم النمط', 'نمطي ' + (M.userStyles().length + 1)); if (!name) return; const keep = ['font', 'labelSize', 'labelW', 'ink', 'haloT', 'labelSp', 'countryLabels', 'cities', 'cityDot', 'cityC', 'oceans', 'regions', 'borders', 'borderC', 'borderW', 'borderA', 'borderStyle', 'coast', 'rivers', 'lakes', 'provinces', 'ocean', 'land', 'bgCol', 'oceanTint', 'tintA', 'fill', 'fillA', 'hill', 'bri', 'con', 'sat', 'warm', 'vig', 'ge', 'grain', 'paper', 'letter', 'graticule', 'gridC', 'atmo', 'stars', 'terrain']; const look = {}; for (const k of keep) if (scn.look[k] != null) look[k] = scn.look[k]; M.userStyles([...M.userStyles(), { id: GW.uid(), name, base: scn.style, look }]); GW.toast('تم حفظ النمط: ' + name); renderPanel(); }));
+    s0.body.append(grid, qa, h('div', 'mp-note', 'الأنماط الفضائية والطبوغرافية تُحمّل صوراً عالية الدقة من الإنترنت حسب التقريب وتُحفظ للعمل بدون إنترنت لاحقاً.'));
     return s0;
   }
   function lookSec(c) {
-    const scn = sc(c); const L = scn.look; const s0 = sec('الطبقات والمظهر', false, 'look'); const E = S.eff(scn);
+    const scn = sc(c); const L = scn.look; const s0 = sec('الطبقات والمظهر', false, 'look'); const E = S.eff(scn); const st = E.st;
     const set = (k) => (v) => { L[k] = v; changed('مظهر الخريطة', true); };
+    const grp = (title, id, ...rows) => { const d = sec(title, false, 'look_' + id); d.classList.add('mp-sub-sec'); d.body.append(...rows); return d; };
+    const ccol = (k, d) => { const w = h('span', 'mp-row'); w.append(col(L[k] || d, v => { L[k] = v; GW.invalidate(); }), btn(GW.ico('close', 11), () => { L[k] = null; changed('إعادة اللون'); renderPanel(); })); return w; };
+    const fontOpts = [['', 'حسب النمط (' + E.font + ')'], ...GW.FONTS.map(f => [f, f])];
     s0.body.append(
       row('لغة الأسماء', sel([['ar', 'العربية'], ['en', 'English']], L.lang, v => { L.lang = v; changed('لغة الخريطة'); })),
-      row('الخط', sel([['', 'حسب النمط'], ...GW.FONTS.map(f => [f, f])], L.font || '', set('font'))),
-      row('حجم الأسماء', rng(L.labelSize || 1, .5, 2.5, .05, set('labelSize'))),
-      row('أسماء الدول', chk(L.countryLabels, set('countryLabels'))), row('المدن', sel([[0, 'بدون'], [1, 'الرئيسية'], [2, 'أكثر'], [3, 'كثيرة']], L.cities, v => set('cities')(+v))),
-      row('البحار والمحيطات', chk(L.oceans, set('oceans'))), row('مناطق طبيعية', chk(L.regions, set('regions'))), row('المحافظات / الولايات', chk(L.provinces, set('provinces'))),
-      row('الأنهار', chk(L.rivers, set('rivers'))), row('البحيرات', chk(L.lakes, set('lakes'))), row('الحدود', chk(L.borders, set('borders'))), row('سماكة الحدود', rng(L.borderW || 1, .3, 4, .1, set('borderW'))), row('السواحل', chk(L.coast, set('coast'))), row('خطوط الطول والعرض', chk(L.graticule, set('graticule'))),
-      row('تلوين الدول', sel([['', 'حسب النمط'], ['none', 'بدون'], ['political', 'سياسي (لكل دولة لون)'], ['empire', 'الإمبراطوريات والمستعمرات']], L.fill == null ? '' : L.fill, v => { L.fill = v || null; changed('تلوين الدول'); })),
-      row('شفافية التلوين', rng(L.fillA == null ? E.fillA : L.fillA, 0, 1, .02, set('fillA'))),
-      row('ظل التضاريس', rng(L.hill == null ? E.hill : L.hill, 0, 1, .02, set('hill'))),
-      row('أسماء مرجعية (Esri)', chk(L.refLabels, set('refLabels'))),
-      row('الغلاف الجوي', rng(L.atmo == null ? 1 : L.atmo, 0, 2, .05, set('atmo'))), row('النجوم', rng(L.stars == null ? E.stars : L.stars, 0, 2, .05, set('stars'))),
-      row('ليل / نهار', chk(L.light, set('light'))), row('موقع الشمس', rng(L.sunLon || 0, -180, 180, 1, set('sunLon'))),
-      row('تشبع الصور', rng(L.sat == null ? 1 : L.sat, 0, 2, .02, set('sat'))), row('سطوع الصور', rng(L.bri == null ? 1 : L.bri, .3, 1.8, .02, set('bri'))),
-      row('تعتيم الأطراف', rng(L.vig || 0, 0, 1, .02, set('vig'))), row('حبيبات', rng(L.grain || 0, 0, 1, .02, set('grain'))), row('ورق قديم', rng(L.paper == null ? E.post.paper : L.paper, 0, 1, .02, set('paper'))), row('أشرطة سينمائية', rng(L.letter || 0, 0, .3, .01, set('letter'))),
+      grp('الأسماء والخطوط', 'labels',
+        row('الخط', sel(fontOpts, L.font || '', set('font'))),
+        row('حجم الأسماء', rng(L.labelSize || 1, .5, 2.5, .05, set('labelSize'))),
+        row('سماكة الخط', sel([[0, 'حسب النمط'], [500, 'عادي'], [600, 'متوسط'], [700, 'عريض'], [800, 'عريض جداً'], [900, 'أسود']], L.labelW || 0, v => set('labelW')(+v))),
+        row('لون الأسماء', ccol('ink', st.ink && st.ink[0] === '#' ? st.ink : '#ffffff')),
+        row('نوع الظل', sel([['', 'حسب النمط'], ['soft', 'ظل ناعم'], ['outline', 'حد واضح'], ['none', 'بدون']], L.haloT || '', set('haloT'))),
+        row('تباعد الحروف (لاتيني)', rng(L.labelSp || 0, 0, .5, .01, set('labelSp'))),
+        row('أسماء الدول', chk(L.countryLabels, set('countryLabels'))), row('المدن', sel([[0, 'بدون'], [1, 'الرئيسية'], [2, 'أكثر'], [3, 'كثيرة']], L.cities, v => set('cities')(+v))),
+        row('علامة المدن', sel([['auto', 'دائرة (افتراضي)'], ['dot', 'نقطة'], ['star', 'نجمة'], ['none', 'بدون']], L.cityDot || 'auto', set('cityDot'))), row('لون علامة المدن', ccol('cityC', '#ffffff')),
+        row('البحار والمحيطات', chk(L.oceans, set('oceans'))), row('مناطق طبيعية', chk(L.regions, set('regions'))), row('أسماء مرجعية (Esri)', chk(L.refLabels, set('refLabels')))),
+      grp('الحدود والسواحل', 'borders',
+        row('الحدود', chk(L.borders, set('borders'))), row('لون الحدود', ccol('borderC', '#e4e7ec')),
+        row('سماكة الحدود', rng(L.borderW || 1, .3, 4, .1, set('borderW'))), row('شفافية الحدود', rng(L.borderA == null ? .62 : L.borderA, 0, 1, .02, set('borderA'))),
+        row('نوع الخط', sel([['', 'حسب النمط'], ['solid', 'متصل'], ['dashed', 'متقطع'], ['glow', 'متوهج']], L.borderStyle || '', set('borderStyle'))),
+        row('المحافظات / الولايات', chk(L.provinces, set('provinces'))), row('السواحل', chk(L.coast, set('coast'))), row('الأنهار', chk(L.rivers, set('rivers'))), row('البحيرات', chk(L.lakes, set('lakes')))),
+      grp('الألوان والتلوين', 'colors',
+        ...(E.vector ? [row('لون المحيط', ccol('ocean', st.ocean)), row('لون اليابسة', ccol('land', st.land && st.land[0] === '#' ? st.land : '#888888')), row('لون الخلفية', ccol('bgCol', '#05070b'))]
+          : [row('لون المحيط', ccol('oceanTint', st.oceanTint || '#0b1c36')), row('تعتيم المحيط', rng(L.tintA == null ? (st.tintA || 0) : L.tintA, 0, 1, .02, set('tintA'))), row('لون الفضاء', ccol('bgCol', '#05070b'))]),
+        row('تلوين الدول', sel([['', 'حسب النمط'], ['none', 'بدون'], ['political', 'سياسي (لكل دولة لون)'], ['empire', 'الإمبراطوريات والمستعمرات']], L.fill == null ? '' : L.fill, v => { L.fill = v || null; changed('تلوين الدول'); })),
+        row('شفافية التلوين', rng(L.fillA == null ? E.fillA : L.fillA, 0, 1, .02, set('fillA'))), row('ظل التضاريس', rng(L.hill == null ? E.hill : L.hill, 0, 1, .02, set('hill')))),
+      grp('تدرج الصورة', 'grade',
+        row('السطوع', rng(L.bri == null ? 1 : L.bri, .3, 1.8, .02, set('bri'))), row('التباين', rng(L.con == null ? 1 : L.con, .5, 1.8, .02, set('con'))), row('التشبع', rng(L.sat == null ? 1 : L.sat, 0, 2, .02, set('sat'))),
+        row('الدفء', rng(L.warm || 0, -1, 1, .02, set('warm'))), row('تعتيم الأطراف', rng(L.vig == null ? E.post.vig : L.vig, 0, 1, .02, set('vig'))), row('قوة «Google Earth»', rng(L.ge == null ? (E.grade.ge || 0) : L.ge, 0, 1, .02, set('ge'))),
+        row('حبيبات', rng(L.grain || 0, 0, 1, .02, set('grain'))), row('ورق قديم', rng(L.paper == null ? E.post.paper : L.paper, 0, 1, .02, set('paper'))), row('أشرطة سينمائية', rng(L.letter || 0, 0, .3, .01, set('letter'))),
+        btn('إعادة التدرج', () => { for (const k of ['bri', 'con', 'sat', 'warm', 'vig', 'ge', 'grain', 'paper', 'letter']) L[k] = k === 'grain' ? .04 : null; L.bri = 1; L.sat = 1; changed('إعادة التدرج'); renderPanel(); })),
+      grp('الشبكة والغلاف الجوي', 'grid',
+        row('خطوط الطول والعرض', chk(L.graticule, set('graticule'))), row('لون الشبكة', ccol('gridC', '#ffffff')),
+        row('الغلاف الجوي', rng(L.atmo == null ? 1 : L.atmo, 0, 2, .05, set('atmo'))), row('النجوم', rng(L.stars == null ? E.stars : L.stars, 0, 2, .05, set('stars'))),
+        row('ليل / نهار', chk(L.light, set('light'))), row('موقع الشمس', rng(L.sunLon || 0, -180, 180, 1, set('sunLon')))),
       row('جودة المعاينة', sel([[.6, 'سريعة'], [.85, 'متوازنة'], [1, 'عالية']], GW.mapPreviewQ || .85, v => { GW.mapPreviewQ = +v; GW.invalidate(); })),
       row('مصدر الصور', h('span', 'kv', esc(E.base ? A.Providers.P[E.base].attrib : 'رسم متجهي'))),
       row('خلفية شفافة', chk(c.map.bg === 'alpha', v => { c.map.bg = v ? 'alpha' : 'full'; changed('خلفية الخريطة'); })),
@@ -421,10 +483,22 @@
   /* ---------------- layers ---------------- */
   function addLayer(c, type, o = {}) { const L = S.newLayer(type, Object.assign({ start: Math.max(0, lt(c) - (c.in || 0)) }, o)); sc(c).layers.push(L); M.layerId = L.id; changed('إضافة طبقة: ' + S.LAYERS[type].ar); M.mode = { country: 'pick', invasion: 'pick', arrow: 'draw', front: 'draw', route: 'draw', marker: 'place', label: 'place', image: 'place', range: 'place' }[type] || 'nav'; if (type === 'invasion' && !o.from) M.pickRole = 'from'; renderPanel(); return L; }
   M.addLayer = addLayer;
+  // leader portrait: image layer with a framed photo + name plate, pinned to a place; optional travel path
+  M.addLeader = async (c, o = {}) => {
+    const v = camNow(c); const L = addLayer(c, 'image', Object.assign({ name: 'اسم القائد', sub: 'اللقب', ring: '#e8d9a8', lon: +v.lon.toFixed(4), lat: +v.lat.toFixed(4), in: 'pop', inDur: .7, size: 1 }, o));
+    if (!o.img) await M.pickPhoto(c, L); M.mode = 'place'; renderPanel(); return L;
+  };
+  // photo from disk (native dialog in the app, file input in the browser), downscaled to ≤640px and embedded in the scene
+  M.pickPhoto = async (c, L) => {
+    const embed = (src) => new Promise(res => { const im = new Image(); im.onload = () => { const k = Math.min(1, 640 / Math.max(im.naturalWidth, im.naturalHeight)); const cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth * k); cv.height = Math.round(im.naturalHeight * k); cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); const id = GW.uid(); sc(c).images[id] = cv.toDataURL('image/jpeg', .9); L.img = id; changed('صورة القائد'); renderLayerProps(); res(true); }; im.onerror = () => { GW.toast('تعذر فتح الصورة', 'err'); res(false); }; im.src = src; });
+    if (window.gws && gws.open && !gws.test) { const f = await gws.open({ filter: 'image', title: 'اختيار صورة القائد' }); if (!f || !f.length) return false; return embed(gws.mediaUrl(f[0].path)); }
+    return new Promise(res => { const i = h('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = () => { const f = i.files[0]; if (!f) return res(false); const rd = new FileReader(); rd.onload = () => embed(rd.result).then(res); rd.readAsDataURL(f); }; i.click(); });
+  };
   function layersSec(c) {
     const scn = sc(c); const s0 = sec('عناصر الخريطة (طبقات)', true, 'layers');
     const add = h('div', 'mp-add'); for (const [k, v] of Object.entries(S.LAYERS)) { const b = h('button', 'mp-addb'); b.innerHTML = `<span>${esc(v.ar)}</span>`; b.onclick = () => addLayer(c, k); add.append(b); }
-    s0.body.append(add);
+    const quick = h('div', 'mp-row'); quick.append(btn(GW.ico('camera', 13) + ' صورة قائد', () => M.addLeader(c), 'pri'), btn(GW.ico('wand', 13) + ' مظهر وثائقي', () => M.docLook(c, 'doc_dark')));
+    s0.body.append(add, quick);
     const list = h('div', 'mp-layers');
     [...scn.layers].reverse().forEach(L => {
       const r = h('div', 'mp-layer' + (L.id === M.layerId ? ' on' : '') + (L.on ? '' : ' off'));
@@ -460,10 +534,30 @@
     const anims = { fade: 'تلاشي', grow: 'نمو', draw: 'رسم تدريجي', pop: 'ظهور مرن', wipe: 'مسح', spread: 'انتشار', none: 'بدون' };
     box.append(row('حركة الدخول', sel(Object.entries(anims), L.in || 'fade', set('in', 1)), num(L.inDur || .8, .1, set('inDur', 1))), row('حركة الخروج', sel([['none', 'بدون'], ['fade', 'تلاشي']], L.out || 'none', set('out', 1)), num(L.outDur || .5, .1, set('outDur', 1))));
     const pats = [['solid', 'مصمت'], ['hatch', 'خطوط مائلة'], ['cross', 'شبكة'], ['dots', 'نقاط']];
+    // keyframes on layer props (stopwatch like AE): {v, k:[{t,v,e}]} in layer-local time
+    const tl = () => +(lt(c) - (L.start || 0)).toFixed(3);
+    const isA = (k) => L[k] && typeof L[k] === 'object' && !Array.isArray(L[k]);
+    const pv = (k, d) => { const v = GW.pv(L[k], tl()); return v == null ? d : v; };
+    const setA = (k) => (v) => { if (isA(k)) GW.setPv(L[k], tl(), v); else L[k] = v; changed('خصائص ' + L.name, true); };
+    const sw = (k, d, also) => { const ks = [k, ...(also || [])]; const on = ks.some(isA); const b = btn(GW.ico(on ? 'keyon' : 'key', 13), () => {
+      for (const q of ks) { if (isA(q)) L[q] = GW.pv(L[q], tl()); else { const v0 = L[q] == null ? d : L[q]; L[q] = { v: v0, k: [{ t: tl(), v: v0, e: 'linear' }] }; } }
+      changed(on ? 'إيقاف التحريك' : 'تفعيل مفاتيح'); renderLayerProps(); }, on ? 'key on' : 'key'); b.title = 'ساعة الإيقاف: مفاتيح لهذه الخاصية (غيّر القيمة عند أوقات مختلفة)'; return b; };
+    const animRows = (only) => {
+      const w = h('div'); const want = only || ['opacity', 'scale'];
+      if (want.includes('opacity')) w.append(row('الشفافية', rng(pv('opacity', 1), 0, 1, .02, setA('opacity')), sw('opacity', 1)));
+      if (want.includes('scale')) w.append(row('التكبير', rng(pv('scale', 1), .1, 4, .02, setA('scale')), sw('scale', 1)));
+      if ('lon' in L && !only) w.append(row('مفاتيح الموضع', sw('lon', 0, ['lat']), h('span', 'mp-note', isA('lon') ? 'حرّك المؤشر ثم حدّد الموضع من الشاشة لإضافة مفتاح' : 'فعّل لتحريك العنصر بين مواقع')));
+      const all = []; for (const k of S.ANIM_PROPS) if (isA(k)) for (const kk of L[k].k) all.push({ p: k, kk });
+      if (all.length) w.append(keyRuler(c, all, (x) => x.kk.t, (x, t) => { x.kk.t = t; }, () => { for (const k of S.ANIM_PROPS) if (isA(k)) L[k].k.sort((a, b) => a.t - b.t); }, (x) => { const arr = L[x.p].k; arr.splice(arr.indexOf(x.kk), 1); if (!arr.length) L[x.p] = L[x.p].v; }, 'مفاتيح الطبقة', L.start || 0));
+      return w;
+    };
     switch (L.type) {
       case 'country':
         box.append(btn(M.mode === 'pick' ? 'وضع اختيار الدول فعّال' : 'اختيار الدول من الشاشة', () => { M.mode = 'pick'; renderPanel(); }), keyChips(c, L.keys, k => { L.keys.splice(L.keys.indexOf(k), 1); changed('إزالة دولة'); renderLayerProps(); }),
-          row('اللون', col(L.color, set('color'))), row('شفافية التعبئة', rng(L.fill, 0, 1, .02, set('fill'))), row('النقش', sel(pats, L.pattern, set('pattern', 1))), row('الحدود', rng(L.stroke, 0, 6, .1, set('stroke'))), row('توهج', chk(L.glow, set('glow', 1))), row('تعتيم باقي العالم', chk(L.dim, set('dim', 1))), row('نبض', chk(L.pulse, set('pulse', 1))));
+          row('اللون', col(L.color, set('color'))), countryColors(c, L), row('شفافية التعبئة', rng(pv('fill', .5), 0, 1, .02, setA('fill')), sw('fill', .5)), row('النقش', sel(pats, L.pattern, set('pattern', 1))),
+          row('الإطار', sel([['solid', 'متصل'], ['dashed', 'متقطع (منطقة ناشئة / متنازع عليها)'], ['none', 'بدون']], L.outline || 'solid', set('outline', 1))), row('لون الإطار', col(L.line || '#f3e6c0', set('line'))), row('سماكة الإطار', rng(L.stroke, 0, 6, .1, set('stroke'))),
+          row('ظل داخلي (عمق)', chk(L.inner, set('inner', 1))), row('توهج', chk(L.glow, set('glow', 1))), row('تعتيم باقي العالم', chk(L.dim, set('dim', 1))), row('نبض', chk(L.pulse, set('pulse', 1))),
+          row('اسم الدولة', sel([['', 'حسب النمط'], ['soft', 'كبير بظل ناعم'], ['plate', 'بخلفية'], ['outline', 'بحد']], L.labelStyle || '', set('labelStyle', 1)), chk(L.label !== 0, set('label', 1))), row('حجم الاسم', rng(L.labelSize || 1, .4, 3, .05, set('labelSize'))), row('نص بديل للاسم', txt(L.labelText, set('labelText'), 'مثال: الأندلس')), animRows(['opacity']));
         break;
       case 'invasion':
         box.append(h('div', 'mp-row')); box.lastChild.append(btn((M.pickRole === 'from' && M.mode === 'pick' ? '' : '') + 'اختر المهاجم', () => { M.mode = 'pick'; M.pickRole = 'from'; renderPanel(); }), btn((M.pickRole !== 'from' && M.mode === 'pick' ? '' : '') + 'اختر الأهداف', () => { M.mode = 'pick'; M.pickRole = 'to'; renderPanel(); }));
@@ -486,14 +580,20 @@
           row('اللون', col(L.color, set('color'))), row('شفافية', rng(L.fill, 0, 1, .02, set('fill'))), row('النقش', sel(pats, L.pattern, set('pattern', 1))), row('خط الجبهة', rng(L.stroke, 0, 6, .1, set('stroke'))), row('أسنان الجبهة', chk(L.teeth, set('teeth', 1))));
         break; }
       case 'marker':
-        box.append(row('الأيقونة', sel(V.ICONS, L.icon, set('icon', 1))), row('النص', txt(L.text, set('text'))), row('موضع النص', sel([['right', 'يمين'], ['left', 'يسار'], ['top', 'أعلى'], ['bottom', 'أسفل']], L.textPos || 'right', set('textPos', 1))), row('اللون', col(L.color, set('color'))), row('الحجم', rng(L.size || 1, .3, 4, .05, set('size'))), row('نبض', chk(L.pulse, set('pulse', 1))), lonlat(L));
+        box.append(row('الأيقونة', sel(V.ICONS, L.icon, set('icon', 1))), row('النص', txt(L.text, set('text'))), row('موضع النص', sel([['right', 'يمين'], ['left', 'يسار'], ['top', 'أعلى'], ['bottom', 'أسفل']], L.textPos || 'right', set('textPos', 1))), row('اللون', col(L.color, set('color'))), row('الحجم', rng(pv('size', 1), .3, 4, .05, setA('size')), sw('size', 1)), row('نبض', chk(L.pulse, set('pulse', 1))), lonlat(L), animRows());
         break;
       case 'label':
-        box.append(row('النص', txt(L.text, set('text'))), row('الشكل', sel([['outline', 'بحد'], ['plate', 'بخلفية'], ['plain', 'بسيط']], L.style, set('style', 1))), row('اللون', col(L.color, set('color'))), row('الحجم', rng(L.size || 1, .3, 5, .05, set('size'))), row('تباعد الحروف', rng(L.spacing || 0, 0, 1, .02, set('spacing'))), lonlat(L));
+        box.append(row('النص', txt(L.text, set('text'))), row('الشكل', sel([['soft', 'ظل ناعم'], ['outline', 'بحد'], ['plate', 'بخلفية'], ['plain', 'بسيط']], L.style, set('style', 1))), row('اللون', col(L.color, set('color'))), row('الحجم', rng(pv('size', 1), .3, 5, .05, setA('size')), sw('size', 1)), row('تباعد الحروف', rng(L.spacing || 0, 0, 1, .02, set('spacing'))), lonlat(L), animRows());
         break;
       case 'image': {
-        const pick = btn('اختيار صورة…', () => { const i = h('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = () => { const f = i.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { const id = GW.uid(); sc(c).images[id] = rd.result; L.img = id; changed('صورة'); renderLayerProps(); }; rd.readAsDataURL(f); }; i.click(); }, 'pri');
-        box.append(pick, row('الشكل', sel([['circle', 'دائرة'], ['square', 'مربع'], ['rounded', 'مربع مستدير'], ['hex', 'سداسي'], ['shield', 'درع']], L.shape, set('shape', 1))), row('الاسم', txt(L.name, set('name'))), row('وصف', txt(L.sub, set('sub'))), row('لون الإطار', col(L.ring, set('ring'))), row('الحجم', rng(L.size || 1, .3, 3, .05, set('size'))), row('ارتفاع عن النقطة', rng(L.dy == null ? -1 : L.dy, -2, 2, .05, set('dy'))), row('لوحة الاسم', chk(L.plate, set('plate', 1))), lonlat(L));
+        const imgs = (GW.prj && GW.prj.media || []).filter(m => m.kind === 'image' && m.path);
+        box.append(h('div', 'mp-row')); box.lastChild.append(btn(GW.ico('folder', 13) + ' اختيار صورة من الجهاز…', () => M.pickPhoto(c, L), 'pri'));
+        if (imgs.length) box.append(row('من صور المشروع', sel([['', '—'], ...imgs.map(m => [m.id, m.name])], '', id => { const m = imgs.find(x => x.id === id); if (!m) return; const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => { const k = Math.min(1, 640 / Math.max(im.naturalWidth, im.naturalHeight)); const cv = document.createElement('canvas'); cv.width = im.naturalWidth * k | 0; cv.height = im.naturalHeight * k | 0; cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); const iid = GW.uid(); sc(c).images[iid] = cv.toDataURL('image/jpeg', .9); L.img = iid; changed('صورة'); renderLayerProps(); }; im.src = GW.Media && GW.Media.url ? GW.Media.url(m) : (window.gws ? gws.mediaUrl(m.path) : m.path); })));
+        box.append(row('الشكل', sel([['circle', 'دائرة'], ['square', 'مربع'], ['rounded', 'مربع مستدير'], ['hex', 'سداسي'], ['shield', 'درع']], L.shape, set('shape', 1))), row('الاسم', txt(L.name, set('name'))), row('اللقب / الوصف', txt(L.sub, set('sub'))), row('لون الإطار', col(L.ring, set('ring'))), row('الحجم', rng(pv('size', 1), .3, 3, .05, setA('size')), sw('size', 1)), row('ارتفاع عن النقطة', rng(L.dy == null ? -1 : L.dy, -2, 2, .05, set('dy'))), row('لوحة الاسم', chk(L.plate, set('plate', 1))), lonlat(L), animRows());
+        box.append(h('div', 'mp-sub', 'تحرك القائد على مسار'), h('div', 'mp-row')); box.lastChild.append(btn(M.mode === 'draw' ? 'وضع رسم المسار فعّال' : 'رسم المسار في الشاشة', () => { M.mode = 'draw'; renderPanel(); }), btn('من الموقع الحالي', () => { L.pts = [[+pv('lon', 0), +pv('lat', 0)]]; M.mode = 'draw'; changed('بداية المسار'); renderPanel(); }), btn('مسح المسار', () => { L.pts = []; changed('مسح'); renderLayerProps(); }));
+        box.append(h('div', 'mp-note', (L.pts || []).length >= 2 ? `${L.pts.length} نقاط — يتحرك القائد من أول نقطة إلى آخر نقطة` : 'ارسم نقطتين أو أكثر ليتحرك القائد بينها (مثل طبقة المسار).'),
+          row('يبدأ الحركة بعد (ث)', num(L.moveStart == null ? 1 : L.moveStart, .1, set('moveStart', 1))), row('مدة الحركة (ث)', num(L.moveDur || 4, .1, set('moveDur', 1))), row('انحناء', rng(L.curve || 0, -1, 1, .02, set('curve'))),
+          row('أثر متلاشٍ', chk(L.trail, set('trail', 1))), row('سهم المسار', chk(L.arrow, set('arrow', 1))), row('لون الأثر', col(L.trailColor || L.ring, set('trailColor'))));
         break; }
       case 'range':
         box.append(row('نصف القطر (كم)', num(L.km, 10, set('km', 1))), row('النص', txt(L.text, set('text'))), row('اللون', col(L.color, set('color'))), row('شفافية', rng(L.fill, 0, 1, .02, set('fill'))), row('نبضات', chk(L.pulse, set('pulse', 1))), lonlat(L));
@@ -517,7 +617,13 @@
         break;
     }
   }
-  function lonlat(L) { const w = h('div', 'mp-row'); w.append(btn(M.mode === 'place' ? 'انقر على الخريطة للتحديد' : 'تحديد الموقع من الشاشة', () => { M.mode = 'place'; renderPanel(); }), h('span', 'kv', `${(+L.lon).toFixed(2)}°, ${(+L.lat).toFixed(2)}°`)); return w; }
+  function lonlat(L) { const c = selMap(); const tt = c ? lt(c) - (L.start || 0) : 0; const w = h('div', 'mp-row'); w.append(btn(M.mode === 'place' ? 'انقر على الخريطة للتحديد' : 'تحديد الموقع من الشاشة', () => { M.mode = 'place'; renderPanel(); }), h('span', 'kv', `${(+GW.pv(L.lon, tt)).toFixed(2)}°, ${(+GW.pv(L.lat, tt)).toFixed(2)}°`)); return w; }
+  // a colour picker per selected country (overrides the layer colour)
+  function countryColors(c, L) {
+    const w = h('div'); if ((L.keys || []).length < 2) return w; const scn = sc(c); const era = G.era(GW.pv(scn.year, lt(c)), scn.eraMode); const by = new Map((G.features(era, 0) || []).map(f => [f.key, f]));
+    for (const k of L.keys) { const f = by.get(k); L.colors = L.colors || {}; w.append(row('لون ' + (f ? G.name(f, 'ar', era) : k), col(L.colors[k] || L.color, v => { L.colors[k] = v; GW.invalidate(); }), btn(GW.ico('close', 11), () => { delete L.colors[k]; changed('لون الدولة'); renderLayerProps(); }))); }
+    return w;
+  }
 
   // project load: convert legacy map clips
   GW.bus.on('project', () => { for (const s of GW.prj.seqs || []) for (const c of s.clips) if (c.kind === 'map' && c.map && c.map.scene && c.map.scene.v !== 3) c.map.scene = A.newScene(); });

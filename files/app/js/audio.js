@@ -90,6 +90,7 @@
       const end = tEnd != null ? Math.min(wb, tEnd) : wb;
       if (end <= t0) continue;
       const from = Math.max(t0, wa); const sp = c.speed || 1;
+      if (end <= from) continue; // clip starts after the window end (partial-range mixdown)
       let off = GW.srcTime(c, from); if (off < 0) { continue; }
       if (off >= r.audio.duration) continue;
       const src = ctx.createBufferSource(); src.buffer = r.audio; src.playbackRate.value = sp;

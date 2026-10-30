@@ -106,6 +106,7 @@
   def('seq.addTrackV', 'إضافة مسار فيديو', [], () => C().addTrack('v'));
   def('seq.addTrackA', 'إضافة مسار صوت', [], () => C().addTrack('a'));
   def('seq.delEmptyTracks', 'حذف المسارات الفارغة', [], () => C().delEmptyTracks());
+  def('seq.voiceover', 'تسجيل تعليق صوتي (بدء / إيقاف)', ['Ctrl+Alt+R'], () => GW.VO && GW.VO.toggle());
   def('seq.zoomIn', 'تكبير الخط الزمني', ['=', 'Shift+=', 'Num+'], () => C().zoomTL(1), { rep: 1 });
   def('seq.zoomOut', 'تصغير الخط الزمني', ['-', 'Num-'], () => C().zoomTL(-1), { rep: 1 });
   def('seq.fit', 'عرض التسلسل كاملًا', ['\\'], () => C().fitTL());
@@ -143,6 +144,13 @@
   def('gfx.ellipse', 'دائرة', [], () => C().newShape('ellipse'));
   def('gfx.color', 'لون ثابت', [], () => C().newColor());
   def('gfx.adjust', 'طبقة ضبط', [], () => C().newAdjust());
+  // keyframe interpolation (Effect Controls; After Effects keys): selected keyframe, else the selected clip's keys under the playhead
+  def('gfx.easyEase', 'تسهيل سهل للمفاتيح (Easy Ease)', ['F9'], () => GW.FXC && GW.FXC.easeKeys('ease'));
+  def('gfx.easeIn', 'تسهيل دخول المفاتيح', ['Shift+F9'], () => GW.FXC && GW.FXC.easeKeys('easeIn'));
+  def('gfx.easeOut', 'تسهيل خروج المفاتيح', ['Ctrl+Shift+F9'], () => GW.FXC && GW.FXC.easeKeys('easeOut'));
+  def('gfx.keyHold', 'مفتاح ثابت (Hold) تشغيل / إيقاف', ['Ctrl+Alt+H'], () => GW.FXC && GW.FXC.easeKeys('hold'));
+  def('gfx.keyLinear', 'استيفاء خطي للمفاتيح', [], () => GW.FXC && GW.FXC.easeKeys('linear'));
+  def('gfx.templates', 'مكتبة قوالب الرسوم المتحركة', [], () => GW.UI.egTab && GW.UI.egTab('mg'));
   // view & window
   def('view.maximize', 'تكبير اللوحة تحت المؤشر', ['`'], () => C().maximize());
   def('view.fullscreen', 'ملء الشاشة', ['F11'], () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); }, { fixed: 1 });

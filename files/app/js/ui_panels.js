@@ -91,7 +91,7 @@
   /* ================= essential graphics ================= */
   let egTab = 'browse', localFonts = null;
   GW.registerPanel('graphics', 'الرسومات الأساسية', (el) => {
-    el.innerHTML = `<div class="ptool" dir="rtl"><div class="seg" data-a="tabs" style="flex:1"><button data-t="browse">استعراض</button><button data-t="edit">تحرير</button></div></div><div class="pscroll" data-a="body"></div>`;
+    el.innerHTML = `<div class="ptool" dir="rtl"><div class="seg" data-a="tabs" style="flex:1"><button data-t="browse">استعراض</button><button data-t="mg">قوالب متحركة</button><button data-t="edit">تحرير</button></div></div><div class="pscroll" data-a="body"></div>`;
     el.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { egTab = b.dataset.t; renderEG(); });
     UI.egEl = el; renderEG();
   });
@@ -99,17 +99,22 @@
   function renderEG() {
     const el = UI.egEl; if (!el) return; const c = selText(); if (c && egTab === 'browse' && UI._egAuto !== c.id) { egTab = 'edit'; UI._egAuto = c.id; }
     el.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === egTab));
-    const body = el.querySelector('[data-a=body]'); body.innerHTML = '';
+    const body = el.querySelector('[data-a=body]');
+    const mgF = body.querySelector('.mg-form'); if (egTab === 'edit' && mgF && mgF._clip === c && mgF.contains(document.activeElement) && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName) && document.activeElement.type !== 'range') return; // keep focus while typing in a template field
+    body.innerHTML = '';
+    if (egTab === 'mg' && GW.MG) { GW.MG.renderBrowser(body); return; }
+    if (egTab === 'edit' && c && c.text && c.text.mg && GW.MG && GW.MG.get(c.text.mg.id)) { GW.MG.renderEdit(body, c, UI.form); const mf = body.querySelector('.mg-form'); if (mf) mf._clip = c; return; }
     if (egTab === 'browse') {
       const g = document.createElement('div'); g.className = 'eg-grid';
       GW.TITLE_PRESETS.forEach((p, i) => {
         const card = document.createElement('div'); card.className = 'eg-card'; card.title = 'انقر للإضافة عند مؤشر التشغيل';
         const cv = document.createElement('canvas'); cv.width = 320; cv.height = 180; card.append(cv); const cap = document.createElement('div'); cap.textContent = p.n; card.append(cap);
         const fake = { id: 'prev' + i, dur: 5, text: Object.assign(GW.defaultText(), p.t, { animIn: 'none', animOut: 'none' }) };
-        requestAnimationFrame(() => { const e = GW.TextR.draw(fake, 2, 320, 180, 320 / 1920); const g2 = cv.getContext('2d'); g2.fillStyle = '#0b0b0b'; g2.fillRect(0, 0, 320, 180); if (p.pos) g2.drawImage(e.canvas, (p.pos[0] - .5) * 320, (p.pos[1] - .5) * 180); else g2.drawImage(e.canvas, 0, 0); GW.TextR.drop(fake.id); });
+        if (GW.MG && GW.MG.presetCard) GW.MG.presetCard(card, cv, p, i); else requestAnimationFrame(() => { const e = GW.TextR.draw(fake, 2, 320, 180, 320 / 1920); const g2 = cv.getContext('2d'); g2.fillStyle = '#0b0b0b'; g2.fillRect(0, 0, 320, 180); if (p.pos) g2.drawImage(e.canvas, (p.pos[0] - .5) * 320, (p.pos[1] - .5) * 180); else g2.drawImage(e.canvas, 0, 0); GW.TextR.drop(fake.id); });
         card.onclick = () => UI.addTextClip(i); g.append(card);
       });
       body.append(g);
+      if (GW.MG) { const h = document.createElement('div'); h.className = 'sec-t mg-sec'; h.textContent = 'قوالب الرسوم المتحركة'; body.append(h); GW.MG.renderBrowser(body); } // animated templates live in the same Browse list
       const s2 = document.createElement('div'); s2.className = 'form'; s2.innerHTML = '<div class="sec-t">أشكال</div>';
       const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap';
       for (const [k, n] of [['rect', 'مستطيل'], ['ellipse', 'دائرة'], ['bar', 'شريط سفلي']]) { const b = document.createElement('button'); b.className = 'btn sm'; b.textContent = n; b.onclick = () => UI.addShape(k); row.append(b); }
@@ -151,6 +156,8 @@
   function selectIn(opts, v, on) { const s = document.createElement('select'); s.className = 'sel'; for (const [k, n] of opts) { const o = document.createElement('option'); o.value = k; o.textContent = n; s.append(o); } s.value = v; s.onchange = () => on(s.value); return s; }
   function segIn(opts, v, on) { const w = document.createElement('div'); w.className = 'seg'; w.style.flex = '1'; for (const [k, n] of opts) { const b = document.createElement('button'); b.textContent = n; b.classList.toggle('on', k === v); b.onclick = () => { w.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); on(k); }; w.append(b); } return w; }
   UI.form = { sec, frow, frowEl, rangeIn, colorIn, checkIn, selectIn, segIn };
+  UI.egEdit = () => { egTab = 'edit'; if (GW.isShown && !GW.isShown('graphics')) GW.showPanel('graphics'); renderEG(); };
+  UI.egTab = (t) => { egTab = t; if (GW.isShown && !GW.isShown('graphics')) GW.showPanel('graphics'); renderEG(); };
   GW.bus.on('selection', () => renderEG()); GW.bus.on('hist', () => renderEG());
 
   /* ================= new items ================= */
@@ -202,6 +209,7 @@
         else f.append(frow(d.n, rangeIn(GW.pv(P, lt), d.min, d.max, d.step, v => { GW.setPv(P, lt, v); GW.invalidate(); GW.commitSoon('ألوان'); GW.bus.emit('param'); })));
       }
     }
+    if (GW.LUT) { f.append(sec('LUT')); GW.LUT.panelRows(f, c, fx, UI.form, renderLum); }
     const rs = document.createElement('button'); rs.className = 'btn'; rs.textContent = 'إعادة الضبط'; rs.onclick = () => { const base = GW.newFx('lumetri'); fx.params = base.params; GW.commit('إعادة ضبط الألوان'); renderLum(); }; f.append(rs);
   }
   GW.bus.on('selection', () => renderLum()); GW.bus.on('hist', () => renderLum());

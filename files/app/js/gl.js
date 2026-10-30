@@ -166,6 +166,9 @@ float noise(float x){ float i=floor(x),f=fract(x); float a=hash(vec2(i,1.3)),b=h
       float m=max(c.r,max(c.g,c.b)); int ch=key.g>=key.r&&key.g>=key.b?1:key.b>=key.r?2:0; if(ch==1) c.g=mix(c.g,min(c.g,max(c.r,c.b)),spill/100.); else if(ch==2) c.b=mix(c.b,min(c.b,max(c.r,c.g)),spill/100.); else c.r=mix(c.r,min(c.r,max(c.g,c.b)),spill/100.); o=pre(c,s.a*a); }`,
     alphaadj: `uniform float opacity,inv,ignore; void main(){ vec4 s=texture(t0,uv); vec3 c=unp(s); float a=ignore>.5?1.:s.a; if(inv>.5) a=1.-a; a*=opacity/100.; o=pre(c,a); }`,
     chroma: `uniform float amount; void main(){ vec2 d=(uv-.5)*amount*px/res*2.; vec4 r=texture(t0,uv+d),g=texture(t0,uv),b=texture(t0,uv-d); o=vec4(r.r,g.g,b.b,max(g.a,max(r.a,b.a))); o.rgb=min(o.rgb,vec3(o.a)); }`,
+    /* ---- .cube LUTs (Lumetri input / creative): straight colour in, trilinear 3D texture / per-channel 1D, re-premultiplied ---- */
+    lut3: `uniform highp sampler3D t3; uniform float N,amt; uniform vec3 dmin,dmax; void main(){ vec4 s=texture(t0,uv); vec3 c=unp(s); vec3 x=clamp((c-dmin)/(dmax-dmin),0.,1.); vec3 r=texture(t3,x*((N-1.)/N)+.5/N).rgb; o=pre(mix(c,r,amt),s.a); }`,
+    lut1: `uniform sampler2D t1; uniform float N,amt; uniform vec3 dmin,dmax; void main(){ vec4 s=texture(t0,uv); vec3 c=unp(s); vec3 x=clamp((c-dmin)/(dmax-dmin),0.,1.)*((N-1.)/N)+.5/N; vec3 r=vec3(texture(t1,vec2(x.r,.5)).r,texture(t1,vec2(x.g,.5)).g,texture(t1,vec2(x.b,.5)).b); o=pre(mix(c,r,amt),s.a); }`,
     /* ---- transitions: t0 = A (outgoing), t1 = B (incoming) ---- */
     tr: `uniform sampler2D t1; uniform float p; uniform int kind;
       vec4 A(vec2 u){ return (u.x<0.||u.x>1.||u.y<0.||u.y>1.)?vec4(0.):texture(t0,u); } vec4 Bt(vec2 u){ return (u.x<0.||u.x>1.||u.y<0.||u.y>1.)?vec4(0.):texture(t1,u); }
@@ -287,7 +290,7 @@ float noise(float x){ float i=floor(x),f=fract(x); float a=hash(vec2(i,1.3)),b=h
   function bindTarget(f) { const gl = R.gl; gl.bindFramebuffer(gl.FRAMEBUFFER, f ? f.fb : null); gl.viewport(0, 0, f ? f.w : R.canvas.width, f ? f.h : R.canvas.height); }
   function setU(pr, name, v) {
     const u = pr.u[name]; if (!u) return; const gl = R.gl;
-    if (typeof v === 'number' || typeof v === 'boolean') { if (u.type === gl.INT || u.type === gl.SAMPLER_2D || u.type === gl.BOOL) gl.uniform1i(u.loc, +v); else gl.uniform1f(u.loc, +v); }
+    if (typeof v === 'number' || typeof v === 'boolean') { if (u.type === gl.INT || u.type === gl.SAMPLER_2D || u.type === gl.BOOL || u.type === gl.SAMPLER_3D) gl.uniform1i(u.loc, +v); else gl.uniform1f(u.loc, +v); }
     else if (typeof v === 'string' && v[0] === '#') gl.uniform3fv(u.loc, GW.hexf(v));
     else if (v.length === 2) gl.uniform2fv(u.loc, v); else if (v.length === 3) gl.uniform3fv(u.loc, v); else if (v.length === 4) gl.uniform4fv(u.loc, v); else if (v.length === 9) gl.uniformMatrix3fv(u.loc, false, v); else if (v.length === 16) gl.uniformMatrix4fv(u.loc, false, v);
   }
@@ -370,9 +373,21 @@ float noise(float x){ float i=floor(x),f=fract(x); float a=hash(vec2(i,1.3)),b=h
       const u = { ...pr, time: lt, px: pxs };
       for (const d of GW.FX[t].p) if (d.t === 'select' && t !== 'mirror') u[d.k] = Math.max(0, d.opts.findIndex(o => o[0] === pr[d.k]));
       if (t === 'mirror') u.mode = { h: 0, v: 1, q: 2 }[pr.mode] ?? 0;
+      if (t === 'lumetri' && fx.lut) cur = R.lutPass(cur, fx.lut.in, pr.lutIn); // Input LUT before the basic correction
       const out = R.fbo(cur.w, cur.h); R.pass(name, out, [cur.tex], u); R.free(cur); cur = out;
+      if (t === 'lumetri' && fx.lut) cur = R.lutPass(cur, fx.lut.cr, pr.lutCr); // Creative LUT after it
     }
     return cur;
+  };
+  // one LUT slot ({path}) at intensity amt (0–100, default 100) → new layer; unchanged (same object) when unset / not loaded yet
+  R.lutPass = (cur, slot, amt) => {
+    if (!slot || !slot.path || !GW.LUT) return cur;
+    const k = GW.clamp(amt == null ? 1 : amt / 100, 0, 1); if (k <= 0) return cur;
+    const L = GW.LUT.tex(slot.path); if (!L) return cur;
+    const gl = R.gl, out = R.fbo(cur.w, cur.h), U = { N: L.N, amt: k, dmin: L.dmin, dmax: L.dmax };
+    if (L.d3) { gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_3D, L.tex); U.t3 = 3; R.pass('lut3', out, [cur.tex], U); gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_3D, null); gl.activeTexture(gl.TEXTURE0); }
+    else R.pass('lut1', out, [cur.tex, L.tex], U);
+    R.free(cur); return out;
   };
 
   /* ---- masks (rasterized with canvas 2D, blur = feather) ---- */

@@ -129,8 +129,11 @@ app.whenReady().then(() => {
     return serveFile(file, req);
   });
   const allow = ['local-fonts', 'clipboard-read', 'clipboard-sanitized-write', 'fullscreen'];
-  session.defaultSession.setPermissionRequestHandler((wc, perm, cb) => cb(allow.includes(perm)));
-  session.defaultSession.setPermissionCheckHandler((wc, perm) => allow.includes(perm));
+  // microphone (voice-over recording): audio capture only, and only for the app's own pages (app://gws)
+  const ownOrigin = (u) => /^app:\/\/gws(\/|$)/.test(String(u || ''));
+  const micOk = (wc, d) => ownOrigin((d && (d.requestingUrl || d.securityOrigin)) || (wc && wc.getURL && wc.getURL())) && !(d && Array.isArray(d.mediaTypes) && d.mediaTypes.some(t => t !== 'audio'));
+  session.defaultSession.setPermissionRequestHandler((wc, perm, cb, details) => cb(allow.includes(perm) || (perm === 'media' && micOk(wc, details))));
+  session.defaultSession.setPermissionCheckHandler((wc, perm, origin, details) => allow.includes(perm) || (perm === 'media' && ownOrigin(origin || (details && details.securityOrigin)) && !(details && details.mediaType === 'video')));
   createWindow();
 });
 app.on('window-all-closed', () => app.quit());
@@ -140,7 +143,8 @@ const FILTERS = {
   media: [{ name: 'وسائط', extensions: ['mp4', 'mov', 'm4v', 'webm', 'mkv', 'avi', 'wmv', 'mts', 'm2ts', 'mpg', 'mpeg', 'flv', '3gp', 'mxf', 'mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac', 'opus', 'wma', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'tif', 'tiff', 'svg'] }, { name: 'كل الملفات', extensions: ['*'] }],
   project: [{ name: 'مشروع قص قص', extensions: ['qass', 'gwproj'] }],
   image: [{ name: 'صور', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg'] }],
-  json: [{ name: 'JSON', extensions: ['json'] }]
+  json: [{ name: 'JSON', extensions: ['json'] }],
+  cube: [{ name: 'LUT (.cube)', extensions: ['cube'] }]
 };
 ipcMain.handle('dlg:open', async (e, o = {}) => {
   const r = await dialog.showOpenDialog(win, { title: o.title || 'فتح', filters: FILTERS[o.filter] || undefined, properties: [o.folder ? 'openDirectory' : 'openFile', ...(o.multi ? ['multiSelections'] : []), 'createDirectory'], defaultPath: o.defaultPath });

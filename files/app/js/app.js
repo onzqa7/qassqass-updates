@@ -229,7 +229,7 @@
       '-', { label: 'حفظ', key: 'Ctrl+S', action: () => C.saveProject(false) }, { label: 'حفظ باسم…', key: 'Ctrl+Shift+S', action: () => C.saveProject(true) },
       '-', { label: 'استيراد…', key: 'Ctrl+I', action: C.importMedia },
       { label: 'جديد', sub: [{ label: 'تسلسل…', action: C.newSeq }, { label: 'نص', action: () => C.newText() }, { label: 'خريطة حربية', action: C.newMap }, { label: 'لون ثابت', action: C.newColor }, { label: 'طبقة ضبط (Adjustment Layer)', action: C.newAdjust }, { label: 'طبقة فارغة (Null)', action: C.newNull }, { label: 'كاميرا', action: C.newCamera }] },
-      '-', { label: 'تصدير وسائط…', key: 'Ctrl+M', action: C.exportMedia }, { label: 'تصدير الإطار الحالي (PNG)', key: 'Ctrl+Shift+E', action: C.exportFrame },
+      '-', { label: 'تصدير وسائط…', key: 'Ctrl+M', action: C.exportMedia }, { label: 'تصدير الإطار الحالي (PNG)', key: 'Ctrl+Shift+E', action: C.exportFrame }, { label: 'صورة مصغرة ليوتيوب (JPG 1280×720)…', action: () => GW.UI.thumbnailDialog && GW.UI.thumbnailDialog() }, { label: 'قائمة التصدير…', action: () => GW.UI.exportQueueDialog && GW.UI.exportQueueDialog() },
       '-', { label: 'إعدادات التسلسل…', action: C.seqSettings }
     ]],
     ['تحرير', () => [
@@ -254,6 +254,7 @@
       '-', { label: 'رفع', key: ';', action: () => C.lift(false) }, { label: 'استخراج', key: "'", action: () => C.lift(true) },
       { label: 'تشذيب مع إزاحة حتى المؤشر (السابق)', key: 'Q', action: () => C.rippleTrim('start') }, { label: 'تشذيب مع إزاحة حتى المؤشر (التالي)', key: 'W', action: () => C.rippleTrim('end') },
       '-', { label: 'إضافة مسار فيديو', action: () => C.addTrack('v') }, { label: 'إضافة مسار صوت', action: () => C.addTrack('a') }, { label: 'حذف المسارات الفارغة', action: C.delEmptyTracks },
+      '-', { label: GW.VO && GW.VO.rec ? 'إيقاف تسجيل التعليق الصوتي' : 'تسجيل تعليق صوتي', key: GW.Keys ? GW.Keys.first('seq.voiceover') : '', action: () => GW.VO && GW.VO.toggle() }, { label: 'إعدادات التسجيل الصوتي…', action: () => GW.VO && GW.VO.settings() },
       '-', { label: 'تكبير الخط الزمني', key: '=', action: () => C.zoomTL(1) }, { label: 'تصغير الخط الزمني', key: '-', action: () => C.zoomTL(-1) }, { label: 'عرض التسلسل كاملًا', key: '\\', action: C.fitTL }
     ]],
     ['علامات', () => [

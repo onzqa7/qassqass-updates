@@ -3,6 +3,8 @@
   const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
   const P = {
     esri_img: { ar: 'قمر صناعي عالي الدقة', en: 'Satellite (Esri World Imagery)', url: ESRI + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', max: 19, kind: 'img', bundle: 'sat', attrib: 'Esri, Maxar, Earthstar Geographics' },
+    // default satellite: Sentinel-2 cloudless 2016 (CC BY 4.0, commercial use OK) for z≤8, Esri World Imagery above
+    sat_hybrid: { ar: 'قمر صناعي (هجين)', en: 'Satellite (Sentinel-2 2016 + Esri)', url: ESRI + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', urlLow: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/{z}/{y}/{x}.jpg', lowMax: 8, max: 19, kind: 'img', bundle: 'sat', attrib: 'Sentinel-2 cloudless 2016 by EOX IT Services (CC BY 4.0, modified Copernicus Sentinel data 2016) · Esri, Maxar, Earthstar Geographics' },
     s2: { ar: 'قمر صناعي بلا غيوم (Sentinel-2)', en: 'Sentinel-2 cloudless', url: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg', max: 15, kind: 'img', bundle: 'sat', attrib: 'Sentinel-2 cloudless – EOX IT Services (contains modified Copernicus Sentinel data)' },
     esri_natgeo: { ar: 'ناشيونال جيوغرافيك', en: 'National Geographic', url: ESRI + 'NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', max: 16, kind: 'map', bundle: 'relief', attrib: 'Esri, National Geographic' },
     esri_physical: { ar: 'خريطة طبيعية', en: 'Physical', url: ESRI + 'World_Physical_Map/MapServer/tile/{z}/{y}/{x}', max: 8, kind: 'map', bundle: 'relief', attrib: 'Esri, US NPS' },
@@ -23,7 +25,7 @@
     sat_offline: { ar: 'قمر صناعي (بدون إنترنت)', en: 'Offline satellite', url: '', max: 4, kind: 'img', bundle: 'sat', attrib: 'NASA Blue Marble' },
   };
   const API = { P, BUNDLE_MAX: { sat: 4, night: 3, relief: 3 } };
-  API.url = (id, z, x, y) => { const p = P[id]; return p && p.url ? p.url.replace('{z}', z).replace('{x}', x).replace('{y}', y) : ''; };
+  API.url = (id, z, x, y) => { const p = P[id]; return p && p.url ? (p.urlLow && z <= p.lowMax ? p.urlLow : p.url).replace('{z}', z).replace('{x}', x).replace('{y}', y) : ''; };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else { root.GW = root.GW || {}; root.GW.Atlas = root.GW.Atlas || {}; root.GW.Atlas.Providers = API; }
 })(typeof window !== 'undefined' ? window : globalThis);

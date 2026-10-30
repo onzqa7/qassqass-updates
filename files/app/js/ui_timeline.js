@@ -190,9 +190,10 @@
       const nm = r.tr.name && r.tr.name !== short ? `<span class="tlabel" title="${esc(r.tr.name)}">${esc(r.tr.name)}</span>` : '<span class="tlabel"></span>';
       d.innerHTML = `<button class="ib lk ${r.tr.lock ? 'on' : ''}" data-k="lock" title="قفل المسار">${r.tr.lock ? IC.lock : IC.unlock}</button><span class="tname ${tg ? 'target' : ''}" title="تحديد كمسار مستهدف">${short}</span>`
         + (r.tt === 'v' ? `<button class="ib out ${r.tr.hide ? '' : 'on'}" data-k="hide" title="تبديل مخرج المسار">${r.tr.hide ? IC.eyeoff : IC.eye}</button>`
-          : `<button class="ib m ${r.tr.mute ? 'on' : ''}" data-k="mute" title="كتم المسار">${IC.mute}</button><button class="ib s ${r.tr.solo ? 'on' : ''}" data-k="solo" title="عزف منفرد">${IC.solo}</button>`)
+          : `<button class="ib m ${r.tr.mute ? 'on' : ''}" data-k="mute" title="كتم المسار">${IC.mute}</button><button class="ib s ${r.tr.solo ? 'on' : ''}" data-k="solo" title="عزف منفرد">${IC.solo}</button>` + (GW.VO ? `<button class="ib vo ${GW.VO.rec && GW.VO.rec.ti === r.ti ? 'on' : ''}" data-vo="1" title="تسجيل تعليق صوتي (انقر بزر الفأرة الأيمن للإعدادات)">${GW.VO.icon}</button>` : ''))
         + nm + '<div class="th-rs" title="اسحب لتغيير ارتفاع المسار"></div>';
       d.querySelector('.tname').onclick = () => { TL.target[r.tt] = r.ti; TL.renderHeads(); TL.invalidate(); };
+      const vo = d.querySelector('[data-vo]'); if (vo) { vo.onclick = (e) => { e.stopPropagation(); GW.VO.toggle(r.ti); }; vo.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); GW.VO.settings(); }; } // voice-over record (ui_voiceover.js)
       d.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { const k = b.dataset.k; r.tr[k] = r.tr[k] ? 0 : 1; GW.commit('خصائص المسار'); if (k === 'mute' || k === 'solo') { if (GW.pb.playing) { const t = S().t; GW.stop(); S().t = t; GW.play(1); } } });
       d.ondblclick = (e) => { if (e.target.closest('button,.tname,.th-rs')) return; r.tr.h = trackH(r.tr) > DEF_H ? DEF_H : 84; if (r.tr.h === DEF_H) delete r.tr.h; TL.renderHeads(); TL.invalidate(); };
       d.oncontextmenu = (e) => { e.preventDefault(); GW.menu(e.clientX, e.clientY, [{ label: 'إعادة تسمية المسار…', action: async () => { const n = await GW.prompt('إعادة تسمية المسار', 'الاسم', r.tr.name); if (n) { r.tr.name = n; GW.commit('إعادة تسمية مسار'); } } }, { label: 'ارتفاع المسار', sub: [['s', 'صغير'], ['m', 'متوسط'], ['l', 'كبير']].map(([k, n]) => ({ label: n, check: trackH(r.tr) === PRESET[k], action: () => { if (PRESET[k] === DEF_H) delete r.tr.h; else r.tr.h = PRESET[k]; TL.renderHeads(); TL.invalidate(); } })) }, { label: 'ارتفاع كل المسارات', sub: [['s', 'صغير'], ['m', 'متوسط'], ['l', 'كبير']].map(([k, n]) => ({ label: n, action: () => TL.setTrackHeights(PRESET[k]) })) }, '-', { label: 'إضافة مسار فيديو', action: () => GW.cmd.addTrack('v') }, { label: 'إضافة مسار صوت', action: () => GW.cmd.addTrack('a') }, { label: 'حذف المسارات الفارغة', action: GW.cmd.delEmptyTracks }]); };
@@ -431,6 +432,7 @@
     if (hv && hv.c && !hv.edge && hv.fx) { const row = TL.rowOf(hv.c.tt, hv.c.ti); if (row) { const x0 = TL.x(hv.c.start), x1 = TL.x(hv.c.start + hv.c.dur); g.strokeStyle = '#8fb3e6'; g.lineWidth = 2; g.strokeRect(x0 + 1, row.y - TL.vs + 2, x1 - x0 - 2, row.h - 4); } }
     if (TL.snapX != null) { const x = px(TL.snapX); g.fillStyle = C.snap; g.fillRect(x, 0, 1, H); }
     if (TL.tool === 'razor' && hv && hv.x != null) { g.fillStyle = C.razor; g.fillRect(px(hv.x), 0, 1, H); }
+    if (GW.VO && GW.VO.rec) { try { GW.VO.drawOverlay(g, W, H); } catch (e) { console.error(e); } } // voice-over take growing on its track
     const x = px(TL.x(s.t)); if (x >= -2 && x <= W + 2) { g.fillStyle = C.play; g.fillRect(x - .5, 0, 1, H); }
   }
 

@@ -226,6 +226,7 @@
     return out;
   };
   RN.prepareExportFrame = async (s, t, r = 1) => {
+    if (GW.LUT) await GW.LUT.ready(); // .cube data parsed before the frame renders (export = preview)
     const maps = []; const cs = RN.neededVideos(s, t, 0, maps);
     for (const { c, t: tt, s: ss } of maps) {
       if (!GW.Atlas || !c.map || !c.map.scene || c.map.scene.v !== 3) continue;

@@ -19,6 +19,15 @@
   // returns {canvas, ver} sized w×h, drawn as if the frame were seqW×seqH scaled by k
   T.draw = (clip, lt, w, h, k) => {
     const x = clip.text; const dur = clip.dur; const ad = Math.max(.05, x.animDur || .5);
+    if (x.mg && GW.MG && GW.MG.get(x.mg.id)) { // motion graphics template (js/mg.js) draws the whole layer
+      const key = 'mg|' + JSON.stringify(x.mg) + '|' + w + 'x' + h + '|' + k + '|' + GW.MG.tkey(x.mg, lt, dur);
+      let e = cache.get(clip.id); if (e && e.key === key) return e;
+      if (!e) { e = { canvas: document.createElement('canvas') }; cache.set(clip.id, e); }
+      const cv = e.canvas; if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+      const g = cv.getContext('2d'); if (g.reset) g.reset(); else { g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.filter = 'none'; } g.clearRect(0, 0, w, h);
+      g.save(); try { GW.MG.draw(g, x.mg, lt, dur, w / k, h / k, k); } catch (er) { console.error('mg draw', er); } g.restore();
+      e.key = key; e.ver = key; return e;
+    }
     let pin = x.animIn && x.animIn !== 'none' ? GW.clamp(lt / ad, 0, 1) : 1;
     let pout = x.animOut && x.animOut !== 'none' ? GW.clamp((dur - lt) / ad, 0, 1) : 1;
     const kst = x.kara && x.kara !== 'none' && T.karaState ? T.karaState(x, lt, dur) : null; // word-timed captions (karaoke)

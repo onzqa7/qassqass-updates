@@ -19,7 +19,7 @@
     return out;
   }
   function dims(s, o) { o = o || state; if (o.res === 'seq') return [s.w, s.h, 1]; const k = +o.res; return [Math.round(s.w * k / 2) * 2, Math.round(s.h * k / 2) * 2, k]; }
-  function range(s, o) { o = o || state; const d = GW.seqDur(s); if (o.range === 'io' && (s.inP != null || s.outP != null)) return [s.inP || 0, s.outP ?? d]; return [0, d]; }
+  function range(s, o) { o = o || state; const d = GW.seqDur(s); if (o.t0 != null && o.t1 != null && +o.t1 > +o.t0) return [Math.max(0, +o.t0), Math.min(d, +o.t1)]; /* explicit range: export queue / API */ if (o.range === 'io' && (s.inP != null || s.outP != null)) return [s.inP || 0, s.outP ?? d]; return [0, d]; }
 
   UI.exportDialog = async () => {
     GW.stop(); const s = GW.seq(); const d = GW.seqDur(s);

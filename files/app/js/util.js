@@ -68,12 +68,32 @@ GW.pv = (p, t) => {
   const A = k[i], B = k[i + 1];
   const u = (t - A.t) / (B.t - A.t || 1);
   if (A.e === 'hold') return A.v;
+  if (A.bo || B.bi) return lerpVal(A.v, B.v, GW.bezierAt(GW.keyHandles(A, B), u)); // custom bezier handles (graph editor)
   // Hermite curve: slow departure when A eases out, slow arrival when B eases in
   const m0 = (A.e === 'ease' || A.e === 'easeOut') ? 0 : 1, m1 = (B.e === 'ease' || B.e === 'easeIn') ? 0 : 1;
   const u2 = u * u, u3 = u2 * u;
   const f = (u3 - 2 * u2 + u) * m0 + (-2 * u3 + 3 * u2) + (u3 - u2) * m1;
   return lerpVal(A.v, B.v, f);
 };
+/* bezier keyframe interpolation (graph editor). Optional per-key handles, normalized to the segment:
+   A.bo = [x, y] out-handle of A (P1 = (x, y)), B.bi = [x, y] in-handle of B (P2 = (1 − x, 1 − y)); x = influence, y = progress.
+   Keys without handles keep the Hermite curve above — identical to the bezier with handles [1/3, m/3]. */
+GW.keyHandles = (A, B) => {
+  const m0 = (A.e === 'ease' || A.e === 'easeOut') ? 0 : 1, m1 = (B.e === 'ease' || B.e === 'easeIn') ? 0 : 1;
+  const o = A.bo || [1 / 3, m0 / 3], i = B.bi || [1 / 3, m1 / 3];
+  return [GW.clamp(o[0], 0, 1), o[1], 1 - GW.clamp(i[0], 0, 1), 1 - i[1]];
+};
+// progress f at time-fraction u of the cubic bezier (0,0) (x1,y1) (x2,y2) (1,1); x solved by Newton + bisection
+GW.bezierAt = (h, u) => {
+  const [x1, y1, x2, y2] = h; if (u <= 0) return 0; if (u >= 1) return 1;
+  const bx = s => ((1 - 3 * x2 + 3 * x1) * s + (3 * x2 - 6 * x1)) * s * s + 3 * x1 * s;
+  const dx = s => 3 * (1 - 3 * x2 + 3 * x1) * s * s + 2 * (3 * x2 - 6 * x1) * s + 3 * x1;
+  let s = u;
+  for (let n = 0; n < 8; n++) { const e = bx(s) - u; if (Math.abs(e) < 1e-7) break; const d = dx(s); if (Math.abs(d) < 1e-6) break; s -= e / d; }
+  if (!(s >= 0 && s <= 1) || Math.abs(bx(s) - u) > 1e-6) { let a = 0, b = 1; s = u; for (let n = 0; n < 50; n++) { const v = bx(s); if (Math.abs(v - u) < 1e-8) break; if (v < u) a = s; else b = s; s = (a + b) / 2; } }
+  return ((1 - 3 * y2 + 3 * y1) * s + (3 * y2 - 6 * y1)) * s * s + 3 * y1 * s;
+};
+GW.cubicBezier = (x1, y1, x2, y2) => u => GW.bezierAt([x1, y1, x2, y2], u);
 GW.isAnim = p => !!(p && p.k && p.k.length);
 GW.setPv = (p, t, v) => {
   if (!p.k || !p.k.length) { p.v = v; return; }

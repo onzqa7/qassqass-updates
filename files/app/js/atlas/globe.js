@@ -58,29 +58,30 @@
   }`;
   const FS_SURF = `#version 300 es
   precision highp float; precision highp int; in vec2 v_uv; in vec3 v_n; in float v_h; in vec2 v_ll; in float v_sh; out vec4 o; uniform float u_shade;
-  uniform sampler2D u_tex, u_night; uniform vec4 u_uvr; uniform float u_alpha, u_sat, u_bri, u_con, u_tintAmt, u_light, u_nightAmt, u_gamma, u_ge; uniform vec3 u_tint, u_sun; uniform int u_flat, u_mode;
+  uniform sampler2D u_tex, u_night; uniform vec4 u_uvr; uniform float u_alpha, u_sat, u_bri, u_con, u_tintAmt, u_light, u_nightAmt, u_gamma, u_ge, u_geS, u_geL, u_warm; uniform vec3 u_tint, u_sun, u_geW, u_geT; uniform int u_flat, u_mode;
   void main(){
     if(v_h<0.0) discard;
     vec4 c=texture(u_tex, u_uvr.xy+v_uv*u_uvr.zw);
     vec3 col=c.rgb;
     if(u_mode==0){
-      col=pow(max(col,0.0),vec3(u_gamma));
+      col=pow(max(col,0.0),vec3(u_gamma)); vec3 c0=col;
       float l=dot(col,vec3(.2126,.7152,.0722)); col=mix(vec3(l),col,u_sat); col=(col-.5)*u_con+.5; col*=u_bri;
       col=mix(col, l*u_tint*1.6, u_tintAmt);
+      col*=vec3(1.0+u_warm*.09, 1.0+u_warm*.015, 1.0-u_warm*.09); // warmth (+) / cool (-)
       if(u_ge>0.0){ // 'Google Earth' look: deep navy water, neutral (less orange) land
-        float w=smoothstep(0.015,0.11,col.b-col.r)*smoothstep(0.75,0.45,l);
-        float lw=(col.g+col.b)*.5*1.9; vec3 water=vec3(.20*lw+.01, .33*lw+.02, .68*lw+.04);
-        vec3 land=col*vec3(.97,.96,1.04); float ll2=dot(land,vec3(.2126,.7152,.0722)); land=mix(vec3(ll2),land,.8)*.86;
+        float l0=dot(c0,vec3(.2126,.7152,.0722)); float w=smoothstep(0.015,0.11,c0.b-c0.r)*smoothstep(0.75,0.45,l0); // water mask from the ungraded pixel
+        float lw=(c0.g+c0.b)*.5*1.9; vec3 water=u_geW*lw+u_geW*.06;
+        vec3 land=col*u_geT; float ll2=dot(land,vec3(.2126,.7152,.0722)); land=mix(vec3(ll2),land,u_geS)*u_geL;
         col=mix(col, mix(land, water, w), u_ge);
       }
-      col*=mix(1.0, v_sh, u_shade);
+      col*=mix(1.0, clamp(v_sh, .55, 1.25), u_shade);
       if(u_light>0.0 && u_flat==0){ vec3 n=normalize(v_n); float d=dot(n,u_sun); float day=smoothstep(-.12,.18,d);
         vec2 ll=vec2(atan(n.y,n.x)/6.2831853+.5, .5-asin(clamp(n.z,-1.0,1.0))/3.14159265);
         vec3 nl=texture(u_night,ll).rgb*u_nightAmt; col=mix(nl+col*.06, col*(0.35+0.65*clamp(d*1.6+.3,0.0,1.0)), mix(1.0-u_light,1.0,day)); }
       o=vec4(clamp(col,0.0,1.0),1.0)*u_alpha;
     } else if(u_mode==1){ // multiply overlay (hillshade): output premultiplied shade for DST_COLOR blend
-      float s=mix(1.0, dot(col,vec3(.333)), u_alpha*c.a); o=vec4(vec3(s),1.0);
-    } else { o=c*u_alpha; } // straight overlay (labels): texture already premultiplied
+      if(v_sh<0.0) discard; float s=mix(1.0, dot(col,vec3(.333)), u_alpha*c.a); o=vec4(vec3(s),1.0);
+    } else { if(v_sh<0.0) discard; o=c*u_alpha; } // straight overlay (skirt walls skipped: no vertical streaks of border lines) (labels): texture already premultiplied
   }`;
   const VS_FULL = `#version 300 es
   in vec2 a_p; out vec2 v_uv; void main(){ v_uv=a_p*.5+.5; gl_Position=vec4(a_p,0.0,1.0); }`;
@@ -157,7 +158,7 @@
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS ? gl.REPEAT : gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    if (mip) { gl.generateMipmap(gl.TEXTURE_2D); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); if (G.aniso) gl.texParameterf(gl.TEXTURE_2D, G.aniso.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, gl.getParameter(G.aniso.MAX_TEXTURE_MAX_ANISOTROPY_EXT))); }
+    if (mip) { gl.generateMipmap(gl.TEXTURE_2D); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); if (G.aniso) gl.texParameterf(gl.TEXTURE_2D, G.aniso.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(16, G.anisoMax || (G.anisoMax = gl.getParameter(G.aniso.MAX_TEXTURE_MAX_ANISOTROPY_EXT)))); }
     else gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     return t;
   }
@@ -240,7 +241,7 @@
       m = makeMesh(key, n + 2, n + 2, (a, b, I, J) => {
         const i = Math.max(0, Math.min(n, I - 1)), j = Math.max(0, Math.min(n, J - 1)); const edge = I === 0 || J === 0 || I === n + 2 || J === n + 2;
         const fu = i / n, fv = j / n; const lo = (x + fu) / n2 * 360 - 180; const my = Math.PI * (1 - 2 * (y + fv) / n2); const la = Math.atan(Math.sinh(my)) * DEG;
-        const p = v3.mul(v3.fromLL(lo, la), 1 + H[j * (n + 1) + i] * k - (edge ? skirt : 0)); return [p[0] - cen[0], p[1] - cen[1], p[2] - cen[2], fu, fv, sh[j * (n + 1) + i]];
+        const p = v3.mul(v3.fromLL(lo, la), 1 + H[j * (n + 1) + i] * k - (edge ? skirt : 0)); return [p[0] - cen[0], p[1] - cen[1], p[2] - cen[2], fu, fv, edge ? -100 : sh[j * (n + 1) + i]]; // skirt marked (overlays skip it)
       });
     }
     m.cen = cen; m.terr = !!dem; return m;
@@ -276,8 +277,9 @@
       for (let xi = x0; xi <= x1; xi++) for (let yi = yA; yi <= yB; yi++) { const xx = ((xi % n2) + n2) % n2; const copy = Math.floor(xi / n2); out.push({ z, x: xx, y: yi, copy, prio: z * 10 + Math.hypot(xi - (x0 + x1) / 2, yi - (yA + yB) / 2) * .1 }); }
       return out;
     }
-    const target = 256 * 1.25 / quality * (size / 256);
+    const target = 256 * 1.25 / quality * (size / 256) / Math.pow(2, zBias); // zBias > 0: finer tiles (sharper, more of them)
     const Cp = vw.C; const W = vw.W, H = vw.H;
+    const zCap = Math.max(3, Math.round(vw.zoom + Math.log2(H / Cm.REF_H) + 3.5 + zBias)); // near-camera tiles in tilted views: never more than ~3.5 levels finer than the view (memory/time)
     const visit = (z, x, y) => {
       const n2 = Math.pow(2, z); const pts = []; let anyVis = false, anyFront = false;
       const g = z < 3 ? 4 : 2;
@@ -300,7 +302,7 @@
       let sz = 0; for (let j = 0; j <= g; j++) for (let i = 0; i < g; i++) { const a = pts[j * (g + 1) + i], b = pts[j * (g + 1) + i + 1]; if (a && b) sz = Math.max(sz, Math.hypot(a[0] - b[0], a[1] - b[1]) * g); }
       for (let i = 0; i <= g; i++) for (let j = 0; j < g; j++) { const a = pts[j * (g + 1) + i], b = pts[(j + 1) * (g + 1) + i]; if (a && b) sz = Math.max(sz, Math.hypot(a[0] - b[0], a[1] - b[1]) * g); }
       const partial = !pts.every(Boolean);
-      if (z < maxZ && (z < 2 || sz > target || (partial && z < 3)) && out.length < 400) { const z1 = z + 1; visit(z1, 2 * x, 2 * y); visit(z1, 2 * x + 1, 2 * y); visit(z1, 2 * x, 2 * y + 1); visit(z1, 2 * x + 1, 2 * y + 1); return; }
+      if (z < maxZ && z < zCap && (z < 2 || sz > target || (partial && z < 3)) && out.length < 400) { const z1 = z + 1; visit(z1, 2 * x, 2 * y); visit(z1, 2 * x + 1, 2 * y); visit(z1, 2 * x, 2 * y + 1); visit(z1, 2 * x + 1, 2 * y + 1); return; }
       const cx = (minx + maxx) / 2 - W / 2, cy = (miny + maxy) / 2 - H / 2;
       out.push({ z, x, y, prio: z * 10 + Math.hypot(cx / W, cy / H) * 5 });
     };
@@ -336,7 +338,7 @@
       if (e && e.st === 2) { e.used = T.frame; if (!e.tex) { e.tex = texImage(e.bmp, true, false); if (e.bmp.close) e.bmp.close(); e.bmp = null; } return { tex: e.tex, uvr: [ox, oy, s, s] }; }
       // move to parent
       const px = xx & 1, py = yy & 1; s *= .5; ox = ox * .5 + px * .5; oy = oy * .5 + py * .5; xx >>= 1; yy >>= 1; zz--;
-      if (zz >= 0) T.want(prov, zz, xx, yy, zz * 10 - 50); // parents load first
+      if (zz >= 0 && (z - zz <= 2 || zz <= 4)) T.want(prov, zz, xx, yy, zz < z - 2 ? zz * 10 - 50 : z * 10 + 8); // keep a close parent visible as fallback, but the wanted tiles load first (coarse z≤4 first only when nothing is there)
     }
     return null;
   }
@@ -366,6 +368,7 @@
     gl.uniform1i(p.u.u_tex, 0); gl.uniform1i(p.u.u_night, 1); gl.uniform1i(p.u.u_mode, mode); gl.uniform1f(p.u.u_alpha, alpha);
     gl.uniform1f(p.u.u_shade, mode === 0 ? (G.terrEx > 0 ? (st.terrShade == null ? .85 : st.terrShade) : 0) : 0);
     gl.uniform1f(p.u.u_sat, st.sat == null ? 1 : st.sat); gl.uniform1f(p.u.u_bri, st.bri == null ? 1 : st.bri); gl.uniform1f(p.u.u_con, st.con == null ? 1 : st.con); gl.uniform1f(p.u.u_gamma, st.gamma || 1); gl.uniform1f(p.u.u_ge, st.ge || 0);
+    const gW = st.geW || [.20, .33, .68], gT = st.geT || [.97, .96, 1.04]; gl.uniform3f(p.u.u_geW, gW[0], gW[1], gW[2]); gl.uniform3f(p.u.u_geT, gT[0], gT[1], gT[2]); gl.uniform1f(p.u.u_geS, st.geS == null ? .8 : st.geS); gl.uniform1f(p.u.u_geL, st.geL == null ? .86 : st.geL); gl.uniform1f(p.u.u_warm, st.warm || 0);
     const tint = st.tint || [1, 1, 1]; gl.uniform3f(p.u.u_tint, tint[0], tint[1], tint[2]); gl.uniform1f(p.u.u_tintAmt, st.tintAmt || 0);
     gl.uniform1f(p.u.u_light, st.light || 0); gl.uniform1f(p.u.u_nightAmt, st.nightAmt == null ? 1 : st.nightAmt);
     const sun = v3.fromLL(st.sunLon || 0, st.sunLat || 0); gl.uniform3f(p.u.u_sun, sun[0], sun[1], sun[2]);
@@ -416,14 +419,14 @@
     if (G.terrEx > 0) { gl.clear(gl.DEPTH_BUFFER_BIT); gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); }
     drawBase(vw, st, L.baseTex, L.baseColor);
     if (L.base) {
-      const sel = G.selectTiles(vw, L.base, L.quality || 1);
+      const sel = G.selectTiles(vw, L.base, L.quality || 1, L.zBias || 0);
       for (const t of sel) want.push(T.want(L.base, t.z, t.x, t.y, t.prio));
       setSurfUniforms(vw, st, 0, 1); drawTiles(vw, L.base, sel, st, 0, 1);
       if (G.terrEx > 0) for (const t of sel) { if (t.z >= 5) { const e = T.cache.get('terrain/' + Math.min(t.z, TZMAX) + '/' + (t.x >> Math.max(0, t.z - TZMAX)) + '/' + (t.y >> Math.max(0, t.z - TZMAX))); if (e && e.st < 2) want.push(e); } }
     }
     gl.disable(gl.DEPTH_TEST);
     if (L.vec) { // vector map tiles (borders, fills, coasts…) draped like imagery
-      const sel = G.selectTiles(vw, L.vec, (L.quality || 1));
+      const sel = G.selectTiles(vw, L.vec, (L.quality || 1), L.vecBias || 0);
       for (const t of sel) want.push(T.want(L.vec, t.z, t.x, t.y, t.prio - 1));
       setSurfUniforms(vw, st, 2, 1); drawTiles(vw, L.vec, sel, st, 2, 1);
     }
