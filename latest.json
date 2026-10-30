@@ -1,8 +1,8 @@
 {
- "version": "2.2.7",
- "date": "2026-10-30T17:17:41.918Z",
- "notes_ar": "إصلاح تغيّر جودة الخريطة كل ثانيتين أثناء عمل البروكسي: الإطار يثبت تماماً وأنت واقف.",
- "notes_en": "Fixed map quality flipping every 2 s while proxies run: the paused frame is now fully stable.",
+ "version": "2.2.8",
+ "date": "2026-10-30T17:21:20.822Z",
+ "notes_ar": "خريطة أوضح في المعاينة (صور بدقة أعلى) وألوان وثائقية أغنى وأقل بهتاناً.",
+ "notes_en": "Sharper map preview (higher-res tiles) and richer, less faded documentary colours.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -770,7 +770,7 @@
   {
    "path": "app/js/atlas/scene.js",
    "size": 16726,
-   "sha256": "29ab1af2f80351997ab8dc81c0171774a7f1ba41bc6ee15709f6c32791db0b41"
+   "sha256": "26784f41649701657deb1c0ca3891f23ccdb67651a2ef6a35b771e99c815e887"
   },
   {
    "path": "app/js/atlas/vector.js",
@@ -839,8 +839,8 @@
   },
   {
    "path": "app/js/render.js",
-   "size": 15893,
-   "sha256": "f51b7516a7f8e0e1ea019f4a5c950b5980c4e9c2b7eb1b1b3591e2fcb91be671"
+   "size": 15891,
+   "sha256": "061caa7fe9b33595ecd2b7e44af39a4cba847f7f2606d44ef39149c5d3308683"
   },
   {
    "path": "app/js/shortcuts.js",
@@ -4255,7 +4255,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "327111c83da1b6b3624a8aa5d1146692fbe1bc76a1d501498c8cce9bce2acb0d"
+   "sha256": "aea5508be22511287e874653058bcdbd62395059c9df25f397b014764cfb1aa8"
   },
   {
    "path": "preload.js",
@@ -4268,5 +4268,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "9dhG6YgfBhbpzE/GwH9SPtO42+rwE74Cjov0KZ7y93Qw8Fhuoera6++0sNvEDI4sMoX4IjEiXPmZTMUWhf37AQ=="
+ "sig": "1IJ+Rc5EEoHYyKHSeXKevVXvg1LkdscsjsB/iKPpyazDe4W1oZ+1hgWsAWnNeLp+kHsnlzTLcyGtugLs8wo1Cw=="
 }

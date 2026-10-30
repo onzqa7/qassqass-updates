@@ -58,7 +58,7 @@
       // scene changes or more tiles have arrived), so background work (proxies, thumbnails, GC) can never alter the frame
       const mk = opts.exporting || fastM ? null : [lt, lw, lh, GW.Atlas.Tiles ? GW.Atlas.Tiles.loaded : 0, GW.mapPreviewQ || .85, c.map.bg || '', JSON.stringify(c.map.scene)].join('|');
       const mc = RN._mapMemo || (RN._mapMemo = new Map()); const hit = mk && mc.get(c.id);
-      let cv; if (hit && hit.k === mk) cv = hit.cv; else { try { cv = GW.Atlas.render(c.map.scene, lt + (c.in || 0), lw, lh, { bg: c.map.bg || 'full', dur: c.dur, quality: opts.exporting ? 1 : (GW.mapPreviewQ || .85), fast: fastM }); } catch (e) { console.error('map render', e); return null; }
+      let cv; if (hit && hit.k === mk) cv = hit.cv; else { try { cv = GW.Atlas.render(c.map.scene, lt + (c.in || 0), lw, lh, { bg: c.map.bg || 'full', dur: c.dur, quality: opts.exporting ? 1 : (GW.mapPreviewQ || 1), fast: fastM }); } catch (e) { console.error('map render', e); return null; }
         if (mk) { const keep = document.createElement('canvas'); keep.width = cv.width; keep.height = cv.height; keep.getContext('2d').drawImage(cv, 0, 0); mc.set(c.id, { k: mk, cv: keep }); if (mc.size > 6) mc.delete(mc.keys().next().value); } }
       const tx = R.upload('mp:' + c.id, cv, lw, lh, null);
       const f = R.fbo(lw, lh); R.pass('copy', f, [tx.tex]); return f;
