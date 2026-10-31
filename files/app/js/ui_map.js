@@ -698,8 +698,8 @@
     const preview = (at, len) => { GW.seek(Math.max(c.start, c.start + at - .4)); if (GW.play && !(GW.pb && GW.pb.playing)) { GW.play(); setTimeout(() => { if (GW.pb && GW.pb.playing) GW.stop(); }, (len + .8) * 1000); } };
     tw.append(stat, bar, scale);
     box.append(row('التوقيت', tw));
-    box.append(row('تظهر عند (ث)', fA, btn('من المؤشر', () => { const b = endOf(); L.start = +Math.min(b - .1, t0()).toFixed(2); if (L.dur != null) L.dur = +(b - L.start).toFixed(2); commit(); })));
-    box.append(row('تختفي عند (ث)', fB, btn('عند المؤشر', () => { const a = L.start || 0; L.dur = +Math.max(.1, t0() - a).toFixed(2); commit(); })));
+    box.append(row('تظهر عند (ث)', fA, btn('من المؤشر', () => { const b = endOf(); L.start = +Math.min(b - .1, t0()).toFixed(2); if (L.dur != null) L.dur = +(b - L.start).toFixed(2); commit(); }), btn('انتقل إليه', () => GW.seek(c.start + (L.start || 0)))));
+    box.append(row('تختفي عند (ث)', fB, btn('عند المؤشر', () => { const a = L.start || 0; L.dur = +Math.max(.1, t0() - a).toFixed(2); commit(); }), btn('انتقل إليه', () => GW.seek(c.start + Math.max(0, endOf() - .04)))));
     box.append(row('', ue));
     box.append(row('طريقة الظهور', sel(Object.entries(anims), L.in || 'fade', v => { L.in = v; commit('حركة الدخول'); }), (() => { const n = num(L.inDur || .8, .1, v => { L.inDur = Math.max(0, v); commit('حركة الدخول'); }); n.title = 'مدة حركة الظهور بالثواني'; return n; })(), btn('معاينة', () => preview(L.start || 0, L.inDur || .8))));
     box.append(row('طريقة الاختفاء', sel([['none', 'فجأة'], ['fade', 'تلاشي']], L.out || 'none', v => { L.out = v; commit('حركة الخروج'); }), (() => { const n = num(L.outDur || .5, .1, v => { L.outDur = Math.max(0, v); commit('حركة الخروج'); }); n.title = 'مدة حركة الاختفاء بالثواني'; return n; })(), btn('معاينة', () => preview(endOf() - (L.outDur || .5), (L.outDur || .5)))));

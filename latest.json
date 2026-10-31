@@ -1,8 +1,8 @@
 {
- "version": "3.0.3",
- "date": "2026-10-31T22:51:49.040Z",
- "notes_ar": "قسم «التوقيت والحركة» صار مفتوح من البداية ويظهر فيه شريط الظهور والاختفاء وخيار «تبقى حتى النهاية» والشرح.",
- "notes_en": "Timing & motion section open by default, with the visibility bar, 'stay until end' option and help note.",
+ "version": "3.0.4",
+ "date": "2026-10-31T22:54:58.890Z",
+ "notes_ar": "زر «انتقل إليه» جنب وقت الظهور والاختفاء ينقل المؤشر لهذي اللحظة.",
+ "notes_en": "'Go to it' buttons next to appear/disappear times move the playhead there.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 299519,
-   "sha256": "c6906fe68ada59a4465f290f98c7caa62f6ecfcd29d710cfa7aae39aca643958"
+   "size": 299552,
+   "sha256": "e96bf4288715f17b9b6e9823a83206fa51d0905611a16d7221ace8d300514d9f"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 303357,
-   "sha256": "a31c1be08ac6960f82076d4cf914a2db6573a4a256385140534c66584b01aa60"
+   "size": 303393,
+   "sha256": "747d9e246f6db261f56e10e01cdbe750cdd2023c0b7c5146ae64120911736ae5"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -1039,8 +1039,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 112191,
-   "sha256": "ff2ce28e23453e44cb8d824db35afc466fc557dbc948efaa84a25ef028c4e6ac"
+   "size": 112341,
+   "sha256": "4f66d4420d3f1490ba5a38e74e6f477246ca9d8d2b7cb82c8cefedb635e73082"
   },
   {
    "path": "app/js/ui_mapcam.js",
@@ -4710,7 +4710,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "c85e7e93dfca7a9fbedaf16e98b463ea57993368103c2c95300e9abb7d02c11f"
+   "sha256": "4dbb81ce2b32eadf670bc4c08a8c71c55609f0c9ed4d6db6f51fce85fc35d2f3"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4723,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "JBfkLl/sNKzQIDaGw3xPr3esOGkFG8qAMaTeedIDkwouGHdnEjVgm5ZvCMbwu7KK1QmeW6HUpqr5QB9PTm3iAw=="
+ "sig": "XktG968biM2WxVtlcq3Y0RINpz3RYEAWy5bQWImi5MqgN+VWwksdopLYWCGvixJnc5DgyQjVZxI/ZyBc9mBwBA=="
 }
