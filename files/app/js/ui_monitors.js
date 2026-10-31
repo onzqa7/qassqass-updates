@@ -11,6 +11,7 @@
     overwrite: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="1" fill="#5aa9ff33"/><path d="M12 2v6M9 5l3 3 3-3" stroke="#5aa9ff"/></svg>',
     lift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="18" height="7" rx="1"/><path d="M12 10V3M9 6l3-3 3 3"/></svg>', extract: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="7" height="7" rx="1"/><rect x="14" y="12" width="7" height="7" rx="1"/><path d="M12 10V3M9 6l3-3 3 3"/></svg>',
     camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h4l2-3h4l2 3h4v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+    full: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
     safe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/><rect x="6" y="8" width="12" height="8" stroke-dasharray="2 2"/></svg>',
     loop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a6 6 0 016-6h8M15 3l3 3-3 3M20 12a6 6 0 01-6 6H6M9 21l-3-3 3-3"/></svg>'
   };
@@ -89,7 +90,7 @@
         <button class="tb" data-a="in" title="تحديد الدخول (I)">${SVG.in}</button><button class="tb" data-a="out" title="تحديد الخروج (O)">${SVG.out}</button><span class="sep"></span>
         <button class="tb" data-a="goin" title="انتقال للدخول">${SVG.goin}</button><button class="tb" data-a="back" title="إطار للخلف (←)">${SVG.back}</button><button class="tb" data-a="play" title="تشغيل / إيقاف (مسافة)">${SVG.play}</button><button class="tb" data-a="fwd" title="إطار للأمام (→)">${SVG.fwd}</button><button class="tb" data-a="goout" title="انتقال للخروج">${SVG.goout}</button><span class="sep"></span>
         <button class="tb" data-a="lift" title="رفع (;)">${SVG.lift}</button><button class="tb" data-a="extract" title="استخراج (')">${SVG.extract}</button><span class="sep"></span>
-        <button class="tb" data-a="loop" title="تكرار التشغيل">${SVG.loop}</button><button class="tb" data-a="safe" title="هوامش الأمان">${SVG.safe}</button><button class="tb" data-a="proxy" title="تبديل البروكسي (زر أيمن: إعدادات البروكسي)">${SVG.proxy}</button><button class="tb" data-a="snap" title="تصدير الإطار (Ctrl+Shift+E)">${SVG.camera}</button>
+        <button class="tb" data-a="loop" title="تكرار التشغيل">${SVG.loop}</button><button class="tb" data-a="safe" title="هوامش الأمان">${SVG.safe}</button><button class="tb" data-a="full" title="ملء الشاشة للمعاينة (Ctrl+\`)">${SVG.full}</button><button class="tb" data-a="proxy" title="تبديل البروكسي (زر أيمن: إعدادات البروكسي)">${SVG.proxy}</button><button class="tb" data-a="snap" title="تصدير الإطار (Ctrl+Shift+E)">${SVG.camera}</button>
       </div></div>`;
     PG.el = el; const q = a => el.querySelector(`[data-a=${a}]`);
     PG.view = q('view'); PG.cv = q('cv'); PG.ov = q('ov');
@@ -101,6 +102,7 @@
     q('loop').onclick = (e) => { GW.pb.loop = !GW.pb.loop; e.currentTarget.classList.toggle('on', GW.pb.loop); };
     q('safe').onclick = (e) => { PG.toggleSafe(); e.currentTarget.classList.toggle('on', PG.safe); };
     q('snap').onclick = GW.cmd.exportFrame;
+    q('full').onclick = () => PG.toggleFull();
     { const b = q('proxy'); const sync = () => b.classList.toggle('on', !!GW.Media.cfg.proxies); sync(); b.onclick = () => GW.Media.toggleProxies(); b.oncontextmenu = (e) => { e.preventDefault(); GW.Media.proxyMenu(e.clientX, e.clientY); }; GW.bus.on('proxies', sync); }
     q('res').onchange = (e) => PG.setRes(e.target.value === 'auto' ? 'auto' : +e.target.value);
     q('zoom').onchange = (e) => { PG.zoom = e.target.value === 'fit' ? 'fit' : +e.target.value; GW.invalidate(); };
@@ -110,6 +112,9 @@
     new ResizeObserver(() => GW.invalidate()).observe(PG.view);
   });
   PG.setRes = (r) => { PG.res = r; const s = PG.el && PG.el.querySelector('[data-a=res]'); if (s) s.value = String(r); GW.invalidate(); };
+  // Premiere-style full-screen preview: only the picture on black; Esc / the same shortcut exits; playback keys keep working
+  PG.toggleFull = () => { if (!PG.view) return; if (document.fullscreenElement) { document.exitFullscreen().catch(() => {}); return; } PG.view.requestFullscreen().then(() => { try { PG.view.focus(); } catch (e) {} if (!PG._fsHint) { PG._fsHint = 1; GW.toast('ملء الشاشة: مسافة للتشغيل، Esc للخروج'); } }).catch(() => {}); };
+  document.addEventListener('fullscreenchange', () => { if (PG.view) PG.view.classList.toggle('mon-fs', document.fullscreenElement === PG.view); GW.invalidate(); });
   PG.toggleSafe = () => { PG.safe = !PG.safe; GW.invalidate(); };
 
   let adapt = 1, lastDraw = 0, late = 0; PG.playCap = .5;

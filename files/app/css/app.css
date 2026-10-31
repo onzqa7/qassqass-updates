@@ -1755,3 +1755,7 @@ html[dir=ltr] .mxt-in{background:linear-gradient(to right,rgba(76,194,255,.55),r
 .mxt-num{width:84px}.mxt-ue{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
 
 .mxt-sel-wide select.sel,.frow .ctl select.sel{min-width:0;flex:1 1 auto}
+
+/* full-screen preview (Premiere style) */
+.mon-view:fullscreen{background:#000!important;width:100vw;height:100vh}
+.mon-view:fullscreen .mon-overlay{display:none}

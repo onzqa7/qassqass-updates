@@ -162,6 +162,7 @@
   def('gfx.templates', 'مكتبة قوالب الرسوم المتحركة', [], () => GW.UI.egTab && GW.UI.egTab('mg'));
   // view & window
   def('view.maximize', 'تكبير اللوحة تحت المؤشر', ['`'], () => C().maximize());
+  def('view.previewFull', 'ملء الشاشة للمعاينة', ['Ctrl+`'], () => GW.Program && GW.Program.toggleFull());
   def('view.fullscreen', 'ملء الشاشة', ['F11'], () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); }, { fixed: 1 });
   def('view.safe', 'إظهار هوامش الأمان', [], () => C().safe());
   def('view.home', 'الشاشة الرئيسية', [], () => GW.UI.home && GW.UI.home());

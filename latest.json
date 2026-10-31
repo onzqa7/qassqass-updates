@@ -1,8 +1,8 @@
 {
- "version": "3.0.4",
- "date": "2026-10-31T22:54:58.890Z",
- "notes_ar": "زر «انتقل إليه» جنب وقت الظهور والاختفاء ينقل المؤشر لهذي اللحظة.",
- "notes_en": "'Go to it' buttons next to appear/disappear times move the playhead there.",
+ "version": "3.0.5",
+ "date": "2026-10-31T23:00:47.811Z",
+ "notes_ar": "ملء الشاشة للمعاينة مثل بريمير: Ctrl+` أو الزر تحت المعاينة، وEsc للخروج.",
+ "notes_en": "Premiere-style full-screen preview: Ctrl+` or the button under the preview, Esc to exit.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -39,8 +39,8 @@
   },
   {
    "path": "app/css/app.css",
-   "size": 164983,
-   "sha256": "4ff4ab61c6cadd1f41c0cd1860cf5030a91f35bac5526f193acbe17b377b25aa"
+   "size": 165148,
+   "sha256": "23806356050847f670367b49639e4d0fa17cb4cc4a7d03fa33f31f3babcc2583"
   },
   {
    "path": "app/fonts/amiri-arabic-400-normal.woff2",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 299552,
-   "sha256": "e96bf4288715f17b9b6e9823a83206fa51d0905611a16d7221ace8d300514d9f"
+   "size": 299802,
+   "sha256": "07f3527519b9ca537684ef1eb748390480bd6e9f894011f8959c545f3e6bdad7"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 303393,
-   "sha256": "747d9e246f6db261f56e10e01cdbe750cdd2023c0b7c5146ae64120911736ae5"
+   "size": 303652,
+   "sha256": "7d3050f1068b84f870969ebabe74d66d63c28fec199295e7d5471d5c499d1f9f"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -954,8 +954,8 @@
   },
   {
    "path": "app/js/shortcuts.js",
-   "size": 40663,
-   "sha256": "81189d3b107423f1064eef79799d9a78f0d1644a852e3a13094f911a4fb72104"
+   "size": 40787,
+   "sha256": "6327ba3aeb91bde039e80c0c60def3b1bca790566b0d82448f093100ec4d5657"
   },
   {
    "path": "app/js/text.js",
@@ -1054,8 +1054,8 @@
   },
   {
    "path": "app/js/ui_monitors.js",
-   "size": 34436,
-   "sha256": "605c428eb7cb731833d541c2220bb37e737365797d8e4a5554443e0ab3099ba8"
+   "size": 35405,
+   "sha256": "bd06ad8950153f198835005708914db156f46f6054371446f2df61a26153c420"
   },
   {
    "path": "app/js/ui_ofx.js",
@@ -4710,7 +4710,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "4dbb81ce2b32eadf670bc4c08a8c71c55609f0c9ed4d6db6f51fce85fc35d2f3"
+   "sha256": "007911c258959c7acfcc5c74b3923d990d5e4d83935642062ed39482c1d8d2c5"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4723,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "XktG968biM2WxVtlcq3Y0RINpz3RYEAWy5bQWImi5MqgN+VWwksdopLYWCGvixJnc5DgyQjVZxI/ZyBc9mBwBA=="
+ "sig": "uyt5tyf1C6fxZGe+/B/cF0K1DMY1FiZMEpo7pRRvtUKwXkt+LARXZCjTXfNp2nr1BEFL5FU9oZQnFCCwZuOaAg=="
 }
