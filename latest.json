@@ -1,8 +1,8 @@
 {
- "version": "3.0.0",
- "date": "2026-10-31T21:38:38.517Z",
- "notes_ar": "الإصدار 3.0: استوديو خرائط مستقل بلوحة جديدة واضحة ومعرض إضافة ومعالج حرب لكل العصور (سيطرة، معارك، نصر، تقسيم) ونمط «منسوج وثائقي»؛ واجهة ثلاثي الأبعاد (غرف وأثاث وشاشات تعرض فيديو، إضاءة، كاميرا، استيراد نماذج وتحريك الشخصيات)؛ صفحات عمل مخصصة (صوت بخلاط حقيقي وصوت أساسي، ألوان بمقاييس ومقارنة، مراجعة وتصدير)؛ Deep Glow وVHS وCRT و47 مؤثراً و15 انتقالاً و37 قالباً؛ أدوات كولاج وقص الخلفية؛ قادة بإطارات جديدة وقص دقيق؛ أصوات محسّنة وجديدة؛ استيراد من أدوبي (بريستات بريمير، LUT، تصدير، خطوط، نماذج)؛ مؤثرات Universe كمؤثرات عادية (تجريبي)؛ المونتير الذكي؛ و22 نمط ترجمة متحركة.",
- "notes_en": "3.0: standalone Map Studio with clear panel, add gallery and all-era war wizard, woven documentary look; 3D scenes (rooms, furniture, video screens, lights, camera, model import, character animation); purpose-built workspaces; Deep Glow, VHS, CRT, 47 effects, 15 transitions, 37 templates; collage tools and background removal; leader frames and crop; improved SFX; Adobe import; Universe OFX effects (experimental); AI editor; 22 animated caption styles.",
+ "version": "3.0.1",
+ "date": "2026-10-31T22:25:04.204Z",
+ "notes_ar": "توقيت الطبقات صار واضح: شريط يبين متى تظهر ومتى تختفي مع سحب وتعديل مباشر. علامة الاشتباك الجديدة بأسلوب الأطلس (دائرة أو نجمة) بدون سيوف، مع خيار إخفائها.",
+ "notes_en": "Clear layer timing bar (when it appears/disappears, drag to edit). New atlas-style battle markers without swords, with an option to hide them.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -39,8 +39,8 @@
   },
   {
    "path": "app/css/app.css",
-   "size": 163318,
-   "sha256": "57195012b7e825b465eee2250be47941ba9adec846020d0de501c12d2f2ce840"
+   "size": 164908,
+   "sha256": "a7e54e4abfeb51f5f350729687547b6b921b071151ce9eeff3bdd6b9f1b0d007"
   },
   {
    "path": "app/fonts/amiri-arabic-400-normal.woff2",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 297626,
-   "sha256": "3bd16e258cb37597fc38a906b11653885aa494c107679b559e9e726f3500005d"
+   "size": 299369,
+   "sha256": "7d5cc17a11d9f315840bab0cd95d4aca30a5d5ae1521b10e4176839537190b21"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 301383,
-   "sha256": "7f9696dba07b2d9288a6b8b10b67f09366b4036f1ef1d5952ca6d6f5c5044116"
+   "size": 303195,
+   "sha256": "eb1fcbd5f427d67b51195773a6212065f14637a62fbdc73f81479d85b25d0957"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -819,8 +819,8 @@
   },
   {
    "path": "app/js/atlas/war.js",
-   "size": 111639,
-   "sha256": "869bd07e0462aaee427bac6d6446dafd0de70d69f438ca2043530453826e640a"
+   "size": 113499,
+   "sha256": "e242febba1a7e9e32529a9e5563d5dd6e467677f515c39663af8acfd8468595f"
   },
   {
    "path": "app/js/audio.js",
@@ -1039,8 +1039,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 105928,
-   "sha256": "4949b7abc7a50d06b8898e717c13d7aebae0d4bc7338c160a9db23b805f87edf"
+   "size": 111212,
+   "sha256": "99fa5f5ba4d009077068947fe390953e169cc2a47876b2dbfadb6923c7693fc8"
   },
   {
    "path": "app/js/ui_mapcam.js",
@@ -1049,8 +1049,8 @@
   },
   {
    "path": "app/js/ui_mapux.js",
-   "size": 57807,
-   "sha256": "533795d8eb64df07cc0507552bffe8db46c212c96852e551d08ef5e9ea8d3622"
+   "size": 57937,
+   "sha256": "9265f08461aa91e1d65c4cfdc39c370a87f9a0ac54f724b3e1d7d02e61119d9e"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -1114,8 +1114,8 @@
   },
   {
    "path": "app/js/ui_war.js",
-   "size": 40476,
-   "sha256": "cb0230a489e5429c9a8f0b8bf8a384cef2032e6bf44fb22baaba4599cfe950e4"
+   "size": 41155,
+   "sha256": "8035870c4656203dbb76dc3fdf8ea7fd055d9bc4c47d1c53f2e701b58b789ab6"
   },
   {
    "path": "app/js/ui_workspaces.js",
@@ -4710,7 +4710,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "ff0b400bd6a83ea5bf3bdaa1daba38a1299ca966d607da3a9457b1d15ac78b7b"
+   "sha256": "ec2efd9e923606ee8ff9297a61019bbbffe46ffe3e76f580d0a3c8941d8e5859"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4723,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "uszsaGVl/lpOyTvMemeEfNpx6ijyRjDj9WqSzGK3qyLJlXGVZgUnSUNC9p+GSWDPIlFBcGonlmniH2JpJjqmAg=="
+ "sig": "5Mb1j484gLWcPVQm5ZpjraCdG2RwlSkOhvWlxwmvaBGYP5J9IkqkjahVregYZMFQmOofK0c3EUqcYz50mSCdAw=="
 }

@@ -32,7 +32,7 @@
   WR.TYPES = ['campaign', 'clash', 'strike', 'troops', 'air', 'encircle', 'siege'];
   const DEF = {
     campaign: { sides: [], units: [], events: [], cities: [], cityR: 18, legend: 1, legendPos: 'tl', legendTitle: '', captions: 1, showCities: 1, flip: 1, borders: 1, labels: 1, in: 'fade', inDur: 1 },
-    clash: { lon: 0, lat: 0, color: '#ffb347', size: 1, intensity: 1, swords: 1, smoke: 1, sparks: 1, rings: 1, text: '', in: 'pop', inDur: .5 },
+    clash: { lon: 0, lat: 0, color: '#ffb347', size: 1, intensity: .7, swords: 1, smoke: 1, sparks: 0, rings: 0, style: 'mark', text: '', in: 'pop', inDur: .5 },
     strike: { pts: [], color: '#ffcf6b', kind: 'missile', count: 4, interval: .55, flight: 1.5, arc: .3, spread: 6, trail: 1, crater: 1, shake: 0, in: 'none' },
     troops: { pts: [], color: '#b3261e', icon: 'armor', count: 3, spacing: .7, travel: 5, size: 1, dust: 1, route: 1, in: 'none' },
     air: { pts: [], color: '#e8eef5', icon: 'jet', count: 2, spacing: .45, travel: 4, bombs: 5, size: 1, in: 'none' },
@@ -363,12 +363,26 @@
     if (o.smoke !== 0) { const n = WR.fast ? 3 : 6; for (let i = 0; i < n; i++) { const L = 3 + rnd(seed, i, 20) * 2; const ph = ((lt + rnd(seed, i, 21) * L) % L) / L; const ang = rnd(seed, i, 22) * TAU; puff(g, x + Math.cos(ang) * sz * .9 + ph * sz * .8, y + Math.sin(ang) * sz * .4 - ph * sz * 1.2, sz * (.6 + ph * 1.1), .28 * Math.sin(Math.PI * ph) * Math.min(1, lt / .6), '92,88,80'); } }
     // shockwave rings from the centre
     if (o.rings !== 0) { for (let i = 0; i < 2; i++) { const ph = ((lt * .7 + i * .5) % 1); g.globalAlpha = a0 * (1 - ph) * .55; g.strokeStyle = o.color || '#ffb347'; g.lineWidth = 1.6 * k; g.beginPath(); g.ellipse(x, y, sz * (.8 + ph * 2.4), sz * (.6 + ph * 1.8), 0, 0, TAU); g.stroke(); } g.globalAlpha = a0; }
-    // emblem: dark disc + crossed swords
-    if (o.swords !== 0) {
+    // emblem
+    if (o.swords !== 0 && (o.style || 'doc') === 'badge') { // legacy badge: dark disc + crossed swords
       const r = sz * .62 * pop; const bob = 1 + .04 * Math.sin(lt * 5);
       g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 10 * k; g.fillStyle = 'rgba(14,12,10,.82)'; g.beginPath(); g.arc(x, y, r * bob, 0, TAU); g.fill(); g.shadowBlur = 0;
       g.lineWidth = 1.8 * k; g.strokeStyle = o.color || '#ffb347'; g.stroke();
       if (r > 2) V.icon(g, 'battle', x, y, r * 1.35, '#f4ead0', 0, lt, 1);
+    } else if (o.swords !== 0 && (o.style || 'mark') !== 'none') { // documentary marks (no weapons): mark | star | glow
+      const st = o.style === 'doc' ? 'mark' : (o.style || 'mark'); const r = sz * .5 * pop; const pulse = .75 + .25 * Math.sin(lt * 2.2);
+      const gr = g.createRadialGradient(x, y, 0, x, y, r * 2.2); gr.addColorStop(0, 'rgba(255,170,90,' + (.3 * pulse) + ')'); gr.addColorStop(.45, 'rgba(200,90,40,' + (.12 * pulse) + ')'); gr.addColorStop(1, 'rgba(120,40,20,0)');
+      g.fillStyle = gr; g.beginPath(); g.ellipse(x, y, r * 2.2, r * 1.5, 0, 0, TAU); g.fill();
+      const ink = 'rgba(248,242,230,.95)'; g.shadowColor = 'rgba(0,0,0,.7)'; g.shadowBlur = 5 * k; g.strokeStyle = ink; g.fillStyle = ink; g.lineCap = 'round';
+      if (st === 'mark') { // atlas battle site: centre dot, fine ring, slow expanding ripple
+        g.lineWidth = Math.max(1, 1.3 * k); g.beginPath(); g.arc(x, y, r * .5, 0, TAU); g.stroke();
+        g.beginPath(); g.arc(x, y, Math.max(1.5, r * .16), 0, TAU); g.fill(); g.shadowBlur = 0;
+        const ph = (lt * .45) % 1; g.globalAlpha = a0 * (1 - ph) * .7; g.lineWidth = Math.max(.8, 1 * k); g.beginPath(); g.arc(x, y, r * (.5 + ph * 1.3), 0, TAU); g.stroke(); g.globalAlpha = a0;
+      } else if (st === 'star') { // classic historical-atlas burst: 8 fine rays around a dot
+        g.lineWidth = Math.max(1, 1.2 * k); g.beginPath(); for (let i = 0; i < 8; i++) { const an = i * Math.PI / 4 + Math.PI / 8, r1 = r * .28, r2 = r * (i % 2 ? .62 : .9); g.moveTo(x + Math.cos(an) * r1, y + Math.sin(an) * r1); g.lineTo(x + Math.cos(an) * r2, y + Math.sin(an) * r2); } g.stroke();
+        g.beginPath(); g.arc(x, y, Math.max(1.5, r * .15), 0, TAU); g.fill();
+      }
+      g.shadowBlur = 0;
     }
     if (o.text) V.haloText(g, o.text, x, y + sz * 1.25, 16 * k, '#ffffff', 'soft', o.fam, 800);
     g.restore();
@@ -509,7 +523,7 @@
     const { g, vw, k, fam, t } = HK;
     for (const { Ly: L, s } of HK.layers) {
       const a0 = s.a; const pin = S.easeOut(s.pin); const lt = s.lt; const seed = strSeed(L.id);
-      if (L.type === 'clash') { const sp = vw.project(+L.lon, +L.lat); if (!sp) continue; clashAt(g, sp[0], sp[1], lt, k, { size: L.size, intensity: L.intensity, swords: L.swords, smoke: L.smoke, sparks: L.sparks, rings: L.rings, color: L.color, text: L.text, fam, seed, a: a0 * (L.in === 'fade' ? pin : 1), pop: L.in === 'pop' ? Math.max(0, S.back(s.pin)) : 1 }); }
+      if (L.type === 'clash') { const sp = vw.project(+L.lon, +L.lat); if (!sp) continue; clashAt(g, sp[0], sp[1], lt, k, { style: L.style, size: L.size, intensity: L.intensity, swords: L.swords, smoke: L.smoke, sparks: L.sparks, rings: L.rings, color: L.color, text: L.text, fam, seed, a: a0 * (L.in === 'fade' ? pin : 1), pop: L.in === 'pop' ? Math.max(0, S.back(s.pin)) : 1 }); }
       else if (L.type === 'strike' && L.pts && L.pts.length >= 2) { const P = L.pts.map(p => vw.project(p[0], p[1])); g.save(); g.globalAlpha = a0; strikeDraw(g, P[0], P.slice(1), lt, k, { count: L.count, interval: L.interval, flight: L.flight, arc: L.arc, spread: L.spread, trail: L.trail, crater: L.crater, kind: L.kind, seed, size: L.size }); g.restore(); }
       else if (L.type === 'troops' && L.pts && L.pts.length >= 2) { const line = smoothPts(V.geoLine(vw, L.pts, L.curve || 0), 2); g.save(); g.globalAlpha = a0; troopsDraw(g, line, lt, k, { count: L.count, spacing: L.spacing, travel: L.travel, icon: L.icon, color: L.color, size: L.size, dust: L.dust, route: L.route, seed }); g.restore(); }
       else if (L.type === 'air' && L.pts && L.pts.length >= 2) { const line = smoothPts(V.geoLine(vw, L.pts, L.curve || .08), 2); g.save(); g.globalAlpha = a0; airDraw(g, line, lt, k, { count: L.count, spacing: L.spacing, travel: L.travel, icon: L.icon, color: L.color, size: L.size, bombs: L.bombs, seed }); g.restore(); }
@@ -534,7 +548,7 @@
       const fx = ev.fx || 'none'; if (fx === 'none') continue; const dur = Math.max(.1, ev.dur || 2.5); const a = lt - (ev.t - 1); if (a < 0 || a > dur + 3.5) continue;
       const P = evPoint(m, ev); if (!P) continue; const sp = vw.project(P[0], P[1]); if (!sp) continue; const seed = strSeed(ev.id);
       const fade = clamp((dur + 3.5 - a) / 1.2, 0, 1);
-      if (fx === 'clash') clashAt(g, sp[0], sp[1], a, k, { size: 1, intensity: 1.2, color: (sideOf(L, ev.to) || {}).color || '#ffb347', fam, seed, a: A0 * fade, pop: Math.max(0, S.back(clamp(a / .5, 0, 1))) });
+      if (fx === 'clash' && L.mark !== 'off') clashAt(g, sp[0], sp[1], a, k, { style: L.mark || 'mark', size: 1, intensity: 1.2, color: (sideOf(L, ev.to) || {}).color || '#ffb347', fam, seed, a: A0 * fade, pop: Math.max(0, S.back(clamp(a / .5, 0, 1))) });
       else if (fx === 'strike') { const pr = st.prog.find(x => x.ev === ev); const u = (ev.units || []).map(q => m.units.get(q)).find(Boolean); let O = null; if (u) { const o = originOf(L, m, ev, u, st.own); const back = d3.geoInterpolate([o[0], o[1]], u.lab)(-.6); O = vw.project(back[0], back[1]); } if (!O) { let best = null, bd = 9; for (const v of m.units.values()) if (st.own.get(v.key) === ev.to) { const d = d3.geoDistance(v.lab, P); if (d < bd) { bd = d; best = v; } } if (best) { const q = d3.geoInterpolate(P, best.lab)(Math.min(.8, .9 / Math.max(.01, bd * 40))); O = vw.project(q[0], q[1]); } } if (!O) O = [sp[0] - 220 * k, sp[1] + 60 * k]; void pr; g.save(); g.globalAlpha = A0 * fade; strikeDraw(g, O, [sp], a, k, { count: 3, interval: .45, flight: 1.1, arc: .32, spread: 14, kind: 'missile', seed, crater: 1 }); g.restore(); }
     }
     // city markers with ownership flip + flag

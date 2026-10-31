@@ -101,7 +101,7 @@
       case 'campaign': return campaignProps(c, L, box, set);
       case 'clash':
         box.append(place(), cityPick(p => { L.lon = p[0]; L.lat = p[1]; if (!L.text) L.text = 'معركة ' + (p[3] || p[2]); changed('موقع الاشتباك'); rerender(); }), row('النص', txt(L.text, set('text'))), row('اللون', col(L.color, set('color'))), row('الحجم', rng(L.size, .3, 3, .05, set('size'))), row('الشدة', rng(L.intensity, .2, 3, .05, set('intensity'))),
-          row('سيفان', chk(L.swords, set('swords', 1))), row('دخان', chk(L.smoke, set('smoke', 1))), row('شرر', chk(L.sparks, set('sparks', 1))), row('موجات صدمية', chk(L.rings, set('rings', 1))));
+          row('العلامة', sel([['mark', 'دائرة موقع المعركة'], ['star', 'نجمة أطلس تاريخي'], ['glow', 'توهج خفيف فقط'], ['badge', 'شارة قديمة'], ['none', 'بدون علامة']], L.swords === 0 ? 'none' : (L.style === 'doc' || !L.style ? 'mark' : L.style), v => { L.swords = 1; set('style', 1)(v); })), row('دخان', chk(L.smoke, set('smoke', 1))), row('شرر', chk(L.sparks, set('sparks', 1))), row('موجات صدمية', chk(L.rings, set('rings', 1))));
         break;
       case 'strike':
         box.append(h('div', 'mp-note', 'النقطة الأولى = موقع الإطلاق، وبقية النقاط = الأهداف.'), draw('ارسم الإطلاق ثم الأهداف على الخريطة'), row('النوع', sel([['missile', 'صواريخ'], ['artillery', 'مدفعية']], L.kind, set('kind', 1))), row('عدد المقذوفات', num(L.count, 1, set('count', 1))), row('الفاصل (ث)', num(L.interval, .05, set('interval', 1))), row('زمن الطيران (ث)', num(L.flight, .1, set('flight', 1))),
@@ -170,6 +170,7 @@
     });
     box.append(btn(GW.ico('plus', 13) + ' طرف', () => { const n = (L.sides || []).length; L.sides.push({ id: 's' + GW.uid().slice(0, 4), name: 'طرف ' + (n + 1), color: WR.mix('#888888', ['#b0893a', '#4a7a3c', '#7a4a6a'][n % 3], .9), countries: [], fill: .45 }); changed('إضافة طرف'); rerender(); }));
     // events
+    box.append(row('علامة المعارك', sel([['mark', 'دائرة موقع المعركة'], ['star', 'نجمة أطلس تاريخي'], ['glow', 'توهج خفيف فقط'], ['badge', 'شارة قديمة'], ['off', 'إخفاء كل علامات المعارك']], L.mark || 'mark', v => { L.mark = v === 'mark' ? undefined : v; changed('علامة المعارك'); })));
     box.append(h('div', 'mp-sub', 'أحداث السيطرة'));
     const evs = (L.events || []).slice().sort((a, b) => a.t - b.t); const m = WR.model(L, era, byKey);
     const sideOpts = (L.sides || []).map(sd => [sd.id, sd.name]);

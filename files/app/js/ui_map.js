@@ -658,10 +658,48 @@
     const t0 = () => Math.max(0, lt(c) - (c.in || 0));
     box.append(h('div', 'mp-sub', esc(S.LAYERS[L.type].ar)));
     box.append(row('الاسم', txt(L.name, set('name'))));
-    box.append(row('يبدأ عند (ث)', num((L.start || 0).toFixed(2), .1, v => { L.start = Math.max(0, v); changed('توقيت'); renderPanel(); }), btn('عند المؤشر', () => { L.start = +t0().toFixed(2); changed('توقيت'); renderPanel(); })));
-    box.append(row('المدة (ث)', num(L.dur != null ? L.dur.toFixed(2) : '', .1, v => { L.dur = v > 0 ? v : null; changed('توقيت'); renderPanel(); }), btn('حتى النهاية', () => { L.dur = null; changed('توقيت'); renderPanel(); }), btn('ينتهي عند المؤشر', () => { L.dur = Math.max(.1, +(t0() - (L.start || 0)).toFixed(2)); changed('توقيت'); renderPanel(); })));
-    const anims = { fade: 'تلاشي', grow: 'نمو', draw: 'رسم تدريجي', pop: 'ظهور مرن', wipe: 'مسح', spread: 'انتشار', none: 'بدون' };
-    box.append(row('حركة الدخول', sel(Object.entries(anims), L.in || 'fade', set('in', 1)), num(L.inDur || .8, .1, set('inDur', 1))), row('حركة الخروج', sel([['none', 'بدون'], ['fade', 'تلاشي']], L.out || 'none', set('out', 1)), num(L.outDur || .5, .1, set('outDur', 1))));
+    // ---- visual timing: when the layer appears / disappears (clip-local seconds) ----
+    const anims = { fade: 'تلاشي', grow: 'نمو', draw: 'رسم تدريجي', pop: 'ظهور مرن', wipe: 'مسح', spread: 'انتشار', none: 'فوراً (بدون حركة)' };
+    const D = () => Math.max(.1, c.dur), fmt = (v) => (+v).toFixed(2);
+    const endOf = () => L.dur != null ? Math.min(D(), (L.start || 0) + L.dur) : D();
+    const tw = h('div', 'mxt'); const stat = h('div', 'mxt-stat'); const bar = h('div', 'mxt-bar'); const seg = h('div', 'mxt-seg'); const rin = h('div', 'mxt-in'); const rout = h('div', 'mxt-out'); const ph = h('div', 'mxt-ph'); const hA = h('div', 'mxt-h mxt-ha'); const hB = h('div', 'mxt-h mxt-hb');
+    seg.append(rin, rout, hA, hB); bar.append(seg, ph); const scale = h('div', 'mxt-scale', '<span>0</span><span>' + fmt(D()) + ' ث</span>');
+    const paint = () => {
+      const a = L.start || 0, b = endOf(), d = D(), now = t0();
+      seg.style.insetInlineStart = (a / d * 100) + '%'; seg.style.width = Math.max(.5, (b - a) / d * 100) + '%';
+      const len = Math.max(.01, b - a); rin.style.width = Math.min(100, (L.in === 'none' ? 0 : (L.inDur || .8)) / len * 100) + '%'; rout.style.width = Math.min(100, (L.out && L.out !== 'none' ? (L.outDur || .5) : 0) / len * 100) + '%';
+      ph.style.insetInlineStart = (Math.min(d, now) / d * 100) + '%';
+      const vis = now >= a && now < b; stat.className = 'mxt-stat ' + (vis ? 'on' : 'off');
+      stat.textContent = vis ? 'ظاهرة الآن عند المؤشر' : now < a ? 'مخفية الآن — تظهر بعد ' + fmt(a - now) + ' ث' : 'مخفية الآن — اختفت قبل ' + fmt(now - b) + ' ث';
+      fA.value = fmt(a); fB.value = fmt(b); untilEnd.checked = L.dur == null;
+    };
+    const commit = (lbl) => { changed(lbl || 'توقيت الطبقة'); paint(); };
+    // drag: ends resize, middle moves
+    const drag = (mode) => (e) => { e.preventDefault(); e.stopPropagation(); const r = bar.getBoundingClientRect(); const rtl = getComputedStyle(bar).direction === 'rtl'; const x0 = e.clientX; const a0 = L.start || 0, b0 = endOf(), d = D();
+      const tOf = (x) => { const f = (x - r.left) / r.width; return Math.max(0, Math.min(d, (rtl ? 1 - f : f) * d)); };
+      const mv = (ev) => { const dt = (rtl ? -1 : 1) * (ev.clientX - x0) / r.width * d;
+        if (mode === 'a') { L.start = +Math.min(b0 - .1, Math.max(0, tOf(ev.clientX))).toFixed(2); if (L.dur != null) L.dur = +(b0 - L.start).toFixed(2); }
+        else if (mode === 'b') { const b = Math.max(a0 + .1, Math.min(d, tOf(ev.clientX))); L.dur = b >= d - .02 ? null : +(b - a0).toFixed(2); }
+        else { const len = b0 - a0; const a = Math.max(0, Math.min(d - len, a0 + dt)); L.start = +a.toFixed(2); if (L.dur != null) L.dur = +len.toFixed(2); }
+        paint(); GW.invalidate(); };
+      const up = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); commit(); };
+      window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); };
+    hA.onpointerdown = drag('a'); hB.onpointerdown = drag('b'); seg.onpointerdown = drag('m');
+    bar.onclick = (e) => { if (e.target !== bar) return; const r = bar.getBoundingClientRect(); const rtl = getComputedStyle(bar).direction === 'rtl'; const f = (e.clientX - r.left) / r.width; GW.seek(c.start + Math.max(0, Math.min(D(), (rtl ? 1 - f : f) * D())) - (c.in || 0) * 0); };
+    const fA = h('input', 'inp mxt-num'); fA.type = 'number'; fA.step = '.1'; fA.onchange = () => { const b = endOf(); L.start = Math.max(0, Math.min(b - .1, +fA.value || 0)); if (L.dur != null) L.dur = +(b - L.start).toFixed(2); commit(); };
+    const fB = h('input', 'inp mxt-num'); fB.type = 'number'; fB.step = '.1'; fB.onchange = () => { const a = L.start || 0; const b = Math.max(a + .1, Math.min(D(), +fB.value || D())); L.dur = b >= D() - .02 ? null : +(b - a).toFixed(2); commit(); };
+    const untilEnd = h('input'); untilEnd.type = 'checkbox'; untilEnd.onchange = () => { if (untilEnd.checked) L.dur = null; else L.dur = +Math.max(.1, D() - (L.start || 0)).toFixed(2); commit(); };
+    const ue = h('label', 'mxt-ue'); ue.append(untilEnd, document.createTextNode(' تبقى حتى نهاية مقطع الخريطة'));
+    const preview = (at, len) => { GW.seek(Math.max(c.start, c.start + at - .4)); if (GW.play && !(GW.pb && GW.pb.playing)) { GW.play(); setTimeout(() => { if (GW.pb && GW.pb.playing) GW.stop(); }, (len + .8) * 1000); } };
+    tw.append(stat, bar, scale);
+    box.append(row('التوقيت', tw));
+    box.append(row('تظهر عند (ث)', fA, btn('من المؤشر', () => { const b = endOf(); L.start = +Math.min(b - .1, t0()).toFixed(2); if (L.dur != null) L.dur = +(b - L.start).toFixed(2); commit(); })));
+    box.append(row('تختفي عند (ث)', fB, btn('عند المؤشر', () => { const a = L.start || 0; L.dur = +Math.max(.1, t0() - a).toFixed(2); commit(); })));
+    box.append(row('', ue));
+    box.append(row('طريقة الظهور', sel(Object.entries(anims), L.in || 'fade', v => { L.in = v; commit('حركة الدخول'); }), (() => { const n = num(L.inDur || .8, .1, v => { L.inDur = Math.max(0, v); commit('حركة الدخول'); }); n.title = 'مدة حركة الظهور بالثواني'; return n; })(), btn('معاينة', () => preview(L.start || 0, L.inDur || .8))));
+    box.append(row('طريقة الاختفاء', sel([['none', 'فجأة (بدون حركة)'], ['fade', 'تلاشي']], L.out || 'none', v => { L.out = v; commit('حركة الخروج'); }), (() => { const n = num(L.outDur || .5, .1, v => { L.outDur = Math.max(0, v); commit('حركة الخروج'); }); n.title = 'مدة حركة الاختفاء بالثواني'; return n; })(), btn('معاينة', () => preview(endOf() - (L.outDur || .5), (L.outDur || .5)))));
+    box.append(h('div', 'mp-note', 'الشريط يمثل مقطع الخريطة كاملاً: الجزء الملوّن هو وقت ظهور الطبقة، والتظليل في أوله وآخره هو حركة الظهور والاختفاء، والخط البرتقالي هو المؤشر. اسحب الطرفين لتغيير الوقت، أو اسحب الوسط لتحريكه.'));
+    paint(); M._tPaint = () => { if (tw.isConnected) paint(); }; if (!M._tHook) { M._tHook = 1; GW.bus.on('time', () => M._tPaint && M._tPaint()); }
     const pats = [['solid', 'مصمت'], ['weave', 'نسيج متقاطع'], ['hatch', 'خطوط مائلة'], ['cross', 'شبكة'], ['dots', 'نقاط']];
     // «نسيج متقاطع» texture controls (scale / opacity / angle) + the muted woven palette
     const weaveRows = (o, re) => { if (o.pattern !== 'weave') return h('div'); const w = h('div', 'mx-weave'); const sw = h('div', 'mp-chips'); for (const cc of S.WOVEN) { const b = h('button', 'chip mx-sw'); b.style.background = cc; b.title = cc; b.onclick = () => { o.color = cc; changed('لون منسوج'); re(); }; sw.append(b); }
