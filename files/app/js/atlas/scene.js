@@ -17,6 +17,7 @@
   S.PAL = PAL;
   // style presets. base: tile provider; baseTex: bundled equirect fallback; vector: draw own ocean/land
   S.STYLES = {
+    cinema: { ar: 'سينمائي وثائقي (مثل المرجع)', base: 'esri_img', baseTex: 'sat', grade: { sat: .83, bri: .65, con: .73, gamma: .6, ge: 0, gain: [.785, .872, .826] }, oceanTint: '#00090d', tintA: .755, post: { vig: .3 }, border: 'rgba(225,228,220,.28)', bw: .7, ink: '#f2efe6', halo: 'soft', font: 'thmanyah serif display', labelW: 800, labelK: 1.12, atmo: [.2, .3, .36], stars: .35, space: [.003, .005, .007] },
     satellite: { ar: 'قمر صناعي (Google Earth)', base: 'esri_img', baseTex: 'sat', grade: { sat: 1.08, bri: .97, con: 1.18, gamma: 1.04, ge: 0 }, oceanTint: '#0f2f5c', tintA: .5, post: { vig: .32 }, border: 'rgba(228,231,236,.62)', bw: .85, ink: '#f4f0e8', halo: 'soft', font: 'thmanyah serif display', labelW: 800, labelK: 1.12, atmo: [.42, .66, 1], stars: .6, space: [.004, .006, .014] },
     s2: { ar: 'قمر صناعي بلا غيوم', base: 's2', baseTex: 'sat', grade: { sat: 1.1, bri: 1.03, con: 1.08 }, border: 'rgba(255,255,255,.7)', bw: 1.1, ink: '#ffffff', halo: 'rgba(0,0,0,.75)', atmo: [.35, .6, 1], stars: .8 },
     // documentary look (YouTube history maps): dark desaturated imagery, deep navy sea, soft-shadow labels, faint borders
@@ -43,10 +44,10 @@
     neon: { ar: 'نيون', vector: 1, ocean: '#05040c', ocean2: '#0b0920', land: '#0c0b1e', fill: 'political', palette: 'neon', fillA: .12, border: '#7a5cff', bw: 1.1, glow: 1, coast: '#38e1ff', ink: '#eeeaff', halo: 'rgba(10,8,26,.9)', atmo: [.48, .36, 1], stars: .8, grid: 1, gridC: 'rgba(122,92,255,.12)' },
     desert: { ar: 'عمليات صحراوية', vector: 1, ocean: '#151a16', ocean2: '#1d241e', land: '#6d6047', border: '#a69169', bw: 1, coast: '#cdb98e', hill: .5, ink: '#f5ecd8', halo: 'rgba(24,22,16,.85)', atmo: [.75, .65, .45], stars: .4 },
   };
-  S.STYLE_ORDER = ['satellite', 'doc_dark', 'doc_light', 's2', 'ghost', 'daynight', 'night', 'natgeo', 'physical', 'relief', 'topo', 'oceans', 'carto_dark', 'voyager', 'political', 'history', 'parchment', 'news', 'newsdark', 'ops', 'desert', 'blueprint', 'neon', 'streets'];
+  S.STYLE_ORDER = ['cinema', 'satellite', 'doc_dark', 'doc_light', 's2', 'ghost', 'daynight', 'night', 'natgeo', 'physical', 'relief', 'topo', 'oceans', 'carto_dark', 'voyager', 'political', 'history', 'parchment', 'news', 'newsdark', 'ops', 'desert', 'blueprint', 'neon', 'streets'];
 
   S.blank = () => ({
-    v: 3, mode: 'globe', style: 'satellite', year: GW.P(2025), eraMode: 'auto',
+    v: 3, mode: 'globe', style: 'cinema', year: GW.P(2025), eraMode: 'auto',
     cam: { lon: 42, lat: 26, zoom: 3.2, tilt: 0, heading: 0, keys: [], orbit: 0, drift: 0, shake: 0 },
     look: { lang: (window.GW && GW.lang) || 'ar', font: 'thmanyah serif display', labelW: 800, labels: 1, labelSize: 1, countryLabels: 1, cities: 1, oceans: 1, regions: 0, provinces: 0, rivers: 0, lakes: 1, borders: 1, coast: 1, graticule: 0, hill: null, fill: null, fillA: null, atmo: 1, stars: null, light: 0, sunLon: 20, sunLat: 10, vig: null, grain: .04, paper: null, letter: 0, quality: 1, refLabels: 0, sat: 1, bri: 1, attrib: 0, borderW: 1 },
     layers: [], images: {}

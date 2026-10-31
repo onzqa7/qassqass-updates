@@ -1,8 +1,8 @@
 {
- "version": "2.5.0",
- "date": "2026-10-31T10:35:17.369Z",
- "notes_ar": "الإصدار 2.5: تصميم جديد جذري (شريط علوي، مساحات عمل كحبّة، شاشة رئيسية ببطاقات المشاريع والقوالب، تايملاين مرسوم من جديد، قوائم ونوافذ زجاجية، أيقونات جديدة)؛ مكتبة 170 شكلاً متجهاً (أسهم، رموز وثائقية وعسكرية، إطارات وأقنعة، ملصقات شورتات)؛ أداة Slide، حذف الفراغات، التداخل (Nest)، تكبير على التحديد، تنقل ونسخ الكي فريم، Esc وEnter في كل النوافذ، حفظ تلقائي كل دقيقتين مع آخر 10 نسخ، حفظ آمن، وإعادة ربط الوسائط المفقودة.",
- "notes_en": "2.5: radical redesign (top bar, segmented workspaces, new home with project/template cards, redrawn timeline, glass menus/dialogs, new icons); 170-item vector shape library; Slide tool, gap delete, nest, zoom to selection, keyframe navigation/copy, Esc/Enter in dialogs, autosave every 2 min with last 10 versions, crash-safe save, relink missing media.",
+ "version": "2.5.1",
+ "date": "2026-10-31T11:15:51.651Z",
+ "notes_ar": "نمط جديد «سينمائي وثائقي» مطابق لألوان الفيديو المرجعي (بحر رمادي مزرق داكن بتضاريس خفيفة، وأرض زيتونية هادئة) وصار الافتراضي للخرائط الجديدة.",
+ "notes_en": "New default 'Cinematic documentary' map style matched to the reference video's colours.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -684,13 +684,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 171484,
-   "sha256": "4cf690614c8658cd2cd0d18ea608c01e93f221564911d19eac68e3913ea35429"
+   "size": 171560,
+   "sha256": "94b13bb6c11cfeb1118c0650c12deb3696a0ef0e712be175cc6b191a2e0eccf5"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 170508,
-   "sha256": "951b19954f00d40e27a542a311f31de0e7aea147cb37205ae6d12f643db6cfcf"
+   "size": 167560,
+   "sha256": "9e093b5114d0138e1280928120516782552cfdc97dedf4223d75704e3ac37f53"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -744,8 +744,8 @@
   },
   {
    "path": "app/js/atlas/atlas.js",
-   "size": 5132,
-   "sha256": "4c930c182a3c21a7ad08c744121d6814c4bd213a77f702286b1cbe68581568e8"
+   "size": 5147,
+   "sha256": "3f8dd4e61f20ff3fc5c56c01046ce26cd19c1e68c4791df646a8ee88f5716551"
   },
   {
    "path": "app/js/atlas/camera.js",
@@ -759,8 +759,8 @@
   },
   {
    "path": "app/js/atlas/globe.js",
-   "size": 36616,
-   "sha256": "7a0cc207e3990ab18edacccfc5d227fbdc93135eb2cbb292a0d3441ad4038743"
+   "size": 36787,
+   "sha256": "090f6b8a998c6169e4d4d0787461b463f6353c6e77a404ae5400df0eefc4d4b9"
   },
   {
    "path": "app/js/atlas/providers.js",
@@ -769,8 +769,8 @@
   },
   {
    "path": "app/js/atlas/scene.js",
-   "size": 17613,
-   "sha256": "aa07c4823b1ee6ff6e2673aa9a96ea9ae2433d4b898315550c03a818d95c5a8a"
+   "size": 18056,
+   "sha256": "13f150aa8d6b8d41f5b0c179993daa5077ea150aff20677a29bc3316d1ad60c9"
   },
   {
    "path": "app/js/atlas/vector.js",
@@ -924,8 +924,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 96360,
-   "sha256": "fcc0cbb36abb8f1e687731e686240cb5b3a62527fbd43154cf8ba31579abc8c5"
+   "size": 96357,
+   "sha256": "19f1d443a9938eea4b8a816e26360a7e7a2e81c381e47bae9a3d2ab59a21b730"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -4305,7 +4305,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "5e0af6c2116c9cdf56ddfda35689bf678794198a21f88d13f7674374b64fda02"
+   "sha256": "f49c0725b8bf602a512091f48c5c692b87639935a7500c45477456ddeaed38ca"
   },
   {
    "path": "preload.js",
@@ -4318,5 +4318,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "sqAdvzsjCWwbRZ9MRnCBK8CXFnNH0fMcbu6mD5RUUveXz/kc4Ge0oDPRJ2ZCXOM3exmewLUEHvrjeE9wz2YQDQ=="
+ "sig": "NKUvSci4C5KVAMDR5ohsNw4Pbbn8WDMK0/t/e2CGJvQX6OVJK6P8Tn8ztGw/4URaFUKqozvjEeizYWU8mG/1Cg=="
 }

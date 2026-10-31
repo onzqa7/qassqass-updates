@@ -58,7 +58,7 @@
   }`;
   const FS_SURF = `#version 300 es
   precision highp float; precision highp int; in vec2 v_uv; in vec3 v_n; in float v_h; in vec2 v_ll; in float v_sh; out vec4 o; uniform float u_shade;
-  uniform sampler2D u_tex, u_night; uniform vec4 u_uvr; uniform float u_alpha, u_sat, u_bri, u_con, u_tintAmt, u_light, u_nightAmt, u_gamma, u_ge, u_geS, u_geL, u_warm; uniform vec3 u_tint, u_sun, u_geW, u_geT; uniform int u_flat, u_mode;
+  uniform sampler2D u_tex, u_night; uniform vec4 u_uvr; uniform float u_alpha, u_sat, u_bri, u_con, u_tintAmt, u_light, u_nightAmt, u_gamma, u_ge, u_geS, u_geL, u_warm; uniform vec3 u_tint, u_sun, u_geW, u_geT, u_gain; uniform int u_flat, u_mode;
   void main(){
     if(v_h<0.0) discard;
     vec4 c=texture(u_tex, u_uvr.xy+v_uv*u_uvr.zw);
@@ -68,6 +68,7 @@
       float l=dot(col,vec3(.2126,.7152,.0722)); col=mix(vec3(l),col,u_sat); col=(col-.5)*u_con+.5; col*=u_bri;
       col=mix(col, l*u_tint*1.6, u_tintAmt);
       col*=vec3(1.0+u_warm*.09, 1.0+u_warm*.015, 1.0-u_warm*.09); // warmth (+) / cool (-)
+      col*=u_gain; // per-channel colour balance (style grade)
       if(u_ge>0.0){ // 'Google Earth' look: deep navy water, neutral (less orange) land
         float l0=dot(c0,vec3(.2126,.7152,.0722)); float w=smoothstep(0.015,0.11,c0.b-c0.r)*smoothstep(0.75,0.45,l0); // water mask from the ungraded pixel
         float lw=(c0.g+c0.b)*.5*1.9; vec3 water=u_geW*lw+u_geW*.06;
@@ -368,7 +369,7 @@
     gl.uniform1i(p.u.u_tex, 0); gl.uniform1i(p.u.u_night, 1); gl.uniform1i(p.u.u_mode, mode); gl.uniform1f(p.u.u_alpha, alpha);
     gl.uniform1f(p.u.u_shade, mode === 0 ? (G.terrEx > 0 ? (st.terrShade == null ? .45 : st.terrShade) : 0) : 0);
     gl.uniform1f(p.u.u_sat, st.sat == null ? 1 : st.sat); gl.uniform1f(p.u.u_bri, st.bri == null ? 1 : st.bri); gl.uniform1f(p.u.u_con, st.con == null ? 1 : st.con); gl.uniform1f(p.u.u_gamma, st.gamma || 1); gl.uniform1f(p.u.u_ge, st.ge || 0);
-    const gW = st.geW || [.20, .33, .68], gT = st.geT || [.97, .96, 1.04]; gl.uniform3f(p.u.u_geW, gW[0], gW[1], gW[2]); gl.uniform3f(p.u.u_geT, gT[0], gT[1], gT[2]); gl.uniform1f(p.u.u_geS, st.geS == null ? .8 : st.geS); gl.uniform1f(p.u.u_geL, st.geL == null ? .86 : st.geL); gl.uniform1f(p.u.u_warm, st.warm || 0);
+    { const gn = st.gain || [1, 1, 1]; if (p.u.u_gain) gl.uniform3f(p.u.u_gain, gn[0], gn[1], gn[2]); } const gW = st.geW || [.20, .33, .68], gT = st.geT || [.97, .96, 1.04]; gl.uniform3f(p.u.u_geW, gW[0], gW[1], gW[2]); gl.uniform3f(p.u.u_geT, gT[0], gT[1], gT[2]); gl.uniform1f(p.u.u_geS, st.geS == null ? .8 : st.geS); gl.uniform1f(p.u.u_geL, st.geL == null ? .86 : st.geL); gl.uniform1f(p.u.u_warm, st.warm || 0);
     const tint = st.tint || [1, 1, 1]; gl.uniform3f(p.u.u_tint, tint[0], tint[1], tint[2]); gl.uniform1f(p.u.u_tintAmt, st.tintAmt || 0);
     gl.uniform1f(p.u.u_light, st.light || 0); gl.uniform1f(p.u.u_nightAmt, st.nightAmt == null ? 1 : st.nightAmt);
     const sun = v3.fromLL(st.sunLon || 0, st.sunLat || 0); gl.uniform3f(p.u.u_sun, sun[0], sun[1], sun[2]);

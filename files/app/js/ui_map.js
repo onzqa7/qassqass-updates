@@ -75,7 +75,7 @@
     const F = keyOf(o.from, era); const Ts = o.targets.map(n => keyOf(n, era));
     if (!F) { GW.toast('لم أتعرف على الدولة المهاجمة: ' + o.from, 'err'); return; }
     if (!Ts.length || Ts.some(x => !x)) { GW.toast('تحقق من أسماء الدول المستهدفة', 'err'); return; }
-    const scn = A.newScene({ style: o.style || 'satellite', mode: o.mode || 'globe', year: GW.P(year) });
+    const scn = A.newScene({ style: o.style || 'cinema', mode: o.mode || 'globe', year: GW.P(year) });
     const dur = 4 + Ts.length * 1.6 + 5;
     const wide = fitFeats(F, Ts, .62), tight = fitFeats(null, Ts, .8); tight.tilt = 35;
     scn.cam.keys = [{ t: 0, ...wide, zoom: wide.zoom - .6, ease: 'inout' }, { t: 1.6, ...wide, ease: 'inout' }, { t: 1.6 + 2.4 + Ts.length * .8, ...tight, ease: 'inout' }, { t: dur, ...tight, zoom: tight.zoom + .25, heading: 6, ease: 'linear' }];
@@ -433,7 +433,7 @@
   M.keyRuler = keyRuler;
   // real preview thumbnails: each style rendered once by the atlas engine (bundled low-zoom tiles), cached per version
   const TH = M._thumbs = M._thumbs || {}; let thQ = Promise.resolve();
-  const THV = 'qq.sthumb.v3.';
+  const THV = 'qq.sthumb.v4.';
   function styleThumb(k) {
     if (TH[k]) return Promise.resolve(TH[k]);
     try { const u = localStorage.getItem(THV + k); if (u) return Promise.resolve(TH[k] = u); } catch (e) {}
