@@ -187,8 +187,9 @@
   /* ---------- menus / commands ---------- */
   GW.cmd.tts = () => T.dialog();
   const addMenu = (name, items) => { const e = GW.MENUS && GW.MENUS.find(m => m[0] === name); if (!e) return; const f = e[1]; e[1] = () => [...f(), '-', ...items()]; };
-  addMenu('تسلسل', () => [{ label: 'نص إلى كلام (تعليق صوتي آلي)…', action: GW.cmd.tts }]);
-  (GW.clipMenuHooks = GW.clipMenuHooks || []).push((items, c) => { if (c.kind !== 'text') return; items.push('-', { label: 'نص إلى كلام من هذا النص…', action: () => { GW.sel.clips = new Set([c.id]); T.dialog(); } }); });
+  // TTS is hidden from the UI (user request); speech → captions lives in the «التفريغ والترجمة» panel
+  addMenu('تسلسل', () => [{ label: 'كلام إلى ترجمة (تفريغ الصوت)…', action: () => GW.showPanel('captions') }]);
+  (GW.clipMenuHooks = GW.clipMenuHooks || []).push((items, c) => { if (c.kind !== 'video' && c.kind !== 'audio') return; items.push('-', { label: 'كلام إلى ترجمة من هذا المقطع…', action: () => { GW.sel.clips = new Set([c.id]); GW.showPanel('captions'); } }); });
 
   /* ---------- automation (GW.API) ---------- */
   const A = GW.API && GW.API.methods;

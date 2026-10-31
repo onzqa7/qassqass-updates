@@ -1,8 +1,8 @@
 {
- "version": "2.4.0",
- "date": "2026-10-30T22:14:46.760Z",
- "notes_ar": "الإصدار 2.4 الكبير: مقاييس ألوان (Waveform/Vectorscope/Histogram)، منحنيات، HSL Secondary، مطابقة ألوان وتصحيح تلقائي؛ محرّكات نص بمستوى الحرف والكلمة مثل أفتر إفكت؛ طبقات أشكال متجهة مع قلم بيزييه وTrim Paths؛ مجلدات ومجلدات ذكية ومتصفح وسائط؛ تعليق صوتي آلي بدون إنترنت (Piper) عربي وإنجليزي؛ EQ بمنحنى وضاغط وLimiter وDe-esser وReverb وإعدادات Essential Sound؛ مقياس LUFS مباشر؛ وخفض موسيقى فوري.",
- "notes_en": "2.4: scopes, curves, HSL secondary, colour match/auto; AE-style per-character text animators; vector shape layers with pen tool and trim paths; bins, smart bins, media browser; offline Arabic/English TTS (Piper); parametric EQ, compressor, limiter, de-esser, reverb, Essential Sound presets; live LUFS meter; real-time ducking.",
+ "version": "2.4.1",
+ "date": "2026-10-31T00:22:32.055Z",
+ "notes_ar": "إزالة «نص إلى كلام» من القوائم واستبدالها بـ«كلام إلى ترجمة» (تفريغ الصوت وترجمته على الشاشة).",
+ "notes_en": "Removed text-to-speech from the menus; replaced with speech-to-captions entries.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -684,13 +684,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 151598,
-   "sha256": "6176258895815d49a4d533a17d16f371d694a729f7ec3b3e2ad39270c9291185"
+   "size": 151787,
+   "sha256": "14c38636588c7427c56159fdcb2d671e0696c350191eb7d1601e9b4284b20b03"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 146850,
-   "sha256": "8412ccbf6e6ce6f35a9c1b81b27b9e158243f32920add8176ad5982d26e7f8ff"
+   "size": 147043,
+   "sha256": "4650cba70f0f9f517a355b125ab978769963074bf71eae8a4b08a208a2e8ca39"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -949,8 +949,8 @@
   },
   {
    "path": "app/js/ui_tts.js",
-   "size": 21148,
-   "sha256": "e6dcaea371f5f7921bf424742b54cd95ede24e485193d8b6db4e26aa95650366"
+   "size": 21338,
+   "sha256": "a4060bdffbaa5f73938db58fa89b6866ef810738905887bb5a63530aa0853cc4"
   },
   {
    "path": "app/js/ui_update.js",
@@ -4295,7 +4295,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "de6626a25b0691e8c91abd5e61f54ccc5c8f7daac19e4dd292ab09176397dd45"
+   "sha256": "6ead7c1009ef54ce7759fff9ba82c407625f237bcf95e1f5b38fea35b1d58ccb"
   },
   {
    "path": "preload.js",
@@ -4308,5 +4308,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "s6LuhuqAiyVcLFrEXck4ZvF7Wt+b6cy8aaFvVbfOZzmrWOl1SYs65iXBZ0abDMvLYe5nOKZfvfbXruzFeJy+AQ=="
+ "sig": "0cwDzx24BrHj3r81FDTlmQlOyFmt7pCtcsU8w13YEadgezmH218H3xvcPy/+qgExdiHu45m0SQdUi32Z/G69AQ=="
 }

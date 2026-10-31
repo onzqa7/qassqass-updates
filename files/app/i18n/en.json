@@ -2650,5 +2650,7 @@
 "الهجوم / الإطلاق": "Attack / release",
 "التثبيت بين الجمل": "Hold between sentences",
 "خفض تلقائي (Sidechain) — ": "Auto-duck (sidechain) — ",
-"خفض تلقائي أثناء الكلام (Sidechain) · Shift+نقر: الإعدادات": "Auto-duck under speech (sidechain) · Shift+click: settings"
+"خفض تلقائي أثناء الكلام (Sidechain) · Shift+نقر: الإعدادات": "Auto-duck under speech (sidechain) · Shift+click: settings",
+"كلام إلى ترجمة (تفريغ الصوت)…": "Speech to captions (transcribe)…",
+"كلام إلى ترجمة من هذا المقطع…": "Speech to captions from this clip…"
 }
