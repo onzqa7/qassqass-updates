@@ -1273,3 +1273,12 @@ html[lang=en] .mon-bar [data-a=seqname],html[lang=en] .mon-bar [data-a=name]{dir
 .strip .ms{flex-wrap:wrap;justify-content:center;gap:3px}
 .strip .ms .btn{padding:0 6px;min-width:26px}
 .strip .nm{color:#fff}
+/* war campaigns (ui_war.js) */
+.mp-war-side{display:flex;flex-direction:column;gap:5px;padding:8px 10px;border-radius:var(--rad1,5px);background:var(--bg2);border:1px solid var(--line);border-inline-start:3px solid var(--accent)}
+.mp-war-dot{width:9px;height:9px;border-radius:50%;flex:none;box-shadow:0 0 0 1px rgba(255,255,255,.25)}
+.mp-war-ev{border:1px solid var(--line);border-radius:var(--rad1,5px);padding:8px;background:var(--bg2)}
+.mp-war-list{max-height:210px;overflow:auto;display:flex;flex-direction:column;gap:1px;border:1px solid var(--line);border-radius:var(--rad1,5px);padding:4px;background:var(--bg1,var(--bg2))}
+.mp-war-item{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:3px;cursor:pointer;color:var(--text2);font-size:12px}
+.mp-war-item:hover{background:var(--bg4);color:#fff}
+.mp-war-item .kv{margin-inline-start:auto;color:var(--mute);font-size:10.5px}
+.mp-war-item input{accent-color:var(--accent)}

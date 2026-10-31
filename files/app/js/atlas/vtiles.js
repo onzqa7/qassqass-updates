@@ -18,7 +18,7 @@
     const fs0 = G.features(era, 0);
     const drawsAnything = (E.oceanTint && E.tintA > 0 && !E.vector) || E.vector || E.fill !== 'none' || L.borders || L.graticule || L.rivers || L.provinces || st.grid;
     if (!drawsAnything) return null;
-    const look = { vector: E.vector ? 1 : 0, ocean: st.ocean, ocean2: st.ocean2, land: st.land, fill: E.fill, fillA: E.fillA, pal: (st.palette || 'vivid'), border: st.border, bw: (st.bw || 1) * (L.borderW || 1), coast: L.coast ? (st.coast || st.border) : null, borders: L.borders ? 1 : 0, glow: st.glow ? 1 : 0, dash: st.dash ? 1 : 0, tint: E.oceanTint && E.tintA > 0 && !E.vector ? E.oceanTint + '@' + E.tintA : null,
+    const look = { vector: E.vector ? 1 : 0, ocean: st.ocean, ocean2: st.ocean2, land: st.land, fill: E.fill, fillA: E.fillA, pal: (st.palette || 'vivid'), border: st.border, bw: (st.bw || 1) * (L.borderW || 1), coast: L.coast ? (st.coast || st.border) : null, borders: L.borders ? 1 : 0, glow: st.glow ? 1 : 0, dash: st.dash ? 1 : 0, ...(st.bstyle ? { bstyle: st.bstyle, bcol: st.bcol || null } : {}), tint: E.oceanTint && E.tintA > 0 && !E.vector ? E.oceanTint + '@' + E.tintA : null,
       grid: (st.grid || L.graticule) ? (st.gridC || (E.vector ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.22)')) : null, rivers: L.rivers && G.rivers ? 1 : 0, lakes: L.lakes && G.lakes && E.vector ? 1 : 0, prov: L.provinces && era.src === 'modern' && G.admin1 ? 1 : 0, era: era.src === 'cs' ? 'cs' + setSig(fs0) : era.id, land: G.landHi ? 'h' : 'l' };
     const id = 'vec:' + hashStr(JSON.stringify(look));
     if (!VT.specs.has(id)) VT.specs.set(id, { look, era: { ...era } });
@@ -75,7 +75,8 @@
     if (L.lakes && G.lakes) { g.beginPath(); path(G.lakes); g.fillStyle = L.ocean; g.fill(); }
     if (L.rivers && G.rivers) { g.beginPath(); path(G.rivers); g.lineWidth = .9 * k; g.strokeStyle = L.vector ? shade(L.ocean, -.05) : 'rgba(140,195,255,.7)'; g.stroke(); }
     if (L.prov && G.admin1 && z >= 3) { const ps = G.admin1.filter(f => boundsHit(f.bounds, lo0 - pad, lo1 + pad, la0 - pad, la1 + pad)); g.beginPath(); for (const f of ps) path(f); g.setLineDash([3 * k, 3 * k]); g.lineWidth = .6 * k; g.strokeStyle = L.vector ? 'rgba(120,120,120,.55)' : 'rgba(255,255,255,.4)'; g.stroke(); g.setLineDash([]); }
-    if (L.borders && feats.length) {
+    if (L.borders && feats.length && L.bstyle && A.FX && A.FX.tileBorders) A.FX.tileBorders(g, proj, feats, L, k, { z, x, y, SZ, era: spec.era, land }); // stylised global borders (fxpack.js)
+    else if (L.borders && feats.length) {
       g.save(); if (spec.era.src !== 'modern' && land) { g.beginPath(); path(land); g.clip(); }
       g.beginPath(); for (const f of feats) path(f); g.lineJoin = 'round';
       if (L.glow) { g.shadowColor = L.border; g.shadowBlur = 6 * k; }

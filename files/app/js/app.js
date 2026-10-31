@@ -13,7 +13,7 @@
     effects: { n: 'تأثيرات', tl: ['fxc', 'source'], tr: ['program'], bl: ['project', 'history'], br: ['timeline'], side: ['effects', 'graphics'], v: { '--c1': '38%', '--c4': '24%', '--r1': '55%', '--c3': '300px' } },
     audio: { n: 'صوت', tl: ['mixer', 'fxc'], tr: ['program'], bl: ['project', 'effects'], br: ['timeline'], side: ['sfx'], v: { '--c1': '40%', '--c4': '24%', '--r1': '52%', '--c3': '360px' } },
     graphics: { n: 'رسومات', tl: ['fxc', 'source'], tr: ['program'], bl: ['project'], br: ['timeline'], side: ['graphics'], v: { '--c1': '34%', '--c4': '24%', '--r1': '56%', '--c3': '330px' } },
-    maps: { n: 'الخرائط', tl: ['fxc', 'source'], tr: ['program'], bl: ['project', 'effects'], br: ['timeline'], side: ['maps'], v: { '--c1': '26%', '--c4': '22%', '--r1': '62%', '--c3': '400px' } }
+    maps: { n: 'الخرائط', tl: ['mapcam', 'source'], tr: ['program'], bl: ['fxc', 'project', 'effects'], br: ['timeline'], side: ['maps'], v: { '--c1': '52%', '--c4': '46%', '--r1': '58%', '--c3': '360px' } }
   };
   const FR = { tl: 'F_tl', tr: 'F_tr', bl: 'F_bl', br: 'F_br', side: 'F_side' };
   GW.active = { ws: 'edit', tabs: {} };
@@ -133,6 +133,7 @@
   };
   C.del = (ripple) => {
     const s = GW.seq();
+    if (!ripple && GW.CamKeys && GW.CamKeys.del()) return; // selected map camera keys (Effect Controls / viewer)
     if (GW.sel.trans) { s.trans = s.trans.filter(t => t.id !== GW.sel.trans); GW.sel.trans = null; GW.commit('حذف انتقال'); return; }
     const cs = sel(); if (!cs.length) { if (GW.TL && GW.TL.gap) { const g = GW.TL.gap; GW.TL.gap = null; GW.TL.rippleDeleteGapAtPlayhead({ tt: g.tt, ti: g.ti }, (g.t0 + g.t1) / 2); return; } if (ripple && GW.TL) GW.TL.rippleDeleteGapAtPlayhead(); return; }
     const withLinks = new Set(cs); cs.forEach(c => GW.linked(s, c).forEach(l => withLinks.add(l)));
@@ -180,12 +181,14 @@
   C.exportMedia = () => GW.UI.exportDialog();
   C.exportFrame = () => GW.UI.exportFrame();
   C.copy = (cut) => {
+    if (!cut && GW.CamKeys && GW.CamKeys.copy()) return; GW.lastCopy = 'clips';
     const cs = sel(); if (!cs.length) return; const s = GW.seq(); const all = new Set(cs); cs.forEach(c => GW.linked(s, c).forEach(l => all.add(l)));
     const t0 = Math.min(...[...all].map(c => c.start));
     GW.clipboard = { t0, clips: GW.clone([...all]) };
     if (cut) { [...all].forEach(c => GW.ops.remove(s, c)); GW.commit('قص'); } else GW.toast('تم النسخ: ' + all.size + ' مقطع');
   };
   C.paste = (insert) => {
+    if (!insert && GW.CamKeys && GW.CamKeys.paste()) return;
     const cb = GW.clipboard; if (!cb) return; const s = GW.seq(); const off = s.t - cb.t0; const linkMap = {};
     const dur = Math.max(...cb.clips.map(c => c.start + c.dur)) - cb.t0;
     if (insert) GW.ops.rippleInsert(s, s.t, dur, GW.ops.allTracks(s));
@@ -230,7 +233,7 @@
   };
   C.reveal = () => { const c = sel().find(x => x.media); if (!c) { GW.toast('المقطع المحدد ليس من ملف وسائط'); return; } GW.sel.media.clear(); GW.sel.media.add(c.media); GW.showPanel('project'); GW.UI.renderProject && GW.UI.renderProject(); const el = document.querySelector(`[data-panel=project] .pitem[data-id="${c.media}"]`); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' }); };
   // keyframe navigation / clipboard (all animated params of the selected clip, playhead-relative like Premiere's Effect Controls)
-  C.gotoKey = (dir) => { const s = GW.seq(); const cs = sel(); if (!cs.length) return; let best = null; for (const c of cs) GW.eachParam(c, p => { if (!p.k) return; for (const k of p.k) { const t = c.start + k.t; if (dir > 0 ? t > s.t + 1e-4 : t < s.t - 1e-4) { if (best == null || (dir > 0 ? t < best : t > best)) best = t; } } }); if (best != null) GW.seek(best); else GW.toast(dir > 0 ? 'لا يوجد مفتاح تالٍ' : 'لا يوجد مفتاح سابق'); };
+  C.gotoKey = (dir) => { const s = GW.seq(); const cs = sel(); if (!cs.length) return; let best = null; for (const c of cs) if (GW.CamKeys) for (const t of GW.CamKeys.times(c)) { if (dir > 0 ? t > s.t + 1e-4 : t < s.t - 1e-4) { if (best == null || (dir > 0 ? t < best : t > best)) best = t; } } for (const c of cs) GW.eachParam(c, p => { if (!p.k) return; for (const k of p.k) { const t = c.start + k.t; if (dir > 0 ? t > s.t + 1e-4 : t < s.t - 1e-4) { if (best == null || (dir > 0 ? t < best : t > best)) best = t; } } }); if (best != null) GW.seek(best); else GW.toast(dir > 0 ? 'لا يوجد مفتاح تالٍ' : 'لا يوجد مفتاح سابق'); };
   C.copyKeys = () => { const s = GW.seq(); const c = sel()[0]; if (!c) return; const lt = s.t - c.start; const out = []; let i = 0; GW.eachParam(c, p => { const k = GW.keyAt(p, lt); if (k) out.push({ i, v: GW.clone(k.v), e: k.e, ez: k.ez ? GW.clone(k.ez) : undefined }); i++; }); if (!out.length) { GW.toast('لا توجد مفاتيح عند مؤشر التشغيل'); return; } GW.keyClipboard = { n: i, keys: out }; GW.toast('تم نسخ ' + out.length + ' مفتاح'); };
   C.pasteKeys = () => { const kb = GW.keyClipboard; if (!kb) return; const s = GW.seq(); const cs = sel(); if (!cs.length) return; let n = 0; for (const c of cs) { const lt = clamp(GW.snapFrame(s.t - c.start, s.fps), 0, c.dur); if (s.t < c.start || s.t > c.start + c.dur) continue; let i = 0; GW.eachParam(c, p => { const k = kb.keys.find(x => x.i === i); i++; if (!k) return; if (!p.k) p.k = []; const ex = GW.keyAt(p, lt); if (ex) { ex.v = GW.clone(k.v); ex.e = k.e; } else p.k.push({ t: lt, v: GW.clone(k.v), e: k.e || 'linear' }); p.k.sort((a, b) => a.t - b.t); n++; }); } if (n) { GW.commit('لصق مفاتيح'); GW.bus.emit('param'); GW.invalidate(); } else GW.toast('ضع مؤشر التشغيل داخل المقطع الهدف'); };
   C.zoomSel = () => { if (!GW.TL) return; const cs = sel(); const s = GW.seq(); let a, b; if (cs.length) { a = Math.min(...cs.map(c => c.start)); b = Math.max(...cs.map(c => c.start + c.dur)); } else if (s.inP != null && s.outP != null) { a = s.inP; b = s.outP; } else { GW.TL.fit(); return; } GW.TL.zoomTo(a, b); };
@@ -309,7 +312,7 @@
     ]],
     ['نافذة', () => [
       ...Object.keys(GW.WS).map(k => ({ label: 'مساحة عمل: ' + GW.WS[k].n, check: GW.active.ws === k, action: () => GW.setWorkspace(k) })), '-',
-      ...['project', 'browser', 'source', 'program', 'timeline', 'fxc', 'effects', 'graphics', 'lumetri', 'scopes', 'mixer', 'sfx', 'markers', 'history', 'maps'].map(id => ({ label: GW.panels[id] ? GW.panels[id].title : id, action: () => GW.showPanel(id) })),
+      ...['project', 'browser', 'source', 'program', 'timeline', 'fxc', 'effects', 'graphics', 'lumetri', 'scopes', 'mixer', 'sfx', 'markers', 'history', 'maps', 'mapcam'].map(id => ({ label: GW.panels[id] ? GW.panels[id].title : id, action: () => GW.showPanel(id) })),
       '-', { label: 'إعادة ضبط مساحة العمل', action: () => { try { localStorage.removeItem('gws.layout.' + GW.active.ws); } catch (e) {} GW.setWorkspace(GW.active.ws); } }
     ]],
     ['مساعدة', () => [{ label: 'الشاشة الرئيسية', action: () => GW.UI.home() }, { label: 'اختصارات لوحة المفاتيح', action: C.shortcuts }, { label: 'حول قص قص', action: C.about }]]
@@ -356,7 +359,7 @@
     switch (K) {
       case ' ': return run(() => GW.play(1));
       case 'l': return run(() => { jkl = PB.playing && PB.rate > 0 ? Math.min(8, PB.rate * 2) : 1; GW.stop(); GW.play(jkl); });
-      case 'k': return run(() => GW.stop());
+      case 'k': return run(() => { if (!GW.pb.playing && GW.CamKeys && GW.CamKeys.kKey()) return; GW.stop(); });
       case 'j': return run(() => { jkl = PB.playing && PB.rate < 0 ? Math.max(-8, PB.rate * 2) : -1; GW.stop(); GW.play(jkl); });
       case 'ArrowLeft': return run(() => C.step(sh ? -5 : -1)); case 'ArrowRight': return run(() => C.step(sh ? 5 : 1));
       case 'ArrowUp': return run(() => C.editPoint(-1)); case 'ArrowDown': return run(() => C.editPoint(1));

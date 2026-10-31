@@ -128,7 +128,7 @@
   // playback & navigation
   def('play.toggle', 'تشغيل / إيقاف', ['Space'], () => GW.play(1));
   def('play.fwd', 'تشغيل للأمام (أسرع مع كل ضغطة)', ['L'], () => { const p = PB(); jkl = p.playing && p.rate > 0 ? Math.min(8, p.rate * 2) : 1; GW.stop(); GW.play(jkl); });
-  def('play.stop', 'إيقاف', ['K'], () => GW.stop());
+  def('play.stop', 'إيقاف (أو مفتاح كاميرا للخريطة المحددة عند التوقف)', ['K'], () => { if (!GW.pb.playing && GW.CamKeys && GW.CamKeys.kKey()) return; GW.stop(); });
   def('play.rev', 'تشغيل للخلف (أسرع مع كل ضغطة)', ['J'], () => { const p = PB(); jkl = p.playing && p.rate < 0 ? Math.max(-8, p.rate * 2) : -1; GW.stop(); GW.play(jkl); });
   def('play.stepB', 'إطار للخلف', ['Left'], () => C().step(-1), { rep: 1 });
   def('play.stepF', 'إطار للأمام', ['Right'], () => C().step(1), { rep: 1 });

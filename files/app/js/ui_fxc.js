@@ -66,7 +66,7 @@
     sec.append(h, body); sec.body = body; return sec;
   }
 
-  F.builders = { section, row, numCtl, pointCtl, colorCtl, boolCtl, selectCtl, lt }; F.extra = F.extra || []; // for additive sections registered by other modules
+  F.builders = { section, row, numCtl, pointCtl, colorCtl, boolCtl, selectCtl, lt, graphTwirl: (...a) => graphTwirl(...a) }; F.extra = F.extra || []; // for additive sections registered by other modules
   /* ---------- render ---------- */
   F.render = () => {
     if (!F.left) return; const L = F.left; const sc = L.scrollTop; L.innerHTML = ''; F.rows = [];
@@ -264,9 +264,10 @@
       g.fillStyle = 'rgba(255,255,255,.03)'; g.fillRect(0, rb.top - base, w, rb.height);
       const p = r._p; const cc = r._c; if (!p || !p.k) continue;
       const Xr = t => pad + (t / Math.max(cc.dur, .001)) * (w - pad * 2);
-      for (const k of p.k) { const x = Xr(k.t); const sel = F.selKey === k; g.fillStyle = sel ? '#5aa9ff' : '#d7d7d7'; g.beginPath(); if (k.e === 'hold') { g.rect(x - 4, y - 4, 8, 8); } else if (k.e === 'ease' || k.e === 'easeIn' || k.e === 'easeOut') { g.arc(x, y, 4.5, 0, 7); } else { g.moveTo(x, y - 5); g.lineTo(x + 5, y); g.lineTo(x, y + 5); g.lineTo(x - 5, y); g.closePath(); } g.fill(); F.keyHits.push({ x, y, k, p, c: cc }); }
+      for (const k of p.k) { const x = Xr(k.t); const sel = F.selKey === k || !!k._sel; g.fillStyle = sel ? '#5aa9ff' : '#d7d7d7'; g.beginPath(); if (k.e === 'hold') { g.rect(x - 4, y - 4, 8, 8); } else if (k.e === 'ease' || k.e === 'easeIn' || k.e === 'easeOut') { g.arc(x, y, 4.5, 0, 7); } else { g.moveTo(x, y - 5); g.lineTo(x + 5, y); g.lineTo(x, y + 5); g.lineTo(x - 5, y); g.closePath(); } g.fill(); F.keyHits.push({ x, y, k, p, c: cc }); }
     }
     drawGraphs(g, w, h, base, pad);
+    if (F.box) { const [x0, y0, x1, y1] = F.box; g.fillStyle = 'rgba(90,169,255,.12)'; g.fillRect(x0, y0, x1 - x0, y1 - y0); g.strokeStyle = '#5aa9ff'; g.lineWidth = 1; g.strokeRect(x0 + .5, y0 + .5, x1 - x0, y1 - y0); }
     const px = X(s.t - c.start); if (px >= 0 && px <= w) { g.fillStyle = '#2f8ef0'; g.fillRect(px - 1, 0, 2, h); }
   };
   function initKeyLane() {
@@ -274,6 +275,8 @@
     el.addEventListener('pointerdown', e => {
       const r = el.getBoundingClientRect(); const x = e.clientX - r.left, y = e.clientY - r.top; const c = sel1(); if (!c) return;
       const hk = (F.keyHits || []).find(k => Math.abs(k.x - x) < 6 && Math.abs(k.y - y) < 7);
+      if (hk && hk.p && hk.p._cam && F.camDown) { F.camDown(e, hk, x, y, el); return; } // map camera keys (ui_mapcam.js)
+      if (!hk && F.camBox && F.camBox(e, x, y, el)) return;
       if (hk) {
         F.selKey = hk.k; F.drawKeys(); el.setPointerCapture(e.pointerId); const t0 = hk.k.t; const x0 = x;
         el.onpointermove = ev => { const xx = ev.clientX - r.left; const dt = (xx - x0) / (r.width - 16) * hk.c.dur; hk.k.t = clamp(GW.snapFrame(t0 + dt, GW.seq().fps), 0, hk.c.dur); hk.p.k.sort((a, b) => a.t - b.t); GW.invalidate(); F.drawKeys(); };
@@ -287,6 +290,7 @@
     el.addEventListener('contextmenu', e => {
       e.preventDefault(); const r = el.getBoundingClientRect(); const x = e.clientX - r.left, y = e.clientY - r.top;
       const hk = (F.keyHits || []).find(k => Math.abs(k.x - x) < 6 && Math.abs(k.y - y) < 7); if (!hk) return;
+      if (hk.p && hk.p._cam && F.camMenu) { F.camMenu(e, hk); return; }
       const set = (v) => { hk.k.e = v; delete hk.k.bi; delete hk.k.bo; GW.commit('نوع الاستيفاء'); GW.invalidate(); F.drawKeys(); };
       GW.menu(e.clientX, e.clientY, [['linear', 'خطي'], ['ease', 'تسهيل (Bezier)'], ['easeIn', 'تسهيل الدخول'], ['easeOut', 'تسهيل الخروج'], ['hold', 'ثبات']].map(([v, n]) => ({ label: n, cmd: EASE_CMD[v], check: (hk.k.e || 'linear') === v && !hk.k.bi && !hk.k.bo, action: () => set(v) })).concat(['-', ...graphMenu(hk), '-', { label: 'حذف المفتاح', action: () => { hk.p.k = hk.p.k.filter(k => k !== hk.k); if (!hk.p.k.length) { hk.p.v = hk.k.v; delete hk.p.k; } GW.commit('حذف مفتاح'); F.render(); } }]));
     });
@@ -330,7 +334,7 @@
       for (let i = 0; i <= 4; i++) { const y = Math.round(y0 + (y1 - y0) * i / 4) + .5; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
       const N = Math.max(40, Math.min(600, Math.round(w))); const ts = []; for (let i = 0; i <= N; i++) ts.push(c.dur * i / N);
       const nC = chans(p.k[0].v).length; const ACC = accent(); const COLS = nC === 1 ? [ACC] : ['#e8574a', '#5ec46a', '#4f9df7', '#d6c04a'];
-      const val = t => chans(GW.pv(p, t));
+      const val = t => chans(p._val ? p._val(t) : GW.pv(p, t)); // camera view params evaluate the real camera
       const segs = []; for (let i = 0; i < p.k.length - 1; i++) segs.push([p.k[i], p.k[i + 1]]);
       if (mode === 'value') {
         const S = ts.map(val); const lo = [], hi = [];
@@ -367,7 +371,7 @@
     const P = [['bo', Xr(A.t + H[0] * dt), segY(H[1]), Xr(A.t), segY(0)], ['bi', Xr(A.t + H[2] * dt), segY(H[3]), Xr(B.t), segY(1)]];
     for (const [kind, x, y, kx, ky] of P) { g.strokeStyle = '#bdbdbd'; g.lineWidth = 1; g.beginPath(); g.moveTo(kx, ky); g.lineTo(x, y); g.stroke(); g.fillStyle = col; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); hit(kind, x, y); }
   }
-  function keyDot(g, x, y, k, p, c) { g.fillStyle = F.selKey === k ? '#5aa9ff' : '#e6e6e6'; g.beginPath(); g.moveTo(x, y - 5); g.lineTo(x + 5, y); g.lineTo(x, y + 5); g.lineTo(x - 5, y); g.closePath(); g.fill(); (F.keyHits || (F.keyHits = [])).push({ x, y, k, p, c }); }
+  function keyDot(g, x, y, k, p, c) { g.fillStyle = F.selKey === k || k._sel ? '#5aa9ff' : '#e6e6e6'; g.beginPath(); g.moveTo(x, y - 5); g.lineTo(x + 5, y); g.lineTo(x, y + 5); g.lineTo(x - 5, y); g.closePath(); g.fill(); (F.keyHits || (F.keyHits = [])).push({ x, y, k, p, c }); }
   function initGraph() {
     const el = F.right;
     el.addEventListener('pointerdown', e => {
@@ -396,10 +400,12 @@
   }
   // Easy Ease (F9) and friends: selected keyframe, else every keyframe of the selected clip under the playhead
   F.easeKeys = (mode) => {
+    if (!F.selKey && GW.CamKeys && GW.CamKeys.sel.length) { const n = GW.CamKeys.ease(mode); F.render(); return n; } // selected map camera keys
     const c = sel1(); let ks = [];
+    const nc = !F.selKey && GW.CamKeys && c && c.kind === 'map' ? GW.CamKeys.ease(mode) : 0;
     if (F.selKey) ks = [F.selKey];
     else if (c) { const t = lt(c); GW.eachParam(c, p => { const k = GW.keyAt(p, t); if (k) ks.push(k); }); }
-    if (!ks.length) { GW.toast('حدد مفتاحًا، أو ضع مؤشر التشغيل على مفاتيح المقطع المحدد'); return 0; }
+    if (!ks.length) { if (nc) { F.render(); return nc; } GW.toast('حدد مفتاحًا، أو ضع مؤشر التشغيل على مفاتيح المقطع المحدد'); return 0; }
     const tog = mode === 'hold' && ks.every(k => k.e === 'hold');
     for (const k of ks) { k.e = tog ? 'linear' : mode; delete k.bi; delete k.bo; }
     GW.commit(({ ease: 'تسهيل سهل', easeIn: 'تسهيل الدخول', easeOut: 'تسهيل الخروج', hold: 'مفتاح ثابت', linear: 'استيفاء خطي' })[mode] || 'نوع الاستيفاء'); GW.invalidate(); F.render();

@@ -381,6 +381,7 @@
         g.stroke();
         if (Pp.k) for (const k of Pp.k) { const kx = TL.x(c.start + k.t), ky = toY(k.v); if (kx < xa - 5 || kx > xb + 5) continue; g.fillStyle = C.band; g.beginPath(); g.moveTo(kx, ky - 3.5); g.lineTo(kx + 3.5, ky); g.lineTo(kx, ky + 3.5); g.lineTo(kx - 3.5, ky); g.closePath(); g.fill(); g.strokeStyle = 'rgba(0,0,0,.6)'; g.stroke(); }
       }
+      if (c.kind === 'map' && GW.CamKeys) GW.CamKeys.tlDraw(g, c, TL, xa, xb, y, h); // camera keyframes (ui_mapcam.js)
       // name chip + fx badge (label sticks to the visible left edge)
       if (w > 14) {
         let tx = Math.max(X0, 0) + 5; const ty = tall ? y + 11.5 : y + h / 2 + 4;

@@ -70,5 +70,7 @@
     const feats = G.features(era, lod) || G.features(era, 0); const f = G.hit(feats, ll);
     return { ll, f, era, vw };
   };
-  A.newScene = (o = {}) => { const sc = S.blank(); Object.assign(sc, o); return sc; };
+  // user defaults («الإعدادات الافتراضية لكل الخرائط»): style, mode and look applied to every new map
+  A.mapDefaults = (v) => { try { if (v !== undefined) { if (v) localStorage.setItem('qq.mapDefaults', JSON.stringify(v)); else localStorage.removeItem('qq.mapDefaults'); } return JSON.parse(localStorage.getItem('qq.mapDefaults') || 'null'); } catch (e) { return null; } };
+  A.newScene = (o = {}) => { const sc = S.blank(); const d = A.mapDefaults(); if (d) { if (d.style && S.STYLES[d.style]) sc.style = d.style; if (d.mode) sc.mode = d.mode; if (d.look) Object.assign(sc.look, JSON.parse(JSON.stringify(d.look))); } Object.assign(sc, o); if (d && d.style && o.style && o.style === 'cinema') sc.style = d.style; return sc; };
 })();

@@ -1,8 +1,8 @@
 {
- "version": "2.5.3",
- "date": "2026-10-31T11:22:52.273Z",
- "notes_ar": "النمط السينمائي: إضاءة على الأرض (إبراز المرتفعات والأضواء) وتشبع أهدأ وأبرد مثل المرجع.",
- "notes_en": "Cinematic style: lit land highlights and calmer, cooler saturation like the reference.",
+ "version": "2.6.0",
+ "date": "2026-10-31T16:28:42.092Z",
+ "notes_ar": "الإصدار 2.6: كي فريم الكاميرا من جديد (قسم الكاميرا في عناصر التحكم، تسجيل تلقائي، تنعيم لكل مفتاح، مسار الحركة) ولوحة «كاميرا الخريطة» المستقلة؛ حرب بين الدول مع اختيار المحافظات والمدن المنتقلة وأنيميشن القتال (اشتباك، قصف، غارات، تطويق، حصار) ولوحة نتيجة؛ نمط «راية» للقائد وتحريكه إلى المدن؛ سحب متحركة، أساليب حركة الأسهم، بطاقات أسماء، أنماط حدود (ناشيونال جيوغرافيك، تاريخي، نيون)، استيراد GPX، نمطا «مهمة سرية» و«ورق وقص»، ومحافظات مرفوعة ثلاثية الأبعاد؛ إعدادات افتراضية لكل الخرائط؛ وإخفاء اسم الدولة عند التقريب.",
+ "notes_en": "2.6: rebuilt camera keyframes + separate Map Camera viewer; war campaigns with province/city transfers and combat FX; banner leader style + move-to-city; clouds, movement styles, callouts, border styles, GPX import, Mission and Paper looks, 3D districts; user map defaults.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -24,8 +24,8 @@
   },
   {
    "path": "app/css/app.css",
-   "size": 110701,
-   "sha256": "19cca75a7ff0cec19d07f0d232a59df011ab0697858de187be6d9406570d21c2"
+   "size": 111649,
+   "sha256": "079c0d6a42a1d0c3ad7887e751027e427ab881a4e8c5dd58865887f19a57e302"
   },
   {
    "path": "app/fonts/amiri-arabic-400-normal.woff2",
@@ -684,13 +684,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 171560,
-   "sha256": "94b13bb6c11cfeb1118c0650c12deb3696a0ef0e712be175cc6b191a2e0eccf5"
+   "size": 193420,
+   "sha256": "e952bc3594ceca6184eb531e2778972063ac8b2505a2ac56fedebae47c2216ad"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 167560,
-   "sha256": "9e093b5114d0138e1280928120516782552cfdc97dedf4223d75704e3ac37f53"
+   "size": 190132,
+   "sha256": "bd9b7e99515bbb01bc4c06231bdeba9a97087a5269123b50f839705ab1adc65c"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -724,18 +724,18 @@
   },
   {
    "path": "app/index.html",
-   "size": 4700,
-   "sha256": "4e0b8c8fb19ddd7332fd7be640cd2044cc7c7930f6cfd1f1942df538ac23be06"
+   "size": 4900,
+   "sha256": "c153a35d02da7856755763ae6aef88e9e90a0b8bd0d33a1b2dbeb0e5f10539e1"
   },
   {
    "path": "app/js/api.js",
-   "size": 63303,
-   "sha256": "a57dcce444bf4877f4870586049a6ecb277238bdd8b3df3ec5ddd17bb9524645"
+   "size": 79424,
+   "sha256": "07d9df438bd48c655a130bad56b32b878d0e77575d94e15b50a58d0e042cba41"
   },
   {
    "path": "app/js/app.js",
-   "size": 46252,
-   "sha256": "8733e7dec49f1205b0cca9ce43c30c6998defc2dbd8bdd0381a2a1f926067ac4"
+   "size": 46786,
+   "sha256": "bbdf9c221c4938a2b50f9806f3673289978112a067d41d5a0e04edefaa563acf"
   },
   {
    "path": "app/js/asr_core.js",
@@ -744,13 +744,18 @@
   },
   {
    "path": "app/js/atlas/atlas.js",
-   "size": 5246,
-   "sha256": "db4c27f61ed8032388d766886ed04fc201c798c05705ff9eec942b2b346ca41f"
+   "size": 5920,
+   "sha256": "fdaad035341457920189c044caf0adae1cc8735ff6ec58492f19ca978aa85f29"
   },
   {
    "path": "app/js/atlas/camera.js",
-   "size": 15662,
-   "sha256": "e1a848ff33d218d4a311cde57438631cb676753ef1b7cb4d7a97d4082f403a70"
+   "size": 36133,
+   "sha256": "589e4fdb6405fca59ee8cb916557fe0bd0421494b38205cf57ad82892c4932ec"
+  },
+  {
+   "path": "app/js/atlas/fxpack.js",
+   "size": 70166,
+   "sha256": "cef2ea8d3f21e3ee1a6b2d3c7bcc2cc6aff909da04fb312925580265282fa1d4"
   },
   {
    "path": "app/js/atlas/geo.js",
@@ -774,13 +779,18 @@
   },
   {
    "path": "app/js/atlas/vector.js",
-   "size": 59043,
-   "sha256": "a83b1fae833c53e3866c033d840751e99d247bf9e4170909ad507ac001a0b8dd"
+   "size": 59975,
+   "sha256": "058987b4ebb22325bfcfa5de5275324bf99823e7ab6760c5079004448062adc3"
   },
   {
    "path": "app/js/atlas/vtiles.js",
-   "size": 8653,
-   "sha256": "46559d448fd212216b94a4bdd38426501a8d646c7bd7f871fbb85a0b386ed80d"
+   "size": 8918,
+   "sha256": "27cd209bed839e718a0c434dad64b265569b7f5eea98ef639ce1b764a0d6c369"
+  },
+  {
+   "path": "app/js/atlas/war.js",
+   "size": 76367,
+   "sha256": "353e4907c27bf644e784ddfdcb65eda9676643c8a51774a7fa7b318f20e120ac"
   },
   {
    "path": "app/js/audio.js",
@@ -864,8 +874,8 @@
   },
   {
    "path": "app/js/shortcuts.js",
-   "size": 40504,
-   "sha256": "d11287cd75d2e41bf2b8fb1a82c9db99f67f734ea3f6378556b6f9db3813a980"
+   "size": 40653,
+   "sha256": "b1f440680f67325fac31d346e2eee64fc7abefe03107ba79d0f2bc26b9b01ad6"
   },
   {
    "path": "app/js/text.js",
@@ -899,8 +909,8 @@
   },
   {
    "path": "app/js/ui_chrome.js",
-   "size": 12517,
-   "sha256": "b5f18679ec91789c99b35f5d3cdb566777965d7cbf4404c100560381852cf534"
+   "size": 12545,
+   "sha256": "0eb13cd6cc8ea6fdfecea2db5a371f15c7899fbe074a36d7bee2c8a8a82265fb"
   },
   {
    "path": "app/js/ui_export.js",
@@ -914,8 +924,13 @@
   },
   {
    "path": "app/js/ui_fxc.js",
-   "size": 46726,
-   "sha256": "0cf9193efc779d61d401620e9eb943b89f0a1f442c7b3318c007c941bb62a154"
+   "size": 47604,
+   "sha256": "cc54a4c21868e454586cd9d49b0530b5eafffdb983966005f4df2f06b8ed9ddb"
+  },
+  {
+   "path": "app/js/ui_fxpack.js",
+   "size": 17636,
+   "sha256": "af1d3d8810819adba25a4c46cc8d682145c26106d8264a8c3639abefc0e60632"
   },
   {
    "path": "app/js/ui_home.js",
@@ -924,8 +939,13 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 96357,
-   "sha256": "19f1d443a9938eea4b8a816e26360a7e7a2e81c381e47bae9a3d2ab59a21b730"
+   "size": 102735,
+   "sha256": "3670a537b58a45b36651a5136925b57f3aeb12224b7e4262fbfe72d1fd1fc296"
+  },
+  {
+   "path": "app/js/ui_mapcam.js",
+   "size": 44791,
+   "sha256": "e910c69e72b0179d8bde81c09f2f1e3840626efb6d3d1debecde64cd7090e4ae"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -954,8 +974,8 @@
   },
   {
    "path": "app/js/ui_timeline.js",
-   "size": 90631,
-   "sha256": "e4dc7a30fe5723f2ddf205b78cbc725cbed35ee88a680263e5032fdffbb8daa6"
+   "size": 90751,
+   "sha256": "2585b52294b2f77c322fe7d5d42a9243101031d794f14399d03afcea95727797"
   },
   {
    "path": "app/js/ui_tts.js",
@@ -976,6 +996,11 @@
    "path": "app/js/ui_vtools.js",
    "size": 41734,
    "sha256": "1283a809e204b4a7fb5f1abe43b102e476eb9a74514e673515f0b2c80b77c2ce"
+  },
+  {
+   "path": "app/js/ui_war.js",
+   "size": 34471,
+   "sha256": "8f1a3e644cc070311cf3fd2528ec2cd3dad831d15a3bef585d7d9a50f718e27e"
   },
   {
    "path": "app/js/util.js",
@@ -4299,13 +4324,13 @@
   },
   {
    "path": "main.js",
-   "size": 49889,
-   "sha256": "24af0701667b0309dcaf843d8f8e053be2652129b6a82efe8f1197d3d84b6777"
+   "size": 50047,
+   "sha256": "93d78697e0af1efa93bcbfd35c436c2b203d6f73e7e53eec08c32f913534955a"
   },
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "4280d67a3541e468bdd18eefcb588c4e099644243e0cc6e907c2ac471564b9c0"
+   "sha256": "4340aa69dada4f99f2b4db4e73bed3bd3e11626be3e68851b2d1ed2733a88ccb"
   },
   {
    "path": "preload.js",
@@ -4318,5 +4343,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "pENn+vx8vKvYwpLyPJ9syNbz/GYV//iId07xxDC5SM/xN5XvRVz/b/oVUHqig6EeOA13j9rdegSj/P4iAC44CA=="
+ "sig": "4Ad/sS7KeOipQMe9vlPfHRxMERF781CGTa+/bZxL2clxAHfitgTb937HMw0vUhJVwbeCNxU8FzDn7ZjS51aPBA=="
 }

@@ -145,7 +145,8 @@ const FILTERS = {
   image: [{ name: 'صور', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg'] }],
   json: [{ name: 'JSON', extensions: ['json'] }],
   cube: [{ name: 'LUT (.cube)', extensions: ['cube'] }],
-  font: [{ name: 'خطوط', extensions: ['ttf', 'otf', 'woff', 'woff2'] }]
+  font: [{ name: 'خطوط', extensions: ['ttf', 'otf', 'woff', 'woff2'] }],
+  track: [{ name: 'مسارات (GPX / GeoJSON / KML)', extensions: ['gpx', 'geojson', 'json', 'kml'] }, { name: 'كل الملفات', extensions: ['*'] }]
 };
 ipcMain.handle('dlg:open', async (e, o = {}) => {
   const r = await dialog.showOpenDialog(win, { title: o.title || 'فتح', filters: FILTERS[o.filter] || undefined, properties: [o.folder ? 'openDirectory' : 'openFile', ...(o.multi ? ['multiSelections'] : []), 'createDirectory'], defaultPath: o.defaultPath });

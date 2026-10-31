@@ -30,6 +30,20 @@
    addMapScene({kind:'invasion'|'timeline'|'blank', from, targets:[…], year, style, mode:'globe'|'flat', color, headline, sub, date, arrow, start, dur, track, open, y0, y1, region}) → clip
    addMapLayer({id, type, …props, countries:[names], from, to:[names], place, photo:path, via:[places|[lon,lat]], look:'doc'})   → layer   (country/invasion/arrow/front/route/marker/label/range/date/title/legend/inset/data)
    setMapLook({id, preset:'doc_dark'|'doc_light', style, look:{…}})   → {style, look}
+   War campaigns (atlas/war.js; addMapLayer also takes clash/strike/troops/air/encircle/siege and front {mode:'attack'}):
+   addCampaign({id, sides:[{name, color, countries:[names], fill, border}], events:[{time, dur, from, to, provinces:[names], cities:[names], fx:'clash'|'strike'|'none'}], camera, legend}
+        | {quick:{a, b, year, events:N}, id?}) → campaign layer (quick = «حرب بين دولتين»: new clip unless id)
+   addCampaignEvent({id, layer, time, dur, from, to, provinces, cities, country, fx, origin:'border'|'city', text, camera}) → event
+   listProvinces({country}) → [{key, name, en, lon, lat}]      listCities({country, limit}) → [{key, name, en, lon, lat, capital}]
+   moveLeaderTo({id, layer, city | lon,lat, start, dur, style:'direct'|'curve'|'route'|'via'}) → move segment (leader travels, chains)
+   addMapLayer also takes the FX-pack types (atlas/fxpack.js): clouds {cover, scale, opacity, color, shadow, wind, speed, seed, pass, detail, above},
+        move {pts|via, preset:'route'|'army', dash:'solid'|'dash'|'dot'|'dashdot'|'rail'|'feet'|'ants', head:'classic'|'chevron'|'notched'|'open'|'none', taper, tail, march, comet, glow,
+              pulses, sym:'plane'|'jet'|'heli'|'missile'|'ship'|'tank'|'car'|'soldier'|'lib:tank'|'lib:ship'|'lib:soldier'|'dot', symN, loop, multi, spread, stagger, arc, curve},
+        callout {place|lon,lat, text, sub, style:'minimal'|'boxed'|'pill'|'doc'|'mission', dot:'ring'|'square'|'star'|'dot'|'target'|'none', dir:'auto'|'ne'|…, accent},
+        district {country:'السعودية' (all admin-1 regions) | regions:'name, name' | countries:[…], data:'name, value' lines, palette:'single'|'multi', lift, labels};
+        country layers: outline:'natgeo'|'historic'|'neon'|'ribbon', cut:1 (paper cut-out lift). Styles: 'mission' (HUD), 'papercut'; look.borderStyle: natgeo|historic|neon|ribbon
+   importRoute({id, path | text, name, follow=false, start, inDur=8, color, …move props}) → layer   GPX / GeoJSON / KML line → animated route (elevation profile when present);
+        follow: camera keys along the route (setCameraKey)
    addSfx({id|query, time, track})                → [clip]
    addMarker({time, name, color, note})           → marker
    Smart audio (js/audio_tools.js; each edit = one undo step):
@@ -64,6 +78,10 @@
    addTemplate({id, start, dur, track, fields:{key: value}}) → clip   animated template clip at the playhead (or start)
    setKeyEase({id, path, index|time|index:'all', ease:'linear'|'hold'|'ease'|'easeIn'|'easeOut'|'bezier', influence (%), in:[x,y], out:[x,y]}) → keys
         bezier handles are normalized to the segment: out = [influence 0…1, progress] after the key, in = before it (y=0 → zero speed)
+   listCameraKeys({id}) → {mode, animated:[groups], keys:[{time, groups, interp, ease, roving, lon, lat, zoom, …, in, out}]}   map camera keys
+   setCameraKey({id, time, lon, lat, zoom|altitudeKm, tilt, heading, roll, fov, offX, offY, interp:'fly'|'bezier'|'linear'|'hold', ease:'ease'|'easeIn'|'easeOut'|'linear', roving, in:[x,y], out:[x,y]}) → listCameraKeys
+        only the given properties are keyed (sparse per property, like After Effects); no values = key the current camera
+   deleteCameraKey({id, time, group:'pos'|'zoom'|'tilt'|'heading'|'roll'|'fov'|'off'} | {id, all:true}) → listCameraKeys
    batch({calls:[{method, params}], stopOnError=true}) → [{ok, result|error}]  */
 (function () {
   const VERSION = 1;
@@ -390,11 +408,24 @@
     if (p.look && type === 'country') Object.assign(o, S.docCountry(Object.assign({}, o)));
     if (p.countries) o.keys = p.countries.map(n => countryKey(n, era));
     if (p.from) o.from = countryKey(p.from, era); if (p.to) o.to = (Array.isArray(p.to) ? p.to : [p.to]).map(n => countryKey(n, era));
-    if (p.place) { const G = Geo(); G.loadAdmin1 && G.loadAdmin1(); const r = G.search(String(p.place), G.features(era, 0), 'ar', era, 5)[0]; if (!r) fail('place not found: ' + p.place); o.lon = r.lon; o.lat = r.lat; if (o.text == null && (type === 'marker' || type === 'label' || type === 'range')) o.text = r.name; }
+    if (p.place) { const G = Geo(); G.loadAdmin1 && G.loadAdmin1(); const r = G.search(String(p.place), G.features(era, 0), 'ar', era, 5)[0]; if (!r) fail('place not found: ' + p.place); o.lon = r.lon; o.lat = r.lat; if (o.text == null && (type === 'marker' || type === 'label' || type === 'range' || type === 'callout')) o.text = r.name; }
     if (p.pts) o.pts = p.pts.map(pt => Array.isArray(pt) ? [+pt[0], +pt[1]] : fail('pts: [[lon,lat],…]'));
     const L = S.newLayer(type, o); if (o.lon == null && L.pts && L.pts.length) { L.lon = L.pts[0][0]; L.lat = L.pts[0][1]; } scn.layers.push(L);
     GW.commit(label('طبقة خريطة: ' + S.LAYERS[type].ar)); GW.invalidate(); if (GW.MapUI && GW.MapUI.render) try { GW.MapUI.render(); } catch (e) {}
     return plain(L);
+  };
+  // GPX / GeoJSON / KML → animated route layer (atlas/fxpack.js); follow → camera keys along the route head
+  M.importRoute = async (p = {}) => {
+    const c = clipOf(p.id); if (c.kind !== 'map' || !c.map || !c.map.scene) fail('not a map clip: ' + p.id); const FX = A().FX; if (!FX) fail('fx pack not loaded');
+    let text = p.text; if (text == null) { if (!p.path) fail('path or text required'); text = await gws.readText(String(p.path)); }
+    let tr; try { tr = FX.parseTrack(text, p.name || (p.path ? String(p.path).split(/[\\/]/).pop().replace(/\.[^.]+$/, '') : '')); } catch (e) { fail(e.message); }
+    const props = {}; for (const k in p) if (!['id', 'path', 'text', 'name', 'follow', 'start', 'inDur', 'keys', 'zoomIn'].includes(k)) props[k] = p[k];
+    const L = FX.routeLayer(tr, { inDur: p.inDur != null ? +p.inDur : 8, props }); L.start = p.start != null ? Math.max(0, +p.start) : 0;
+    const scn = c.map.scene; scn.layers.push(L);
+    if (p.follow) FX.applyFollow(c, L, { keys: p.keys, zoomIn: p.zoomIn });
+    else { const bb = d3.geoBounds({ type: 'LineString', coordinates: L.pts }); const Cm = A().Cam; const f = Cm.fit ? Cm.fit(bb, 0, 0, .7) : null; if (f && !(scn.cam.keys || []).length) Object.assign(scn.cam, { lon: f.lon, lat: f.lat, zoom: f.zoom }); }
+    GW.commit(label('استيراد مسار')); GW.invalidate(); if (GW.MapUI && GW.MapUI.render) try { GW.MapUI.render(); } catch (e) {}
+    return Object.assign(plain(L), { points: L.pts.length, km: tr.km, elevation: !!tr.eles });
   };
   // one-click looks: {id, preset:'doc_dark'|'doc_light'} or {id, style, look:{…overrides}} (labels, borders, colours, grade — see Maps panel)
   M.setMapLook = async ({ id, preset, style, look } = {}) => {
@@ -406,6 +437,60 @@
     return { style: scn.style, look: plain(scn.look) };
   };
   M.listMapStyles = () => { const S = A().Scene; return { styles: S.STYLE_ORDER.map(k => ({ id: k, name: S.STYLES[k].ar })), layers: Object.entries(S.LAYERS).map(([k, v]) => ({ type: k, name: v.ar })), modes: ['globe', 'flat'], arrows: ['military', 'line', 'dashed', 'double'] }; };
+  /* ----- war campaigns (atlas/war.js) ----- */
+  const WRa = () => { const W = GW.Atlas && GW.Atlas.War; if (!W) fail('war module not available'); return W; };
+  const mapClip = (id) => { const c = clipOf(id); if (c.kind !== 'map' || !c.map || !c.map.scene) fail('not a map clip: ' + id); return c; };
+  async function ccFor(name, era) { const G = Geo(); const f = WRa().findCountry(String(name), era); if (!f) fail('unknown country: ' + name); return { f, cc: WRa().ccOf(f) }; }
+  function cityFor(n, cc) { const G = Geo(); const W = WRa(); if (n && typeof n === 'object' && n.lon != null) return { key: 'C:' + (n.name || n.n || 'x') + ':' + (cc || ''), n: n.name || n.n || '', a: n.ar || n.a || n.name || '', lon: +n.lon, lat: +n.lat };
+    const q = G.norm(String(n)); const ps = (G.places || []).filter(p => (!cc || p[7] === cc) && (G.norm(p[3]) === q || G.norm(p[2]) === q)); const p = ps.sort((a, b) => a[4] - b[4])[0] || (cc ? null : (W.cities ? null : null)); if (!p) { const any = (G.places || []).filter(x => G.norm(x[3]).includes(q) || G.norm(x[2]).includes(q)).sort((a, b) => a[4] - b[4])[0]; if (!any) fail('city not found: ' + n); return W.cityRec(any); } return W.cityRec(p); }
+  function provFor(n, cc) { const G = Geo(); const q = G.norm(String(n)); const ps = WRa().provinces(cc); const f = ps.find(x => G.norm(x.ar) === q || G.norm(x.en) === q) || ps.find(x => G.norm(x.ar).includes(q) || G.norm(x.en).includes(q)); if (!f) fail('province not found in ' + cc + ': ' + n + ' (see listProvinces)'); return f.key; }
+  // listProvinces({country, year}) → admin-1 provinces of a country (Arabic + English names)
+  M.listProvinces = async ({ country, year } = {}) => { if (!country) fail('country required'); const era = await eraFor(year || 2024); await WRa().loadA1(); const { cc } = await ccFor(country, era); return WRa().provinces(cc).map(f => ({ key: f.key, name: f.ar || f.en, en: f.en, type: f.properties.ty || '', lon: +f.lab[0].toFixed(3), lat: +f.lab[1].toFixed(3) })); };
+  // listCities({country, limit}) → cities of a country, biggest first
+  M.listCities = async ({ country, limit = 100, year } = {}) => { if (!country) fail('country required'); const era = await eraFor(year || 2024); const { cc } = await ccFor(country, era); return WRa().cities(cc).slice(0, limit).map(p => ({ key: 'C:' + p[2] + ':' + p[7], name: p[3] || p[2], en: p[2], lon: p[0], lat: p[1], capital: !!(p[6] & 1), rank: p[4] })); };
+  // addCampaign({id (map clip) | new clip, year, style, sides:[{name, color, countries:[names], fill, border}], events:[…], quick:{a, b, events}, camera, legend…}) → layer
+  M.addCampaign = async (p = {}) => {
+    const W = WRa(); const S = A().Scene;
+    if (p.quick) { // «حرب بين دولتين» quick builder
+      const q = p.quick; const s = seq(); const before = snapshot(s);
+      const into = p.id ? mapClip(p.id) : null; const L = await GW.WarUI.quickWar({ a: q.a, b: q.b, year: q.year || p.year || 2024, events: q.events || 5, fx: q.fx || 'mix', camera: p.camera === false ? 0 : 1, style: p.style || 'doc_dark', date: p.date ? 1 : 0, title: p.title || '', open: !!p.open }, into);
+      if (!L) fail('could not build the war (check the country names)'); GW.hist.labels[GW.hist.idx] = label('حرب بين دولتين'); amend();
+      const made = newIds(s, before); return Object.assign(plain(L), made.length ? { clip: made[0].id } : into ? { clip: into.id } : {});
+    }
+    const c = mapClip(p.id); const scn = c.map.scene; const era = await eraFor(p.year || GW.pv(scn.year, 0)); if (era.src !== 'hist') await W.loadA1();
+    const sides = []; for (const [i, sd] of (p.sides || []).entries()) { const keys = []; for (const n of sd.countries || []) keys.push((await ccFor(n, era)).f.key); sides.push({ id: sd.id || String.fromCharCode(97 + i), name: sd.name || (keys[0] ? Geo().name(Geo().features(era, 0).find(f => f.key === keys[0]), 'ar', era) : 'طرف ' + (i + 1)), color: sd.color || ['#a8322a', '#3c6e8f', '#b0893a', '#4a7a3c'][i % 4], countries: keys, fill: sd.fill == null ? .5 : +sd.fill, border: sd.border || 'solid', ...(sd.split === false ? { split: 0 } : {}) }); }
+    if (sides.length < 2) fail('a campaign needs at least two sides');
+    const o = {}; for (const k of ['name', 'start', 'dur', 'legend', 'legendPos', 'legendTitle', 'captions', 'showCities', 'flip', 'borders', 'cityR', 'labels', 'provLines']) if (p[k] != null) o[k] = p[k];
+    const L = S.newLayer('campaign', Object.assign({ sides, events: [], cities: [] }, o)); scn.layers.push(L);
+    for (const ev of p.events || []) await addEv(c, L, ev, era);
+    if (p.camera) W.applyCameraKeys(scn, W.cameraKeys(L, scn, {}));
+    GW.commit(label('حملة عسكرية')); GW.invalidate(); if (GW.MapUI && GW.MapUI.render) try { GW.MapUI.render(); } catch (e) {}
+    return plain(L);
+  };
+  async function addEv(c, L, ev, era) {
+    const W = WRa(); const sideId = (v, d) => { if (v == null) return d; const sd = L.sides.find(x => x.id === v || x.name === v) || L.sides[+v]; if (!sd) fail('unknown side: ' + v); return sd.id; };
+    const to = sideId(ev.to, L.sides[0].id), from = sideId(ev.from, (L.sides.find(x => x.id !== to) || {}).id);
+    const fromSide = L.sides.find(x => x.id === from); const f0 = fromSide && Geo().features(era, 0).find(f => f.key === fromSide.countries[0]); let cc = f0 ? W.ccOf(f0) : null;
+    if (ev.country) cc = (await ccFor(ev.country, era)).cc;
+    const units = (ev.provinces || []).map(n => String(n).startsWith('P:') ? n : provFor(n, cc)).concat(ev.units || []);
+    const cities = (ev.cities || []).map(n => cityFor(n, cc));
+    const e = { id: GW.uid(), t: +(ev.time != null ? ev.time : ev.t || 0), dur: +(ev.dur || 2.5), from, to, units, cities, origin: ev.origin || 'border', fx: ev.fx || 'clash', caption: ev.caption === false ? 0 : 1, ...(ev.text ? { text: ev.text } : {}), ...(ev.shake ? { shake: 1 } : {}) };
+    (L.events = L.events || []).push(e); L.events.sort((a, b) => a.t - b.t); return e;
+  }
+  // addCampaignEvent({id (map clip), layer, time, dur, from, to, provinces:[names], cities:[names|{name,lon,lat}], country, fx, origin, text}) → event
+  M.addCampaignEvent = async (p = {}) => {
+    const c = mapClip(p.id); const scn = c.map.scene; const L = scn.layers.find(x => x.type === 'campaign' && (!p.layer || x.id === p.layer)); if (!L) fail('no campaign layer in this map clip');
+    const era = await eraFor(GW.pv(scn.year, 0)); if (era.src !== 'hist') await WRa().loadA1();
+    const e = await addEv(c, L, p, era); if (p.camera) WRa().applyCameraKeys(scn, WRa().cameraKeys({ ...L, events: [e] }, scn, {}));
+    GW.commit(label('حدث سيطرة')); GW.invalidate(); return plain(e);
+  };
+  // moveLeaderTo({id (map clip), layer (leader image layer id), city | lon,lat, start, dur, style:'direct'|'curve'|'route'|'via', via:[[lon,lat]]}) → move
+  M.moveLeaderTo = async (p = {}) => {
+    const c = mapClip(p.id); const L = c.map.scene.layers.find(x => x.id === p.layer) || c.map.scene.layers.filter(x => x.type === 'image').pop(); if (!L || L.type !== 'image') fail('leader layer not found: ' + p.layer);
+    let to, name = p.name || ''; if (p.city) { const r = cityFor(p.city, null); to = [r.lon, r.lat]; name = name || r.a; } else if (p.lon != null) to = [+p.lon, +p.lat]; else fail('city or lon/lat required');
+    const mv = WRa().addMove(L, { to, name, t: p.start, dur: p.dur || 3, style: p.style || 'curve', via: p.via });
+    GW.commit(label('تحرك القائد إلى ' + name)); GW.invalidate(); if (GW.MapUI && GW.MapUI.render) try { GW.MapUI.render(); } catch (e) {} return plain(mv);
+  };
 
   /* ----- sound effects ----- */
   M.listSfx = async ({ query, cat, limit = 50 } = {}) => {
@@ -549,6 +634,41 @@
     }
     GW.commit(label('استيفاء المفاتيح')); GW.invalidate(); if (GW.FXC && GW.FXC.render) try { GW.FXC.render(); } catch (e) {}
     return { id: c.id, path: R.path, keys: p.k.map(k => ({ time: r4(c.start + k.t), value: plain(k.v), ease: k.e || 'linear', in: k.bi ? k.bi.map(r4) : undefined, out: k.bo ? k.bo.map(r4) : undefined })) };
+  };
+  /* ----- map camera keyframes (atlas/camera.js v2 keys; time = sequence seconds) ----- */
+  const camClip = (id) => { const c = clipOf(id); if (c.kind !== 'map' || !c.map || !c.map.scene || !c.map.scene.cam) fail('not a map clip: ' + id); return c; };
+  const camKeyInfo = (c, k) => { const Cm = A().Cam; const o = { time: r4(c.start + k.t - (c.in || 0)), groups: Cm.GLIST.filter(g => Cm.defines(k, g)), interp: Cm.interpOf(k), ease: Cm.easeKind(k), roving: !!k.roving };
+    for (const f of Cm.FIELDS) if (k[f] != null || Cm.isLegacy(k)) o[f] = r4(Cm.keyVal(k, f, c.map.scene.cam)); if (k.ease && typeof k.ease === 'object') { o.in = Cm.handle(k, 'in').map(r4); o.out = Cm.handle(k, 'out').map(r4); } return o; };
+  M.listCameraKeys = ({ id } = {}) => { const c = camClip(id); const cam = c.map.scene.cam; return { id: c.id, mode: c.map.scene.mode, animated: A().Cam.GLIST.filter(g => A().Cam.animated(cam, g)), keys: (cam.keys || []).slice().sort((a, b) => a.t - b.t).map(k => camKeyInfo(c, k)) }; };
+  // setCameraKey({id, time, lon, lat, zoom|altitudeKm, tilt, heading, roll, fov, offX, offY, interp:'fly'|'bezier'|'linear'|'hold', ease:'ease'|'easeIn'|'easeOut'|'linear', roving, in:[x,y], out:[x,y]})
+  M.setCameraKey = ({ id, time, interp, ease, roving, in: hin, out: hout, altitudeKm, ...vals } = {}) => {
+    const c = camClip(id); const Cm = A().Cam; const scn = c.map.scene; const s = seq();
+    const t = (time == null ? s.t : num(time, 'time')) - c.start; if (t < -1e-6 || t > c.dur + 1e-6) fail('time outside the map clip');
+    const kt = Math.max(0, Math.min(c.dur, GW.snapFrame(t, s.fps))) + (c.in || 0);
+    const v = {}; for (const f of Cm.FIELDS) if (vals[f] != null) v[f] = num(vals[f], f);
+    if (altitudeKm != null) { const cur = Cm.atRaw(scn.cam, kt, scn.mode); v.zoom = Cm.zoomForAlt(num(altitudeKm, 'altitudeKm'), v.lat != null ? v.lat : cur.lat, v.fov != null ? v.fov : cur.fov); }
+    if (!Object.keys(v).length) { const cur = Cm.atRaw(scn.cam, kt, scn.mode); for (const g of (Cm.animated(scn.cam) ? Cm.GLIST.filter(q => Cm.animated(scn.cam, q)) : Cm.GLIST)) for (const f of Cm.GROUPS[g]) v[f] = cur[f]; }
+    const ks = Cm.setKey(scn.cam, kt, v, { eps: .5 / s.fps, mode: scn.mode });
+    for (const k of ks) {
+      if (interp) { if (!['fly', 'bezier', 'linear', 'hold'].includes(interp)) fail('interp: fly | bezier | linear | hold'); Cm.setInterp(k, interp); }
+      if (ease) { if (!['ease', 'easeIn', 'easeOut', 'linear'].includes(ease)) fail('ease: ease | easeIn | easeOut | linear'); Cm.setInterp(k, ease); }
+      if (roving != null) { if (roving) k.roving = 1; else delete k.roving; }
+      for (const [h, side] of [[hin, 'in'], [hout, 'out']]) if (h != null) { if (!Array.isArray(h) || h.length !== 2) fail(side + ': [influence 0…1, progress]'); if (!k.ease || typeof k.ease !== 'object') k.ease = Cm.easyEase(); k.ease[side] = [Math.max(0, Math.min(1, +h[0])), +h[1]]; }
+    }
+    Cm.rove(scn.cam, scn.mode); GW.commit(label('مفتاح كاميرا')); GW.invalidate(); GW.bus.emit('camkeys'); if (GW.MapUI && GW.MapUI.render) try { GW.MapUI.render(); } catch (e) {}
+    return M.listCameraKeys({ id: c.id });
+  };
+  // deleteCameraKey({id, time, group?}) or ({id, all:true})
+  M.deleteCameraKey = ({ id, time, group, all } = {}) => {
+    const c = camClip(id); const Cm = A().Cam; const cam = c.map.scene.cam;
+    if (all) { Cm.modernize(cam); for (const g of Cm.GLIST) if (Cm.animated(cam, g)) Cm.setAnimated(cam, g, false, Math.max(0, seq().t - c.start) + (c.in || 0), c.map.scene.mode); cam.keys = []; }
+    else {
+      if (time == null) fail('time required (or all:true)'); if (group != null && !Cm.GROUPS[group]) fail('group: ' + Cm.GLIST.join(' | '));
+      const kt = num(time, 'time') - c.start + (c.in || 0); const ks = Cm.keysAt(cam, kt, .5 / seq().fps + 1e-6).filter(k => !group || Cm.defines(k, group)); if (!ks.length) fail('no camera key at ' + time);
+      for (const k of ks) Cm.delKey(cam, k, group || undefined);
+    }
+    Cm.rove(cam, c.map.scene.mode); GW.commit(label('حذف مفتاح كاميرا')); GW.invalidate(); GW.bus.emit('camkeys'); if (GW.MapUI && GW.MapUI.render) try { GW.MapUI.render(); } catch (e) {}
+    return M.listCameraKeys({ id: c.id });
   };
   M.listMethods = () => Object.keys(M).sort();
   M.batch = async ({ calls = [], stopOnError = true } = {}) => {

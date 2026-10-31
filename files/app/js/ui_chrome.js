@@ -7,7 +7,7 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const T = (ar, en) => GW.lang === 'en' ? en : ar;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const PANEL_ICO = { project: 'folder', browser: 'drive', source: 'film', program: 'play', timeline: 'scissors', fxc: 'wand', effects: 'sparkle', graphics: 'shapes', lumetri: 'color', scopes: 'scopes', mixer: 'mixer', sfx: 'music', markers: 'marker', history: 'history', maps: 'globe', captions: 'caption', tts: 'sound', textanim: 'text' };
+  const PANEL_ICO = { project: 'folder', browser: 'drive', source: 'film', program: 'play', timeline: 'scissors', fxc: 'wand', effects: 'sparkle', graphics: 'shapes', lumetri: 'color', scopes: 'scopes', mixer: 'mixer', sfx: 'music', markers: 'marker', history: 'history', maps: 'globe', mapcam: 'camera', captions: 'caption', tts: 'sound', textanim: 'text' };
   GW.PANEL_ICO = PANEL_ICO;
 
   /* ---- top bar ---- */
@@ -56,7 +56,7 @@
         const mb = document.createElement('button'); mb.className = 'tab-more'; mb.title = T('خيارات اللوحة', 'Panel options'); mb.innerHTML = GW.ico('more', 14);
         mb.onclick = (e) => {
           e.stopPropagation(); const r = mb.getBoundingClientRect(); const fr = tabs.parentElement;
-          const open = ['project', 'browser', 'source', 'program', 'timeline', 'fxc', 'effects', 'graphics', 'lumetri', 'scopes', 'mixer', 'sfx', 'markers', 'history', 'maps'].filter(id => GW.panels[id]).map(id => ({ label: GW.panels[id].title, action: () => GW.showPanel(id) }));
+          const open = ['project', 'browser', 'source', 'program', 'timeline', 'fxc', 'effects', 'graphics', 'lumetri', 'scopes', 'mixer', 'sfx', 'markers', 'history', 'maps', 'mapcam'].filter(id => GW.panels[id]).map(id => ({ label: GW.panels[id].title, action: () => GW.showPanel(id) }));
           const m = GW.menu(r.left, r.bottom + 4, [
             { label: fr.classList.contains('max') ? T('استعادة حجم اللوحة', 'Restore panel size') : T('تكبير اللوحة', 'Maximize panel'), key: '`', action: () => GW.UI.togglePanelMax(fr) },
             '-', { label: T('فتح لوحة', 'Open panel'), sub: open }, '-',

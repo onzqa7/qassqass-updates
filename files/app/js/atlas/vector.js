@@ -9,6 +9,9 @@
   const rgba = (h, a) => { const c = S.rgb(h); return `rgba(${c[0] * 255 | 0},${c[1] * 255 | 0},${c[2] * 255 | 0},${a})`; };
   const shade = (h, k) => { const c = S.rgb(h).map(x => clamp(k > 0 ? x + (1 - x) * k : x * (1 + k), 0, 1)); return `rgb(${c[0] * 255 | 0},${c[1] * 255 | 0},${c[2] * 255 | 0})`; };
   V.rgba = rgba; V.shade = shade;
+  // extension hooks (war.js): fill = under the base borders, mid = before map labels, top = after markers, before screen overlays
+  V.hooks = { fill: [], mid: [], top: [] };
+  V.runHooks = (kind, HK) => { for (const fn of V.hooks[kind]) { try { fn(HK); } catch (e) { console.error('atlas hook ' + kind, e); } } };
   const isAr = (s) => /[؀-ۿ]/.test(s || '');
   const noise1 = (x, s) => Math.sin(x * 1.7 + s) * .5 + Math.sin(x * 3.3 + s * 1.9) * .3 + Math.sin(x * 7.1 + s * 3.7) * .2;
 
@@ -284,6 +287,7 @@
     }
     /* ---- war layers: fills (under borders) ---- */
     const layers = (sc.layers || []).map(Ly0 => { const s = S.state(Ly0, t, cd); if (!s) return null; const Ly = S.resolve(Ly0, s.lt); if (Ly.opacity != null) s.a *= clamp(+Ly.opacity, 0, 1); return { Ly, s }; }).filter(Boolean);
+    const HK = { b, g, pb, pg, vw, sc, t, cd, E, era, feats, byKey, lod, k, W, H, fam, layers, inv, invLab, out, opts, nad, capR };
     for (const { Ly, s } of layers) {
       if (Ly.type === 'country') {
         const fs = Ly.keys.map(kk => byKey.get(kk)).filter(Boolean); fs.forEach(f => { inv.add(f.key); if (!invLab.has(f.key)) invLab.set(f.key, { show: Ly.label !== 0, style: Ly.labelStyle || (st.halo && String(st.halo).startsWith('soft') ? 'soft' : 'plate'), size: Ly.labelSize || 1, text: fs.length === 1 ? Ly.labelText : '', a: s.a * S.easeOut(s.pin) }); }); if (!fs.length) continue;
@@ -311,7 +315,7 @@
           b.globalAlpha = .35 * s.a; b.fillStyle = pattern(b, 'hatch', shade(Ly.color, -.5), k); b.fill(); b.restore();
           (V._fronts = V._fronts || []).push({ T, geo, color: Ly.color, a: s.a * (p < 1 ? 1 : .35) });
         });
-      } else if (Ly.type === 'front') {
+      } else if (Ly.type === 'front' && Ly.mode !== 'attack') {
         let geo = null; const ring = V.frontRing(Ly, s.lt);
         if (ring) geo = ringGeo(ring); else { const fs = (Ly.keys || []).map(kk => byKey.get(kk)).filter(Boolean); if (fs.length) geo = { type: 'GeometryCollection', geometries: fs.map(f => f.geometry) }; }
         if (!geo) continue; const pin = S.easeOut(s.pin);
@@ -331,6 +335,7 @@
       }
     }
 
+    V.runHooks('fill', HK);
     if (!opts.vt) {
     /* ---- top: water, borders, coasts ---- */
     if ((L.lakes || L.rivers) && lod >= 0) { G.loadWater(); }
@@ -418,14 +423,16 @@
             sp = c[c.length - 1];
           }
         }
+        let LyP = Ly; if (V.leaderMove && Ly.moves && Ly.moves.length) { const mv = V.leaderMove(g, vw, Ly, s, k); if (mv) { sp = mv.sp; if (mv.sub) LyP = Object.assign(Object.create(Ly), { sub: mv.sub }); } } // «تحرك إلى مدينة» segments (war.js)
         if (!sp) continue;
-        late.push(() => drawPortrait(g, sc, Ly, sp, s, k, fam));
+        late.push(() => drawPortrait(g, sc, LyP, sp, s, k, fam));
       } else if (Ly.type === 'label') {
         const sp = vw.project(Ly.lon, Ly.lat); if (!sp) continue;
         late.push(() => { g.save(); g.globalAlpha = s.a * pin; const px = 22 * k * (Ly.size || 1) * (Ly.scale == null ? 1 : Ly.scale) * (Ly.style === 'soft' ? 1.6 : 1); if (Ly.style === 'plate') { const w = measure(g, Ly.text, px, fam, 800) + px; plate(g, sp[0] - w / 2, sp[1] - px * .8, w, px * 1.6, 'rgba(0,0,0,.65)'); haloText(g, Ly.text, sp[0], sp[1], px, Ly.color, null, fam, 800); } else haloText(g, Ly.text, sp[0], sp[1], px, Ly.color, Ly.style === 'plain' ? null : (Ly.style === 'soft' || st.halo === 'soft') ? 'soft' : 'rgba(0,0,0,.8)', fam, Ly.style === 'soft' ? 900 : 800, 'center', Ly.spacing || 0); g.restore(); out.labels.push([sp[0] - px * 3, sp[1] - px, sp[0] + px * 3, sp[1] + px]); });
       }
     }
 
+    V.runHooks('mid', HK);
     /* ---- map labels with collision ---- */
     const boxes = [];
     const hitBox = (r) => boxes.some(q => r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1]);
@@ -468,6 +475,7 @@
       }
     }
     for (const fn of late) fn();
+    V.runHooks('top', HK);
 
     /* ---- screen-space overlays ---- */
     for (const { Ly, s } of layers) {
@@ -481,6 +489,7 @@
   };
 
   function drawPortrait(g, sc, Ly, sp, s, k, fam) {
+    if (Ly.disp === 'banner' && V.banner) return V.banner(g, sc, Ly, sp, s, k, fam); // «راية» style (war.js)
     const sz = 120 * k * (Ly.size || 1) * (Ly.scale == null ? 1 : Ly.scale); const pop = Ly.in === 'pop' ? Math.max(0, S.back(s.pin)) : Ly.in === 'grow' ? S.easeOut(s.pin) : Ly.in === 'zoom' ? 1.6 - .6 * S.easeOut(s.pin) : 1;
     const a = s.a * (Ly.in === 'fade' || Ly.in === 'zoom' ? S.easeOut(s.pin) : Ly.in === 'pop' ? Math.min(1, s.pin * 3) : 1);
     const plH = Ly.plate && (Ly.name || Ly.sub) ? (Ly.sub ? 20 * k * 1.3 + 13 * k * 1.4 : 20 * k * 1.5) + 10 * k : 0; const dyk = Ly.dy == null ? -1 : Ly.dy;
