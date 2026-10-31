@@ -72,12 +72,14 @@
       const fastM = !opts.exporting && GW.mapFast && performance.now() - GW.mapFast < 350;
       // stable preview: while paused, the same clip/time/size/scene gives back the same picture (re-renders only when the
       // scene changes or more tiles have arrived), so background work (proxies, thumbnails, GC) can never alter the frame
-      const mk = opts.exporting || fastM ? null : [lt, lw, lh, GW.Atlas.Tiles ? GW.Atlas.Tiles.loaded : 0, GW.mapPreviewQ || .85, c.map.bg || '', JSON.stringify(c.map.scene)].join('|');
+      // chosen map resolution «دقة الخريطة» (720/1080/1440/2160 lines; export renders at it, preview never above the viewer size)
+      let rw = lw, rh = lh; const RES = +(c.map.res || 0); if (RES > 0) { const tgt = opts.exporting ? RES : Math.min(RES, lh); rh = Math.max(2, Math.round(tgt)); rw = Math.max(2, Math.round(lw * rh / lh)); }
+      const mk = opts.exporting || fastM ? null : [lt, rw, rh, GW.Atlas.Tiles ? GW.Atlas.Tiles.loaded : 0, GW.mapPreviewQ || .85, c.map.bg || '', JSON.stringify(c.map.scene)].join('|');
       const mc = RN._mapMemo || (RN._mapMemo = new Map()); const hit = mk && mc.get(c.id);
       // while the map viewer is being dragged it already renders this clip every frame: reuse its picture (one map render per frame)
       const vf = fastM && !GW.noMapShare && GW.MapCamFrame; let cv = null;
       if (vf && vf.id === c.id && Math.abs(vf.lt - lt) < 1e-4 && performance.now() - vf.at < 1000 && vf.cv.width) { const sc2 = RN._vfc || (RN._vfc = document.createElement('canvas')); if (sc2.width !== lw || sc2.height !== lh) { sc2.width = lw; sc2.height = lh; } const g2 = sc2.getContext('2d'); g2.clearRect(0, 0, lw, lh); g2.drawImage(vf.cv, vf.sx, vf.sy, vf.sw, vf.sh, 0, 0, lw, lh); cv = sc2; RN.mapShared = (RN.mapShared || 0) + 1; }
-      if (cv) {} else if (hit && hit.k === mk) cv = hit.cv; else { try { cv = GW.Atlas.render(c.map.scene, lt + (c.in || 0), lw, lh, { bg: c.map.bg || 'full', dur: c.dur, quality: opts.exporting ? 1 : (GW.mapPreviewQ || 1), fast: fastM }); } catch (e) { console.error('map render', e); return null; }
+      if (cv) {} else if (hit && hit.k === mk) cv = hit.cv; else { try { cv = GW.Atlas.render(c.map.scene, lt + (c.in || 0), rw, rh, { bg: c.map.bg || 'full', dur: c.dur, quality: opts.exporting ? 1 : (GW.mapPreviewQ || 1), fast: fastM }); } catch (e) { console.error('map render', e); return null; }
         if (mk) { const keep = document.createElement('canvas'); keep.width = cv.width; keep.height = cv.height; keep.getContext('2d').drawImage(cv, 0, 0); mc.set(c.id, { k: mk, cv: keep }); if (mc.size > 6) mc.delete(mc.keys().next().value); } }
       const tx = R.upload('mp:' + c.id, cv, lw, lh, null);
       const f = R.fbo(lw, lh); R.pass('copy', f, [tx.tex]); return f;
@@ -209,6 +211,7 @@
 
   // render the sequence at time t → accumulated FBO (caller frees)
   RN.frame = (s, t, o = {}) => {
+    if (GW.MapUI && GW.MapUI.syncPins) try { GW.MapUI.syncPins(s); } catch (e) {} // pinned layers follow live camera edits (no stale bake)
     const r = o.scale || 1, W = Math.max(2, Math.round(s.w * r / 2) * 2), H = Math.max(2, Math.round(s.h * r / 2) * 2);
     let acc = R.fbo(W, H); R.clear(acc);
     const prevFC = FC; FC = { s, t, cam: null };

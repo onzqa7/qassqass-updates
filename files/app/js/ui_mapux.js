@@ -82,7 +82,7 @@
   function advTab(c, body) {
     const b = B(); const scn = c.map.scene;
     const ex = card('التصدير والمعاينة', 'export');
-    ex.body.append(b.row('خلفية شفافة', b.chk(c.map.bg === 'alpha', v => { c.map.bg = v ? 'alpha' : 'full'; changed('خلفية الخريطة'); })), b.row('جودة المعاينة', b.sel([[.6, 'سريعة'], [.85, 'متوازنة'], [1, 'عالية']], GW.mapPreviewQ || 1, v => { GW.mapPreviewQ = +v; GW.invalidate(); })), b.row('نص حقوق المصدر', b.chk(scn.look.attrib == null ? 1 : scn.look.attrib, v => { scn.look.attrib = v; changed('حقوق المصدر'); })),
+    ex.body.append(b.row('خلفية شفافة', b.chk(c.map.bg === 'alpha', v => { c.map.bg = v ? 'alpha' : 'full'; changed('خلفية الخريطة'); })), b.row('دقة الخريطة', b.sel([[0, 'تلقائي (حسب المشروع)'], [720, 'HD 720p'], [1080, 'Full HD 1080p'], [1440, '2K 1440p'], [2160, '4K 2160p']], c.map.res || 0, v => { c.map.res = +v || undefined; changed('دقة الخريطة'); })), b.row('جودة المعاينة', b.sel([[.6, 'سريعة'], [.85, 'متوازنة'], [1, 'عالية']], GW.mapPreviewQ || 1, v => { GW.mapPreviewQ = +v; GW.invalidate(); })), b.row('نص حقوق المصدر', b.chk(scn.look.attrib == null ? 1 : scn.look.attrib, v => { scn.look.attrib = v; changed('حقوق المصدر'); })),
       b.row('قفل التفاعل مع الخريطة', b.chk(M().mode === 'off', v => { M().mode = v ? 'off' : 'nav'; rerender(); GW.invalidate(); })));
     body.append(ex);
     { const d = card('الإعدادات الافتراضية', 'check', 'لكل خريطة جديدة'); const dq = unwrap(b.styleSec(c)).find(n => n.classList && n.classList.contains('mp-qa')); if (dq) d.body.append(dq); body.append(d); }

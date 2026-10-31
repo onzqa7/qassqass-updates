@@ -1,8 +1,8 @@
 {
- "version": "3.0.1",
- "date": "2026-10-31T22:25:04.204Z",
- "notes_ar": "توقيت الطبقات صار واضح: شريط يبين متى تظهر ومتى تختفي مع سحب وتعديل مباشر. علامة الاشتباك الجديدة بأسلوب الأطلس (دائرة أو نجمة) بدون سيوف، مع خيار إخفائها.",
- "notes_en": "Clear layer timing bar (when it appears/disappears, drag to edit). New atlas-style battle markers without swords, with an option to hide them.",
+ "version": "3.0.2",
+ "date": "2026-10-31T22:43:09.464Z",
+ "notes_ar": "اختيار دقة الخريطة (HD، Full HD، 2K، 4K). إصلاح النص المثبّت على الخريطة: يبقى في مكانه مهما غيّرت زوم الكاميرا.",
+ "notes_en": "Choose map resolution (HD, Full HD, 2K, 4K). Fixed pinned text drifting when the camera zooms.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 299369,
-   "sha256": "7d5cc17a11d9f315840bab0cd95d4aca30a5d5ae1521b10e4176839537190b21"
+   "size": 299471,
+   "sha256": "17d69e4ed88f1e7656c3fa41fe9a705870055fd803c469928425a75b75cc6370"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 303195,
-   "sha256": "eb1fcbd5f427d67b51195773a6212065f14637a62fbdc73f81479d85b25d0957"
+   "size": 303303,
+   "sha256": "ccff19c151ad5d4b831704e712ff3de86ee61f03ad23c6354726c9b21fe05ff6"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -924,8 +924,8 @@
   },
   {
    "path": "app/js/render.js",
-   "size": 18152,
-   "sha256": "80652df39ffa4ecc9373acf521b0819247a8002d10920156a4e4c95e5624005e"
+   "size": 18644,
+   "sha256": "621cd9430dd2b450408799e582e37c43752d9c6c62ae85b5cc951ba4c2bf79bb"
   },
   {
    "path": "app/js/s3d.js",
@@ -1039,8 +1039,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 111212,
-   "sha256": "99fa5f5ba4d009077068947fe390953e169cc2a47876b2dbfadb6923c7693fc8"
+   "size": 112222,
+   "sha256": "4daa7008066d6cbdebaed7adaf9593ae3b14c6da1d637372f93e45b4906b4a33"
   },
   {
    "path": "app/js/ui_mapcam.js",
@@ -1049,8 +1049,8 @@
   },
   {
    "path": "app/js/ui_mapux.js",
-   "size": 57937,
-   "sha256": "9265f08461aa91e1d65c4cfdc39c370a87f9a0ac54f724b3e1d7d02e61119d9e"
+   "size": 58195,
+   "sha256": "a5fbcdaca056b5c2fb0e847ce798a12e9a5050a606ab676de66f27a39684fdc4"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -4710,7 +4710,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "ec2efd9e923606ee8ff9297a61019bbbffe46ffe3e76f580d0a3c8941d8e5859"
+   "sha256": "27797999f43901c7c88542063d9e3f9dd01f25c563817a993357ba7ec50688b6"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4723,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "5Mb1j484gLWcPVQm5ZpjraCdG2RwlSkOhvWlxwmvaBGYP5J9IkqkjahVregYZMFQmOofK0c3EUqcYz50mSCdAw=="
+ "sig": "BUBIhylpHT87HftAvIOHnqFKnsIijcsx+gM9QNSO3VWGGbmdBElWNxBwXsvEiB72AEu2NwzTwwUp+Y4TFRbIAQ=="
 }

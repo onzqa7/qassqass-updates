@@ -232,13 +232,13 @@
     M.bakePin(clip); GW.commit('تثبيت طبقة على الخريطة'); GW.invalidate();
   };
   M.unpinClip = (clip) => { if (!clip.geo) return; const t = GW.seq().t - clip.start; const p = GW.pv(clip.motion.pos, Math.max(0, t)); clip.motion.pos = GW.P(p); if (clip.geo.s0 != null) clip.motion.scale = GW.P(clip.geo.s0); if (clip.geo.hide) clip.opacity = GW.P(100); delete clip.geo; GW.commit('إلغاء التثبيت'); GW.invalidate(); };
-  M.bakePin = (clip) => {
-    const s = GW.seq(); const g = clip.geo; if (!g) return; const mc = s.clips.find(x => x.id === g.map); if (!mc || !mc.map || !mc.map.scene) return;
+  M.bakePin = (clip, s0) => {
+    const s = s0 || GW.seq(); const g = clip.geo; if (!g) return; const mc = s.clips.find(x => x.id === g.map); if (!mc || !mc.map || !mc.map.scene) return;
     const fps = s.fps || 30; const n = Math.max(1, Math.ceil(clip.dur * fps)); const W = mc.sw || s.w, H = mc.sh || s.h;
     const pk = [], sk = [], ok = []; let lastP = null, lastVis = null; const z0 = (() => { const t0 = Math.max(0, clip.start - mc.start); return A.evalAt(mc.map.scene, t0 + (mc.in || 0), W, H).cam.zoom; })();
-    const mpos = GW.pv(mc.motion.pos, 0), msc = GW.pv(mc.motion.scale, 0) / 100;
     for (let f = 0; f <= n; f++) {
       const lt = Math.min(clip.dur, f / fps); const ts = clip.start + lt; const ml = Math.max(0, Math.min(mc.dur, ts - mc.start)) + (mc.in || 0);
+      const mlt = Math.max(0, Math.min(mc.dur, ts - mc.start)); const mpos = GW.pv(mc.motion.pos, mlt), msc = GW.pv(mc.motion.scale, mlt) / 100;
       const ev = A.evalAt(mc.map.scene, ml, W, H); const pr = ev.vw.project(g.lon, g.lat); const vis = !!pr;
       const p = pr ? [mpos[0] + (pr[0] - W / 2) * msc + g.dx, mpos[1] + (pr[1] - H / 2) * msc + g.dy] : lastP || [s.w / 2, s.h / 2];
       pk.push({ t: lt, v: [Math.round(p[0] * 10) / 10, Math.round(p[1] * 10) / 10], e: 'linear' }); lastP = p;
@@ -246,9 +246,13 @@
       if (g.hide && vis !== lastVis) { ok.push({ t: lt, v: vis ? 100 : 0, e: 'hold' }); lastVis = vis; }
     }
     clip.motion.pos = { v: pk[0].v, k: pk };
+    clip.geo._k = pinKey(clip, mc);
     clip.motion.scale = g.scale ? { v: sk[0].v, k: sk } : GW.P(g.s0);
     if (g.hide) clip.opacity = ok.length > 1 ? { v: ok[0].v, k: ok } : GW.P(ok.length ? ok[0].v : 100);
   };
+  const pinKey = (clip, mc) => JSON.stringify([mc.map.scene.cam, mc.map.scene.mode, mc.start, mc.in, mc.dur, mc.sw, mc.sh, mc.motion.pos, mc.motion.scale, clip.start, clip.dur, clip.geo.lon, clip.geo.lat, clip.geo.dx, clip.geo.dy, clip.geo.scale, clip.geo.hide, clip.geo.s0]);
+  // called at the start of every rendered frame: re-bake a pinned layer as soon as the camera (or anything it depends on) changed
+  M.syncPins = (s) => { for (const c of s.clips) { if (!c.geo) continue; const mc = s.clips.find(x => x.id === c.geo.map); if (!mc || !mc.map || !mc.map.scene) continue; if (c.geo._k !== pinKey(c, mc)) M.bakePin(c, s); } };
   let pinT = 0; GW.bus.on('changed', () => { clearTimeout(pinT); pinT = setTimeout(() => { let any = false; for (const c of GW.seq().clips) if (c.geo) { M.bakePin(c); any = true; } if (any) GW.invalidate(); }, 250); });
   function pinSec(c) {
     const s = GW.seq(); const s0 = sec('دمج الطبقات مع الخريطة', false, 'pins');
@@ -602,6 +606,7 @@
       grp('الشبكة', 'grid', ['graticule', 'gridC', 'gridStep'],
         row('خطوط الطول والعرض', chk(L.graticule, set('graticule'))), row('لون الشبكة', lcol('gridC', '#ffffff')),
         row('المسافة بين الخطوط', sel([[5, '5°'], [10, '10° (افتراضي)'], [15, '15°'], [30, '30°']], String(L.gridStep || 10), v => set('gridStep')(+v)))),
+      row('دقة الخريطة', sel([[0, 'تلقائي (حسب المشروع)'], [720, 'HD 720p'], [1080, 'Full HD 1080p'], [1440, '2K 1440p'], [2160, '4K 2160p']], String(c.map.res || 0), v => { c.map.res = +v || undefined; changed('دقة الخريطة'); })),
       row('جودة المعاينة', sel([[.6, 'سريعة'], [.85, 'متوازنة'], [1, 'عالية']], GW.mapPreviewQ || 1, v => { GW.mapPreviewQ = +v; GW.invalidate(); })),
       row('مصدر الصور', h('span', 'kv', esc(E.base ? A.Providers.P[E.base].attrib : 'رسم متجهي'))),
       row('نص حقوق المصدر', chk(L.attrib == null ? 1 : L.attrib, v => { L.attrib = v; changed('حقوق المصدر'); })),
