@@ -419,10 +419,12 @@
       const pin = S.easeOut(s.pin);
       if (Ly.type === 'country') {
         const fs = Ly.keys.map(kk => byKey.get(kk)).filter(Boolean); if (!fs.length || !Ly.stroke || Ly.outline === 'none') continue;
-        g.save(); g.beginPath(); for (const f of fs) pg(f); g.lineJoin = 'round'; g.globalAlpha = s.a * (Ly.in === 'fade' ? pin : 1);
+        g.save();
+        if (!Ly.innerB && fs.length > 1) { const cp = new Path2D(); cp.rect(-10, -10, W + 20, H + 20); const gp2 = d3.geoPath(vw.proj, cp); for (const f of fs) gp2(f); g.clip(cp, 'evenodd'); } // outer outline only: shared borders between the layer's countries are hidden
+        g.beginPath(); for (const f of fs) pg(f); g.lineJoin = 'round'; g.globalAlpha = s.a * (Ly.in === 'fade' ? pin : 1);
         if (Ly.glow) { g.shadowColor = Ly.color; g.shadowBlur = 16 * k; } else if (Ly.line) { g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 3 * k; }
         if (Ly.outline === 'dashed') { g.setLineDash([6 * k * Ly.stroke, 4.5 * k * Ly.stroke]); g.lineCap = 'butt'; }
-        g.lineWidth = Ly.stroke * 1.2 * k; g.strokeStyle = Ly.line || shade(Ly.color, .25); g.stroke(); g.restore();
+        g.lineWidth = Ly.stroke * 1.2 * k * (!Ly.innerB && fs.length > 1 ? 2 : 1); g.strokeStyle = Ly.line || shade(Ly.color, .25); g.stroke(); g.restore();
       } else if (Ly.type === 'invasion') {
         const F = byKey.get(Ly.from); const Ts = (Ly.to || []).map(kk => byKey.get(kk)).filter(Boolean); if (!F || !Ts.length) continue;
         const travel = Ly.inDur || 4; const stagger = Ly.stagger != null ? Ly.stagger : travel * .35;
@@ -520,7 +522,7 @@
         } else {
           const sp = c.kind === 'sea' || c.kind === 'region' ? 0 : .08; const nm = (lang === 'en' && c.kind === 'country' && E.labelUp) ? c.name.toUpperCase() : c.name;
           const w = measure(g, nm, c.px, fam, c.kind === 'country' ? (c.il && c.il.style === 'soft' ? 900 : 800) : 600, lang === 'en' ? .12 : 0); const bx = [c.sp[0] - w / 2 - 3, c.sp[1] - c.px * .62, c.sp[0] + w / 2 + 3, c.sp[1] + c.px * .62];
-          if (!place(bx)) { if (!(c.il && c.il.style !== 'plate' && (c.tries = (c.tries || 0) + 1) < 4)) continue; c.px *= .8; cand.splice(cand.indexOf(c) + 1, 0, c); continue; } // big soft labels shrink instead of disappearing
+          if (!place(bx)) continue; // no shrink-on-collision retries (they made names jump in size between frames)
           out.labels.push(bx);
           if (c.kind === 'sea') { g.save(); g.globalAlpha = E.vector ? .85 : .62; haloText(g, nm, c.sp[0], c.sp[1], c.px, E.vector ? shade(st.ocean, st.ink && st.ink.startsWith('#1') ? -.45 : .45) : '#b4c6d8', null, fam, E.vector ? 600 : 500, 'center', .05); g.restore(); }
           else if (c.inv && c.il && c.il.style !== 'plate') { g.save(); g.globalAlpha = c.il.a; haloText(g, nm, c.sp[0], c.sp[1], c.px, c.il.style === 'soft' ? ink : '#ffffff', c.il.style === 'soft' ? 'soft' : 'rgba(0,0,0,.8)', fam, c.il.style === 'soft' ? 900 : 800, 'center', lang === 'en' ? .12 : 0); g.restore(); }

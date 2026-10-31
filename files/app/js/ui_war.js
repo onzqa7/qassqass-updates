@@ -170,6 +170,7 @@
     });
     box.append(btn(GW.ico('plus', 13) + ' طرف', () => { const n = (L.sides || []).length; L.sides.push({ id: 's' + GW.uid().slice(0, 4), name: 'طرف ' + (n + 1), color: WR.mix('#888888', ['#b0893a', '#4a7a3c', '#7a4a6a'][n % 3], .9), countries: [], fill: .45 }); changed('إضافة طرف'); rerender(); }));
     // events
+    box.append(row('حدود الدول على الخريطة', chk(scn.look.borders, v => { scn.look.borders = v; changed('حدود الدول'); })), row('الخط حول كل طرف', chk(!(L.sides || []).every(sd => sd.border === 'none'), v => { for (const sd of L.sides || []) sd.border = v ? 'solid' : 'none'; changed('حدود الأطراف'); rerender(); })));
     box.append(row('علامة المعارك', sel([['mark', 'دائرة موقع المعركة'], ['star', 'نجمة أطلس تاريخي'], ['glow', 'توهج خفيف فقط'], ['badge', 'شارة قديمة'], ['off', 'إخفاء كل علامات المعارك']], L.mark || 'mark', v => { L.mark = v === 'mark' ? undefined : v; changed('علامة المعارك'); })));
     box.append(h('div', 'mp-sub', 'أحداث السيطرة'));
     const evs = (L.events || []).slice().sort((a, b) => a.t - b.t); const m = WR.model(L, era, byKey);

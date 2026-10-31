@@ -17,7 +17,7 @@
   };
   SVG.proxy = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 15V9h3a2 2 0 010 4H8M15 9l3 6M18 9l-3 6" stroke-width="1.6"/></svg>';
   GW.SVG = SVG;
-  function fitBox(boxW, boxH, w, h, zoom) { let s = zoom && zoom !== 'fit' ? zoom : Math.min(boxW / w, boxH / h) * .96; return { w: w * s, h: h * s, x: (boxW - w * s) / 2, y: (boxH - h * s) / 2, s }; }
+  function fitBox(boxW, boxH, w, h, zoom, full) { let s = zoom && zoom !== 'fit' ? zoom : Math.min(boxW / w, boxH / h) * (full ? 1 : .96); return { w: w * s, h: h * s, x: (boxW - w * s) / 2, y: (boxH - h * s) / 2, s }; }
 
   /* ================= Source monitor ================= */
   const S = GW.Source = { m: null };
@@ -71,7 +71,7 @@
     const [a, b] = S.range(); S.el.querySelector('[data-a=dur]').textContent = GW.fmtTC(b - a, S.m.fps || 30);
     S.el.querySelector('[data-a=ph]').style.left = (d ? t / d * 100 : 0) + '%';
     const io = S.el.querySelector('[data-a=io]'); io.style.left = (d ? a / d * 100 : 0) + '%'; io.style.width = (d ? (b - a) / d * 100 : 0) + '%';
-    S.el.querySelector('[data-a=play]').innerHTML = S.media && !S.media.paused ? SVG.pause : SVG.play;
+    { const pb = S.el.querySelector('[data-a=play]'), st = S.media && !S.media.paused ? 'pause' : 'play'; if (pb.dataset.st !== st) { pb.dataset.st = st; pb.innerHTML = SVG[st]; } }
     if (S.media && !S.media.paused && S.m.outP != null && t >= S.m.outP) S.media.pause();
   }
   setInterval(() => { if (S.media && !S.media.paused) upd(); }, 50);
@@ -121,7 +121,7 @@
   PG.draw = () => {
     if (!PG.el || !GW.R.gl || !PG.el.isConnected) return;
     const s = GW.seq(); const vw = PG.view.clientWidth, vh = PG.view.clientHeight; if (vw < 4 || vh < 4) return;
-    const box = fitBox(vw, vh, s.w, s.h, PG.zoom); PG.box = box;
+    const box = fitBox(vw, vh, s.w, s.h, document.fullscreenElement === PG.view ? 'fit' : PG.zoom, document.fullscreenElement === PG.view); PG.box = box;
     const dpr = Math.min(devicePixelRatio || 1, 2);
     // Auto (Premiere-like): paused → full display quality; playing → at most 1/2 of the sequence, lowered further if frames are late
     const fit = Math.min(1, box.w * dpr / s.w);
@@ -151,7 +151,7 @@
     PG.el.querySelector('[data-a=seqname]').textContent = s.name;
     const D = Math.max(1, d); PG.el.querySelector('[data-a=ph]').style.left = clamp(s.t / D * 100, 0, 100) + '%';
     const io = PG.el.querySelector('[data-a=io]'); if (s.inP != null || s.outP != null) { const a = s.inP || 0, b = s.outP ?? d; io.style.left = a / D * 100 + '%'; io.style.width = Math.max(0, b - a) / D * 100 + '%'; io.hidden = false; } else io.hidden = true;
-    PG.el.querySelector('[data-a=play]').innerHTML = GW.pb.playing ? SVG.pause : SVG.play;
+    { const pb = PG.el.querySelector('[data-a=play]'), st = GW.pb.playing ? 'pause' : 'play'; if (pb.dataset.st !== st) { pb.dataset.st = st; pb.innerHTML = SVG[st]; } } // only on change: replacing the icon every frame swallowed clicks (pause did nothing)
   }
   GW.bus.on('time', () => { if (PG.el && !GW.pb.playing) updTime(); });
   GW.bus.on('changed', () => GW.invalidate()); GW.bus.on('project', () => GW.invalidate()); GW.bus.on('selection', () => GW.invalidate());

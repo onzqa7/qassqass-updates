@@ -1,8 +1,8 @@
 {
- "version": "3.0.5",
- "date": "2026-10-31T23:00:47.811Z",
- "notes_ar": "ملء الشاشة للمعاينة مثل بريمير: Ctrl+` أو الزر تحت المعاينة، وEsc للخروج.",
- "notes_en": "Premiere-style full-screen preview: Ctrl+` or the button under the preview, Esc to exit.",
+ "version": "3.0.6",
+ "date": "2026-10-31T23:10:40.820Z",
+ "notes_ar": "إصلاح زر الإيقاف المؤقت. ملء الشاشة بدون حواف سوداء. أسماء الدول ما عادت تكبر وتصغر فجأة. «تمييز دول» يرسم الحد الخارجي فقط مع خيار لإظهار الحدود بينها، وخيار حدود الدول في الحرب.",
+ "notes_en": "Pause button fixed. Full screen without black edges. Country names no longer jump in size. Country highlight draws only the outer outline (option for inner borders); border toggles in war.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 299802,
-   "sha256": "07f3527519b9ca537684ef1eb748390480bd6e9f894011f8959c545f3e6bdad7"
+   "size": 300019,
+   "sha256": "6c09a3e09f3c6cecef72d57c078f4866375a9f0acf4cc82620a278d13cd87e80"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 303652,
-   "sha256": "7d3050f1068b84f870969ebabe74d66d63c28fec199295e7d5471d5c499d1f9f"
+   "size": 303878,
+   "sha256": "839f633370bcf262be1c8b19b8dbfe817dd852462dc5541a3668bae8256a3715"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -809,8 +809,8 @@
   },
   {
    "path": "app/js/atlas/vector.js",
-   "size": 65700,
-   "sha256": "ff8bf8483010753e39301626dcdedc06ec9a4cb470f205a0c6ee37b90ec75ba8"
+   "size": 65907,
+   "sha256": "9b1455943ef81c8340e38a4803b8674bd8351fa2d5f560a30204a050383dbb49"
   },
   {
    "path": "app/js/atlas/vtiles.js",
@@ -1039,8 +1039,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 112341,
-   "sha256": "4f66d4420d3f1490ba5a38e74e6f477246ca9d8d2b7cb82c8cefedb635e73082"
+   "size": 112430,
+   "sha256": "5b4b2f40220ac0ae8a93bc61394e5688a5b308fa5294622fc4aa3e8a6bc78585"
   },
   {
    "path": "app/js/ui_mapcam.js",
@@ -1054,8 +1054,8 @@
   },
   {
    "path": "app/js/ui_monitors.js",
-   "size": 35405,
-   "sha256": "bd06ad8950153f198835005708914db156f46f6054371446f2df61a26153c420"
+   "size": 35758,
+   "sha256": "c0319061c8247bc4248f185d74aebde55268981ccd41be9fa84a7f1cbd49ab09"
   },
   {
    "path": "app/js/ui_ofx.js",
@@ -1114,8 +1114,8 @@
   },
   {
    "path": "app/js/ui_war.js",
-   "size": 41155,
-   "sha256": "8035870c4656203dbb76dc3fdf8ea7fd055d9bc4c47d1c53f2e701b58b789ab6"
+   "size": 41525,
+   "sha256": "6e9ef203449ccfa21e16112c084762da8260b67754855ee9700894f3efb242f4"
   },
   {
    "path": "app/js/ui_workspaces.js",
@@ -4710,7 +4710,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "007911c258959c7acfcc5c74b3923d990d5e4d83935642062ed39482c1d8d2c5"
+   "sha256": "3820296c3ce85c43d74c7d144dcba64205ef18b3b5b7fe492bf8fc8e4e73426d"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4723,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "uyt5tyf1C6fxZGe+/B/cF0K1DMY1FiZMEpo7pRRvtUKwXkt+LARXZCjTXfNp2nr1BEFL5FU9oZQnFCCwZuOaAg=="
+ "sig": "mB0/cu4UDWu3zhdyHvfvg4DbYYbLyTi8ggaPQL+a6iDq4WeEQxjDjkKX+3Rdkq6YKnu3CKbcXC/sqmdWHxHHCg=="
 }
