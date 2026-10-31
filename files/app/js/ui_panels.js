@@ -91,7 +91,7 @@
   /* ================= essential graphics ================= */
   let egTab = 'browse', localFonts = null;
   GW.registerPanel('graphics', 'الرسومات الأساسية', (el) => {
-    el.innerHTML = `<div class="ptool" dir="rtl"><div class="seg" data-a="tabs" style="flex:1"><button data-t="browse">استعراض</button><button data-t="mg">قوالب متحركة</button><button data-t="edit">تحرير</button></div></div><div class="pscroll" data-a="body"></div>`;
+    el.innerHTML = `<div class="ptool" dir="rtl"><div class="seg" data-a="tabs" style="flex:1"><button data-t="browse">استعراض</button><button data-t="mg">قوالب متحركة</button><button data-t="shapes">أشكال</button><button data-t="edit">تحرير</button></div></div><div class="pscroll" data-a="body"></div>`;
     el.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { egTab = b.dataset.t; renderEG(); });
     UI.egEl = el; renderEG();
   });
@@ -100,6 +100,7 @@
     const el = UI.egEl; if (!el) return; const c = selText(); if (c && egTab === 'browse' && UI._egAuto !== c.id) { egTab = 'edit'; UI._egAuto = c.id; }
     el.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === egTab));
     const body = el.querySelector('[data-a=body]');
+    if (egTab === 'shapes' && GW.ShapeLib) { if (!body.querySelector('.shl')) { body.innerHTML = ''; GW.ShapeLib.renderBrowser(body); } return; } // shapes library (shape_lib.js) keeps its search / scroll across selection changes
     const mgF = body.querySelector('.mg-form'); if (egTab === 'edit' && mgF && mgF._clip === c && mgF.contains(document.activeElement) && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName) && document.activeElement.type !== 'range') return; // keep focus while typing in a template field
     body.innerHTML = '';
     if (egTab === 'mg' && GW.MG) { GW.MG.renderBrowser(body); return; }
@@ -123,6 +124,7 @@
         const h2 = document.createElement('div'); h2.className = 'sec-t'; h2.textContent = 'شكل جديد (طبقة متجهات)'; s2.append(h2);
         const row2 = document.createElement('div'); row2.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap';
         for (const [k, n] of GW.Shape.TYPES) { const b = document.createElement('button'); b.className = 'btn sm'; b.innerHTML = GW.ico('shape_' + k, 13) + ' ' + esc(n); b.onclick = () => UI.addShapeLayer(k); row2.append(b); }
+        if (GW.ShapeLib) { const b = document.createElement('button'); b.className = 'btn sm'; b.innerHTML = GW.ico('shape_star', 13) + ' مكتبة الأشكال (' + GW.ShapeLib.items.length + ')'; b.onclick = () => UI.egTab('shapes'); row2.append(b); }
         s2.append(row2);
       }
       body.append(s2);
@@ -154,7 +156,8 @@
   function shapeForm(body, c) { // quick shape editing; the full keyframable set lives in Effect Controls
     const sh = c.shape, lt = () => GW.clamp(GW.seq().t - c.start, 0, c.dur); const f = document.createElement('div'); f.className = 'form';
     const ch = () => { GW.invalidate(); GW.commitSoon('تعديل الشكل'); GW.TL.invalidate(); }; const set = (p) => (v) => { GW.setPv(p, lt(), v); ch(); };
-    f.append(sec('الشكل'), frow('النوع', selectIn(GW.Shape.TYPES, sh.type, v => { sh.type = v; ch(); renderEG(); })));
+    f.append(sec('الشكل'), frow('النوع', selectIn(GW.Shape.typeOpts ? GW.Shape.typeOpts(sh) : GW.Shape.TYPES, sh.type, v => { if (v === 'path' && sh.type !== 'path' && GW.Shape.toPath) { GW.Shape.toPath(c); renderEG(); return; } sh.type = v; ch(); renderEG(); })));
+    if (sh.type === 'lib' && GW.Shape.toPath) { const cv = document.createElement('button'); cv.className = 'btn sm'; cv.textContent = 'تحويل إلى مسار قابل للتحرير'; cv.onclick = () => { GW.Shape.toPath(c); renderEG(); }; f.append(frow('مكتبة', cv)); }
     f.append(sec('التعبئة'), frow('تفعيل', checkIn(sh.fill.on, v => { sh.fill.on = v; ch(); })), frow('اللون', colorIn(GW.pv(sh.fill.color, lt()), set(sh.fill.color))), frow('الشفافية', rangeIn(GW.pv(sh.fill.opacity, lt()), 0, 100, 1, set(sh.fill.opacity))));
     f.append(sec('الحد'), frow('تفعيل', checkIn(sh.stroke.on, v => { sh.stroke.on = v; ch(); })), frow('اللون', colorIn(GW.pv(sh.stroke.color, lt()), set(sh.stroke.color))), frow('السماكة', rangeIn(GW.pv(sh.stroke.width, lt()), 0, 200, .5, set(sh.stroke.width))), frow('طول الشرطة', rangeIn(GW.pv(sh.stroke.dash, lt()), 0, 400, 1, set(sh.stroke.dash))), frow('الفجوة', rangeIn(GW.pv(sh.stroke.gap, lt()), 0, 400, 1, set(sh.stroke.gap))));
     if (sh.type !== 'ellipse' && sh.type !== 'line') f.append(frow('استدارة الزوايا', rangeIn(GW.pv(sh.round, lt()), 0, 400, 1, set(sh.round))));

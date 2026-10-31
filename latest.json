@@ -1,8 +1,8 @@
 {
- "version": "2.4.1",
- "date": "2026-10-31T00:22:32.055Z",
- "notes_ar": "إزالة «نص إلى كلام» من القوائم واستبدالها بـ«كلام إلى ترجمة» (تفريغ الصوت وترجمته على الشاشة).",
- "notes_en": "Removed text-to-speech from the menus; replaced with speech-to-captions entries.",
+ "version": "2.5.0",
+ "date": "2026-10-31T10:35:17.369Z",
+ "notes_ar": "الإصدار 2.5: تصميم جديد جذري (شريط علوي، مساحات عمل كحبّة، شاشة رئيسية ببطاقات المشاريع والقوالب، تايملاين مرسوم من جديد، قوائم ونوافذ زجاجية، أيقونات جديدة)؛ مكتبة 170 شكلاً متجهاً (أسهم، رموز وثائقية وعسكرية، إطارات وأقنعة، ملصقات شورتات)؛ أداة Slide، حذف الفراغات، التداخل (Nest)، تكبير على التحديد، تنقل ونسخ الكي فريم، Esc وEnter في كل النوافذ، حفظ تلقائي كل دقيقتين مع آخر 10 نسخ، حفظ آمن، وإعادة ربط الوسائط المفقودة.",
+ "notes_en": "2.5: radical redesign (top bar, segmented workspaces, new home with project/template cards, redrawn timeline, glass menus/dialogs, new icons); 170-item vector shape library; Slide tool, gap delete, nest, zoom to selection, keyframe navigation/copy, Esc/Enter in dialogs, autosave every 2 min with last 10 versions, crash-safe save, relink missing media.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -24,8 +24,8 @@
   },
   {
    "path": "app/css/app.css",
-   "size": 71363,
-   "sha256": "26194cc037923efd449ad12d6a0bcbc9e49753bc3e53eafdebad55a10067ab4a"
+   "size": 110701,
+   "sha256": "19cca75a7ff0cec19d07f0d232a59df011ab0697858de187be6d9406570d21c2"
   },
   {
    "path": "app/fonts/amiri-arabic-400-normal.woff2",
@@ -679,18 +679,18 @@
   },
   {
    "path": "app/i18n/ar_strings.json",
-   "size": 87607,
-   "sha256": "9b71c3c4749473e2d20797bff6f7fffec4e47ded8b769fb9153b39a1bced1a05"
+   "size": 97032,
+   "sha256": "9d717f62e905f46f853a2fbaf7ab532f9df0a9567d2ae80addabb2ff313804e9"
   },
   {
    "path": "app/i18n/en.js",
-   "size": 151787,
-   "sha256": "14c38636588c7427c56159fdcb2d671e0696c350191eb7d1601e9b4284b20b03"
+   "size": 171484,
+   "sha256": "4cf690614c8658cd2cd0d18ea608c01e93f221564911d19eac68e3913ea35429"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 147043,
-   "sha256": "4650cba70f0f9f517a355b125ab978769963074bf71eae8a4b08a208a2e8ca39"
+   "size": 170508,
+   "sha256": "951b19954f00d40e27a542a311f31de0e7aea147cb37205ae6d12f643db6cfcf"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -724,18 +724,18 @@
   },
   {
    "path": "app/index.html",
-   "size": 4104,
-   "sha256": "9be462e87243ceb6735637993f6440b94ecaad4019cfa3a632df05eb69d57779"
+   "size": 4700,
+   "sha256": "4e0b8c8fb19ddd7332fd7be640cd2044cc7c7930f6cfd1f1942df538ac23be06"
   },
   {
    "path": "app/js/api.js",
-   "size": 61516,
-   "sha256": "d73764254a08706ff47681bde2b587646217f201b77425428b6a9fb1ada9d833"
+   "size": 63303,
+   "sha256": "a57dcce444bf4877f4870586049a6ecb277238bdd8b3df3ec5ddd17bb9524645"
   },
   {
    "path": "app/js/app.js",
-   "size": 38252,
-   "sha256": "38d94e4c3d488c818f90290cd7e31d62ae971fed10ea334caf88e2961187b958"
+   "size": 46252,
+   "sha256": "8733e7dec49f1205b0cca9ce43c30c6998defc2dbd8bdd0381a2a1f926067ac4"
   },
   {
    "path": "app/js/asr_core.js",
@@ -774,8 +774,8 @@
   },
   {
    "path": "app/js/atlas/vector.js",
-   "size": 58757,
-   "sha256": "5c9c72b6c8132e569de7254b94e69a12012024cac32707934f1547e26141c087"
+   "size": 59043,
+   "sha256": "a83b1fae833c53e3866c033d840751e99d247bf9e4170909ad507ac001a0b8dd"
   },
   {
    "path": "app/js/atlas/vtiles.js",
@@ -824,8 +824,8 @@
   },
   {
    "path": "app/js/icons.js",
-   "size": 7492,
-   "sha256": "0150bef52055bab6c820e920434856043f388e07d2d80e1a814e28ef08e8248b"
+   "size": 10210,
+   "sha256": "329cc84740e0445edf4d7ad2c69cd1be6d9eb3359a33dcb435d4d5ffc6d3792d"
   },
   {
    "path": "app/js/lut.js",
@@ -834,8 +834,8 @@
   },
   {
    "path": "app/js/media.js",
-   "size": 37616,
-   "sha256": "92a941592ad0e15921119bf664301fd44668af5f6d842eda11d82bf2d2cea0aa"
+   "size": 38278,
+   "sha256": "ee72026a47917fba2e70bcfd0b007e57686932e25e54b660b3b379a587510983"
   },
   {
    "path": "app/js/mg.js",
@@ -854,13 +854,18 @@
   },
   {
    "path": "app/js/shape.js",
-   "size": 22883,
-   "sha256": "8f91844dfac0c40fb43b1c85b3d1e620babc8f1a127bfbc9c5b04acdf3a97d21"
+   "size": 25578,
+   "sha256": "fed2496c399612c0affb420b5315d268668ee4a1ec5b0ed43de5f6daf65c8799"
+  },
+  {
+   "path": "app/js/shape_lib.js",
+   "size": 59827,
+   "sha256": "7987676d92e0bcfc28c22a5ae822bf15e7dc62b880667bf315f73f5de15bd010"
   },
   {
    "path": "app/js/shortcuts.js",
-   "size": 39453,
-   "sha256": "b6af8ebd4f953f5f4fccd2e96b6ef13ea3ab4da68e83ff283c24c1eb002a668b"
+   "size": 40504,
+   "sha256": "d11287cd75d2e41bf2b8fb1a82c9db99f67f734ea3f6378556b6f9db3813a980"
   },
   {
    "path": "app/js/text.js",
@@ -893,6 +898,11 @@
    "sha256": "1eca1c372500bdba263c084189b6f32e9b8ef011f10f959673648a0c44e39873"
   },
   {
+   "path": "app/js/ui_chrome.js",
+   "size": 12517,
+   "sha256": "b5f18679ec91789c99b35f5d3cdb566777965d7cbf4404c100560381852cf534"
+  },
+  {
    "path": "app/js/ui_export.js",
    "size": 17486,
    "sha256": "b805920477659bb8574d1ab5cbe6aa10d477b605f6900f1137761eea3efe712b"
@@ -909,28 +919,28 @@
   },
   {
    "path": "app/js/ui_home.js",
-   "size": 4643,
-   "sha256": "04e94783f6a77efcf95edbdd1acb73f8ef0a50bb78e931ca321ac1cdf0170b3a"
+   "size": 16902,
+   "sha256": "35491b83fab537a1aaa984ee3b008a47a38ba088f472ef5b01c415c7f41136a1"
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 96305,
-   "sha256": "43911edf0741b210f277ebdc2eaf1beadff35f69f9f378554dc1de58cc2dc037"
+   "size": 96360,
+   "sha256": "fcc0cbb36abb8f1e687731e686240cb5b3a62527fbd43154cf8ba31579abc8c5"
   },
   {
    "path": "app/js/ui_monitors.js",
-   "size": 34045,
-   "sha256": "1a3fff86907ad42e2bd7ccfbe335dfd3bc189b0fecb673238c495940e3a6ca76"
+   "size": 34436,
+   "sha256": "605c428eb7cb731833d541c2220bb37e737365797d8e4a5554443e0ab3099ba8"
   },
   {
    "path": "app/js/ui_panels.js",
-   "size": 40005,
-   "sha256": "276e1863fab5196881bd892579df701516354e072dbd53f8d2900ad35a2211d9"
+   "size": 40963,
+   "sha256": "38085bb148b0dc852ca39abf757fcd3938e8f15d4ff97abfe0737a3a495c857b"
   },
   {
    "path": "app/js/ui_project.js",
-   "size": 28797,
-   "sha256": "1a91433effc347831c53a29167a80376fdf8e1178e3c36277999c32c302ea9b2"
+   "size": 32030,
+   "sha256": "06b381e56444aeefd09fb46f7f07ce4fb4c1222e27ae070626ea3fd148cfa8c7"
   },
   {
    "path": "app/js/ui_sfx.js",
@@ -944,8 +954,8 @@
   },
   {
    "path": "app/js/ui_timeline.js",
-   "size": 83245,
-   "sha256": "2d93d6c260c769fb2958075a2174c19566758eae43a1b916c470823b0ceacca4"
+   "size": 90631,
+   "sha256": "e4dc7a30fe5723f2ddf205b78cbc725cbed35ee88a680263e5032fdffbb8daa6"
   },
   {
    "path": "app/js/ui_tts.js",
@@ -969,8 +979,8 @@
   },
   {
    "path": "app/js/util.js",
-   "size": 12913,
-   "sha256": "af85ae99c1d3a9ea03e875f1b8ad55b99aa00eb5c2bcf82e6f87bfc9ebb455ae"
+   "size": 13898,
+   "sha256": "2c4b987738566efc9642a2aab831a10b791ffd26074ddae3115748628cf56f0b"
   },
   {
    "path": "app/js/xform.js",
@@ -4289,13 +4299,13 @@
   },
   {
    "path": "main.js",
-   "size": 49560,
-   "sha256": "32217c901480370d05a0e1d9f3b52f62a5b40062d0948e1bbe03e5190d576de2"
+   "size": 49889,
+   "sha256": "24af0701667b0309dcaf843d8f8e053be2652129b6a82efe8f1197d3d84b6777"
   },
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "6ead7c1009ef54ce7759fff9ba82c407625f237bcf95e1f5b38fea35b1d58ccb"
+   "sha256": "5e0af6c2116c9cdf56ddfda35689bf678794198a21f88d13f7674374b64fda02"
   },
   {
    "path": "preload.js",
@@ -4308,5 +4318,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "0cwDzx24BrHj3r81FDTlmQlOyFmt7pCtcsU8w13YEadgezmH218H3xvcPy/+qgExdiHu45m0SQdUi32Z/G69AQ=="
+ "sig": "sqAdvzsjCWwbRZ9MRnCBK8CXFnNH0fMcbu6mD5RUUveXz/kc4Ge0oDPRJ2ZCXOM3exmewLUEHvrjeE9wz2YQDQ=="
 }

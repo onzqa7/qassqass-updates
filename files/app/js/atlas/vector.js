@@ -48,6 +48,7 @@
   V.icon = (ctx, kind, x, y, s, color, rot, t, alpha) => {
     ctx.save(); ctx.translate(x, y); if (rot) ctx.rotate(rot); ctx.globalAlpha *= alpha == null ? 1 : alpha;
     const k = s / 24;
+    if (typeof kind === 'string' && kind.startsWith('lib:') && GW.ShapeLib) { ctx.scale(k, k); if (!GW.ShapeLib.icon(ctx, kind.slice(4), color)) { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(0, 0, 6, 0, 7); ctx.fill(); } ctx.restore(); return; } // library pictogram (shape_lib.js)
     if (PATHS[kind]) {
       ctx.scale(k, k); ctx.translate(-12, -12);
       ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 6; ctx.fillStyle = color; ctx.fill(path2(kind));

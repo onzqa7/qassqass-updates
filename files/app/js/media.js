@@ -62,13 +62,18 @@
     else { const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.accept = 'video/*,audio/*,image/*'; inp.onchange = () => M.importFiles([...inp.files].map(f => ({ file: f, name: f.name, path: f.path || null, size: f.size }))); inp.click(); }
   };
   M.importFiles = async (files) => {
-    const added = []; const have = new Set(GW.prj.media.map(m => m.path).filter(Boolean));
+    const added = []; const have = new Set(GW.prj.media.map(m => m.path).filter(Boolean)); const dups = [];
     for (const f of files) {
-      if (f.path && have.has(f.path)) continue; if (f.path) have.add(f.path);
+      if (f.path && have.has(f.path)) { dups.push(f.path); continue; } if (f.path) have.add(f.path);
       const kind = GW.mediaKind(f.name);
       const m = { id: GW.uid(), kind, name: f.name, path: f.path || null, size: f.size || 0, dur: kind === 'image' ? 5 : 0, w: 0, h: 0, fps: 0, hasAudio: kind === 'audio', hasVideo: kind !== 'audio', label: GW.LABELS[kind], added: Date.now() };
       const r = M.ensureRt(m); if (f.file) r.blobUrl = URL.createObjectURL(f.file), r.file = f.file;
       GW.prj.media.push(m); added.push(m);
+    }
+    if (dups.length) { // duplicate import: no second copy; the existing items get selected and the user is told
+      const ids = GW.prj.media.filter(m => dups.includes(m.path)).map(m => m.id); if (GW.sel && GW.sel.media) { GW.sel.media.clear(); ids.forEach(id => GW.sel.media.add(id)); }
+      GW.toast(dups.length === 1 ? 'الملف موجود في المشروع مسبقًا: ' + dups[0].split(/[\\/]/).pop() : 'تم تخطي ' + dups.length + ' ملفات موجودة في المشروع مسبقًا');
+      if (!added.length) { GW.bus.emit('media'); return GW.prj.media.filter(m => ids.includes(m.id)); }
     }
     if (!added.length) return [];
     GW.bus.emit('media');

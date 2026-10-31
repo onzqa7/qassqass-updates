@@ -56,7 +56,7 @@
   };
   function drawWave(c, m) {
     const r = GW.rt.m[m.id]; const w = c.width = c.clientWidth * devicePixelRatio, h = c.height = c.clientHeight * devicePixelRatio; const g = c.getContext('2d');
-    g.fillStyle = '#101820'; g.fillRect(0, 0, w, h); if (!r || !r.peaks) return; const p = r.peaks; g.fillStyle = '#3fae8f';
+    g.fillStyle = '#0d0f12'; g.fillRect(0, 0, w, h); if (!r || !r.peaks) return; const p = r.peaks; g.fillStyle = '#3fb8a8';
     for (let x = 0; x < w; x++) { const i0 = Math.floor(x / w * p.length), i1 = Math.max(i0 + 1, Math.floor((x + 1) / w * p.length)); let mx = 0; for (let i = i0; i < i1; i++) mx = Math.max(mx, p[i]); const hh = mx * h * .48; g.fillRect(x, h / 2 - hh, 1, hh * 2); }
   }
   S.seek = (t) => { if (!S.m) return; t = clamp(t, 0, S.m.dur || 0); if (S.media) S.media.currentTime = t; else S.still = t; upd(); };
@@ -177,7 +177,7 @@
     const W = PG.view.clientWidth, H = PG.view.clientHeight;
     if (ov.width !== Math.round(W * dpr) || ov.height !== Math.round(H * dpr)) { ov.width = Math.round(W * dpr); ov.height = Math.round(H * dpr); }
     const g = ov.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
-    if (PG.safe) { g.strokeStyle = 'rgba(255,255,255,.45)'; g.lineWidth = 1; for (const f of [.9, .8]) { g.strokeRect(b.x + b.w * (1 - f) / 2, b.y + b.h * (1 - f) / 2, b.w * f, b.h * f); } g.beginPath(); g.moveTo(b.x + b.w / 2 - 8, b.y + b.h / 2); g.lineTo(b.x + b.w / 2 + 8, b.y + b.h / 2); g.moveTo(b.x + b.w / 2, b.y + b.h / 2 - 8); g.lineTo(b.x + b.w / 2, b.y + b.h / 2 + 8); g.stroke(); }
+    if (PG.safe) { g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = .75; for (const f of [.9, .8]) { g.strokeRect(b.x + b.w * (1 - f) / 2, b.y + b.h * (1 - f) / 2, b.w * f, b.h * f); } g.beginPath(); g.moveTo(b.x + b.w / 2 - 8, b.y + b.h / 2); g.lineTo(b.x + b.w / 2 + 8, b.y + b.h / 2); g.moveTo(b.x + b.w / 2, b.y + b.h / 2 - 8); g.lineTo(b.x + b.w / 2, b.y + b.h / 2 + 8); g.stroke(); }
     if (GW.MapUI && !GW.pb.playing && GW.MapUI.active()) { PG.hot = null; GW.MapUI.overlay(g); return; }
     if (GW.Track && !GW.pb.playing && GW.Track.active()) { PG.hot = null; GW.Track.overlay(g); return; } // motion tracker (track.js)
     if (GW.Shape && !GW.pb.playing && GW.Shape.active()) { PG.hot = null; GW.Shape.overlay(g, PG); return; } // shape pen tool (shape.js)
@@ -192,7 +192,7 @@
     if (GW.X && GW.X.is3D(c)) { // 3D layer: projected quad + anchor, drag = move in its XY plane
       const s = GW.seq(), L = GW.X.layerMap(s, c, s.t); const vis = corners.every(p => GW.X.apply(L.A, p[0], p[1], 0)[2] > GW.X.NEAR);
       if (vis) {
-        const q = corners.map(p => mp(p[0], p[1])); g.strokeStyle = '#5aa9ff'; g.lineWidth = 1.2; g.beginPath(); q.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.stroke();
+        const q = corners.map(p => mp(p[0], p[1])); g.strokeStyle = '#4cc2ff'; g.lineWidth = 1.2; g.beginPath(); q.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.stroke();
         const an = GW.pv(c.motion.anchor, lt); const ap = mp(an[0], an[1]); const L3 = (dx, dy, col) => { const e = mp(an[0] + dx, an[1] + dy); g.strokeStyle = col; g.beginPath(); g.moveTo(ap[0], ap[1]); g.lineTo(e[0], e[1]); g.stroke(); };
         const ax = Math.max(20, Math.min(c.sw, c.sh) * .12); L3(ax, 0, '#ff5a5a'); L3(0, ax, '#5aff7a');
         g.strokeStyle = '#fff'; g.beginPath(); g.arc(ap[0], ap[1], 5, 0, 7); g.stroke();
@@ -200,12 +200,15 @@
       PG.hot = { c, pts: [], mids: [], ap: [-1e9, -1e9], mp, lt, td: 1 }; return;
     }
     const pts = corners.map(p => mp(p[0], p[1]));
-    g.strokeStyle = c.kind === 'null' ? '#e05c5c' : '#5aa9ff'; g.lineWidth = c.kind === 'null' ? 1.5 : 1; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.stroke();
+    // v5 overlay: thin cyan outline (dark halo for legibility over any picture), small round handles with an ember ring
+    const halo = (fn) => { g.save(); g.strokeStyle = 'rgba(0,0,0,.55)'; g.lineWidth = 3; fn(); g.restore(); fn(); };
+    g.strokeStyle = c.kind === 'null' ? '#ef5350' : '#4cc2ff'; g.lineWidth = c.kind === 'null' ? 1.5 : 1;
+    g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); halo(() => g.stroke());
     const mids = pts.map((p, i) => { const q = pts[(i + 1) % 4]; return [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]; });
-    g.fillStyle = '#fff'; g.strokeStyle = '#2f8ef0';
-    for (const p of [...pts, ...mids]) { g.fillRect(p[0] - 4, p[1] - 4, 8, 8); g.strokeRect(p[0] - 4, p[1] - 4, 8, 8); }
+    g.lineWidth = 1.25;
+    for (const p of [...pts, ...mids]) { g.beginPath(); g.arc(p[0], p[1], 4, 0, 7); g.fillStyle = '#fff'; g.fill(); g.strokeStyle = '#ff6a2b'; g.stroke(); }
     const an = GW.pv(c.motion.anchor, lt); const ap = mp(an[0], an[1]);
-    g.strokeStyle = '#fff'; g.beginPath(); g.arc(ap[0], ap[1], 6, 0, 7); g.moveTo(ap[0] - 10, ap[1]); g.lineTo(ap[0] + 10, ap[1]); g.moveTo(ap[0], ap[1] - 10); g.lineTo(ap[0], ap[1] + 10); g.stroke();
+    g.strokeStyle = '#fff'; g.lineWidth = 1; g.beginPath(); g.arc(ap[0], ap[1], 6, 0, 7); g.moveTo(ap[0] - 10, ap[1]); g.lineTo(ap[0] + 10, ap[1]); g.moveTo(ap[0], ap[1] - 10); g.lineTo(ap[0], ap[1] + 10); halo(() => g.stroke());
     PG.hot = { c, pts, mids, ap, mp, lt };
   }
   // camera: active → point-of-interest target + badge; inactive → glyph at its projected position
@@ -286,7 +289,7 @@
       ov.setPointerCapture(e.pointerId);
       const mv = ev => {
         const x = ev.clientX - r.left, y = ev.clientY - r.top; const dx = (x - X) / sx, dy = (y - Y) / sx;
-        if (mode === 'move') { const d = dragJ ? dragJ(dx, dy) : [dx, dy]; setParam(c, c.motion.pos, lt, [Math.round((pos0[0] + d[0]) * 10) / 10, Math.round((pos0[1] + d[1]) * 10) / 10]); }
+        if (mode === 'move') { let d = dragJ ? dragJ(dx, dy) : [dx, dy]; if (ev.shiftKey) d = Math.abs(d[0]) >= Math.abs(d[1]) ? [d[0], 0] : [0, d[1]]; /* Shift: one axis */ setParam(c, c.motion.pos, lt, [Math.round((pos0[0] + d[0]) * 10) / 10, Math.round((pos0[1] + d[1]) * 10) / 10]); }
         else if (mode === 'corner' || mode === 'edge') { const d = Math.hypot(x - cen[0], y - cen[1]); setParam(c, c.motion.scale, lt, Math.max(1, Math.round(sc0 * d / Math.max(1, d0) * 10) / 10)); }
         else if (mode === 'rotate') { const a = Math.atan2(y - cen[1], x - cen[0]); let v = rot0 + (a - a0) * 180 / Math.PI; if (ev.shiftKey) v = Math.round(v / 15) * 15; setParam(c, c.motion.rot, lt, Math.round(v * 10) / 10); }
         else if (mode === 'anchor') { const sp = inv(x, y); const dA = [sp[0] - sp0[0], sp[1] - sp0[1]]; const sc = sc0 / 100; const rr = rot0 * Math.PI / 180; setParam(c, c.motion.anchor, lt, [an0[0] + dA[0], an0[1] + dA[1]]); GW.setPv(c.motion.pos, lt, [pos0[0] + (Math.cos(rr) * dA[0] - Math.sin(rr) * dA[1]) * sc, pos0[1] + (Math.sin(rr) * dA[0] + Math.cos(rr) * dA[1]) * sc]); }

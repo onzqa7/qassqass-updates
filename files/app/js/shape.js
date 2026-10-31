@@ -18,7 +18,9 @@
       path: { pts: P(o.pts || []), closed: o.closed ? 1 : 0 }
     };
   };
-  S.key = (sh, lt) => { const out = []; GW.eachParam({ shape: sh }, p => out.push(GW.pv(p, lt))); return JSON.stringify(out) + sh.type + (sh.fill.on | 0) + (sh.fill.grad.on | 0) + sh.fill.grad.type + (sh.stroke.on | 0) + sh.stroke.cap + sh.stroke.join + (sh.path.closed | 0); };
+  S.key = (sh, lt) => { const out = []; GW.eachParam({ shape: sh }, p => out.push(GW.pv(p, lt))); return JSON.stringify(out) + sh.type + (sh.fill.on | 0) + (sh.fill.grad.on | 0) + sh.fill.grad.type + (sh.stroke.on | 0) + sh.stroke.cap + sh.stroke.join + (sh.path.closed | 0) + (sh.rule || '') + (sh.lib ? '|' + sh.lib.id : ''); };
+  // type 'lib' = item from the shapes library (shape_lib.js): sh.lib = { id }, geometry fitted into center/size (fill rule sh.rule)
+  S.typeOpts = (sh) => sh && sh.type === 'lib' ? [['lib', 'من المكتبة'], ...S.TYPES] : S.TYPES;
 
   /* ---- geometry: polyline(s) in sequence px. Returns [{pts:[[x,y]…], closed}] ---- */
   const bez = (a, b, t) => { // cubic between anchor a and b using a.out / b.in handles (absolute)
@@ -51,16 +53,20 @@
         return [{ pts: rot(roundPoly(pts, rd, true), c, a), closed: true }];
       }
       case 'line': return [{ pts: rot([[c[0] - w, c[1] - h], [c[0] + w, c[1] + h]], c, a), closed: false }];
-      case 'path': {
-        const P0 = GW.pv(sh.path.pts, lt) || []; if (P0.length < 2) return P0.length ? [{ pts: P0.map(p => [p[0], p[1]]), closed: false }] : [];
-        const out = []; const n = P0.length; const segs = sh.path.closed ? n : n - 1;
-        for (let i = 0; i < segs; i++) { const A = P0[i], B = P0[(i + 1) % n]; const straight = !(A[4] || A[5] || B[2] || B[3]); if (straight) { out.push([A[0], A[1]]); continue; } for (let j = 0; j < 24; j++) out.push(bez(A, B, j / 24)); }
-        if (!sh.path.closed) out.push([P0[n - 1][0], P0[n - 1][1]]);
-        return [{ pts: rd > 0 ? roundPoly(out, rd, !!sh.path.closed) : out, closed: !!sh.path.closed }];
-      }
+      case 'path': { const P0 = GW.pv(sh.path.pts, lt) || []; const pl = S.sample(P0, !!sh.path.closed, rd); return pl ? [pl] : []; }
+      case 'lib': return GW.ShapeLib ? GW.ShapeLib.polylines(sh, c, sz, a, rd) : [];
     }
     return [];
   };
+  // anchors [[x,y,inX,inY,outX,outY]…] → sampled polyline {pts, closed} (shared by 'path' and library shapes)
+  S.sample = (P0, closed, rd) => {
+    if (P0.length < 2) return P0.length ? { pts: P0.map(p => [p[0], p[1]]), closed: false } : null;
+    const out = []; const n = P0.length; const segs = closed ? n : n - 1;
+    for (let i = 0; i < segs; i++) { const A = P0[i], B = P0[(i + 1) % n]; const straight = !(A[4] || A[5] || B[2] || B[3]); if (straight) { out.push([A[0], A[1]]); continue; } for (let j = 0; j < 24; j++) out.push(bez(A, B, j / 24)); }
+    if (!closed) out.push([P0[n - 1][0], P0[n - 1][1]]);
+    return { pts: rd > 0 ? roundPoly(out, rd, closed) : out, closed };
+  };
+  S.rotPts = rot;
   S.length = (pl) => { let L = 0; const p = pl.pts; const n = pl.closed ? p.length : p.length - 1; for (let i = 0; i < n; i++) { const b = p[(i + 1) % p.length]; L += Math.hypot(b[0] - p[i][0], b[1] - p[i][1]); } return L; };
   // trim paths: keep the part of the polyline between start% and end% (+offset%), wrapping on closed shapes
   S.trim = (pl, start, end, offset) => {
@@ -107,7 +113,7 @@
       const gr = sh.fill.grad;
       if (gr.on) { const c = GW.pv(sh.center, lt), sz = GW.pv(sh.size, lt); const ang = (GW.pv(gr.angle, lt) || 0) * Math.PI / 180; const r = Math.hypot(sz[0], sz[1]) / 2 || 100; let G; if (gr.type === 'radial') G = g.createRadialGradient(c[0], c[1], 0, c[0], c[1], r); else G = g.createLinearGradient(c[0] - Math.cos(ang) * r, c[1] - Math.sin(ang) * r, c[0] + Math.cos(ang) * r, c[1] + Math.sin(ang) * r); G.addColorStop(0, GW.pv(gr.c1, lt)); G.addColorStop(1, GW.pv(gr.c2, lt)); g.fillStyle = G; }
       else g.fillStyle = GW.pv(sh.fill.color, lt);
-      g.fill(path, 'nonzero');
+      g.fill(path, sh.rule === 'evenodd' ? 'evenodd' : 'nonzero');
     }
     if (sh.stroke.on) {
       const st = sh.stroke; g.globalAlpha = clamp(GW.pv(st.opacity, lt) / 100, 0, 1); g.strokeStyle = GW.pv(st.color, lt); g.lineWidth = Math.max(0, GW.pv(st.width, lt) || 0); g.lineCap = st.cap || 'round'; g.lineJoin = st.join || 'round';
@@ -123,13 +129,29 @@
     const s = GW.seq(); const t = o.start != null ? o.start : s.t; const dur = o.dur || 5;
     let ti = o.ti; if (ti == null) { ti = 0; const tv = GW.TL ? GW.TL.target.v : 0; for (let i = 0; i < s.vt.length; i++) { if (s.vt[i].lock || i < tv) continue; if (!s.clips.some(c => c.tt === 'v' && c.ti === i && c.start < t + dur && c.start + c.dur > t)) { ti = i; break; } ti = -1; } if (ti < 0) { GW.ops.ensureTrack(s, 'v', s.vt.length); ti = s.vt.length - 1; } }
     GW.ops.ensureTrack(s, 'v', ti);
+    if (type === 'lib' && !o.lib) { if (GW.UI && GW.UI.egTab) GW.UI.egTab('shapes'); return null; }
     const name = o.name || (S.TYPES.find(x => x[0] === type) || ['', 'شكل'])[1];
     const c = GW.newClip('shape', { ti, start: t, dur, name, shapeType: type, center: o.center, size: o.size, color: o.color, pts: o.pts, closed: o.closed });
     if (!c.shape) c.shape = S.defaults(type, s, o);
+    if (type === 'lib') { c.shape.lib = { id: o.lib }; c.shape.fill.on = 1; c.shape.stroke.on = 0; if (o.rule) c.shape.rule = o.rule; }
     if (o.insert) GW.ops.rippleInsert(s, t, dur, GW.ops.allTracks(s)); else GW.ops.clear(s, 'v', ti, t, t + dur);
     s.clips.push(c); GW.sel.clips.clear(); GW.sel.clips.add(c.id); GW.sel.mask = null; GW.commit('شكل جديد: ' + name); GW.bus.emit('selection'); GW.invalidate();
     if (type === 'path' && !o.pts && GW.TL && GW.TL.setTool) { GW.TL.setTool('pen'); GW.toast('انقر على شاشة البرنامج لإضافة نقاط المسار (اسحب لمقابض بيزييه)، انقر مرتين للإغلاق'); }
     return c;
+  };
+
+  // «تحويل إلى مسار قابل للتحرير»: library / primitive shape → 'path' anchors the pen tool can edit (extra sub-paths become sibling clips)
+  S.toPath = (c) => {
+    const sh = c.shape; if (!sh || sh.type === 'path') return [c]; const s = GW.seq(); const lt = clamp(s.t - c.start, 0, c.dur);
+    let subs = null; if (sh.type === 'lib' && GW.ShapeLib) subs = GW.ShapeLib.anchors(sh, lt);
+    if (!subs) subs = S.polylines(sh, lt).map(pl => ({ pts: pl.pts.filter((p, i) => i % 3 === 0 || i === pl.pts.length - 1).map(p => [Math.round(p[0]), Math.round(p[1]), 0, 0, 0, 0]), closed: pl.closed }));
+    if (!subs.length) return [c];
+    const made = [c]; const base = GW.clone(sh);
+    subs.forEach((sub, i) => {
+      let t = c; if (i) { t = S.add('path', { start: c.start, dur: c.dur, pts: sub.pts, closed: sub.closed, name: c.name + ' (' + (i + 1) + ')' }); t.shape = GW.clone(base); made.push(t); }
+      const x = t.shape; x.type = 'path'; x.path = { pts: P(sub.pts.map(p => p.map(v => Math.round(v * 10) / 10))), closed: sub.closed ? 1 : 0 }; x.rot = P(0); x.round = P(0); delete x.lib; delete x.rule;
+    });
+    GW.sel.clips.clear(); GW.sel.clips.add(c.id); GW.commit('تحويل إلى مسار قابل للتحرير'); GW.bus.emit('selection'); GW.invalidate(); return made;
   };
 
   /* ---- pen tool on the Program monitor (hooks called from ui_monitors.js) ---- */
@@ -188,7 +210,8 @@
     const sel = (v, opts, on) => { const el = document.createElement('select'); el.className = 'sel'; for (const [k, n] of opts) { const o = document.createElement('option'); o.value = k; o.textContent = n; el.append(o); } el.value = v; el.onchange = () => { on(el.value); GW.commit('شكل'); GW.invalidate(); F.render(); }; return el; };
     const chk = (v, on) => { const i = document.createElement('input'); i.type = 'checkbox'; i.checked = !!v; i.onchange = () => { on(i.checked ? 1 : 0); GW.commit('شكل'); GW.invalidate(); F.render(); }; return i; };
     const sec = section('الشكل', { key: 'shape' });
-    sec.body.append(row(c, null, 'النوع', sel(sh.type, S.TYPES, v => { sh.type = v; if (v === 'path' && !(GW.pv(sh.path.pts, 0) || []).length && GW.TL) GW.TL.setTool('pen'); }), { noAnim: true }));
+    sec.body.append(row(c, null, 'النوع', sel(sh.type, S.typeOpts(sh), v => { if (v === 'path' && sh.type !== 'path') { S.toPath(c); return; } sh.type = v; if (v === 'path' && !(GW.pv(sh.path.pts, 0) || []).length && GW.TL) GW.TL.setTool('pen'); }), { noAnim: true }));
+    if (sh.type === 'lib') { const it = GW.ShapeLib && GW.ShapeLib.get(sh.lib && sh.lib.id); const cv = document.createElement('button'); cv.className = 'btn sm'; cv.textContent = 'تحويل إلى مسار قابل للتحرير'; cv.title = 'يصبح الشكل مسارًا بنقاط ومقابض يمكن تعديلها بأداة القلم'; cv.onclick = () => { S.toPath(c); F.render(); }; sec.body.append(row(c, null, it ? it.n : 'عنصر مكتبة', cv, { noAnim: true })); }
     if (sh.type === 'path') { const b = document.createElement('button'); b.className = 'btn sm'; b.textContent = (GW.TL && GW.TL.tool === 'pen') ? 'إنهاء الرسم' : 'رسم بالقلم'; b.onclick = () => { if (GW.TL.tool === 'pen') GW.cmd.tool('select'); else GW.TL.setTool('pen'); F.render(); GW.invalidate(); }; const n = document.createElement('span'); n.style.color = 'var(--mute)'; n.textContent = (GW.pv(sh.path.pts, lt(c)) || []).length + ' نقطة '; const wrap = document.createElement('span'); wrap.style.cssText = 'display:inline-flex;gap:6px;align-items:center'; wrap.append(n, b); sec.body.append(row(c, sh.path.pts, 'المسار', wrap, {})); sec.body.append(row(c, null, 'مغلق', chk(sh.path.closed, v => { sh.path.closed = v; }), { noAnim: true })); }
     sec.body.append(row(c, sh.center, 'المركز', pointCtl(c, sh.center), { def: [s.w / 2, s.h / 2] }));
     if (sh.type !== 'path') sec.body.append(row(c, sh.size, 'الحجم', pointCtl(c, sh.size), { def: [s.w * .4, s.h * .3] }));

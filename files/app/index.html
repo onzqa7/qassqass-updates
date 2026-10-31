@@ -14,8 +14,11 @@
     <nav id="menus" dir="rtl"></nav>
     <div id="workspaces" dir="rtl"></div>
     <div class="mb-right" dir="rtl">
+      <span id="prjName" class="mb-prj" title="اسم المشروع"></span>
+      <span class="mb-group"><button class="tb" id="btnUndo" title="تراجع (Ctrl+Z)"></button><button class="tb" id="btnRedo" title="إعادة (Ctrl+Shift+Z)"></button></span>
       <span id="ffWarn" class="warn" hidden>محرك التصدير غير متاح</span>
       <button class="btn pri" id="btnExport" title="تصدير الوسائط (Ctrl+M)">تصدير</button>
+      <button class="tb" id="btnSettings" title="الإعدادات"></button>
     </div>
   </header>
   <main id="ws">
@@ -35,7 +38,7 @@
     <div class="split v" id="sideSplit" data-var="--c3" data-side="1"></div>
     <section class="frame" id="F_side"><div class="tabs" dir="rtl"></div><div class="fbody"></div></section>
   </main>
-  <footer id="status" dir="rtl"><span id="stMsg">جاهز</span><span class="grow"></span><span id="stGpu"></span><span id="stSeq"></span></footer>
+  <footer id="status" dir="rtl"><span id="stMsg">جاهز</span><span class="grow"></span><span id="stSave" class="st-pill"></span><span id="stZoom" class="st-pill"></span><span id="stFps" class="st-pill" title="إطارات الواجهة في الثانية"></span><span id="stGpu"></span><span id="stSeq"></span></footer>
 </div>
 
 <div id="store" hidden></div>
@@ -58,6 +61,7 @@
 <script src="js/text.js"></script>
 <script src="js/text_anim.js"></script>
 <script src="js/shape.js"></script>
+<script src="js/shape_lib.js"></script>
 <script src="js/mg.js"></script>
 <script src="js/atlas/providers.js"></script>
 <script src="js/atlas/camera.js"></script>
@@ -94,6 +98,7 @@
 <script src="js/audio_fx.js"></script>
 <script src="js/ui_tts.js"></script>
 <script src="js/track.js"></script>
+<script src="js/ui_chrome.js"></script>
 <script src="js/boot.js"></script>
 </body>
 </html>

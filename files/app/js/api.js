@@ -56,6 +56,8 @@
    captureFrame({time, maxWidth=960})            → {mime:'image/png', base64, width, height, time}   (what the Program monitor shows)
    listEffects() listTransitions() listSfx({query, cat, limit}) listTitlePresets() listMapStyles() listMethods()
    addShape({type:'rect'|'ellipse'|'polygon'|'star'|'line'|'path', start, dur, track, center, size, color, pts, closed, stroke:{color,width}, fill}) → clip   vector shape layer (js/shape.js)
+   listShapes()                                  → [{id, name, category, anim, strokeOnly, frame, box}]   shapes & graphics library (js/shape_lib.js)
+   addLibraryShape({id, start, dur, track, center:[x,y], size:[w,h], style:'accent'|'white'|'black'|'red'|'green'|'gold'|'outline', color, anim:'draw'|'pop'|'slide'|'pulse'|'none', rot, mask:true (frames: add as mask on clip `clip`), clip}) → clip | mask
    setTextAnimator({id, preset, unit:'char'|'word'|'line', shape, ease, props:{opacity,scale,rot,tracking,blur,pos,fill}, start|end|offset: value | [{time,value,ease}], replace, remove}) → {id, animators}
    createBin({name, parent, color, media:[ids]})   → bin   project folder (bins persist in the project file)
    listTemplates()                               → [{id, name, category, dur, fields:[{key, name, type, default}]}]   motion graphics templates (js/mg.js)
@@ -315,6 +317,16 @@
     if (p.stroke) { c.shape.stroke.on = 1; if (p.stroke.color) c.shape.stroke.color = GW.P(p.stroke.color); if (p.stroke.width != null) c.shape.stroke.width = GW.P(+p.stroke.width); }
     if (p.fill === false) c.shape.fill.on = 0;
     GW.hist.labels[GW.hist.idx] = label('شكل جديد'); GW.bus.emit('hist'); GW.invalidate(); return clipInfo(c);
+  };
+  M.listShapes = () => { if (!GW.ShapeLib) fail('shapes library unavailable'); return GW.ShapeLib.list(); };
+  M.addLibraryShape = (p = {}) => { // {id, start, dur, track, center, size, style, color, anim, rot, mask, clip, name}
+    if (!GW.ShapeLib) fail('shapes library unavailable'); const it = GW.ShapeLib.get(p.id); if (!it) fail('unknown shape "' + p.id + '" (see listShapes)');
+    if (p.mask) { const c = clipOf(p.clip); const mk = GW.ShapeLib.addMask(it.id, c); if (!mk) fail('mask not added'); return { id: mk.id, clip: c.id, type: 'path', points: GW.pv(mk.pts, 0).length }; }
+    const row = parseTrack(p.track); if (row && row.tt !== 'v') fail('shapes go on video tracks');
+    if (p.style && !GW.ShapeLib.STYLES.some(x => x[0] === p.style)) fail('style must be ' + GW.ShapeLib.STYLES.map(x => x[0]).join(' | '));
+    if (p.anim && !GW.ShapeLib.ANIMS.some(x => x[0] === p.anim)) fail('anim must be ' + GW.ShapeLib.ANIMS.map(x => x[0]).join(' | '));
+    const c = GW.ShapeLib.add(it.id, { start: num(p.start, 'start'), dur: num(p.dur, 'dur') || 5, ti: row ? row.ti : null, center: p.center, size: p.size, style: p.style, color: p.color, anim: p.anim, rot: p.rot, name: p.name, insert: p.mode === 'insert' });
+    if (!c) fail('shape not added'); GW.hist.labels[GW.hist.idx] = label('إدراج شكل'); GW.bus.emit('hist'); GW.invalidate(); return clipInfo(c);
   };
   M.setTextAnimator = (p = {}) => { // {id, preset:'typewriter'|'fadeUpWord'|'blurIn'|'bounce'|'slideSide'|'scaleIn'|'fadeOutWord'|'custom', unit, shape, ease, props:{opacity,scale,rot,tracking,blur,pos:[x,y],fill}, start,end,offset (constant or [{time,value}]), replace=false, remove=false}
     const c = clipOf(p.id); if (c.kind !== 'text' || !c.text) fail('not a text clip'); if (!GW.TextAnim) fail('text animators unavailable');

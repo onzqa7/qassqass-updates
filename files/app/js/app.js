@@ -134,7 +134,7 @@
   C.del = (ripple) => {
     const s = GW.seq();
     if (GW.sel.trans) { s.trans = s.trans.filter(t => t.id !== GW.sel.trans); GW.sel.trans = null; GW.commit('حذف انتقال'); return; }
-    const cs = sel(); if (!cs.length) { if (ripple && GW.TL) GW.TL.rippleDeleteGapAtPlayhead(); return; }
+    const cs = sel(); if (!cs.length) { if (GW.TL && GW.TL.gap) { const g = GW.TL.gap; GW.TL.gap = null; GW.TL.rippleDeleteGapAtPlayhead({ tt: g.tt, ti: g.ti }, (g.t0 + g.t1) / 2); return; } if (ripple && GW.TL) GW.TL.rippleDeleteGapAtPlayhead(); return; }
     const withLinks = new Set(cs); cs.forEach(c => GW.linked(s, c).forEach(l => withLinks.add(l)));
     if (ripple) GW.ops.rippleDelete(s, [...withLinks]); else [...withLinks].forEach(c => GW.ops.remove(s, c));
     GW.sel.clips.clear(); GW.commit(ripple ? 'حذف مع إزاحة' : 'حذف');
@@ -202,7 +202,38 @@
   C.zoomTL = (d) => GW.TL && GW.TL.zoom(d);
   C.fitTL = () => GW.TL && GW.TL.fit();
   C.tool = (t) => GW.TL && GW.TL.setTool(t);
-  C.nudge = (dx) => { const s = GW.seq(); const cs = sel(); if (!cs.length) return; const d = dx / s.fps; for (const c of cs) c.start = Math.max(0, c.start + d); GW.commit('تحريك'); };
+  C.nudge = (dx) => {
+    const s = GW.seq(); let cs = sel(); if (!cs.length) return;
+    if (!GW.TL || GW.TL.linked) { const set = new Set(cs); cs.forEach(c => GW.linked(s, c).forEach(l => set.add(l))); cs = [...set]; }
+    cs = cs.filter(c => !(s[c.tt + 't'][c.ti] || {}).lock); if (!cs.length) { GW.toast('المسار مقفل'); return; }
+    let d = dx / s.fps; const minS = Math.min(...cs.map(c => c.start)); if (minS + d < 0) d = -minS; if (!d) return;
+    for (const c of cs) c.start = GW.snapFrame(c.start + d, s.fps);
+    const ex = new Set(cs.map(c => c.id)); for (const c of cs) GW.ops.clear(s, c.tt, c.ti, c.start, c.start + c.dur, ex); // overwrite like a drag
+    if (GW.TL) GW.TL.ensureVisible(dx > 0 ? Math.max(...cs.map(c => c.start + c.dur)) : Math.min(...cs.map(c => c.start)));
+    GW.commit(Math.abs(dx) > 1 ? 'تحريك 5 إطارات' : 'تحريك إطار');
+  };
+  // nest the selected clips into a new sequence (replaced by one nested clip), or just make a sub-sequence from them (timeline untouched)
+  C.nest = (subOnly) => {
+    const s = GW.seq(); let cs = sel(); if (!cs.length) { GW.toast('حدد مقاطع أولًا'); return; }
+    const set = new Set(cs); cs.forEach(c => GW.linked(s, c).forEach(l => set.add(l))); cs = [...set];
+    const t0 = Math.min(...cs.map(c => c.start)), t1 = Math.max(...cs.map(c => c.start + c.dur));
+    const sub = GW.newSequence((subOnly ? 'تسلسل فرعي ' : 'متداخل ') + String(GW.prj.seqs.length + 1).padStart(2, '0'), s.w, s.h, s.fps);
+    const vmin = Math.min(...cs.filter(c => c.tt === 'v').map(c => c.ti), 0), amin = Math.min(...cs.filter(c => c.tt === 'a').map(c => c.ti), 0);
+    for (const c of cs) { const k = GW.clone(c); k.id = GW.uid(); k.start -= t0; k.ti = c.ti - (c.tt === 'v' ? vmin : amin); GW.ops.ensureTrack(sub, k.tt, k.ti); sub.clips.push(k); }
+    sub.trans = GW.clone(s.trans.filter(tr => cs.some(c => c.id === tr.a) || cs.some(c => c.id === tr.b))); const idMap = new Map(cs.map((c, i) => [c.id, sub.clips[i].id])); sub.trans.forEach(tr => { tr.a = idMap.get(tr.a) || null; tr.b = idMap.get(tr.b) || null; tr.ti -= tr.tt === 'v' ? vmin : amin; });
+    sub.markers = s.markers.filter(m => m.t >= t0 && m.t <= t1).map(m => ({ ...m, id: GW.uid(), t: m.t - t0 }));
+    GW.prj.seqs.push(sub);
+    if (subOnly) { GW.commit('تسلسل فرعي'); GW.bus.emit('project'); GW.toast('تم إنشاء تسلسل فرعي: ' + sub.name); return; }
+    const ti = Math.min(...cs.filter(c => c.tt === 'v').map(c => c.ti), 0); cs.forEach(c => GW.ops.remove(s, c)); GW.sel.clips.clear();
+    const n = GW.newClip('nest', { ti, start: t0, dur: t1 - t0, name: sub.name, sw: sub.w, sh: sub.h, label: GW.LABELS.nest }); n.ref = sub.id; n.vol = GW.P(0);
+    GW.ops.ensureTrack(s, 'v', ti); s.clips.push(n); GW.sel.clips.add(n.id); GW.commit('تداخل'); GW.bus.emit('project'); GW.bus.emit('selection');
+  };
+  C.reveal = () => { const c = sel().find(x => x.media); if (!c) { GW.toast('المقطع المحدد ليس من ملف وسائط'); return; } GW.sel.media.clear(); GW.sel.media.add(c.media); GW.showPanel('project'); GW.UI.renderProject && GW.UI.renderProject(); const el = document.querySelector(`[data-panel=project] .pitem[data-id="${c.media}"]`); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' }); };
+  // keyframe navigation / clipboard (all animated params of the selected clip, playhead-relative like Premiere's Effect Controls)
+  C.gotoKey = (dir) => { const s = GW.seq(); const cs = sel(); if (!cs.length) return; let best = null; for (const c of cs) GW.eachParam(c, p => { if (!p.k) return; for (const k of p.k) { const t = c.start + k.t; if (dir > 0 ? t > s.t + 1e-4 : t < s.t - 1e-4) { if (best == null || (dir > 0 ? t < best : t > best)) best = t; } } }); if (best != null) GW.seek(best); else GW.toast(dir > 0 ? 'لا يوجد مفتاح تالٍ' : 'لا يوجد مفتاح سابق'); };
+  C.copyKeys = () => { const s = GW.seq(); const c = sel()[0]; if (!c) return; const lt = s.t - c.start; const out = []; let i = 0; GW.eachParam(c, p => { const k = GW.keyAt(p, lt); if (k) out.push({ i, v: GW.clone(k.v), e: k.e, ez: k.ez ? GW.clone(k.ez) : undefined }); i++; }); if (!out.length) { GW.toast('لا توجد مفاتيح عند مؤشر التشغيل'); return; } GW.keyClipboard = { n: i, keys: out }; GW.toast('تم نسخ ' + out.length + ' مفتاح'); };
+  C.pasteKeys = () => { const kb = GW.keyClipboard; if (!kb) return; const s = GW.seq(); const cs = sel(); if (!cs.length) return; let n = 0; for (const c of cs) { const lt = clamp(GW.snapFrame(s.t - c.start, s.fps), 0, c.dur); if (s.t < c.start || s.t > c.start + c.dur) continue; let i = 0; GW.eachParam(c, p => { const k = kb.keys.find(x => x.i === i); i++; if (!k) return; if (!p.k) p.k = []; const ex = GW.keyAt(p, lt); if (ex) { ex.v = GW.clone(k.v); ex.e = k.e; } else p.k.push({ t: lt, v: GW.clone(k.v), e: k.e || 'linear' }); p.k.sort((a, b) => a.t - b.t); n++; }); } if (n) { GW.commit('لصق مفاتيح'); GW.bus.emit('param'); GW.invalidate(); } else GW.toast('ضع مؤشر التشغيل داخل المقطع الهدف'); };
+  C.zoomSel = () => { if (!GW.TL) return; const cs = sel(); const s = GW.seq(); let a, b; if (cs.length) { a = Math.min(...cs.map(c => c.start)); b = Math.max(...cs.map(c => c.start + c.dur)); } else if (s.inP != null && s.outP != null) { a = s.inP; b = s.outP; } else { GW.TL.fit(); return; } GW.TL.zoomTo(a, b); };
   C.rippleTrim = (side) => GW.TL && GW.TL.rippleTrimToPlayhead(side);
   C.maximize = () => { const f = document.querySelector('.frame:hover') || document.querySelector('.frame.focus'); if (!f) return; f.classList.toggle('max'); GW.toggleMax(f); };
   C.saveProject = (as) => GW.saveProject(as);
@@ -226,6 +257,7 @@
     ['ملف', () => [
       { label: 'مشروع جديد', key: 'Ctrl+Alt+N', action: C.newProject }, { label: 'فتح مشروع…', key: 'Ctrl+O', action: C.openProject },
       { label: 'المشاريع الأخيرة', sub: GW.recent().length ? GW.recent().map(p => ({ label: p, action: () => GW.openProject(p) })) : [{ label: 'لا يوجد' }] },
+      { label: 'النسخ التلقائية (آخر 10)', sub: GW.versions().length ? GW.versions().slice().reverse().map(p => ({ label: p.split(/[\\/]/).pop(), action: () => GW.openProject(p) })) : [{ label: 'لا يوجد' }] },
       '-', { label: 'حفظ', key: 'Ctrl+S', action: () => C.saveProject(false) }, { label: 'حفظ باسم…', key: 'Ctrl+Shift+S', action: () => C.saveProject(true) },
       '-', { label: 'استيراد…', key: 'Ctrl+I', action: C.importMedia },
       { label: 'جديد', sub: [{ label: 'تسلسل…', action: C.newSeq }, { label: 'نص', action: () => C.newText() }, { label: 'خريطة حربية', action: C.newMap }, { label: 'لون ثابت', action: C.newColor }, { label: 'طبقة ضبط (Adjustment Layer)', action: C.newAdjust }, { label: 'طبقة فارغة (Null)', action: C.newNull }, { label: 'كاميرا', action: C.newCamera }] },
@@ -253,9 +285,10 @@
       { label: 'تطبيق انتقال الفيديو الافتراضي', key: 'Ctrl+D', action: () => C.defaultTrans(false) }, { label: 'تطبيق انتقال الصوت الافتراضي', key: 'Ctrl+Shift+D', action: () => C.defaultTrans(true) },
       '-', { label: 'رفع', key: ';', action: () => C.lift(false) }, { label: 'استخراج', key: "'", action: () => C.lift(true) },
       { label: 'تشذيب مع إزاحة حتى المؤشر (السابق)', key: 'Q', action: () => C.rippleTrim('start') }, { label: 'تشذيب مع إزاحة حتى المؤشر (التالي)', key: 'W', action: () => C.rippleTrim('end') },
+      '-', { label: 'تداخل (Nest)…', cmd: 'seq.nest', action: () => C.nest(false) }, { label: 'إنشاء تسلسل فرعي من التحديد', cmd: 'seq.subseq', action: () => C.nest(true) },
       '-', { label: 'إضافة مسار فيديو', action: () => C.addTrack('v') }, { label: 'إضافة مسار صوت', action: () => C.addTrack('a') }, { label: 'حذف المسارات الفارغة', action: C.delEmptyTracks },
       '-', { label: GW.VO && GW.VO.rec ? 'إيقاف تسجيل التعليق الصوتي' : 'تسجيل تعليق صوتي', key: GW.Keys ? GW.Keys.first('seq.voiceover') : '', action: () => GW.VO && GW.VO.toggle() }, { label: 'إعدادات التسجيل الصوتي…', action: () => GW.VO && GW.VO.settings() },
-      '-', { label: 'تكبير الخط الزمني', key: '=', action: () => C.zoomTL(1) }, { label: 'تصغير الخط الزمني', key: '-', action: () => C.zoomTL(-1) }, { label: 'عرض التسلسل كاملًا', key: '\\', action: C.fitTL }
+      '-', { label: 'تكبير الخط الزمني', key: '=', action: () => C.zoomTL(1) }, { label: 'تصغير الخط الزمني', key: '-', action: () => C.zoomTL(-1) }, { label: 'عرض التسلسل كاملًا', key: '\\', action: C.fitTL }, { label: 'تكبير إلى التحديد', cmd: 'seq.zoomSel', action: C.zoomSel }
     ]],
     ['علامات', () => [
       { label: 'تحديد نقطة الدخول', key: 'I', action: C.markIn }, { label: 'تحديد نقطة الخروج', key: 'O', action: C.markOut }, { label: 'تحديد حول المقطع', key: 'X', action: C.markClip }, { label: 'مسح الدخول والخروج', key: 'Ctrl+Shift+X', action: C.clearIO },
@@ -300,7 +333,11 @@
   let jkl = 0;
   function onKey(e) {
     const tag = (e.target.tagName || '').toLowerCase();
-    if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable || (e.target.closest && e.target.closest('[contenteditable=""],[contenteditable=true]'))) return;
+    if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable || (e.target.closest && e.target.closest('[contenteditable=""],[contenteditable=true]'))) {
+      // focus is never trapped: Esc (or Enter in a single-line field outside dialogs) hands the keyboard back to the editor
+      if (e.key === 'Escape' || (e.key === 'Enter' && tag === 'input' && !e.target.closest('.modal,.ctx') && !e.shiftKey)) { if (!document.querySelector('.modal')) { e.target.blur(); if (GW.TL && GW.TL.tracksEl) GW.TL.tracksEl.focus({ preventScroll: true }); } }
+      return;
+    }
     if (e.isComposing || document.querySelector('.modal') || ($('#mapEditor') && !$('#mapEditor').hidden)) return;
     if (GW.Keys) { GW.Keys.handle(e); return; } // customizable bindings (js/shortcuts.js); the legacy table below is the fallback
     const k = e.key, K = k.length === 1 ? k.toLowerCase() : k, ctrl = e.ctrlKey || e.metaKey, sh = e.shiftKey, alt = e.altKey;
@@ -376,7 +413,7 @@
     // lazy, bounded preparation: metadata + cache lookups only; peaks/thumbs/audio load from the disk cache on demand
     const em = GW.debounce(() => { GW.bus.emit('media'); GW.invalidate(); }, 250);
     GW.prjLoadT0 = performance.now();
-    GW.Media.prepareAll(GW.prj.media).then(() => { GW.prjLoadMs = performance.now() - GW.prjLoadT0; em(); }).catch(() => {});
+    GW.Media.prepareAll(GW.prj.media).then(() => { GW.prjLoadMs = performance.now() - GW.prjLoadT0; em(); if (GW.UI.offlineCheck && GW.prj === o && !GW.noOfflineDialog) GW.UI.offlineCheck().catch(() => {}); }).catch(() => {});
     for (const m of GW.prj.media) GW.Media.ensureRt(m);
     GW.invalidate();
   };
@@ -393,11 +430,25 @@
     GW.stop(); for (const id in GW.rt.v) GW.Media.dropVid(id);
     GW.prj = GW.newProject(); GW.sel.clips.clear(); GW.hist.reset('مشروع جديد'); GW.bus.emit('project'); GW.bus.emit('media'); GW.invalidate();
   };
+  // autosave every 2 minutes while there are unsaved changes: autosave.qass + a timestamped copy in versions/ (last 10 kept)
+  let lastAutosaved = null;
   async function autosave() {
     if (!window.gws || GW.hist.stack[GW.hist.idx] === GW.hist.saved) return;
-    try { const p = await gws.paths(); await gws.writeText(p.userData + p.sep + 'autosave.qass', serialize()); } catch (e) {}
+    const cur = GW.hist.stack[GW.hist.idx]; if (cur === lastAutosaved) return; lastAutosaved = cur;
+    try {
+      const p = await gws.paths(); const data = serialize(); await gws.writeText(p.userData + p.sep + 'autosave.qass', data);
+      const dir = p.userData + p.sep + 'versions'; const name = (GW.prj.name || 'مشروع').replace(/[\\/:*?"<>|]/g, '_');
+      const stamp = new Date().toISOString().replace(/[:T.]/g, '-').slice(0, 23); await gws.writeText(dir + p.sep + name + '_' + stamp + '.qass', data);
+      let list = []; try { list = JSON.parse(localStorage.getItem('gws.versions') || '[]'); } catch (e) {}
+      list = list.filter(x => x !== dir + p.sep + name + '_' + stamp + '.qass'); list.push(dir + p.sep + name + '_' + stamp + '.qass'); while (list.length > 10) { const old = list.shift(); try { await gws.remove(old); } catch (e) {} }
+      try { localStorage.setItem('gws.versions', JSON.stringify(list)); } catch (e) {}
+      if (gws.listDir) { try { const d = await gws.listDir(dir); const olds = (d.entries || []).filter(x => !x.dir && /\.qass$/.test(x.name)).sort((x, y) => y.mtimeMs - x.mtimeMs).slice(10); for (const o of olds) await gws.remove(o.path); } catch (e) {} } // cap survives a lost localStorage
+      GW.status('حفظ تلقائي: ' + new Date().toLocaleTimeString('en-GB'));
+    } catch (e) { console.warn('autosave', e); }
   }
-  setInterval(autosave, 90000);
+  GW.autosaveNow = autosave;
+  setInterval(autosave, 120000);
+  GW.versions = () => { try { return JSON.parse(localStorage.getItem('gws.versions') || '[]'); } catch (e) { return []; } };
   GW.status = (msg) => { const el = $('#stMsg'); if (el) el.textContent = msg; };
 
   GW.initShell = () => {

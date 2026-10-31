@@ -657,7 +657,7 @@
           row('اللون', col(L.color, set('color'))), row('شفافية', rng(L.fill, 0, 1, .02, set('fill'))), row('النقش', sel(pats, L.pattern, set('pattern', 1))), row('خط الجبهة', rng(L.stroke, 0, 6, .1, set('stroke'))), row('أسنان الجبهة', chk(L.teeth, set('teeth', 1))));
         break; }
       case 'marker':
-        box.append(row('الأيقونة', sel(V.ICONS, L.icon, set('icon', 1))), row('النص', txt(L.text, set('text'))), row('موضع النص', sel([['right', 'يمين'], ['left', 'يسار'], ['top', 'أعلى'], ['bottom', 'أسفل']], L.textPos || 'right', set('textPos', 1))), row('اللون', col(L.color, set('color'))), row('الحجم', rng(pv('size', 1), .3, 4, .05, setA('size')), sw('size', 1)), row('نبض', chk(L.pulse, set('pulse', 1))), lonlat(L), animRows());
+        box.append(row('الأيقونة', sel(GW.ShapeLib ? V.ICONS.concat(GW.ShapeLib.mapIcons()) : V.ICONS, L.icon, set('icon', 1))), row('النص', txt(L.text, set('text'))), row('موضع النص', sel([['right', 'يمين'], ['left', 'يسار'], ['top', 'أعلى'], ['bottom', 'أسفل']], L.textPos || 'right', set('textPos', 1))), row('اللون', col(L.color, set('color'))), row('الحجم', rng(pv('size', 1), .3, 4, .05, setA('size')), sw('size', 1)), row('نبض', chk(L.pulse, set('pulse', 1))), lonlat(L), animRows());
         break;
       case 'label':
         box.append(row('النص', txt(L.text, set('text'))), row('الشكل', sel([['soft', 'ظل ناعم'], ['outline', 'بحد'], ['plate', 'بخلفية'], ['plain', 'بسيط']], L.style, set('style', 1))), row('اللون', col(L.color, set('color'))), row('الحجم', rng(pv('size', 1), .3, 5, .05, setA('size')), sw('size', 1)), row('تباعد الحروف', rng(L.spacing || 0, 0, 1, .02, set('spacing'))), lonlat(L), animRows());

@@ -20,6 +20,7 @@
     ['rate', 'تمديد السرعة (R)', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/><circle cx="12" cy="12" r="2.5"/></svg>'],
     ['razor', 'أداة القص (C)', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 7.5L20 18M8.5 16.5L20 6"/></svg>'],
     ['slip', 'أداة الانزلاق (Y)', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="7" width="10" height="10"/><path d="M2 12h4M18 12h4M4 10l-2 2 2 2M20 10l2 2-2 2"/></svg>'],
+    ['slide', 'أداة الانزلاق مع تحريك (U)', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="8" y="7" width="8" height="10"/><path d="M2 12h4M18 12h4M4 9l-2 3 2 3M20 9l2 3-2 3M3 7v10M21 7v10"/></svg>'],
     ['pen', 'أداة القلم / المفاتيح (P)', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 19l7-7-3-3-7 7-2 5zM15 6l3 3"/></svg>'],
     ['hand', 'أداة اليد (H)', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 11V5a1.5 1.5 0 013 0v5M11 10V4a1.5 1.5 0 013 0v6M14 10V5a1.5 1.5 0 013 0v7M8 11a1.5 1.5 0 00-3 0v2c0 4 3 8 7 8s6-3 6-7v-2"/></svg>'],
     ['zoom', 'أداة التكبير (Z)', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6M10 7v6M7 10h6"/></svg>'],
@@ -156,6 +157,7 @@
   };
   TL.zoom = (dir, atX) => TL.zoomBy(dir > 0 ? 1.4 : 1 / 1.4, atX);
   TL.fit = () => { const s = S(); measure(); const w = W - 30; const d = Math.max(5, seqEnd()); s.zoom = clamp(w / d, 0.0005, ZOOM_MAX); s.scroll = 0; anim = null; TL.invalidate(); };
+  TL.zoomTo = (a, b) => { const s = S(); measure(); const d = Math.max(1 / s.fps, b - a); const pad = d * .08; s.zoom = clamp((W - 30) / (d + pad * 2), 0.0005, ZOOM_MAX); s.scroll = Math.max(0, a - pad); anim = null; TL.invalidate(); };
   TL.ensureVisible = (t) => { if (!TL.tracksEl) return; const s = S(); const x = TL.x(t); if (x > W - 20) s.scroll = t - (W * .15) / s.zoom; else if (x < 0) s.scroll = Math.max(0, t - (W * .1) / s.zoom); else return; invView(); };
   const visDur = () => W / TL.pps();
   const extent = () => { const s = S(); const v = visDur(); return Math.max(v, seqEnd() + Math.min(v * .5, Math.max(2, seqEnd() * .1)), s.scroll + v); };
@@ -221,17 +223,22 @@
   const css = (c, a) => a == null ? `rgb(${c[0]},${c[1]},${c[2]})` : `rgba(${c[0]},${c[1]},${c[2]},${a})`;
   function pal(label, sel) {
     const k = label + (sel ? '*' : ''); let p = PAL.get(k); if (p) return p;
-    const grey = [118, 118, 118], base0 = mix(hex(label), grey, .32), base = sel ? mix(base0, [255, 255, 255], .16) : base0;
-    const head = mix(base, [0, 0, 0], .12), body = mix(base, [22, 22, 22], .58);
+    /* design v5: desaturated, slightly lifted label colour; body = dark tint of it, head = lighter tint, 1px top highlight */
+    const grey = [120, 124, 132], base0 = mix(hex(label), grey, .3), base = sel ? mix(base0, [255, 255, 255], .12) : base0;
+    const head = mix(base, [18, 20, 24], .18), head2 = mix(base, [18, 20, 24], .34), body = mix(base, [16, 18, 22], .64), body2 = mix(base, [16, 18, 22], .74);
     const lum = (head[0] * .299 + head[1] * .587 + head[2] * .114) / 255;
-    p = { head: css(head), body: css(body), border: css(mix(base, [0, 0, 0], .62)), wave: css(mix(base, [255, 255, 255], .28)), text: lum > .62 ? '#161616' : '#f1f1f1', sub: lum > .62 ? 'rgba(0,0,0,.55)' : 'rgba(255,255,255,.5)' };
+    p = { head: css(head), head2: css(head2), body: css(body), body2: css(body2), border: css(mix(base, [0, 0, 0], .55)), edge: 'rgba(255,255,255,.14)', wave: css(mix(base, [63, 184, 168], .6), .62),
+      text: lum > .62 ? '#161616' : '#f4f5f7', sub: lum > .62 ? 'rgba(0,0,0,.55)' : 'rgba(255,255,255,.55)', chip: lum > .62 ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.38)' };
     PAL.set(k, p); return p;
   }
   const C = {
-    trackV: '#232323', trackA: '#222222', trackT: '#292929', rowLine: '#161616', sep: '#121212', io: 'rgba(255,255,255,.035)',
-    ruler: '#151617', tick: '#45464b', tickM: '#6a6b71', label: '#9a9b9f', play: '#3d8ee8', snap: '#e8e8e8', razor: '#e5484d',
-    ghost: 'rgba(110,160,230,.28)', ghostL: '#6ea0e6', marq: 'rgba(160,190,230,.10)', marqL: '#8fb3e6', band: '#d8c35c', trans: '#5b5b63', transSel: '#5f86c0'
+    bg: '#121418', trackV: '#15181d', trackA: '#141719', trackT: '#1a1e24', rowLine: '#0d0f12', sep: '#0a0b0d', io: 'rgba(0,0,0,.42)', ioLine: 'rgba(76,194,255,.55)',
+    ruler: '#15181d', tick: '#2f353e', tickH: '#3d444e', tickM: '#4e5562', label: '#8b919b', play: '#ff6a2b', playGlow: 'rgba(255,106,43,.35)', snap: '#4cc2ff', snapGlow: 'rgba(76,194,255,.35)', razor: '#ef5350',
+    ghost: 'rgba(76,194,255,.18)', ghostL: '#4cc2ff', marq: 'rgba(76,194,255,.08)', marqL: 'rgba(76,194,255,.7)', band: '#e9c35a', trans: '#3a4150', transSel: '#4cc2ff',
+    sel: '#4cc2ff', selGlow: 'rgba(76,194,255,.35)', marker: '#4cc38a'
   };
+  const R = 4; // clip corner radius
+  function rrect(g, x, y, w, h, r) { r = Math.min(r, w / 2, h / 2); if (r <= 0 || !g.roundRect) { g.rect(x, y, w, h); return; } g.roundRect(x, y, w, h, r); }
 
   /* ---------- canvas helpers ---------- */
   function fitCanvas(c, w, h) { const bw = Math.max(1, Math.round(w * DPR)), bh = Math.max(1, Math.round(h * DPR)); if (c.width !== bw || c.height !== bh) { c.width = bw; c.height = bh; } const g = c.getContext('2d'); g.setTransform(DPR, 0, 0, DPR, 0, 0); return g; }
@@ -319,20 +326,24 @@
     const ratio = Math.round(major / minor), half = ratio % 2 === 0 ? ratio / 2 : 0;
     const i0 = Math.floor(TL.t(0) / minor), i1 = Math.ceil(TL.t(w) / minor);
     const lw = 1 / DPR * Math.max(1, Math.round(DPR));
-    g.fillStyle = C.tick;
-    for (let i = Math.max(0, i0); i <= i1; i++) { const x = px(TL.x(i * minor)); const M = i % ratio === 0, Hf = half && i % half === 0; if (M) continue; g.fillRect(x, Hf ? h - 9 : h - 5, lw, Hf ? 9 : 5); }
+    // v5 ruler: hairline baseline, minor ticks short + dim, half ticks medium, major ticks tall with mono labels
+    g.fillStyle = 'rgba(255,255,255,.06)'; g.fillRect(0, h - 1, w, 1);
+    for (let i = Math.max(0, i0); i <= i1; i++) { const x = px(TL.x(i * minor)); const M = i % ratio === 0, Hf = half && i % half === 0; if (M) continue; g.fillStyle = Hf ? C.tickH : C.tick; g.fillRect(x, Hf ? h - 8 : h - 4, lw, Hf ? 8 : 4); }
     g.fillStyle = C.tickM; g.font = MONO; g.textBaseline = 'alphabetic';
-    for (let i = Math.max(0, Math.floor(i0 / ratio) * ratio); i <= i1; i += ratio) { const t = i * minor; const x = px(TL.x(t)); g.fillRect(x, 4, lw, h - 4); }
+    for (let i = Math.max(0, Math.floor(i0 / ratio) * ratio); i <= i1; i += ratio) { const t = i * minor; const x = px(TL.x(t)); g.fillRect(x, h - 13, lw, 13); }
     g.fillStyle = C.label;
-    for (let i = Math.max(0, Math.floor(i0 / ratio) * ratio); i <= i1; i += ratio) { const t = i * minor; const x = px(TL.x(t)); g.fillText(GW.fmtTC(t, fps), x + 4, 13); }
-    if (s.inP != null || s.outP != null) { const a = TL.x(s.inP || 0), b = TL.x(s.outP ?? seqEnd()); g.fillStyle = 'rgba(200,200,200,.22)'; g.fillRect(a, h - 4, b - a, 4); g.fillStyle = '#9a9a9a'; if (s.inP != null) g.fillRect(px(a), h - 10, lw, 10); if (s.outP != null) g.fillRect(px(b), h - 10, lw, 10); }
-    for (const m of s.markers) { const x = TL.x(m.t); if (x < -10 || x > w + 10) continue; g.fillStyle = m.color || '#4e9a52'; g.beginPath(); g.moveTo(x - 4.5, h - 13); g.lineTo(x + 4.5, h - 13); g.lineTo(x + 4.5, h - 6); g.lineTo(x, h - 2); g.lineTo(x - 4.5, h - 6); g.closePath(); g.fill(); }
+    for (let i = Math.max(0, Math.floor(i0 / ratio) * ratio); i <= i1; i += ratio) { const t = i * minor; const x = px(TL.x(t)); g.fillText(GW.fmtTC(t, fps), x + 5, 11); }
+    if (s.inP != null || s.outP != null) { const a = TL.x(s.inP || 0), b = TL.x(s.outP ?? seqEnd()); g.fillStyle = 'rgba(76,194,255,.22)'; g.fillRect(a, 0, b - a, 3); g.fillStyle = C.snap; if (s.inP != null) { g.beginPath(); g.moveTo(px(a), 0); g.lineTo(px(a) + 6, 0); g.lineTo(px(a), 7); g.closePath(); g.fill(); } if (s.outP != null) { g.beginPath(); g.moveTo(px(b), 0); g.lineTo(px(b) - 6, 0); g.lineTo(px(b), 7); g.closePath(); g.fill(); } }
+    for (const m of s.markers) { const x = TL.x(m.t); if (x < -10 || x > w + 10) continue; g.fillStyle = m.color || C.marker; g.beginPath(); g.moveTo(x - 4, h - 12); g.lineTo(x + 4, h - 12); g.lineTo(x + 4, h - 6); g.lineTo(x, h - 2); g.lineTo(x - 4, h - 6); g.closePath(); g.fill(); g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(x - 4, h - 12, 8, 1); }
   }
   function drawRulerOverlay() {
     const g = fitCanvas(TL.ro, RW, RH); g.clearRect(0, 0, RW, RH);
     const x = px(TL.x(S().t)); if (x < -8 || x > RW + 8) return;
-    g.fillStyle = C.play; g.beginPath(); g.moveTo(x - 5.5, 2); g.lineTo(x + 5.5, 2); g.lineTo(x + 5.5, RH - 12); g.lineTo(x, RH - 6); g.lineTo(x - 5.5, RH - 12); g.closePath(); g.fill();
-    g.fillRect(x - .5, RH - 7, 1, 7);
+    // v5 playhead head: ember triangle with a soft glow and a 1px stem (hit-testing elsewhere is unchanged)
+    g.shadowColor = C.playGlow; g.shadowBlur = 8;
+    g.fillStyle = C.play; g.beginPath(); g.moveTo(x - 6, 3); g.lineTo(x + 6, 3); g.lineTo(x + 6, 9); g.lineTo(x, RH - 8); g.lineTo(x - 6, 9); g.closePath(); g.fill();
+    g.shadowBlur = 0; g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(x - 6, 3, 12, 1);
+    g.fillStyle = C.play; g.fillRect(x - .5, RH - 9, 1, 9);
   }
 
   /* ---------- drawing: clips layer ---------- */
@@ -347,13 +358,18 @@
     const P = pal(offline ? '#a04040' : c.label || '#888888', sel);
     if (off) g.globalAlpha = .45;
     const tall = h >= 30, band = tall ? NB : h;
-    g.fillStyle = P.body; g.fillRect(xa, y, w, h);
-    g.fillStyle = P.head; g.fillRect(xa, y, w, band);
+    // v5 body: rounded corners (only on edges that are on screen), vertical gradient, lighter name band
+    const rl = X0 >= -2 ? R : 0, rr = X1 <= W + 2 ? R : 0;
+    const shape = () => { g.beginPath(); if (g.roundRect) g.roundRect(xa, y, w, h, [rl, rr, rr, rl]); else g.rect(xa, y, w, h); };
+    const gb = g.createLinearGradient(0, y, 0, y + h); gb.addColorStop(0, P.body); gb.addColorStop(1, P.body2);
+    shape(); g.fillStyle = gb; g.fill();
+    if (tall) { const gh = g.createLinearGradient(0, y, 0, y + band); gh.addColorStop(0, P.head); gh.addColorStop(1, P.head2); g.save(); shape(); g.clip(); g.fillStyle = gh; g.fillRect(xa, y, w, band); g.restore(); }
+    else { g.save(); shape(); g.clip(); g.fillStyle = P.head2; g.fillRect(xa, y, w, h); g.restore(); }
     if (w >= 3) {
-      g.save(); g.beginPath(); g.rect(xa, y, w, h); g.clip();
+      g.save(); shape(); g.clip();
       const r0 = m && GW.rt.m[m.id];
-      if (tall && w > 6 && r0 && TL.thumbs && c.tt === 'v' && (r0.thumbs || r0.poster)) drawThumbs(g, c, m, r0, x0, xa, xb, y + band, h - band);
-      if (tall && w > 6 && r0 && TL.waves && c.tt === 'a' && r0.peaks && r0.peaks.length) drawWave(g, c, m, r0.peaks, x0, xa, xb, y + band + 1, h - band - 2, P.wave);
+      if (tall && w > 6 && r0 && TL.thumbs && c.tt === 'v' && (r0.thumbs || r0.poster)) { drawThumbs(g, c, m, r0, x0, xa, xb, y + band, h - band); const ov = g.createLinearGradient(0, y + band, 0, y + h); ov.addColorStop(0, 'rgba(0,0,0,.22)'); ov.addColorStop(.5, 'rgba(0,0,0,.05)'); ov.addColorStop(1, 'rgba(0,0,0,.3)'); g.fillStyle = ov; g.fillRect(xa, y + band, w, h - band); }
+      if (tall && w > 6 && r0 && TL.waves && c.tt === 'a' && r0.peaks && r0.peaks.length) { g.fillStyle = 'rgba(0,0,0,.14)'; g.fillRect(xa, y + band, w, h - band); drawWave(g, c, m, r0.peaks, x0, xa, xb, y + band + 1, h - band - 2, P.wave); }
       // rubber band (opacity / volume)
       const Pp = c.tt === 'a' ? c.vol : c.opacity;
       if (h > 34 && w > 8 && Pp) {
@@ -365,38 +381,43 @@
         g.stroke();
         if (Pp.k) for (const k of Pp.k) { const kx = TL.x(c.start + k.t), ky = toY(k.v); if (kx < xa - 5 || kx > xb + 5) continue; g.fillStyle = C.band; g.beginPath(); g.moveTo(kx, ky - 3.5); g.lineTo(kx + 3.5, ky); g.lineTo(kx, ky + 3.5); g.lineTo(kx - 3.5, ky); g.closePath(); g.fill(); g.strokeStyle = 'rgba(0,0,0,.6)'; g.stroke(); }
       }
-      // name + fx badge (label sticks to the visible left edge)
+      // name chip + fx badge (label sticks to the visible left edge)
       if (w > 14) {
-        let tx = Math.max(X0, 0) + 4; const ty = tall ? y + 11 : y + h / 2 + 4;
-        if (w > 44 && band >= 12) { const fx = hasFx(c); g.fillStyle = fx ? '#cfae45' : 'rgba(0,0,0,.28)'; g.fillRect(tx, ty - 9, 14, 11); g.font = 'italic 600 9px Georgia, serif'; g.fillStyle = fx ? '#1a1a1a' : P.sub; g.fillText('fx', tx + 2.5, ty - 0.5); tx += 18; }
+        let tx = Math.max(X0, 0) + 5; const ty = tall ? y + 11.5 : y + h / 2 + 4;
+        if (w > 44 && band >= 12) { const fx = hasFx(c); g.fillStyle = fx ? '#e9c35a' : 'rgba(0,0,0,.22)'; g.beginPath(); rrect(g, tx, ty - 9.5, 15, 12, 3); g.fill(); g.font = 'italic 600 9px Georgia, serif'; g.fillStyle = fx ? '#1a1a1a' : P.sub; g.fillText('fx', tx + 3, ty - .5); tx += 19; }
         if (band >= 11) {
           g.font = FONT; g.fillStyle = off ? P.sub : P.text;
-          let label = c.name || ''; if ((c.speed || 1) !== 1) label += ` [${Math.round(c.speed * 100)}%]`; 
-          const t = fitText(g, label, xb - tx - 4); if (t) g.fillText(t, tx, ty);
+          let label = c.name || ''; if ((c.speed || 1) !== 1) label += ` [${Math.round(c.speed * 100)}%]`;
+          const t = fitText(g, label, xb - tx - 6);
+          if (t) { if (tall && c.tt === 'v' && !TL.thumbs) { /* no chip needed on flat bodies */ } const tw = mw(g, t); g.fillStyle = P.chip; g.beginPath(); rrect(g, tx - 3, ty - 9.5, tw + 6, 12, 3); g.fill(); g.fillStyle = off ? P.sub : P.text; g.fillText(t, tx, ty); }
         }
       }
+      // 1px inner top highlight
+      g.fillStyle = P.edge; g.fillRect(xa + rl, y, w - rl - rr, 1);
       g.restore();
     }
-    // border
+    // outline: hairline for normal clips; cyan outline + outer glow for selected
     const lw = 1 / DPR * Math.max(1, Math.round(DPR));
-    g.fillStyle = sel ? '#ececec' : P.border;
-    if (w >= 3) { g.fillRect(xa, y, w, lw); g.fillRect(xa, y + h - lw, w, lw); if (X0 >= -2) g.fillRect(X0, y, lw, h); if (X1 <= W + 2) g.fillRect(X1 - lw, y, lw, h); }
+    if (w >= 3) {
+      if (sel) { g.save(); g.shadowColor = C.selGlow; g.shadowBlur = 10; g.strokeStyle = C.sel; g.lineWidth = 1.5; shape(); g.stroke(); g.restore(); g.strokeStyle = 'rgba(255,255,255,.25)'; g.lineWidth = 1; g.beginPath(); if (g.roundRect) g.roundRect(xa + 1.5, y + 1.5, w - 3, h - 3, [rl, rr, rr, rl]); else g.rect(xa + 1.5, y + 1.5, w - 3, h - 3); g.stroke(); }
+      else { g.strokeStyle = P.border; g.lineWidth = lw; g.beginPath(); if (g.roundRect) g.roundRect(xa + lw / 2, y + lw / 2, w - lw, h - lw, [rl, rr, rr, rl]); else g.rect(xa + lw / 2, y + lw / 2, w - lw, h - lw); g.stroke(); }
+    }
     if (off) g.globalAlpha = 1;
   }
   function drawTransition(g, o, row) {
     const tr = o.tr; const x0 = px(TL.x(o.t0)), x1 = px(TL.x(o.t1)); if (x1 < 0 || x0 > W) return;
     const y = row.y - TL.vs + 2, h = Math.min(row.h - 4, 18); const sel = GW.sel.trans === tr.id; const w = Math.max(4, x1 - x0);
-    g.fillStyle = sel ? C.transSel : C.trans; g.fillRect(x0, y, w, h);
-    g.strokeStyle = 'rgba(0,0,0,.55)'; g.lineWidth = 1; g.strokeRect(x0 + .5, y + .5, w - 1, h - 1);
-    g.beginPath(); g.moveTo(x0 + 1, y + h - 1); g.lineTo(x0 + w - 1, y + 1); g.strokeStyle = 'rgba(255,255,255,.18)'; g.stroke();
-    if (w > 40) { g.fillStyle = '#e6e6e6'; g.font = FONT_S; const n = (GW.TRANS[tr.kind] || GW.ATRANS[tr.kind] || { n: '' }).n; const t = fitText(g, n, w - 8); if (t) g.fillText(t, x0 + 4, y + h / 2 + 3.5); }
+    g.fillStyle = sel ? 'rgba(76,194,255,.28)' : 'rgba(10,12,16,.72)'; g.beginPath(); rrect(g, x0, y, w, h, 3); g.fill();
+    g.strokeStyle = sel ? C.transSel : 'rgba(255,255,255,.22)'; g.lineWidth = 1; g.beginPath(); rrect(g, x0 + .5, y + .5, w - 1, h - 1, 3); g.stroke();
+    g.beginPath(); g.moveTo(x0 + 2, y + h - 2); g.lineTo(x0 + w - 2, y + 2); g.strokeStyle = sel ? 'rgba(255,255,255,.6)' : 'rgba(255,255,255,.3)'; g.stroke();
+    if (w > 40) { g.fillStyle = '#f1f3f5'; g.font = FONT_S; const n = (GW.TRANS[tr.kind] || GW.ATRANS[tr.kind] || { n: '' }).n; const t = fitText(g, n, w - 8); if (t) g.fillText(t, x0 + 4, y + h / 2 + 3.5); }
   }
   let hatch = null;
   function drawClips() {
     const g = fitCanvas(TL.cv, W, H); const s = S(); const rows = TL.rows();
     TL.vs = clamp(TL.vs, 0, maxVS());
     mediaMap = new Map(GW.prj.media.map(m => [m.id, m])); tileT0 = performance.now();
-    g.fillStyle = '#1b1b1b'; g.fillRect(0, 0, W, H);
+    g.fillStyle = C.bg; g.fillRect(0, 0, W, H);
     const t0 = TL.t(-4), t1 = TL.t(W + 4), sc = s.scroll || 0, z = TL.pps();
     for (const r of rows) {
       const y = r.y - TL.vs; if (y > H || y + r.h < 0) continue;
@@ -405,7 +426,7 @@
       if (r.tr.lock) { if (!hatch) { const p = document.createElement('canvas'); p.width = p.height = 8; const pg = p.getContext('2d'); pg.strokeStyle = 'rgba(0,0,0,.28)'; pg.beginPath(); pg.moveTo(0, 8); pg.lineTo(8, 0); pg.stroke(); hatch = g.createPattern(p, 'repeat'); } g.fillStyle = hatch; g.fillRect(0, y, W, r.h - 1); }
     }
     g.fillStyle = C.sep; g.fillRect(0, rows.sep - TL.vs, W, SEP);
-    if (s.inP != null || s.outP != null) { const a = TL.x(s.inP || 0), b = TL.x(s.outP ?? seqEnd()); g.fillStyle = C.io; g.fillRect(a, 0, b - a, H); }
+    if (s.inP != null || s.outP != null) { const a = TL.x(s.inP || 0), b = TL.x(s.outP ?? seqEnd()); g.fillStyle = C.io; if (a > 0) g.fillRect(0, 0, a, H); if (b < W) g.fillRect(b, 0, W - b, H); g.fillStyle = C.ioLine; if (s.inP != null) g.fillRect(px(a), 0, 1, H); if (s.outP != null) g.fillRect(px(b) - 1, 0, 1, H); }
     for (const r of rows) {
       const y = r.y - TL.vs; if (y > H || y + r.h < 0) continue;
       // tiny clips (zoomed far out on huge sequences) are merged into runs: one rect per covered span
@@ -419,21 +440,22 @@
       flush();
       eachTrans(r.tt, r.ti, t0, t1, o => drawTransition(g, o, r));
     }
-    for (const mk of s.markers) { const x = TL.x(mk.t); if (x < 0 || x > W) continue; g.fillStyle = mk.color || '#4e9a52'; g.globalAlpha = .45; g.fillRect(px(x), 0, 1, H); g.globalAlpha = 1; }
+    for (const mk of s.markers) { const x = TL.x(mk.t); if (x < 0 || x > W) continue; g.fillStyle = mk.color || C.marker; g.globalAlpha = .45; g.fillRect(px(x), 0, 1, H); g.globalAlpha = 1; }
   }
 
   /* ---------- drawing: overlay ---------- */
   function drawOverlay() {
     const g = fitCanvas(TL.ov, W, H); g.clearRect(0, 0, W, H); const s = S();
     if (TL.ghost) { for (const gh of TL.ghost) { const row = TL.rowOf(gh.tt, gh.ti); if (!row) continue; const x0 = px(TL.x(gh.start)), x1 = px(TL.x(gh.start + gh.dur)); const y = row.y - TL.vs + 1; g.fillStyle = C.ghost; g.fillRect(x0, y, x1 - x0, row.h - 2); g.strokeStyle = C.ghostL; g.lineWidth = 1; g.strokeRect(x0 + .5, y + .5, x1 - x0 - 1, row.h - 3); } }
+    if (TL.gap) { const gp = TL.gap; const row = TL.rows().find(r => r.tt === gp.tt && r.ti === gp.ti); if (row) { const x0 = TL.x(gp.t0), x1 = TL.x(gp.t1); if (x1 > 0 && x0 < W) { g.fillStyle = 'rgba(255,255,255,.14)'; g.fillRect(x0, row.y - TL.vs + 1, x1 - x0, row.h - 2); g.strokeStyle = '#d8d8d8'; g.lineWidth = 1; g.setLineDash([4, 3]); g.strokeRect(Math.round(x0) + .5, row.y - TL.vs + 1.5, Math.round(x1 - x0) - 1, row.h - 3); g.setLineDash([]); } } }
     if (TL.marq) { const m = TL.marq; g.fillStyle = C.marq; g.fillRect(m.x0, m.y0, m.x1 - m.x0, m.y1 - m.y0); g.strokeStyle = C.marqL; g.lineWidth = 1; g.strokeRect(Math.round(m.x0) + .5, Math.round(m.y0) + .5, Math.round(m.x1 - m.x0), Math.round(m.y1 - m.y0)); }
     const hv = TL.hover;
-    if (hv && hv.c && hv.edge) { const row = TL.rowOf(hv.c.tt, hv.c.ti); if (row) { const x0 = px(TL.x(hv.c.start)), x1 = px(TL.x(hv.c.start + hv.c.dur)); const y = row.y - TL.vs + 1; g.fillStyle = TL.tool === 'ripple' ? '#e0c04a' : TL.tool === 'roll' ? '#d9853a' : '#e0524f'; const x = hv.edge === 'L' ? x0 : x1 - 3; g.fillRect(x, y, 2, row.h - 2); g.fillRect(hv.edge === 'L' ? x : x - 4, y, 6, 2); g.fillRect(hv.edge === 'L' ? x : x - 4, y + row.h - 4, 6, 2); } }
-    if (hv && hv.c && !hv.edge && hv.fx) { const row = TL.rowOf(hv.c.tt, hv.c.ti); if (row) { const x0 = TL.x(hv.c.start), x1 = TL.x(hv.c.start + hv.c.dur); g.strokeStyle = '#8fb3e6'; g.lineWidth = 2; g.strokeRect(x0 + 1, row.y - TL.vs + 2, x1 - x0 - 2, row.h - 4); } }
-    if (TL.snapX != null) { const x = px(TL.snapX); g.fillStyle = C.snap; g.fillRect(x, 0, 1, H); }
+    if (hv && hv.c && hv.edge) { const row = TL.rowOf(hv.c.tt, hv.c.ti); if (row) { const x0 = px(TL.x(hv.c.start)), x1 = px(TL.x(hv.c.start + hv.c.dur)); const y = row.y - TL.vs + 1; g.fillStyle = TL.tool === 'ripple' ? '#e9c35a' : TL.tool === 'roll' ? '#ff8d5c' : '#4cc2ff'; const x = hv.edge === 'L' ? x0 : x1 - 3; g.fillRect(x, y, 2, row.h - 2); g.fillRect(hv.edge === 'L' ? x : x - 4, y, 6, 2); g.fillRect(hv.edge === 'L' ? x : x - 4, y + row.h - 4, 6, 2); } }
+    if (hv && hv.c && !hv.edge && hv.fx) { const row = TL.rowOf(hv.c.tt, hv.c.ti); if (row) { const x0 = TL.x(hv.c.start), x1 = TL.x(hv.c.start + hv.c.dur); g.strokeStyle = 'rgba(76,194,255,.6)'; g.lineWidth = 1.5; g.beginPath(); rrect(g, x0 + 1.5, row.y - TL.vs + 2.5, x1 - x0 - 3, row.h - 5, R); g.stroke(); } }
+    if (TL.snapX != null) { const x = px(TL.snapX); g.save(); g.shadowColor = C.snapGlow; g.shadowBlur = 6; g.fillStyle = C.snap; g.fillRect(x - .5, 0, 1, H); g.restore(); g.fillStyle = C.snap; g.beginPath(); g.moveTo(x - 4, 0); g.lineTo(x + 5, 0); g.lineTo(x + .5, 5); g.closePath(); g.fill(); g.beginPath(); g.moveTo(x - 4, H); g.lineTo(x + 5, H); g.lineTo(x + .5, H - 5); g.closePath(); g.fill(); }
     if (TL.tool === 'razor' && hv && hv.x != null) { g.fillStyle = C.razor; g.fillRect(px(hv.x), 0, 1, H); }
     if (GW.VO && GW.VO.rec) { try { GW.VO.drawOverlay(g, W, H); } catch (e) { console.error(e); } } // voice-over take growing on its track
-    const x = px(TL.x(s.t)); if (x >= -2 && x <= W + 2) { g.fillStyle = C.play; g.fillRect(x - .5, 0, 1, H); }
+    const x = px(TL.x(s.t)); if (x >= -2 && x <= W + 2) { g.fillStyle = C.playGlow; g.fillRect(x - 1.5, 0, 3, H); g.fillStyle = C.play; g.fillRect(x - .5, 0, 1, H); }
   }
 
   /* ---------- scrollbars ---------- */
@@ -515,10 +537,10 @@
     const toY = v => { const db = 20 * Math.log10(Math.max(v, 1e-5)); return h - clamp((db + 48) / 48, 0, 1) * h; };
     const bw = (w - 18) / 2, y6 = toY(Math.pow(10, -6 / 20)), y12 = toY(Math.pow(10, -12 / 20));
     [[l, peakL, 0], [r, peakR, 1]].forEach(([v, pk, i]) => {
-      const x = 16 + i * (bw + 2); g.fillStyle = '#121212'; g.fillRect(x, 0, bw, h); const y = toY(v);
-      g.fillStyle = '#3f9a5c'; g.fillRect(x, Math.max(y, y12), bw, h - Math.max(y, y12));
-      if (y < y12) { g.fillStyle = '#c2b04a'; g.fillRect(x, Math.max(y, y6), bw, y12 - Math.max(y, y6)); }
-      if (y < y6) { g.fillStyle = '#c9504c'; g.fillRect(x, y, bw, y6 - y); }
+      const x = 16 + i * (bw + 2); g.fillStyle = '#0d0f12'; g.fillRect(x, 0, bw, h); const y = toY(v);
+      g.fillStyle = '#3fb8a8'; g.fillRect(x, Math.max(y, y12), bw, h - Math.max(y, y12));
+      if (y < y12) { g.fillStyle = '#e9c35a'; g.fillRect(x, Math.max(y, y6), bw, y12 - Math.max(y, y6)); }
+      if (y < y6) { g.fillStyle = '#ef5350'; g.fillRect(x, y, bw, y6 - y); }
       if (pk > 1e-4) { g.fillStyle = '#d0d0d0'; g.fillRect(x, Math.round(toY(pk)), bw, 1); }
     });
     g.fillStyle = '#6f6f6f'; g.font = '8px "JetBrains Mono", monospace'; for (const db of [0, -6, -12, -24, -36]) { const y = h - (db + 48) / 48 * h; g.fillText(String(db), 0, Math.max(7, y + 3)); }
@@ -620,7 +642,7 @@
       if (TL.tool !== 'razor') TL.snapX = null;
       let cur = { razor: 'crosshair', hand: 'grab', zoom: e.altKey ? 'zoom-out' : 'zoom-in', pen: 'crosshair', text: 'text' }[TL.tool] || 'default';
       if ((TL.tool === 'select' || TL.tool === 'ripple' || TL.tool === 'roll' || TL.tool === 'rate') && (h.edge)) cur = TL.tool === 'roll' ? 'col-resize' : 'ew-resize';
-      if (TL.tool === 'slip' && h.c) cur = 'ew-resize'; if (TL.tool === 'track') cur = 'e-resize';
+      if ((TL.tool === 'slip' || TL.tool === 'slide') && h.c) cur = 'ew-resize'; if (TL.tool === 'track') cur = 'e-resize';
       setCursor(cur);
     });
     el.addEventListener('pointerleave', () => { if (TL.hover || TL.snapX != null) { TL.hover = null; if (!drag) TL.snapX = null; invOver(); } });
@@ -639,12 +661,14 @@
       if (tool === 'pen' && h.c) return penKey(e, el, h, x, y);
       if (h.tr) { GW.sel.trans = h.tr.id; GW.sel.clips.clear(); GW.bus.emit('selection'); if (h.edge) return dragTransEdge(e, el, h); return; }
       GW.sel.trans = null;
-      if (!h.c) { // empty area → marquee
+      TL.gap = null;
+      if (!h.c) { // empty area → marquee (a plain click selects the gap under the pointer)
         if (!e.shiftKey && !e.ctrlKey) { GW.sel.clips.clear(); GW.bus.emit('selection'); }
         return marquee(e, el, x, y);
       }
       if (h.edge && (tool === 'select' || tool === 'ripple' || tool === 'roll' || tool === 'rate')) return dragEdge(e, el, h, tool);
       if (tool === 'slip') return dragSlip(e, el, h);
+      if (tool === 'slide') return dragSlide(e, el, h);
       const group = e.altKey ? [h.c] : withLinked([h.c]);
       if (e.shiftKey || e.ctrlKey) { const on = GW.sel.clips.has(h.c.id); group.forEach(c => on ? GW.sel.clips.delete(c.id) : GW.sel.clips.add(c.id)); }
       else if (!GW.sel.clips.has(h.c.id)) { GW.sel.clips.clear(); group.forEach(c => GW.sel.clips.add(c.id)); }
@@ -692,7 +716,29 @@
       GW.sel.clips = new Set(base);
       for (const row of TL.rows()) { const ry = row.y - TL.vs; if (!(ry < TL.marq.y1 && ry + row.h > TL.marq.y0)) continue; eachClip(row.tt, row.ti, t0, t1, c => { GW.sel.clips.add(c.id); }); }
       TL.invalidate();
-    }, () => { const was = !!TL.marq; TL.marq = null; if (!was) { GW.seek(Math.max(0, tA)); } GW.bus.emit('selection'); TL.invalidate(); }, true);
+    }, () => { const was = !!TL.marq; TL.marq = null; if (!was) { GW.seek(Math.max(0, tA)); TL.gap = gapAt(TL.rowAt(yA - TL.vs), tA); } GW.bus.emit('selection'); TL.invalidate(); }, true);
+  }
+  // the gap between two clips on a track (Premiere: click a gap to select it, Delete ripples it closed)
+  function gapAt(row, t) {
+    if (!row || t < 0) return null; const s = S(); if (GW.clipAt(s, row.tt, row.ti, t)) return null; const cs = GW.trackClips(s, row.tt, row.ti);
+    const prev = cs.filter(c => c.start + c.dur <= t + 1e-6).pop(); const next = cs.find(c => c.start >= t - 1e-6); if (!next) return null;
+    return { tt: row.tt, ti: row.ti, t0: prev ? prev.start + prev.dur : 0, t1: next.start };
+  }
+  TL.gapAt = gapAt;
+  // slide: move a clip in time while keeping its length and content; the neighbours absorb the change (their edges trim)
+  function dragSlide(e, el, h) {
+    const s = S(); const c = h.c; const group = withLinked([c]); const fps = s.fps;
+    const st = group.map(x => { const cs = GW.trackClips(s, x.tt, x.ti).filter(o => o !== x && !group.includes(o)); const L = cs.filter(o => o.start + o.dur <= x.start + 1e-6).sort((a, b) => b.start - a.start)[0]; const R = cs.filter(o => o.start >= x.start + x.dur - 1e-6).sort((a, b) => a.start - b.start)[0]; return { x, start: x.start, L, R, L0: L && { dur: L.dur }, R0: R && { start: R.start, dur: R.dur, in: R.in } }; });
+    const x0 = e.clientX;
+    capture(el, e, ev => {
+      let d = (ev.clientX - x0) / TL.pps(); d = Math.round(d * fps) / fps;
+      for (const o of st) { // clamp so neither neighbour collapses below one frame or runs out of source media
+        if (o.L) d = Math.max(d, -(o.L0.dur - 1 / fps)); else d = Math.max(d, -o.start);
+        if (o.R) { d = Math.min(d, o.R0.dur - 1 / fps); const maxIn = GW.maxLen(o.R) - 1 / fps; d = Math.min(d, (maxIn - o.R0.in) / (o.R.speed || 1)); d = Math.max(d, -o.R0.in / (o.R.speed || 1)); }
+      }
+      for (const o of st) { o.x.start = o.start + d; if (o.L) o.L.dur = o.L0.dur + d; if (o.R) { o.R.start = o.R0.start + d; o.R.dur = o.R0.dur - d; o.R.in = o.R0.in + d * (o.R.speed || 1); } }
+      s.t = c.start; TL.invalidate(); GW.invalidate();
+    }, () => { TL.snapX = null; GW.commit('انزلاق مع تحريك (Slide)'); }, true);
   }
   function dragMove(e, el, x, y, h) {
     const s = S(); const moving = [...GW.sel.clips].map(id => GW.clipById(id)).filter(c => c && !(s[c.tt + 't'][c.ti] || {}).lock);
@@ -791,7 +837,7 @@
   function clipMenu(e, h) {
     const s = S();
     if (h.tr) { GW.sel.trans = h.tr.id; TL.invalidate(); GW.menu(e.clientX, e.clientY, [{ label: 'مدة الانتقال…', action: async () => { const v = await GW.prompt('مدة الانتقال', 'بالثواني', String(h.tr.dur)); if (v) { h.tr.dur = clamp(parseFloat(v) || 1, .04, 30); GW.commit('مدة الانتقال'); } } }, { label: 'المحاذاة', sub: [['center', 'في المنتصف'], ['start', 'تبدأ عند القطع'], ['end', 'تنتهي عند القطع']].map(([v, n]) => ({ label: n, check: (h.tr.align || 'center') === v, action: () => { h.tr.align = v; GW.commit('محاذاة الانتقال'); } })) }, { label: 'نوع الانتقال', sub: Object.entries(h.tr.tt === 'a' ? GW.ATRANS : GW.TRANS).map(([k, v]) => ({ label: v.n, check: h.tr.kind === k, action: () => { h.tr.kind = k; GW.commit('نوع الانتقال'); } })) }, '-', { label: 'حذف', action: () => { s.trans = s.trans.filter(x => x !== h.tr); GW.commit('حذف انتقال'); } }]); return; }
-    if (!h.c) { const t = h.t; GW.menu(e.clientX, e.clientY, [{ label: 'حذف الفراغ مع إزاحة', action: () => TL.rippleDeleteGapAtPlayhead(h.row, t) }, '-', { label: 'لصق', action: () => GW.cmd.paste(false) }, { label: 'إضافة علامة', action: GW.cmd.marker }]); return; }
+    if (!h.c) { const t = h.t; TL.gap = gapAt(h.row, t); TL.invalidate(); GW.menu(e.clientX, e.clientY, [{ label: 'حذف الفراغ مع إزاحة', key: 'Delete', disabled: !TL.gap, action: () => TL.rippleDeleteGapAtPlayhead(h.row, t) }, '-', { label: 'لصق', action: () => GW.cmd.paste(false) }, { label: 'إضافة علامة', action: GW.cmd.marker }]); return; }
     if (!GW.sel.clips.has(h.c.id)) { GW.sel.clips.clear(); withLinked([h.c]).forEach(c => GW.sel.clips.add(c.id)); GW.bus.emit('selection'); }
     const c = h.c; const Cm = GW.cmd;
     const items = [
@@ -799,11 +845,12 @@
       { label: c.on === 0 ? 'تفعيل' : 'تعطيل', key: 'Shift+E', action: Cm.toggleEnable }, { label: c.link ? 'فك الربط' : 'ربط', key: 'Ctrl+L', action: Cm.link }, '-',
       { label: 'السرعة / المدة…', key: 'Ctrl+R', action: Cm.speed }, { label: 'تجميد الإطار عند المؤشر', action: Cm.freeze }, { label: 'إضافة تعديل عند المؤشر', key: 'Ctrl+K', action: () => Cm.addEdit(false) }, '-',
       { label: 'مسح', key: 'Delete', action: () => Cm.del(false) }, { label: 'مسح مع إزاحة', key: 'Shift+Delete', action: () => Cm.del(true) }, '-',
-      { label: 'إعادة تسمية…', action: Cm.rename }, { label: 'لون التسمية', sub: GW.LABEL_SET.map(([n, col]) => ({ label: n, action: () => Cm.label(col) })) }
+      { label: 'إعادة تسمية…', cmd: 'clip.rename', action: Cm.rename }, { label: 'لون التسمية', sub: GW.LABEL_SET.map(([n, col]) => ({ label: n, action: () => Cm.label(col) })) },
+      '-', { label: 'تداخل (Nest)…', cmd: 'seq.nest', action: () => Cm.nest(false) }, { label: 'إنشاء تسلسل فرعي', cmd: 'seq.subseq', action: () => Cm.nest(true) }
     ];
     if (c.motion) items.push('-', { label: 'ملاءمة حجم الإطار', action: () => Cm.fitFrame(false) }, { label: 'ملء الإطار', action: () => Cm.fitFrame(true) });
     if (c.kind === 'map') items.unshift({ label: 'تحرير الخريطة', action: () => GW.UI.openMapEditor(c) }, '-');
-    if (c.media) items.push('-', { label: 'عرض في شاشة المصدر', action: () => GW.Source.load(GW.media(c.media)) }, { label: 'إظهار في لوحة المشروع', action: () => { GW.sel.media.clear(); GW.sel.media.add(c.media); GW.showPanel('project'); GW.UI.renderProject(); } });
+    if (c.media) items.push('-', { label: 'عرض في شاشة المصدر', action: () => GW.Source.load(GW.media(c.media)) }, { label: 'إظهار في لوحة المشروع', cmd: 'clip.reveal', action: Cm.reveal });
     for (const f of GW.clipMenuHooks || []) { try { f(items, c, s); } catch (er) { console.error(er); } } // extra entries from tool modules (audio_tools.js …)
     GW.menu(e.clientX, e.clientY, items);
   }
@@ -877,10 +924,10 @@
     for (const c of s.clips) if (c.start >= g1 - 1e-6) c.start -= d; TL.invalidate(); GW.commit('حذف فراغ');
   };
 
-  GW.bus.on('project', () => { TL.renderSeqTabs(); TL.renderHeads(); TL.invalidate(); });
+  GW.bus.on('project', () => { TL.gap = null; TL.renderSeqTabs(); TL.renderHeads(); TL.invalidate(); });
   GW.bus.on('changed', () => { TL.renderHeads(); TL.renderSeqTabs(); TL.invalidate(); });
   GW.bus.on('hist', () => { TL.renderHeads(); TL.invalidate(); });
   GW.bus.on('time', () => { D.over = D.rover = true; TL.dirty = true; });
-  GW.bus.on('selection', () => TL.invalidate()); GW.bus.on('param', () => TL.invalidate());
+  GW.bus.on('selection', () => { if (GW.sel.clips.size) TL.gap = null; TL.invalidate(); }); GW.bus.on('param', () => TL.invalidate());
   GW.bus.on('peaks', () => TL.invalidate()); GW.bus.on('thumbs', () => TL.invalidate()); GW.bus.on('media-status', () => TL.invalidate());
 })();

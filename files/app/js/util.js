@@ -121,7 +121,8 @@ GW.modal = ({ title, body, buttons, width, onClose }) => {
   dlg.innerHTML = `<div class="dlg-h"><b>${GW.esc(title || '')}</b><button class="x" aria-label="إغلاق">${GW.ico ? GW.ico('close', 14) : '✕'}</button></div><div class="dlg-b"></div><div class="dlg-f"></div>`;
   const b = dlg.querySelector('.dlg-b'); if (typeof body === 'string') b.innerHTML = body; else if (body) b.append(body);
   const f = dlg.querySelector('.dlg-f');
-  const close = (v) => { wrap.remove(); onClose && onClose(v); };
+  const close = (v) => { if (!wrap.isConnected) return; wrap.remove(); onClose && onClose(v); };
+  wrap._close = close;
   (buttons || [{ label: 'إغلاق', value: null }]).forEach(btn => {
     const e = document.createElement('button'); e.className = 'btn ' + (btn.primary ? 'pri' : ''); e.textContent = btn.label;
     e.onclick = async () => { if (btn.action) { const r = await btn.action(dlg); if (r === false) return; } close(btn.value); }; f.append(e);
@@ -132,6 +133,13 @@ GW.modal = ({ title, body, buttons, width, onClose }) => {
   const first = dlg.querySelector('input,select,textarea'); if (first) setTimeout(() => first.focus(), 30);
   return { el: dlg, close };
 };
+// every dialog: Esc closes the topmost one, Enter activates its primary button (not from textareas / buttons / selects)
+document.addEventListener('keydown', e => {
+  const all = document.querySelectorAll('.modal'); const wrap = all[all.length - 1]; if (!wrap || !wrap._close) return;
+  const dlg = wrap.querySelector('.dlg'); if (!dlg || dlg.classList.contains('kb-dlg')) return;
+  if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); wrap._close(null); return; }
+  if (e.key === 'Enter' && !e.ctrlKey && !e.altKey && !e.shiftKey && !e.isComposing) { const tg = e.target.tagName; if (tg === 'TEXTAREA' || tg === 'BUTTON' || tg === 'SELECT' || tg === 'A' || e.target.isContentEditable || e.target.classList.contains('scrub-edit') || e.target.closest('[data-own-enter]')) return; const p = dlg.querySelector('.dlg-f .btn.pri'); if (p && !p.disabled) { e.preventDefault(); e.stopPropagation(); p.click(); } }
+}, true);
 GW.ask = (title, msg, okLabel) => new Promise(res => GW.modal({ title, body: `<p>${GW.esc(msg)}</p>`, buttons: [{ label: 'إلغاء', value: false }, { label: okLabel || 'موافق', value: true, primary: true }], onClose: v => res(!!v) }));
 GW.prompt = (title, label, value) => new Promise(res => {
   const body = document.createElement('div'); body.innerHTML = `<label class="fld"><span>${GW.esc(label)}</span><input class="inp" value="${GW.esc(value || '')}"></label>`;

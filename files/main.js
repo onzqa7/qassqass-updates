@@ -157,7 +157,8 @@ ipcMain.handle('dlg:save', async (e, o = {}) => {
   return r.canceled ? null : r.filePath;
 });
 ipcMain.handle('fs:readText', async (e, p) => fs.promises.readFile(p, 'utf8'));
-ipcMain.handle('fs:writeText', async (e, p, s) => { await fs.promises.mkdir(path.dirname(p), { recursive: true }); await fs.promises.writeFile(p, s, 'utf8'); return true; });
+// crash-safe: write to a temp file next to the target, then rename over it (a crash mid-write never truncates a project)
+ipcMain.handle('fs:writeText', async (e, p, s) => { await fs.promises.mkdir(path.dirname(p), { recursive: true }); const tmp = p + '.tmp-' + process.pid; try { await fs.promises.writeFile(tmp, s, 'utf8'); await fs.promises.rename(tmp, p); } catch (er) { try { await fs.promises.rm(tmp, { force: true }); } catch (e2) {} await fs.promises.writeFile(p, s, 'utf8'); } return true; });
 ipcMain.handle('fs:writeBin', async (e, p, buf) => { await fs.promises.mkdir(path.dirname(p), { recursive: true }); await fs.promises.writeFile(p, Buffer.from(buf)); return true; });
 ipcMain.handle('fs:exists', async (e, p) => fs.existsSync(p));
 ipcMain.handle('fs:remove', async (e, p) => { try { await fs.promises.rm(p, { force: true, recursive: true }); } catch (er) {} return true; });

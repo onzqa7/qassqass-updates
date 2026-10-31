@@ -169,7 +169,7 @@
       else { GW.sel.media.clear(); GW.sel.media.add(x.id); }
       render(); GW.UI.projBody.focus();
     });
-    d.addEventListener('dblclick', () => { if (x.kind === 'seq') { GW.prj.active = x.id; GW.bus.emit('project'); } else if (x.m) GW.Source && GW.Source.load(x.m); });
+    d.addEventListener('dblclick', () => { if (x.kind === 'seq') { GW.prj.active = x.id; GW.bus.emit('project'); } else if (x.m && x.m.offline && window.gws) GW.UI.relink(x.m); else if (x.m) GW.Source && GW.Source.load(x.m); });
     d.addEventListener('dragstart', e => {
       if (!GW.sel.media.has(x.id)) { GW.sel.media.clear(); GW.sel.media.add(x.id); }
       const ids = [...GW.sel.media].filter(id => GW.media(id) || GW.prj.seqs.some(q => q.id === id));
@@ -217,6 +217,23 @@
     if (!window.gws) return; const f = await gws.open({ filter: 'media', title: 'إعادة ربط: ' + m.name }); if (!f.length) return;
     m.path = f[0].path; m.proxy = null; m.offline = 0; delete GW.rt.m[m.id]; for (const id in GW.rt.v) if (GW.rt.v[id].media === m.id) GW.Media.dropVid(id);
     await GW.Media.prepare(m); GW.commit('إعادة ربط'); render(); GW.invalidate();
+  };
+  // after a project opens: media that moved / vanished → one dialog listing them, with relink per file (or a folder search), like Premiere's "Link Media"
+  GW.UI.offlineCheck = async (opts = {}) => {
+    const off = GW.prj.media.filter(m => m.offline); if (!off.length || !window.gws) return false;
+    if (document.querySelector('.modal.offline-dlg')) return true;
+    const body = document.createElement('div'); body.style.cssText = 'display:flex;flex-direction:column;gap:8px;min-width:420px';
+    const list = document.createElement('div'); list.style.cssText = 'max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:4px';
+    const draw = () => { list.innerHTML = ''; for (const m of GW.prj.media.filter(x => x.offline)) { const r = document.createElement('div'); r.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 8px;border-bottom:1px solid var(--line)'; r.innerHTML = `<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>${esc(m.name)}</b><br><small dir="ltr" style="color:var(--mute)">${esc(m.path || '')}</small></span>`; const b = document.createElement('button'); b.className = 'btn sm'; b.textContent = 'إعادة ربط…'; b.onclick = async () => { await GW.UI.relink(m); draw(); if (!GW.prj.media.some(x => x.offline)) dlg.close(true); }; r.append(b); list.append(r); } if (!list.children.length) list.innerHTML = '<div class="empty">تم ربط كل الملفات ✓</div>'; };
+    body.innerHTML = `<p style="margin:0">${off.length === 1 ? 'ملف واحد من وسائط المشروع غير موجود في مكانه' : off.length + ' ملفات من وسائط المشروع غير موجودة في مكانها'} — أعِد ربطها الآن، أو تابع وستظهر كـ «غير متصل» (تبقى مقاطعها على الخط الزمني).</p>`;
+    body.append(list); draw();
+    // "search in folder": pick one folder; every offline file whose name exists there gets relinked at once
+    const dlg = GW.modal({ title: 'ملفات وسائط مفقودة', width: 620, body, buttons: [
+      { label: 'البحث في مجلد…', action: async () => { const f = await gws.open({ filter: 'media', title: 'اختر ملفًا داخل المجلد الذي انتقلت إليه الوسائط' }); if (!f.length) return false; const dir = f[0].path.replace(/[\\/][^\\/]*$/, ''); const sep = f[0].path.includes('\\') ? '\\' : '/'; let n = 0; for (const m of GW.prj.media.filter(x => x.offline)) { const cand = dir + sep + (m.path || m.name).split(/[\\/]/).pop(); if (await gws.exists(cand)) { m.path = cand; m.proxy = null; m.offline = 0; delete GW.rt.m[m.id]; await GW.Media.prepare(m); n++; } } if (n) { GW.commit('إعادة ربط'); render(); GW.invalidate(); GW.toast('تمت إعادة ربط ' + n + ' ملف'); } else GW.toast('لم يُعثر على الملفات في هذا المجلد', 'err'); draw(); return GW.prj.media.some(x => x.offline) ? false : undefined; } },
+      { label: 'متابعة بدون ربط', primary: true }
+    ] });
+    dlg.el.closest('.modal').classList.add('offline-dlg');
+    return true;
   };
   // status changes (proxy %, audio extraction…) patch the row in place instead of rebuilding a 1000s-item list
   const renderSoon = GW.debounce(render, 150);

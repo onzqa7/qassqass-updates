@@ -80,7 +80,8 @@
   def('edit.deselect', 'إلغاء التحديد', ['Ctrl+Shift+A', 'Escape'], () => C().deselect());
   def('edit.shortcuts', 'اختصارات لوحة المفاتيح…', ['Ctrl+Alt+K'], () => K.dialog());
   // clip
-  def('clip.rename', 'إعادة تسمية…', [], () => C().rename());
+  def('clip.rename', 'إعادة تسمية…', ['F2'], () => C().rename());
+  def('clip.reveal', 'إظهار في لوحة المشروع', ['Shift+F'], () => C().reveal());
   def('clip.speed', 'السرعة / المدة…', ['Ctrl+R'], () => C().speed());
   def('clip.enable', 'تفعيل / تعطيل', ['Shift+E'], () => C().toggleEnable());
   def('clip.link', 'ربط / فك ربط', ['Ctrl+L'], () => C().link());
@@ -110,6 +111,10 @@
   def('seq.zoomIn', 'تكبير الخط الزمني', ['=', 'Shift+=', 'Num+'], () => C().zoomTL(1), { rep: 1 });
   def('seq.zoomOut', 'تصغير الخط الزمني', ['-', 'Num-'], () => C().zoomTL(-1), { rep: 1 });
   def('seq.fit', 'عرض التسلسل كاملًا', ['\\'], () => C().fitTL());
+  def('seq.zoomSel', 'تكبير إلى التحديد', ['Shift+\\'], () => C().zoomSel());
+  def('seq.nest', 'تداخل (Nest)…', [], () => C().nest(false));
+  def('seq.subseq', 'إنشاء تسلسل فرعي من التحديد', [], () => C().nest(true));
+  def('seq.deleteGap', 'حذف الفراغ عند المؤشر مع إزاحة', [], () => GW.TL && GW.TL.rippleDeleteGapAtPlayhead());
   def('seq.snap', 'المحاذاة المغناطيسية (تشغيل / إيقاف)', ['S'], () => { const TL = GW.TL; if (!TL) return; TL.snap = !TL.snap; const b = TL.el && TL.el.querySelector('[data-a=snap]'); if (b) b.classList.toggle('on', TL.snap); GW.toast(TL.snap ? 'المحاذاة: تشغيل' : 'المحاذاة: إيقاف'); });
   // markers
   def('mark.in', 'تحديد نقطة الدخول', ['I'], () => C().markIn());
@@ -135,7 +140,7 @@
   def('play.end', 'الذهاب إلى النهاية', ['End'], () => C().end());
   def('play.loop', 'تكرار التشغيل (تشغيل / إيقاف)', [], () => { PB().loop = !PB().loop; GW.toast(PB().loop ? 'تكرار التشغيل: تشغيل' : 'تكرار التشغيل: إيقاف'); });
   // tools
-  for (const [t, n, k] of [['select', 'أداة التحديد', 'V'], ['track', 'تحديد المسار للأمام', 'A'], ['ripple', 'تعديل مع إزاحة', 'B'], ['roll', 'تعديل متدحرج', 'N'], ['rate', 'تمديد السرعة', 'R'], ['razor', 'أداة القص (الشفرة)', 'C'], ['slip', 'أداة الانزلاق', 'Y'], ['pen', 'أداة القلم / المفاتيح', 'P'], ['hand', 'أداة اليد', 'H'], ['zoom', 'أداة التكبير', 'Z'], ['text', 'أداة النص', 'T']]) def('tool.' + t, n, [k], () => C().tool(t));
+  for (const [t, n, k] of [['select', 'أداة التحديد', 'V'], ['track', 'تحديد المسار للأمام', 'A'], ['ripple', 'تعديل مع إزاحة', 'B'], ['roll', 'تعديل متدحرج', 'N'], ['rate', 'تمديد السرعة', 'R'], ['razor', 'أداة القص (الشفرة)', 'C'], ['slip', 'أداة الانزلاق', 'Y'], ['slide', 'أداة الانزلاق مع تحريك', 'U'], ['pen', 'أداة القلم / المفاتيح', 'P'], ['hand', 'أداة اليد', 'H'], ['zoom', 'أداة التكبير', 'Z'], ['text', 'أداة النص', 'T']]) def('tool.' + t, n, [k], () => C().tool(t));
   // graphics
   def('gfx.newText', 'نص جديد', ['Ctrl+T'], () => C().newText());
   def('gfx.newMap', 'خريطة حربية جديدة', ['Ctrl+G'], () => C().newMap());
@@ -150,6 +155,10 @@
   def('gfx.easeOut', 'تسهيل خروج المفاتيح', ['Ctrl+Shift+F9'], () => GW.FXC && GW.FXC.easeKeys('easeOut'));
   def('gfx.keyHold', 'مفتاح ثابت (Hold) تشغيل / إيقاف', ['Ctrl+Alt+H'], () => GW.FXC && GW.FXC.easeKeys('hold'));
   def('gfx.keyLinear', 'استيفاء خطي للمفاتيح', [], () => GW.FXC && GW.FXC.easeKeys('linear'));
+  def('gfx.prevKey', 'المفتاح السابق (المقطع المحدد)', ['['], () => C().gotoKey(-1), { rep: 1 });
+  def('gfx.nextKey', 'المفتاح التالي (المقطع المحدد)', [']'], () => C().gotoKey(1), { rep: 1 });
+  def('gfx.copyKeys', 'نسخ مفاتيح الحركة عند المؤشر', ['Ctrl+Alt+C'], () => C().copyKeys());
+  def('gfx.pasteKeys', 'لصق مفاتيح الحركة عند المؤشر', ['Ctrl+Alt+Shift+V'], () => C().pasteKeys());
   def('gfx.templates', 'مكتبة قوالب الرسوم المتحركة', [], () => GW.UI.egTab && GW.UI.egTab('mg'));
   // view & window
   def('view.maximize', 'تكبير اللوحة تحت المؤشر', ['`'], () => C().maximize());
