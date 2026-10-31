@@ -309,7 +309,10 @@
     const capR = vw.mode === 'globe' ? vw.horizon : Math.PI;
     const visible = (f) => vw.mode !== 'globe' || d3.geoDistance(f.lab, nad) < capR + f.rad;
     const fv = (feats || []).filter(visible);
-    const byKey = new Map(); for (const f of feats || []) if (!byKey.has(f.key)) byKey.set(f.key, f);
+    const byKey = A.War && A.War.groups ? A.War.groups(feats || []) : (() => { const m = new Map(); for (const f of feats || []) if (!m.has(f.key)) m.set(f.key, f); return m; })(); // all pieces of a country (hist eras split empires into several polygons)
+    // layers can name their own year («السنة» next to the country search): look their countries up in that era's borders
+    const kmC = new Map(), extraF = [];
+    const KM = (Ly) => { if (!Ly || Ly.year == null || Ly.year === '') return byKey; const e2 = G.era(+Ly.year, sc.eraMode); if (e2.id === era.id) return byKey; let m = kmC.get(e2.id); if (!m) { const fs2 = G.features(e2, lod >= 1 ? 1 : 0) || G.features(e2, 0) || []; m = A.War && A.War.groups ? A.War.groups(fs2) : new Map(fs2.map(f => [f.key, f])); kmC.set(e2.id, m); } return m; };
     const inv = new Set(); // involved keys (emphasised labels)
     const invLab = new Map(); // key -> label look from the country layer
     const sphere = { type: 'Sphere' };
@@ -344,7 +347,7 @@
     const HK = { b, g, pb, pg, vw, sc, t, cd, E, era, feats, byKey, lod, k, W, H, fam, layers, inv, invLab, out, opts, nad, capR };
     for (const { Ly, s } of layers) {
       if (Ly.type === 'country') {
-        const fs = Ly.keys.map(kk => byKey.get(kk)).filter(Boolean); fs.forEach(f => { inv.add(f.key); if (!invLab.has(f.key)) invLab.set(f.key, { show: Ly.label !== 0, style: Ly.labelStyle || (st.halo && String(st.halo).startsWith('soft') ? 'soft' : 'plate'), size: Ly.labelSize || 1, text: fs.length === 1 ? Ly.labelText : '', a: s.a * S.easeOut(s.pin) }); }); if (!fs.length) continue;
+        const fs = Ly.keys.map(kk => KM(Ly).get(kk)).filter(Boolean); fs.forEach(f => { if (KM(Ly) !== byKey && !byKey.has(f.key) && !extraF.includes(f)) extraF.push(f); inv.add(f.key); if (!invLab.has(f.key)) invLab.set(f.key, { show: Ly.label !== 0, style: Ly.labelStyle || (st.halo && String(st.halo).startsWith('soft') ? 'soft' : 'plate'), size: Ly.labelSize || 1, text: fs.length === 1 ? Ly.labelText : '', a: s.a * S.easeOut(s.pin) }); }); if (!fs.length) continue;
         const pin = S.easeOut(s.pin); const a = s.a * (Ly.pulse ? .75 + .25 * Math.sin(s.lt * 4) : 1);
         if (Ly.dim) { b.save(); b.beginPath(); vw.mode === 'globe' ? pb(sphere) : b.rect(0, 0, W, H); for (const f of fs) pb(f); b.fillStyle = `rgba(0,0,0,${.55 * pin * s.a})`; b.fill('evenodd'); b.restore(); }
         b.save();
@@ -359,7 +362,7 @@
         }
         b.restore();
       } else if (Ly.type === 'invasion') {
-        const F = byKey.get(Ly.from); const Ts = (Ly.to || []).map(kk => byKey.get(kk)).filter(Boolean); if (!F || !Ts.length) continue; inv.add(F.key); Ts.forEach(f => inv.add(f.key));
+        const F = KM(Ly).get(Ly.from); const Ts = (Ly.to || []).map(kk => KM(Ly).get(kk)).filter(Boolean); if (!F || !Ts.length) continue; inv.add(F.key); Ts.forEach(f => inv.add(f.key));
         const travel = Ly.inDur || 4; const stagger = Ly.stagger != null ? Ly.stagger : travel * .35; const spreadDur = Ly.spreadDur || travel * 1.2;
         b.save(); b.globalAlpha = .35 * Math.min(1, s.lt / .6) * s.a; b.beginPath(); pb(F); b.fillStyle = Ly.color; b.fill(); b.restore();
         Ts.forEach((T, i) => {
@@ -372,7 +375,7 @@
         });
       } else if (Ly.type === 'front' && Ly.mode !== 'attack') {
         let geo = null; const ring = V.frontRing(Ly, s.lt);
-        if (ring) geo = ringGeo(ring); else { const fs = (Ly.keys || []).map(kk => byKey.get(kk)).filter(Boolean); if (fs.length) geo = { type: 'GeometryCollection', geometries: fs.map(f => f.geometry) }; }
+        if (ring) geo = ringGeo(ring); else { const fs = (Ly.keys || []).map(kk => KM(Ly).get(kk)).filter(Boolean); if (fs.length) geo = { type: 'GeometryCollection', geometries: fs.map(f => f.geometry) }; }
         if (!geo) continue; const pin = S.easeOut(s.pin);
         b.save(); b.globalAlpha = Ly.fill * pin * s.a; b.beginPath(); pb(geo); b.fillStyle = Ly.color; b.fill();
         if (Ly.pattern && Ly.pattern !== 'solid') { b.globalAlpha = Math.min(1, Ly.fill * 1.4) * pin * s.a; b.fillStyle = pattern(b, Ly.pattern, shade(Ly.color, -.45), k); b.fill(); }
@@ -382,7 +385,7 @@
         if (!rr) { rr = []; for (const [name, val] of V.parseData(Ly.data)) { const hit = G.search(name, feats, 'ar', era, 3).find(x => x.kind === 'country'); if (hit) rr.push([hit.key, val]); } Object.defineProperty(Ly, '_rows', { value: rr, writable: true, configurable: true, enumerable: false }); Object.defineProperty(Ly, '_rowsSrc', { value: Ly.data + '|' + era.id, writable: true, configurable: true, enumerable: false }); }
         if (!rr.length) continue; const vals = rr.map(r => r[1]); const lo = Math.min(...vals), hi = Math.max(...vals); const pin = S.easeOut(s.pin);
         b.save(); b.globalAlpha = (Ly.fill == null ? .85 : Ly.fill) * s.a;
-        rr.forEach(([key, val], i) => { const f = byKey.get(key); if (!f) return; inv.add(f.key); const tt = hi > lo ? (val - lo) / (hi - lo) : 1; const grow = Ly.in === 'grow' ? clamp(pin * rr.length - i * .5, 0, 1) : pin; if (grow <= 0) return; b.globalAlpha = (Ly.fill == null ? .85 : Ly.fill) * s.a * grow; b.beginPath(); pb(f); b.fillStyle = lerpCol(Ly.c0 || '#fde68a', Ly.c1 || '#b91c1c', tt); b.fill(); });
+        rr.forEach(([key, val], i) => { const f = KM(Ly).get(key); if (!f) return; inv.add(f.key); const tt = hi > lo ? (val - lo) / (hi - lo) : 1; const grow = Ly.in === 'grow' ? clamp(pin * rr.length - i * .5, 0, 1) : pin; if (grow <= 0) return; b.globalAlpha = (Ly.fill == null ? .85 : Ly.fill) * s.a * grow; b.beginPath(); pb(f); b.fillStyle = lerpCol(Ly.c0 || '#fde68a', Ly.c1 || '#b91c1c', tt); b.fill(); });
         b.restore(); Ly._dr = { rr, lo, hi };
       } else if (Ly.type === 'range') {
         const pin = S.easeOut(s.pin); const r = Ly.km / 6371 * pin; const c = d3.geoCircle().center([Ly.lon, Ly.lat]).radius(r * DEG).precision(1)();
@@ -418,7 +421,7 @@
     for (const { Ly, s } of layers) {
       const pin = S.easeOut(s.pin);
       if (Ly.type === 'country') {
-        const fs = Ly.keys.map(kk => byKey.get(kk)).filter(Boolean); if (!fs.length || !Ly.stroke || Ly.outline === 'none') continue;
+        const fs = Ly.keys.map(kk => KM(Ly).get(kk)).filter(Boolean); if (!fs.length || !Ly.stroke || Ly.outline === 'none') continue;
         g.save();
         if (!Ly.innerB && fs.length > 1) { const cp = new Path2D(); cp.rect(-10, -10, W + 20, H + 20); const gp2 = d3.geoPath(vw.proj, cp); for (const f of fs) gp2(f); g.clip(cp, 'evenodd'); } // outer outline only: shared borders between the layer's countries are hidden
         g.beginPath(); for (const f of fs) pg(f); g.lineJoin = 'round'; g.globalAlpha = s.a * (Ly.in === 'fade' ? pin : 1);
@@ -426,7 +429,7 @@
         if (Ly.outline === 'dashed') { g.setLineDash([6 * k * Ly.stroke, 4.5 * k * Ly.stroke]); g.lineCap = 'butt'; }
         g.lineWidth = Ly.stroke * 1.2 * k * (!Ly.innerB && fs.length > 1 ? 2 : 1); g.strokeStyle = Ly.line || shade(Ly.color, .25); g.stroke(); g.restore();
       } else if (Ly.type === 'invasion') {
-        const F = byKey.get(Ly.from); const Ts = (Ly.to || []).map(kk => byKey.get(kk)).filter(Boolean); if (!F || !Ts.length) continue;
+        const F = KM(Ly).get(Ly.from); const Ts = (Ly.to || []).map(kk => KM(Ly).get(kk)).filter(Boolean); if (!F || !Ts.length) continue;
         const travel = Ly.inDur || 4; const stagger = Ly.stagger != null ? Ly.stagger : travel * .35;
         Ts.forEach((T, i) => {
           const p = clamp((s.lt - i * stagger) / travel, 0, 1); if (p <= 0) return;
@@ -448,7 +451,7 @@
         const sp0 = vw.project(Ly.lon, Ly.lat); if (sp0) late.push(() => V.icon(g, 'dot', sp0[0], sp0[1], 12 * k, Ly.color, 0, t, s.a));
       } else if (Ly.type === 'data' && Ly._dr) {
         const { rr, lo, hi } = Ly._dr; delete Ly._dr;
-        if (Ly.values) for (const [key, val] of rr) { const f = byKey.get(key); if (!f) continue; const sp = vw.project(f.lab[0], f.lab[1]); if (!sp) continue; late.push(() => { g.save(); g.globalAlpha = s.a * pin; haloText(g, (Ly.prefix || '') + val.toLocaleString('en') + (Ly.suffix || ''), sp[0], sp[1] + 18 * k, 15 * k, '#fff', 'rgba(0,0,0,.85)', fam, 800); g.restore(); }); }
+        if (Ly.values) for (const [key, val] of rr) { const f = KM(Ly).get(key); if (!f) continue; const sp = vw.project(f.lab[0], f.lab[1]); if (!sp) continue; late.push(() => { g.save(); g.globalAlpha = s.a * pin; haloText(g, (Ly.prefix || '') + val.toLocaleString('en') + (Ly.suffix || ''), sp[0], sp[1] + 18 * k, 15 * k, '#fff', 'rgba(0,0,0,.85)', fam, 800); g.restore(); }); }
         if (Ly.legend !== 0) late.push(() => { g.save(); g.globalAlpha = s.a * pin; const w = 260 * k, h = 14 * k; const x0 = (W - w) / 2, y0 = H - 70 * k; const gr = g.createLinearGradient(x0, 0, x0 + w, 0); gr.addColorStop(0, Ly.c0 || '#fde68a'); gr.addColorStop(1, Ly.c1 || '#b91c1c'); plate(g, x0 - 12 * k, y0 - 34 * k, w + 24 * k, h + 62 * k, 'rgba(6,9,14,.72)', 8 * k); if (Ly.title) haloText(g, Ly.title, x0 + w / 2, y0 - 18 * k, 15 * k, '#fff', null, fam, 800); g.fillStyle = gr; g.fillRect(x0, y0, w, h); haloText(g, lo.toLocaleString('en'), x0, y0 + h + 13 * k, 12 * k, '#cfd8e3', null, fam, 700, 'left'); haloText(g, hi.toLocaleString('en'), x0 + w, y0 + h + 13 * k, 12 * k, '#cfd8e3', null, fam, 700, 'right'); g.restore(); });
       } else if (Ly.type === 'route' && Ly.pts && Ly.pts.length >= 2) {
         const line = smooth(geoLine(vw, Ly.pts, Ly.curve || .15), 2); const p = S.ease(s.pin); const c = cut(line, p); if (c.length < 2) continue;
@@ -497,7 +500,7 @@
     const ink = st.ink || '#fff', halo = st.halo || 'rgba(0,0,0,.75)'; const ls = L.labelSize || 1;
     if (L.labels) {
       const cand = [];
-      if (L.countryLabels || inv.size) for (const f of fv) {
+      if (L.countryLabels || inv.size) for (const f of extraF.length ? fv.concat(extraF.filter(visible)) : fv) {
         const sp = vw.project(f.lab[0], f.lab[1]); if (!sp) continue; const rpx = f.rad * vw.kpx * (vw.mode === 'flat' ? 1 / Math.max(.2, Math.cos(f.lab[1] * RAD)) : 1);
         const isInv = inv.has(f.key); if (rpx < 20 && !isInv) continue; if (!isInv && !L.countryLabels) continue;
         const il = isInv ? invLab.get(f.key) : null; if (il && !il.show) continue;

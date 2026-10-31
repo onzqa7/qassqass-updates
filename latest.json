@@ -1,8 +1,8 @@
 {
- "version": "3.0.6",
- "date": "2026-10-31T23:10:40.820Z",
- "notes_ar": "إصلاح زر الإيقاف المؤقت. ملء الشاشة بدون حواف سوداء. أسماء الدول ما عادت تكبر وتصغر فجأة. «تمييز دول» يرسم الحد الخارجي فقط مع خيار لإظهار الحدود بينها، وخيار حدود الدول في الحرب.",
- "notes_en": "Pause button fixed. Full screen without black edges. Country names no longer jump in size. Country highlight draws only the outer outline (option for inner borders); border toggles in war.",
+ "version": "3.0.7",
+ "date": "2026-10-31T23:35:51.595Z",
+ "notes_ar": "اختيار الدول صار بالبحث مع السنة بدل النقر على الخريطة. الإمبراطوريات التاريخية تظهر كاملة. «حركة الاستيلاء» لكل حدث: زحف، مسح، تلاشي، ومضة.",
+ "notes_en": "Countries are chosen by search with a year instead of clicking. Historical empires show complete. Capture animation per event: spread, sweep, fade, flash.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 300019,
-   "sha256": "6c09a3e09f3c6cecef72d57c078f4866375a9f0acf4cc82620a278d13cd87e80"
+   "size": 301107,
+   "sha256": "692d1b5fdb27414e39e3a35b75c5c9c8b30e0826286871ee70b9de001408e2a6"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 303878,
-   "sha256": "839f633370bcf262be1c8b19b8dbfe817dd852462dc5541a3668bae8256a3715"
+   "size": 305002,
+   "sha256": "b44d0613518e1828f1345efe1a1e26bbbaa8154a368e70c5a20be947c9db5d60"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -774,8 +774,8 @@
   },
   {
    "path": "app/js/atlas/atlas.js",
-   "size": 5920,
-   "sha256": "fdaad035341457920189c044caf0adae1cc8735ff6ec58492f19ca978aa85f29"
+   "size": 6091,
+   "sha256": "8f6b1a614637976e3c9b0655cdd6a01d1fc46433a4b4762e68b334190a676f10"
   },
   {
    "path": "app/js/atlas/camera.js",
@@ -809,8 +809,8 @@
   },
   {
    "path": "app/js/atlas/vector.js",
-   "size": 65907,
-   "sha256": "9b1455943ef81c8340e38a4803b8674bd8351fa2d5f560a30204a050383dbb49"
+   "size": 66758,
+   "sha256": "5acc35ddaeed38e0b3399c64ebf6464be2d7e91d80d60a20ebfeac5046734068"
   },
   {
    "path": "app/js/atlas/vtiles.js",
@@ -819,8 +819,8 @@
   },
   {
    "path": "app/js/atlas/war.js",
-   "size": 113499,
-   "sha256": "e242febba1a7e9e32529a9e5563d5dd6e467677f515c39663af8acfd8468595f"
+   "size": 115009,
+   "sha256": "3ac91b7f88c0f6872fb11bf679bc96bb7f6b705c6eb38945149aabcb5d373ec0"
   },
   {
    "path": "app/js/audio.js",
@@ -1029,8 +1029,8 @@
   },
   {
    "path": "app/js/ui_fxpack.js",
-   "size": 19448,
-   "sha256": "13a43213041c5af37a9303b2d19a4ebb596ebe082764ca54bcf9789fed196598"
+   "size": 19454,
+   "sha256": "374adbe7741ce6d895020c206343b231bef4c814d632591e9b65b678fe21a67c"
   },
   {
    "path": "app/js/ui_home.js",
@@ -1039,8 +1039,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 112430,
-   "sha256": "5b4b2f40220ac0ae8a93bc61394e5688a5b308fa5294622fc4aa3e8a6bc78585"
+   "size": 115311,
+   "sha256": "a751d634aa95e720a59f614267aa719f6de53f2dc4f121c85adbf4826c084d95"
   },
   {
    "path": "app/js/ui_mapcam.js",
@@ -1114,8 +1114,8 @@
   },
   {
    "path": "app/js/ui_war.js",
-   "size": 41525,
-   "sha256": "6e9ef203449ccfa21e16112c084762da8260b67754855ee9700894f3efb242f4"
+   "size": 41557,
+   "sha256": "5ed2ffb4b2cf3b9e323cdc14e12f7bc7be18ab2955494275647f1224ffbb9a19"
   },
   {
    "path": "app/js/ui_workspaces.js",
@@ -4710,7 +4710,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "3820296c3ce85c43d74c7d144dcba64205ef18b3b5b7fe492bf8fc8e4e73426d"
+   "sha256": "3a851284128e931a029d56399111e38664487f4939bedf02fea0a75031ed04e7"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4723,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "mB0/cu4UDWu3zhdyHvfvg4DbYYbLyTi8ggaPQL+a6iDq4WeEQxjDjkKX+3Rdkq6YKnu3CKbcXC/sqmdWHxHHCg=="
+ "sig": "ZW9mMOtjMTo5J45h8t2rWJnUWEtFz//vyAXXg4biyHGaoQCTJRduwu7kim6dGoR5N0+BO8vrk1ua8juRTQjBBQ=="
 }

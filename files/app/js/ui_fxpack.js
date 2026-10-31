@@ -105,7 +105,7 @@
         break; }
       case 'district':
         box.append(h('div', 'mp-sub', 'مناطق إدارية مرفوعة'), row('كل مناطق الدولة', txt(L.country, set('country'), 'مثال: السعودية، مصر')), row('مناطق محددة', txt(L.regions, set('regions'), 'مثال: منطقة الرياض، المنطقة الشرقية')),
-          h('div', 'mp-note', 'أو اختر دولاً كاملة من الشاشة لرفعها:'), btn(GW.ico('pin', 13) + ' اختر دولاً على الخريطة', () => M.enter('pick', 'لاختيار الدول المرفوعة')),
+          h('div', 'mp-note', 'أو ابحث عن دول كاملة لرفعها:'), M.countrySearch(c, L, { add: k => { L.keys = L.keys || []; if (!L.keys.includes(k)) L.keys.push(k); }, keys: () => L.keys || [], clear: () => { L.keys = []; } }),
           row('الألوان', sel([['single', 'لون واحد'], ['multi', 'ألوان متعددة']], L.palette || 'single', set('palette', 1))), row('اللون', col(L.color, set('color'))), row('ارتفاع الرفع', rng(L.lift == null ? 1 : L.lift, 0, 4, .05, set('lift'))), row('الشفافية', rng(L.fill == null ? .92 : L.fill, 0, 1, .01, set('fill'))), row('تتابع الظهور (ث)', rng(L.stagger || 0, 0, 1, .01, set('stagger'))), row('أسماء المناطق', chk(L.labels, set('labels', 1))),
           h('div', 'mp-note', 'بيانات اختيارية (سطر لكل منطقة: الاسم ثم القيمة) — يصبح الارتفاع واللون حسب القيمة:'), area(L.data, v => { L.data = v; GW.invalidate(); GW.commitSoon('بيانات المناطق'); }, 4), row('لون أقل / أعلى قيمة', col(L.c0, set('c0')), col(L.c1, set('c1'))));
         if ((A.Geo.loadAdmin1)) A.Geo.loadAdmin1();

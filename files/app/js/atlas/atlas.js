@@ -51,6 +51,7 @@
   A.ensure = async (scene, t, W, H, opts = {}) => {
     const { era, lod } = A.evalAt(scene, t, W, H);
     await G.ensureEra(era, lod).catch(() => {});
+    for (const Ly of scene.layers || []) if (Ly && Ly.year != null && Ly.year !== '') await G.ensureEra(G.era(+Ly.year, scene.eraMode), Math.min(lod, 1)).catch(() => {});
     if (scene.look.rivers || scene.look.lakes) await G.loadWater().catch(() => {});
     if (scene.look.provinces) await G.loadAdmin1().catch(() => {});
     await V.imgsReady(scene);

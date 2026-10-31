@@ -250,22 +250,28 @@
       for (const pr of st.prog) {
         const sd = sideOf(L, pr.to); if (!sd || !vis(pr.u)) continue; const o = originOf(L, m, pr.ev, pr.u, st.own);
         const far = o[2] != null ? o[2] : Math.max(.02, pr.u.rad * 1.6); const r = Math.max(1e-4, S.ease(pr.p) * far * 1.1);
-        const blob = V.blob([o[0], o[1]], r, strSeed(pr.ev.id) % 97, 0, .1);
-        const PU = new Path2D(); d3.geoPath(vw.proj, PU)(pr.u.f); const PB = new Path2D(); d3.geoPath(vw.proj, PB)(blob);
-        oc.save(); oc.clip(PU); oc.clip(PB); oc.globalCompositeOperation = 'destination-out'; oc.globalAlpha = 1; oc.fillRect(0, 0, W, H);
-        oc.globalCompositeOperation = 'source-over'; if (sd.pattern === 'weave') V.weaveFill(oc, () => oc.fillRect(0, 0, W, H), sd.color, sd.fill == null ? .5 : sd.fill, k, { scale: sd.patS, angle: sd.patR, opacity: sd.patA }); else { oc.globalAlpha = sd.fill == null ? .5 : sd.fill; oc.fillStyle = sd.color; oc.fillRect(0, 0, W, H); }
+        const an = pr.ev.anim || 'spread'; // «حركة الاستيلاء»: spread (from the border) | wipe (sweep) | fade | flash
+        const PU = new Path2D(); d3.geoPath(vw.proj, PU)(pr.u.f); let PB;
+        if (an === 'spread') { const blob = V.blob([o[0], o[1]], r, strSeed(pr.ev.id) % 97, 0, .1); PB = new Path2D(); d3.geoPath(vw.proj, PB)(blob); }
+        else if (an === 'wipe') { const a = vw.project(o[0], o[1]) || [W / 2, H / 2], b2 = vw.project(pr.u.f.lab[0], pr.u.f.lab[1]) || [W / 2, H / 2]; let dx = b2[0] - a[0], dy = b2[1] - a[1]; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl; const ext = dl * 2 + pr.u.rad * vw.kpx * 2 + 40; const L0 = ext * S.ease(pr.p); const nx = -dy, ny = dx, BIG = 1e4; PB = new Path2D(); PB.moveTo(a[0] - dx * ext + nx * BIG, a[1] - dy * ext + ny * BIG); PB.lineTo(a[0] + dx * L0 + nx * BIG, a[1] + dy * L0 + ny * BIG); PB.lineTo(a[0] + dx * L0 - nx * BIG, a[1] + dy * L0 - ny * BIG); PB.lineTo(a[0] - dx * ext - nx * BIG, a[1] - dy * ext - ny * BIG); PB.closePath(); }
+        else { PB = new Path2D(); PB.rect(0, 0, W, H); }
+        const fadeA = an === 'fade' ? S.ease(pr.p) : 1;
+        oc.save(); oc.clip(PU); oc.clip(PB); oc.globalCompositeOperation = 'destination-out'; oc.globalAlpha = fadeA; oc.fillRect(0, 0, W, H);
+        oc.globalCompositeOperation = 'source-over'; if (fadeA < 1) oc.globalAlpha = fadeA; if (sd.pattern === 'weave') V.weaveFill(oc, () => oc.fillRect(0, 0, W, H), sd.color, sd.fill == null ? .5 : sd.fill, k, { scale: sd.patS, angle: sd.patR, opacity: sd.patA }); else { oc.globalAlpha = sd.fill == null ? .5 : sd.fill; oc.fillStyle = sd.color; oc.fillRect(0, 0, W, H); }
         // freshly taken ground glows briefly
-        oc.globalAlpha = .22 * (1 - pr.p); oc.fillStyle = shade(sd.color, .55); oc.fillRect(0, 0, W, H); oc.restore();
+        oc.globalAlpha = (an === 'flash' ? .6 : .22) * (1 - pr.p); oc.fillStyle = an === 'flash' ? '#ffffff' : shade(sd.color, .55); oc.fillRect(0, 0, W, H); oc.restore();
         edges.push({ PU, PB, color: sd.color, p: pr.p });
       }
       // 4) zones of control around captured cities whose province is not (yet) taken
       for (const c of m.cities.values()) {
         const o = st.cityOwn.get(c.key); const sd = sideOf(L, o); if (!sd) continue; const under = c.unit ? (inProg.has(c.unit) ? st.prog.find(x => x.u.key === c.unit).to : st.own.get(c.unit)) : null; if (under === o) continue;
         const fl = st.flips.get(c.key); const g0 = fl ? clamp(fl.q / 1.6, 0, 1) : 1; const sp = vw.project(c.lon, c.lat); if (!sp) continue;
-        const R = kmPx(vw, c.lon, c.lat, (c.r || L.cityR || 18) * S.easeOut(g0)); if (R < 1) continue;
+        const can = fl ? (fl.ev.anim || 'spread') : 'spread'; // city / village: grow (spread, wipe) | fade | flash (instant + white flash)
+        const R = kmPx(vw, c.lon, c.lat, (c.r || L.cityR || 18) * (can === 'spread' || can === 'wipe' ? S.easeOut(g0) : 1)); if (R < 1) continue;
+        if (can === 'flash' && fl && fl.q < 2) { const fq = clamp(fl.q / 2, 0, 1); oc.save(); oc.globalAlpha = .7 * (1 - fq); oc.fillStyle = '#fff'; oc.beginPath(); oc.arc(sp[0], sp[1], R * (1 + fq * .6), 0, TAU); oc.fill(); oc.restore(); }
         const gr = oc.createRadialGradient(sp[0], sp[1], 0, sp[0], sp[1], R); const fa = Math.min(1, (sd.fill == null ? .5 : sd.fill) + .2);
         gr.addColorStop(0, rgba(sd.color, fa)); gr.addColorStop(.62, rgba(sd.color, fa * .85)); gr.addColorStop(1, rgba(sd.color, 0));
-        oc.globalAlpha = 1; oc.fillStyle = gr; oc.beginPath(); oc.arc(sp[0], sp[1], R, 0, TAU); oc.fill();
+        oc.globalAlpha = can === 'fade' ? S.ease(g0) : 1; oc.fillStyle = gr; oc.beginPath(); oc.arc(sp[0], sp[1], R, 0, TAU); oc.fill(); oc.globalAlpha = 1;
       }
       Object.defineProperty(L, '__edges', { value: edges, configurable: true, writable: true, enumerable: false });
       HK.b.save(); HK.b.globalAlpha = A0; HK.b.drawImage(offC, 0, 0); HK.b.restore();

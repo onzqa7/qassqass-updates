@@ -135,7 +135,7 @@
     }
     if (M.mode === 'place' && L) { if (ll) { const tt = +(k.t + (c.in || 0) - (L.start || 0)).toFixed(3); for (const [q, v] of [['lon', +ll[0].toFixed(4)], ['lat', +ll[1].toFixed(4)]]) { if (L[q] && typeof L[q] === 'object') GW.setPv(L[q], tt, v); else L[q] = v; } changed('تحديد الموقع'); renderLayerProps(); } return true; }
     if (M.mode === 'pick' && L && GW.WarUI && GW.WarUI.pickHook(k, L, ll, X, Y)) return true; // war campaign picks (ui_war.js)
-    if (M.mode === 'pick' && L) { const f = ll && G.hit(A.last && A.last.era && A.last.era.id === k.era.id ? A.last.feats : G.features(k.era, 0), ll); if (f) togglePick(c, L, f); return true; }
+    if (M.mode === 'pick' && L && !['country', 'invasion', 'front', 'district'].includes(L.type)) { const f = ll && G.hit(A.last && A.last.era && A.last.era.id === k.era.id ? A.last.feats : G.features(k.era, 0), ll); if (f) togglePick(c, L, f); return true; }
     // navigation
     const base = camNow(c); const right = e.button === 2 || e.altKey; const x0 = e.clientX, y0 = e.clientY; let moved = false;
     const ov = e.target; ov.setPointerCapture(e.pointerId);
@@ -300,7 +300,7 @@
     const scn = sc(c);
     // header + mode switch
     const head = h('div', 'mp-head'); head.innerHTML = `<div class="mp-title"><b>${esc(c.name)}</b><span>${esc(G.precision(G.era(GW.pv(scn.year, lt(c)), scn.eraMode)).ar)}</span></div>`;
-    const modes = h('div', 'seg mp-modes'); for (const [k, n] of [['nav', 'كاميرا'], ['pick', 'اختيار'], ['draw', 'رسم'], ['place', 'موضع'], ['off', 'تحويل']]) { const b = h('button'); b.textContent = n; b.classList.toggle('on', M.mode === k); b.onclick = () => { M.mode = k; renderPanel(); GW.invalidate(); }; modes.append(b); }
+    const modes = h('div', 'seg mp-modes'); for (const [k, n] of [['nav', 'كاميرا'], ['draw', 'رسم'], ['place', 'موضع'], ['off', 'تحويل']]) { const b = h('button'); b.textContent = n; b.classList.toggle('on', M.mode === k); b.onclick = () => { M.mode = k; renderPanel(); GW.invalidate(); }; modes.append(b); }
     head.append(modes); scroll.append(head);
     scroll.append(searchBox(c));
     if (M.picked && M.picked.key) scroll.append(pickedBox(c));
@@ -615,7 +615,7 @@
     return s0;
   }
   /* ---------------- layers ---------------- */
-  function addLayer(c, type, o = {}) { if (GW.WarUI) o = GW.WarUI.preAdd(c, type, o); if (type === 'country' && sc(c).style === 'woven' && !o.pattern) o = S.wovenCountry(Object.assign({ color: S.WOVEN[sc(c).layers.filter(l => l.type === 'country').length % 3] }, o)); if (['marker', 'label', 'range', 'image'].includes(type) && o.lon == null) { const v = camNow(c); o = Object.assign({ lon: +v.lon.toFixed(4), lat: +v.lat.toFixed(4) }, o); } const L = S.newLayer(type, Object.assign({ start: Math.max(0, lt(c) - (c.in || 0)) }, o)); sc(c).layers.push(L); M.layerId = L.id; changed('إضافة طبقة: ' + S.LAYERS[type].ar); M.mode = { country: 'pick', invasion: 'pick', arrow: 'draw', front: 'draw', route: 'draw', marker: 'place', label: 'place', image: 'place', range: 'place' }[type] || (GW.WarUI && GW.WarUI.modeFor(type)) || 'nav'; if (type === 'invasion' && !o.from) M.pickRole = 'from'; M.modeHint = { pick: type === 'invasion' && !o.from ? 'لتحديد الدولة المهاجمة' : 'لاختيار الدول', draw: 'لرسم النقاط (كل نقرة تضيف نقطة)', place: 'لتحديد الموقع' }[M.mode] || ''; renderPanel(); return L; }
+  function addLayer(c, type, o = {}) { if (GW.WarUI) o = GW.WarUI.preAdd(c, type, o); if (type === 'country' && sc(c).style === 'woven' && !o.pattern) o = S.wovenCountry(Object.assign({ color: S.WOVEN[sc(c).layers.filter(l => l.type === 'country').length % 3] }, o)); if (['marker', 'label', 'range', 'image'].includes(type) && o.lon == null) { const v = camNow(c); o = Object.assign({ lon: +v.lon.toFixed(4), lat: +v.lat.toFixed(4) }, o); } const L = S.newLayer(type, Object.assign({ start: Math.max(0, lt(c) - (c.in || 0)) }, o)); sc(c).layers.push(L); M.layerId = L.id; changed('إضافة طبقة: ' + S.LAYERS[type].ar); M.mode = { country: 'nav', invasion: 'nav', arrow: 'draw', front: 'draw', route: 'draw', marker: 'place', label: 'place', image: 'place', range: 'place' }[type] || (GW.WarUI && GW.WarUI.modeFor(type)) || 'nav'; if (type === 'invasion' && !o.from) M.pickRole = 'from'; M.modeHint = { pick: type === 'invasion' && !o.from ? 'لتحديد الدولة المهاجمة' : 'لاختيار الدول', draw: 'لرسم النقاط (كل نقرة تضيف نقطة)', place: 'لتحديد الموقع' }[M.mode] || ''; renderPanel(); return L; }
   M.addLayer = addLayer;
   // leader portrait: image layer with a framed photo + name plate, pinned to a place; optional travel path
   M.addLeader = async (c, o = {}) => {
@@ -652,12 +652,34 @@
     return s0;
   }
   function renderLayerProps() { const c = selMap(); if (!c || !P) return; const box = P.querySelector('[data-a=props]'); const L = layer(c); if (box && L) { box.innerHTML = ''; fillProps(c, L, box); } else renderPanel(); }
-  function keyChips(c, keys, onRemove) {
-    const scn = sc(c); const era = G.era(GW.pv(scn.year, lt(c)), scn.eraMode); const fs = G.features(era, 0) || []; const by = new Map(fs.map(f => [f.key, f]));
+  function keyChips(c, keys, onRemove, year) {
+    const scn = sc(c); const era = G.era(year != null ? +year : GW.pv(scn.year, lt(c)), scn.eraMode); const fs = G.features(era, 0) || []; const by = new Map(fs.map(f => [f.key, f]));
     const w = h('div', 'mp-chips'); for (const k of keys) { const f = by.get(k); const b = h('button', 'chip on'); b.innerHTML = esc(f ? G.name(f, 'ar', era) : k) + ' ' + GW.ico('close', 11); b.onclick = () => onRemove(k); w.append(b); }
-    if (!keys.length) w.append(h('span', 'mp-note', 'انقر على الدول في الشاشة لإضافتها'));
+    if (!keys.length) w.append(h('span', 'mp-note', 'ابحث عن دولة واخترها من القائمة'));
     return w;
   }
+  // country search «ابحث عن دولة» + the year whose borders to use (replaces picking countries with the mouse)
+  // o: { yearKey: 'year' (layer field), add(key), label }
+  function countrySearch(c, L, o) {
+    const scn = sc(c); const wrap = h('div', 'mx-csearch');
+    const r = h('div', 'mp-row'); const q = h('input', 'inp'); q.placeholder = o.label || 'ابحث عن دولة…'; q.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter') { const first = res.querySelector('.mp-res'); if (first) first.click(); } };
+    const yr = h('input', 'inp num'); yr.type = 'number'; yr.step = '1'; yr.title = 'السنة: حدود الدول كما كانت في هذه السنة'; yr.style.maxWidth = '84px';
+    const y0 = () => L.year != null ? +L.year : Math.round(GW.pv(scn.year, lt(c)));
+    yr.value = y0(); yr.onkeydown = e => e.stopPropagation();
+    const yl = h('span', 'kv', 'السنة'); r.append(q, yl, yr); const res = h('div', 'mp-results');
+    let tok = 0;
+    const go = async () => {
+      const my = ++tok; res.innerHTML = ''; const v = q.value.trim(); if (!v) return;
+      const year = +yr.value || y0(); const era = G.era(year, scn.eraMode); await G.ensureEra(era, 0).catch(() => {}); if (my !== tok) return;
+      const list = G.search(v, G.features(era, 0) || [], 'ar', era, 12).filter(x => x.kind === 'country').slice(0, 8);
+      if (!list.length) { res.append(h('div', 'mp-note', 'لا توجد دولة بهذا الاسم في سنة ' + year)); return; }
+      for (const x of list) { const it = h('div', 'mp-res', `<b>${esc(x.name)}</b><span>${esc(String(year))}</span>`); it.onclick = () => {
+        const sceneY = Math.round(GW.pv(scn.year, lt(c))); L.year = year === sceneY ? undefined : year; o.add(x.key); q.value = ''; res.innerHTML = ''; changed('اختيار دولة'); renderLayerProps(); }; res.append(it); }
+    };
+    q.oninput = go; yr.onchange = () => { const sceneY = Math.round(GW.pv(scn.year, lt(c))); const ny = +yr.value; if (ny !== y0()) { if ((o.keys && o.keys().length) && !confirm('تغيير السنة يمسح الدول المختارة (أسماؤها تختلف بين العصور). متابعة؟')) { yr.value = y0(); return; } if (o.clear) o.clear(); L.year = ny === sceneY ? undefined : ny; changed('سنة الدول'); renderLayerProps(); } };
+    wrap.append(r, res); return wrap;
+  }
+  M.countrySearch = countrySearch;
   function fillProps(c, L, box) {
     const set = (k, now) => (v) => { L[k] = v; changed('خصائص ' + L.name, !now); };
     const t0 = () => Math.max(0, lt(c) - (c.in || 0));
@@ -729,15 +751,16 @@
     };
     switch (L.type) {
       case 'country':
-        box.append(btn(GW.ico('pin', 13) + (M.mode === 'pick' ? ' اختيار الدول فعّال…' : ' اختر الدول على الخريطة'), () => { M.enter('pick', 'لاختيار الدول (انقر مرة للإضافة ومرة للإزالة)'); }, M.mode === 'pick' ? 'pri' : ''), keyChips(c, L.keys, k => { L.keys.splice(L.keys.indexOf(k), 1); changed('إزالة دولة'); renderLayerProps(); }),
+        box.append(countrySearch(c, L, { add: k => { L.keys = L.keys || []; if (!L.keys.includes(k)) L.keys.push(k); }, keys: () => L.keys || [], clear: () => { L.keys = []; } }), keyChips(c, L.keys, k => { L.keys.splice(L.keys.indexOf(k), 1); changed('إزالة دولة'); renderLayerProps(); }, L.year),
           row('اللون', col(L.color, set('color'))), countryColors(c, L), row('شفافية التعبئة', rng(pv('fill', .5), 0, 1, .02, setA('fill')), sw('fill', .5)), row('النقش', sel(pats, L.pattern, v => { L.pattern = v; if (v === 'weave') Object.assign(L, { fill: Math.max(L.fill || 0, .55), line: L.line || '#cfcfcc', inner: 1 }); changed('النقش'); renderLayerProps(); })), weaveRows(L, renderLayerProps),
           row('الإطار', sel([['solid', 'متصل'], ['dashed', 'متقطع (منطقة ناشئة / متنازع عليها)'], ['none', 'بدون']], L.outline || 'solid', set('outline', 1))), row('لون الإطار', col(L.line || '#f3e6c0', set('line'))), row('سماكة الإطار', rng(L.stroke, 0, 6, .1, set('stroke'))), row('الحدود بين الدول المختارة', chk(L.innerB, set('innerB', 1))),
           row('ظل داخلي (عمق)', chk(L.inner, set('inner', 1))), row('توهج', chk(L.glow, set('glow', 1))), row('تعتيم باقي العالم', chk(L.dim, set('dim', 1))), row('نبض', chk(L.pulse, set('pulse', 1))),
           row('اسم الدولة', sel([['', 'حسب النمط'], ['soft', 'كبير بظل ناعم'], ['plate', 'بخلفية'], ['outline', 'بحد']], L.labelStyle || '', set('labelStyle', 1)), chk(L.label !== 0, set('label', 1))), row('حجم الاسم', rng(L.labelSize || 1, .4, 3, .05, set('labelSize'))), row('نص بديل للاسم', txt(L.labelText, set('labelText'), 'مثال: الأندلس')), animRows(['opacity']));
         break;
       case 'invasion':
-        box.append(h('div', 'mp-row')); box.lastChild.append(btn(GW.ico('pin', 13) + ' حدد المهاجم على الخريطة', () => { M.pickRole = 'from'; M.enter('pick', 'لتحديد الدولة المهاجمة'); }), btn(GW.ico('pin', 13) + ' حدد الأهداف على الخريطة', () => { M.pickRole = 'to'; M.enter('pick', 'لتحديد الدول المستهدفة'); }));
-        box.append(row('المهاجم', keyChips(c, L.from ? [L.from] : [], () => { L.from = null; changed('مهاجم'); renderLayerProps(); })), row('الأهداف', keyChips(c, L.to || [], k => { L.to.splice(L.to.indexOf(k), 1); changed('هدف'); renderLayerProps(); })),
+        box.append(h('div', 'mp-sub', 'المهاجم'), countrySearch(c, L, { label: 'ابحث عن الدولة المهاجمة…', add: k => { L.from = k; }, keys: () => [L.from, ...(L.to || [])].filter(Boolean), clear: () => { L.from = null; L.to = []; } }), keyChips(c, L.from ? [L.from] : [], () => { L.from = null; changed('مهاجم'); renderLayerProps(); }, L.year),
+          h('div', 'mp-sub', 'الأهداف'), countrySearch(c, L, { label: 'ابحث عن دولة مستهدفة…', add: k => { L.to = L.to || []; if (!L.to.includes(k)) L.to.push(k); }, keys: () => [L.from, ...(L.to || [])].filter(Boolean), clear: () => { L.from = null; L.to = []; } }), keyChips(c, L.to || [], k => { L.to.splice(L.to.indexOf(k), 1); changed('هدف'); renderLayerProps(); }, L.year));
+        box.append(
           row('اللون', col(L.color, set('color'))), row('شكل السهم', sel([['military', 'سهم عسكري'], ['line', 'خط'], ['dashed', 'متقطع متحرك'], ['double', 'مزدوج']], L.arrowStyle, set('arrowStyle', 1))), row('عرض السهم', rng(L.width || 1, .3, 3, .05, set('width'))), row('انحناء', rng(L.curve == null ? .25 : L.curve, -1, 1, .02, set('curve'))),
           row('زمن وصول السهم (ث)', num(L.inDur || 4, .1, set('inDur', 1))), row('فارق بين الأهداف (ث)', num(L.stagger != null ? L.stagger : (L.inDur || 4) * .35, .1, set('stagger', 1))), row('مدة الانتشار (ث)', num(L.spreadDur || (L.inDur || 4) * 1.2, .1, set('spreadDur', 1))),
           row('الأسهم', chk(L.arrows, set('arrows', 1))), row('احتلال الأرض', chk(L.spread, set('spread', 1))), row('نسبة الاحتلال', rng(L.occupy == null ? 1 : L.occupy, .05, 1, .01, set('occupy'))), row('انفجارات عند الوصول', chk(L.impacts, set('impacts', 1))));
@@ -752,7 +775,7 @@
         box.append(h('div', 'mp-row')); box.lastChild.append(btn(GW.ico('pen', 13) + ' ارسم المنطقة على الخريطة', () => { M.enter('draw', 'لرسم المنطقة (كل نقرة تضيف نقطة)'); }, M.mode === 'draw' ? 'pri' : ''), btn('مسح', () => { L.pts = []; L.shapes = []; changed('مسح'); renderLayerProps(); }));
         const ns = (L.shapes || []).length;
         box.append(btn(GW.ico('key', 13) + (ns ? ` شكل عند المؤشر (${ns} مفاتيح)` : ' تحريك الجبهة عبر الزمن'), () => { const t = lt(c) - (c.in || 0) - (L.start || 0); L.shapes = L.shapes || []; if (!L.shapes.length && L.pts && L.pts.length > 2) L.shapes.push({ t: 0, pts: GW.clone(L.pts) }); const cur = V.frontRing(L, t) || L.pts || []; if (!L.shapes.find(s => Math.abs(s.t - t) < .05)) { L.shapes.push({ t, pts: GW.clone(cur) }); L.shapes.sort((a, b) => a.t - b.t); } changed('مفتاح جبهة'); renderLayerProps(); GW.toast('حرّك نقاط الجبهة الآن — سيتحرك الخط تدريجياً بين المفاتيح'); }));
-        box.append(h('div', 'mp-note', 'أو اختر دولاً كاملة لتكون منطقة السيطرة:'), btn(GW.ico('pin', 13) + ' اختر دولاً على الخريطة', () => { M.enter('pick', 'لاختيار الدول'); }), keyChips(c, L.keys || [], k => { L.keys.splice(L.keys.indexOf(k), 1); changed('إزالة'); renderLayerProps(); }),
+        box.append((() => { const d = h('div', 'mp-note'); d.append(document.createTextNode('تريد طرفين متحاربين وسيطرة على المدن في ثانية معيّنة؟ استخدم ')); const b = btn(GW.ico('swords', 12) + ' حرب بين دولتين', () => GW.MapUX && GW.MapUX.openWizard({ target: 'cur' })); d.append(b); return d; })(), h('div', 'mp-note', 'أو اختر دولاً كاملة لتكون منطقة السيطرة:'), countrySearch(c, L, { add: k => { L.keys = L.keys || []; if (!L.keys.includes(k)) L.keys.push(k); }, keys: () => L.keys || [], clear: () => { L.keys = []; } }), keyChips(c, L.keys || [], k => { L.keys.splice(L.keys.indexOf(k), 1); changed('إزالة'); renderLayerProps(); }, L.year),
           row('اللون', col(L.color, set('color'))), row('شفافية', rng(L.fill, 0, 1, .02, set('fill'))), row('النقش', sel(pats, L.pattern, set('pattern', 1))), row('خط الجبهة', rng(L.stroke, 0, 6, .1, set('stroke'))), row('أسنان الجبهة', chk(L.teeth, set('teeth', 1))));
         break; }
       case 'marker':

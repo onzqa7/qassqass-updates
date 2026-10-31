@@ -219,7 +219,7 @@
       return w;
     }
     w.append(row('الوقت (ث)', num(ev.t, .1, v => { ev.t = Math.max(0, v); changed('وقت الحدث'); rerender(); }), btn('عند المؤشر', () => { ev.t = +Math.max(0, lt(c) - (c.in || 0) - (L.start || 0)).toFixed(2); changed('وقت الحدث'); rerender(); })), row('المدة (ث)', num(ev.dur || 2.5, .1, set('dur', 1))),
-      row('من', sel(sideOpts, ev.from, set('from', 1))), row('إلى', sel(sideOpts, ev.to, set('to', 1))), row('بداية الاجتياح', sel([['border', 'من أقرب حدود للمهاجم'], ['city', 'من المدينة']], ev.origin || 'border', set('origin', 1))),
+      row('من', sel(sideOpts, ev.from, set('from', 1))), row('إلى', sel(sideOpts, ev.to, set('to', 1))), row('حركة الاستيلاء', sel([['spread', 'زحف من الحدود'], ['wipe', 'مسح باتجاه الهجوم'], ['fade', 'تلاشي هادئ'], ['flash', 'ومضة سريعة']], ev.anim || 'spread', set('anim', 1))), row('بداية الاجتياح', sel([['border', 'من أقرب حدود للمهاجم'], ['city', 'من المدينة']], ev.origin || 'border', set('origin', 1))),
       row('مؤثر المعركة', sel([['clash', 'اشتباك'], ['strike', 'قصف'], ['none', 'بدون']], ev.fx || 'none', set('fx', 1))), row('اهتزاز مع القصف', chk(ev.shake, set('shake', 1))), row('عنوان الحدث', chk(ev.caption !== 0, v => { ev.caption = v ? 1 : 0; changed('عنوان الحدث'); })), row('نص مخصص', txt(ev.text, set('text'), 'سقوط مدينة …')));
     // chosen targets
     const chips = h('div', 'mp-chips');
@@ -227,7 +227,7 @@
     for (const cc of ev.cities || []) { const b = h('button', 'chip on'); b.innerHTML = GW.ico('pin', 11) + ' ' + esc(cc.a || cc.n) + ' ' + GW.ico('close', 11); b.onclick = () => { toggleCity(ev, cc); changed('إزالة'); rerender(); }; chips.append(b); }
     w.append(h('div', 'mp-sub', 'ما ينتقل في هذا الحدث'), chips);
     const pickOn = ST.pend && ST.pend.kind === 'event' && ST.pend.ev === ev.id && M().mode === 'pick';
-    w.append(btn(GW.ico('pen', 13) + (pickOn ? ' انقر المحافظات والمدن في الخريطة…' : ' اختر من الخريطة'), () => { ST.pend = pickOn ? null : { kind: 'event', layer: L.id, ev: ev.id }; M().mode = pickOn ? 'nav' : 'pick'; rerender(); }, pickOn ? 'pri' : ''));
+    void pickOn; // picking provinces/cities with the mouse removed: use the searchable lists below
     // source country → provinces and cities (searchable checklists)
     const from = (L.sides || []).find(x => x.id === ev.from); const ccs = []; for (const sd of L.sides || []) for (const k of sd.countries || []) { const f = byKey.get(k); if (f) ccs.push([WR.ccOf(f), G.name(f, 'ar', era)]); }
     if (!ST.srcCC) { const f0 = from && from.countries && byKey.get(from.countries[0]); ST.srcCC = f0 ? WR.ccOf(f0) : (ccs[0] || [''])[0]; }
