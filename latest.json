@@ -1,8 +1,8 @@
 {
- "version": "2.5.1",
- "date": "2026-10-31T11:15:51.651Z",
- "notes_ar": "نمط جديد «سينمائي وثائقي» مطابق لألوان الفيديو المرجعي (بحر رمادي مزرق داكن بتضاريس خفيفة، وأرض زيتونية هادئة) وصار الافتراضي للخرائط الجديدة.",
- "notes_en": "New default 'Cinematic documentary' map style matched to the reference video's colours.",
+ "version": "2.5.2",
+ "date": "2026-10-31T11:19:30.985Z",
+ "notes_ar": "النمط السينمائي أقرب للمرجع: البحر يغمق بالضرب فتظهر تضاريس الأعماق، وتباين أعلى للأرض.",
+ "notes_en": "Cinematic style closer to the reference: multiplied dark sea keeps seabed relief, more land contrast.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -744,8 +744,8 @@
   },
   {
    "path": "app/js/atlas/atlas.js",
-   "size": 5147,
-   "sha256": "3f8dd4e61f20ff3fc5c56c01046ce26cd19c1e68c4791df646a8ee88f5716551"
+   "size": 5233,
+   "sha256": "f09b784c4f93ecd882ee7251f4b48c757eaaadd2701aa04371f24cbadc738028"
   },
   {
    "path": "app/js/atlas/camera.js",
@@ -759,8 +759,8 @@
   },
   {
    "path": "app/js/atlas/globe.js",
-   "size": 36787,
-   "sha256": "090f6b8a998c6169e4d4d0787461b463f6353c6e77a404ae5400df0eefc4d4b9"
+   "size": 37226,
+   "sha256": "bd6bebbf385c09dc50bcba3bcfacab6949acc64d0ac72b0c096f41d65b21e9c2"
   },
   {
    "path": "app/js/atlas/providers.js",
@@ -769,8 +769,8 @@
   },
   {
    "path": "app/js/atlas/scene.js",
-   "size": 18056,
-   "sha256": "13f150aa8d6b8d41f5b0c179993daa5077ea150aff20677a29bc3316d1ad60c9"
+   "size": 18085,
+   "sha256": "ff265b54583c420a56d8e3d8454572f389ce4b185871c7f63d9307fa985260d0"
   },
   {
    "path": "app/js/atlas/vector.js",
@@ -4305,7 +4305,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "f49c0725b8bf602a512091f48c5c692b87639935a7500c45477456ddeaed38ca"
+   "sha256": "60eff88f01e21ef5c3aa4622de9e3f18e0fb48279b6c726e6f6afd7e663780cc"
   },
   {
    "path": "preload.js",
@@ -4318,5 +4318,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "NKUvSci4C5KVAMDR5ohsNw4Pbbn8WDMK0/t/e2CGJvQX6OVJK6P8Tn8ztGw/4URaFUKqozvjEeizYWU8mG/1Cg=="
+ "sig": "cqcJEb3XxZ7Kw3Pj9rDl6AUE3im+z2NKlI9LAKvhVShkA91JcXTnDLrre7hnX2zEqpW796B4ULDTnqbOCFJVDA=="
 }
