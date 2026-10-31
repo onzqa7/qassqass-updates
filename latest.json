@@ -1,8 +1,8 @@
 {
- "version": "2.5.2",
- "date": "2026-10-31T11:19:30.985Z",
- "notes_ar": "النمط السينمائي أقرب للمرجع: البحر يغمق بالضرب فتظهر تضاريس الأعماق، وتباين أعلى للأرض.",
- "notes_en": "Cinematic style closer to the reference: multiplied dark sea keeps seabed relief, more land contrast.",
+ "version": "2.5.3",
+ "date": "2026-10-31T11:22:52.273Z",
+ "notes_ar": "النمط السينمائي: إضاءة على الأرض (إبراز المرتفعات والأضواء) وتشبع أهدأ وأبرد مثل المرجع.",
+ "notes_en": "Cinematic style: lit land highlights and calmer, cooler saturation like the reference.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -744,8 +744,8 @@
   },
   {
    "path": "app/js/atlas/atlas.js",
-   "size": 5233,
-   "sha256": "f09b784c4f93ecd882ee7251f4b48c757eaaadd2701aa04371f24cbadc738028"
+   "size": 5246,
+   "sha256": "db4c27f61ed8032388d766886ed04fc201c798c05705ff9eec942b2b346ca41f"
   },
   {
    "path": "app/js/atlas/camera.js",
@@ -759,8 +759,8 @@
   },
   {
    "path": "app/js/atlas/globe.js",
-   "size": 37226,
-   "sha256": "bd6bebbf385c09dc50bcba3bcfacab6949acc64d0ac72b0c096f41d65b21e9c2"
+   "size": 37575,
+   "sha256": "d29bdd5cccf341afcfcb65d2dc9cfaa931a442a5e652556d79c87ed77d590e92"
   },
   {
    "path": "app/js/atlas/providers.js",
@@ -769,8 +769,8 @@
   },
   {
    "path": "app/js/atlas/scene.js",
-   "size": 18085,
-   "sha256": "ff265b54583c420a56d8e3d8454572f389ce4b185871c7f63d9307fa985260d0"
+   "size": 18104,
+   "sha256": "2efdf55de1eb20a2e901af2f4bbde984471d63dbe7375f4759906a4bdfec9ece"
   },
   {
    "path": "app/js/atlas/vector.js",
@@ -4305,7 +4305,7 @@
   {
    "path": "package.json",
    "size": 1611,
-   "sha256": "60eff88f01e21ef5c3aa4622de9e3f18e0fb48279b6c726e6f6afd7e663780cc"
+   "sha256": "4280d67a3541e468bdd18eefcb588c4e099644243e0cc6e907c2ac471564b9c0"
   },
   {
    "path": "preload.js",
@@ -4318,5 +4318,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "cqcJEb3XxZ7Kw3Pj9rDl6AUE3im+z2NKlI9LAKvhVShkA91JcXTnDLrre7hnX2zEqpW796B4ULDTnqbOCFJVDA=="
+ "sig": "pENn+vx8vKvYwpLyPJ9syNbz/GYV//iId07xxDC5SM/xN5XvRVz/b/oVUHqig6EeOA13j9rdegSj/P4iAC44CA=="
 }
