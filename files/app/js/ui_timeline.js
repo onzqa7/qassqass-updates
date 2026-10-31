@@ -54,7 +54,7 @@
         </span></div><div class="tl-ruler" data-a="ruler"><canvas data-a="rc"></canvas><canvas data-a="ro"></canvas></div></div>
         <div class="tl-body" data-a="body"><div class="tl-heads" data-a="heads"><div class="tl-heads-in" data-a="headsIn"></div></div><div class="tl-tracks" data-a="tracks" tabindex="0"><canvas data-a="cv"></canvas><canvas data-a="ov"></canvas><div class="tl-vscroll" data-a="vbar" hidden><i data-a="vthumb"></i></div></div></div>
         <div class="tl-hscroll"><div class="tl-hs-l">
-          <button class="tb" data-h="s" title="ارتفاع المسارات: صغير">${IC.hS}</button><button class="tb" data-h="m" title="ارتفاع المسارات: متوسط">${IC.hM}</button><button class="tb" data-h="l" title="ارتفاع المسارات: كبير">${IC.hL}</button><span class="sp"></span><button class="tb" data-a="fit" title="ملاءمة التسلسل (\\)">${IC.fit}</button>
+          <button class="tb" data-h="s" title="ارتفاع المسارات: صغير">${IC.hS}</button><button class="tb" data-h="m" title="ارتفاع المسارات: متوسط">${IC.hM}</button><button class="tb" data-h="l" title="ارتفاع المسارات: كبير">${IC.hL}</button><span class="sp"></span><button class="tb" data-a="fit" title="ملاءمة التسلسل (\\)">${IC.fit}</button><span class="sp tl-wz-sp"></span><button class="tb tl-wz" data-a="wzOut" title="تصغير الموجة الصوتية">−</button><span class="tl-wz tl-wzv" data-a="wz" title="تكبير الموجة الصوتية (عمودي)">×1</span><button class="tb tl-wz" data-a="wzIn" title="تكبير الموجة الصوتية">+</button>
         </div><div class="tl-hbar" data-a="hbar"><i data-a="hthumb"><b class="l" data-z="l"></b><b class="r" data-z="r"></b></i></div></div>
       </div>
       <div class="meters"><canvas data-a="meter"></canvas><span class="lbl">dB</span></div>`;
@@ -69,6 +69,7 @@
     q('linked').onclick = (e) => { TL.linked = !TL.linked; e.currentTarget.classList.toggle('on', TL.linked); };
     q('marker').onclick = GW.cmd.marker;
     q('fit').onclick = () => TL.fit();
+    q('wzIn').onclick = () => TL.setWaveZoom(TL.waveZoom * 2); q('wzOut').onclick = () => TL.setWaveZoom(TL.waveZoom / 2); q('wz').onclick = () => TL.setWaveZoom(1);
     el.querySelectorAll('[data-h]').forEach(b => b.onclick = () => TL.setTrackHeights(PRESET[b.dataset.h]));
     q('opts').onclick = (e) => { const r = e.currentTarget.getBoundingClientRect(); GW.menu(r.right, r.bottom, [{ label: 'إظهار الصور المصغرة', check: TL.thumbs, action: () => { TL.thumbs = !TL.thumbs; TL.invalidate(); } }, { label: 'إظهار موجات الصوت', check: TL.waves, action: () => { TL.waves = !TL.waves; TL.invalidate(); } }, '-', { label: 'ارتفاع المسارات', sub: [['s', 'صغير'], ['m', 'متوسط'], ['l', 'كبير']].map(([k, n]) => ({ label: n, action: () => TL.setTrackHeights(PRESET[k]) })) }, { label: 'ملاءمة التسلسل', key: '\\', action: () => TL.fit() }, '-', { label: 'إضافة مسار فيديو', action: () => GW.cmd.addTrack('v') }, { label: 'إضافة مسار صوت', action: () => GW.cmd.addTrack('a') }, { label: 'حذف المسارات الفارغة', action: GW.cmd.delEmptyTracks }]); };
     q('tc').onclick = async () => { const s = GW.seq(); const v = await GW.prompt('انتقال إلى', 'التوقيت (سا:د:ث:إطار)', GW.fmtTC(s.t, s.fps)); if (v) { const t = GW.parseTC(v, s.fps); if (t != null) GW.seek(t); } };
@@ -100,18 +101,22 @@
   TL.pps = () => S().zoom || 60;
   TL.x = (t) => (t - (S().scroll || 0)) * TL.pps();
   TL.t = (x) => x / TL.pps() + (S().scroll || 0);
-  const trackH = (tr) => tr.h || DEF_H;
+  // workspace view override (GW.WS[ws].tlView, e.g. the Audio page): video tracks collapsed to vH, audio tracks at least aH — view only, never saved
+  const trackH = (tr, tt) => { const V = TL.view; if (V && tt === 'v') return V.vH; if (V && tt === 'a') return Math.max(tr.h || DEF_H, V.aH); return tr.h || DEF_H; };
+  TL.waveZoom = 1;
+  TL.setView = (v) => { const same = JSON.stringify(TL.view || null) === JSON.stringify(v || null); TL.view = v || null; if (TL.el) TL.el.classList.toggle('tl-aview', !!(v && v.aH)); if (same) return; rowsCache = null; if (TL.el) { TL.renderHeads(); TL.invalidate(); } };
+  TL.setWaveZoom = (z) => { TL.waveZoom = clamp(+z || 1, 1, 16); if (TL.el) { const b = TL.el.querySelector('[data-a=wz]'); if (b) b.textContent = '×' + TL.waveZoom; } TL.invalidate(); GW.bus.emit('wavezoom', TL.waveZoom); };
   let rowsCache = null;
   TL.rows = () => {
     const s = S(); const c = rowsCache;
     if (c && c.s === s && c.nv === s.vt.length && c.na === s.at.length) {
-      let ok = true; for (const r of c) if ((r.tt === 'v' ? s.vt : s.at)[r.ti] !== r.tr || trackH(r.tr) !== r.h) { ok = false; break; }
+      let ok = true; for (const r of c) if ((r.tt === 'v' ? s.vt : s.at)[r.ti] !== r.tr || trackH(r.tr, r.tt) !== r.h) { ok = false; break; }
       if (ok) return c;
     }
     const rows = []; let y = 0;
-    for (let i = s.vt.length - 1; i >= 0; i--) { const h = trackH(s.vt[i]); rows.push({ tt: 'v', ti: i, y, h, tr: s.vt[i] }); y += h; }
+    for (let i = s.vt.length - 1; i >= 0; i--) { const h = trackH(s.vt[i], 'v'); rows.push({ tt: 'v', ti: i, y, h, tr: s.vt[i] }); y += h; }
     rows.sep = y; y += SEP;
-    for (let i = 0; i < s.at.length; i++) { const h = trackH(s.at[i]); rows.push({ tt: 'a', ti: i, y, h, tr: s.at[i] }); y += h; }
+    for (let i = 0; i < s.at.length; i++) { const h = trackH(s.at[i], 'a'); rows.push({ tt: 'a', ti: i, y, h, tr: s.at[i] }); y += h; }
     rows.total = y; rows.s = s; rows.nv = s.vt.length; rows.na = s.at.length; rowsCache = rows; return rows;
   };
   TL.rowAt = (y) => { const rows = TL.rows(); const yy = y + TL.vs; for (const r of rows) if (yy >= r.y && yy < r.y + r.h) return r; return null; };
@@ -197,11 +202,11 @@
       d.querySelector('.tname').onclick = () => { TL.target[r.tt] = r.ti; TL.renderHeads(); TL.invalidate(); };
       const vo = d.querySelector('[data-vo]'); if (vo) { vo.onclick = (e) => { e.stopPropagation(); GW.VO.toggle(r.ti); }; vo.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); GW.VO.settings(); }; } // voice-over record (ui_voiceover.js)
       d.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { const k = b.dataset.k; r.tr[k] = r.tr[k] ? 0 : 1; GW.commit('خصائص المسار'); if (k === 'mute' || k === 'solo') { if (GW.pb.playing) { const t = S().t; GW.stop(); S().t = t; GW.play(1); } } });
-      d.ondblclick = (e) => { if (e.target.closest('button,.tname,.th-rs')) return; r.tr.h = trackH(r.tr) > DEF_H ? DEF_H : 84; if (r.tr.h === DEF_H) delete r.tr.h; TL.renderHeads(); TL.invalidate(); };
-      d.oncontextmenu = (e) => { e.preventDefault(); GW.menu(e.clientX, e.clientY, [{ label: 'إعادة تسمية المسار…', action: async () => { const n = await GW.prompt('إعادة تسمية المسار', 'الاسم', r.tr.name); if (n) { r.tr.name = n; GW.commit('إعادة تسمية مسار'); } } }, { label: 'ارتفاع المسار', sub: [['s', 'صغير'], ['m', 'متوسط'], ['l', 'كبير']].map(([k, n]) => ({ label: n, check: trackH(r.tr) === PRESET[k], action: () => { if (PRESET[k] === DEF_H) delete r.tr.h; else r.tr.h = PRESET[k]; TL.renderHeads(); TL.invalidate(); } })) }, { label: 'ارتفاع كل المسارات', sub: [['s', 'صغير'], ['m', 'متوسط'], ['l', 'كبير']].map(([k, n]) => ({ label: n, action: () => TL.setTrackHeights(PRESET[k]) })) }, '-', { label: 'إضافة مسار فيديو', action: () => GW.cmd.addTrack('v') }, { label: 'إضافة مسار صوت', action: () => GW.cmd.addTrack('a') }, { label: 'حذف المسارات الفارغة', action: GW.cmd.delEmptyTracks }]); };
+      d.ondblclick = (e) => { if (e.target.closest('button,.tname,.th-rs')) return; r.tr.h = trackH(r.tr, r.tt) > DEF_H ? DEF_H : 84; if (r.tr.h === DEF_H) delete r.tr.h; TL.renderHeads(); TL.invalidate(); };
+      d.oncontextmenu = (e) => { e.preventDefault(); GW.menu(e.clientX, e.clientY, [{ label: 'إعادة تسمية المسار…', action: async () => { const n = await GW.prompt('إعادة تسمية المسار', 'الاسم', r.tr.name); if (n) { r.tr.name = n; GW.commit('إعادة تسمية مسار'); } } }, { label: 'ارتفاع المسار', sub: [['s', 'صغير'], ['m', 'متوسط'], ['l', 'كبير']].map(([k, n]) => ({ label: n, check: trackH(r.tr, r.tt) === PRESET[k], action: () => { if (PRESET[k] === DEF_H) delete r.tr.h; else r.tr.h = PRESET[k]; TL.renderHeads(); TL.invalidate(); } })) }, { label: 'ارتفاع كل المسارات', sub: [['s', 'صغير'], ['m', 'متوسط'], ['l', 'كبير']].map(([k, n]) => ({ label: n, action: () => TL.setTrackHeights(PRESET[k]) })) }, '-', { label: 'إضافة مسار فيديو', action: () => GW.cmd.addTrack('v') }, { label: 'إضافة مسار صوت', action: () => GW.cmd.addTrack('a') }, { label: 'حذف المسارات الفارغة', action: GW.cmd.delEmptyTracks }]); };
       const rs = d.querySelector('.th-rs');
       rs.addEventListener('pointerdown', e => {
-        if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); rs.setPointerCapture(e.pointerId); const y0 = e.clientY, h0 = trackH(r.tr);
+        if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); rs.setPointerCapture(e.pointerId); const y0 = e.clientY, h0 = trackH(r.tr, r.tt);
         rs.onpointermove = ev => { r.tr.h = Math.round(clamp(h0 + ev.clientY - y0, MIN_H, MAX_H)); layoutHeads(); TL.invalidate(); };
         rs.onpointerup = rs.onpointercancel = () => { rs.onpointermove = null; if (r.tr.h === DEF_H) delete r.tr.h; };
       });
@@ -293,7 +298,7 @@
   }
   function drawWave(g, c, m, pk, x0, xa, xb, y, hh, col) {
     const sp = c.speed || 1, q = TL.pps() / sp, bq = bucket(q), sc = q / bq;
-    const gq = c.vol && !GW.isAnim(c.vol) ? Math.round((c.vol.v || 0) * 2) : 0; const gain = Math.pow(10, gq / 40);
+    const gq = (c.vol && !GW.isAnim(c.vol) ? Math.round((c.vol.v || 0) * 2) : 0) + Math.round(40 * Math.log10(TL.waveZoom || 1)); const gain = Math.pow(10, gq / 40);
     const sA = c.in + (TL.t(xa) - c.start) * sp, sB = c.in + (TL.t(xb) - c.start) * sp;
     const kA = Math.max(0, Math.floor(sA * bq / TILE)), kB = Math.min(Math.floor(sB * bq / TILE), Math.ceil(pk.length / 100 * bq / TILE));
     for (let k = kA; k <= kB; k++) {

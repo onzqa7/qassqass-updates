@@ -244,12 +244,13 @@
   };
 
   /* ================= scopes ================= */
-  const S = GW.Scopes = { mode: 'all', buf: null, w: 0, h: 0, ver: 0, last: 0 };
-  const MODES = [['all', 'الكل'], ['wave', 'موجي'], ['parade', 'RGB'], ['vector', 'متجه'], ['hist', 'مدرج']];
+  let mode0 = 'pv'; try { mode0 = localStorage.getItem('qq.scopeMode') || 'pv'; } catch (e) {}
+  const S = GW.Scopes = { mode: mode0, buf: null, w: 0, h: 0, ver: 0, last: 0 };
+  const MODES = [['pv', 'RGB + متجه'], ['all', 'الكل'], ['wave', 'موجي'], ['parade', 'RGB'], ['vector', 'متجه'], ['hist', 'مدرج']];
   GW.registerPanel('scopes', 'مقاييس الألوان', (el) => {
     el.innerHTML = `<div class="ptool" dir="rtl"><div class="seg" data-a="m" style="flex:1">${MODES.map(([k, n]) => `<button data-m="${k}" class="${k === S.mode ? 'on' : ''}">${esc(n)}</button>`).join('')}</div></div><div class="scopes" data-a="b"><canvas data-a="cv"></canvas></div>`;
     S.el = el; S.cv = el.querySelector('[data-a=cv]');
-    el.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { S.mode = b.dataset.m; el.querySelectorAll('[data-m]').forEach(x => x.classList.toggle('on', x === b)); S.draw(); });
+    el.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { S.mode = b.dataset.m; try { localStorage.setItem('qq.scopeMode', S.mode); } catch (e) {} el.querySelectorAll('[data-m]').forEach(x => x.classList.toggle('on', x === b)); S.draw(); });
     new ResizeObserver(() => S.draw()).observe(el.querySelector('[data-a=b]'));
     GW.bus.on('panel-shown', id => { if (id === 'scopes') GW.invalidate(); });
   });
@@ -309,9 +310,10 @@
     const cv = S.cv; if (!cv || !cv.isConnected) return; const r = cv.getBoundingClientRect(); const W = Math.floor(r.width), H = Math.floor(r.height); if (W < 20 || H < 20) return;
     const dpr = devicePixelRatio || 1; if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = '#111'; g.fillRect(0, 0, W, H);
-    if (!S.buf) { g.fillStyle = '#777'; g.font = '12px "IBM Plex Sans Arabic", sans-serif'; g.textAlign = 'center'; g.fillText(GW.tr ? GW.tr('لا يوجد إطار') : 'لا يوجد إطار', W / 2, H / 2); return; }
+    if (!S.buf) { g.fillStyle = '#777'; g.font = '12px "IBM Plex Sans Arabic", sans-serif'; g.textAlign = 'center'; g.fillText(GW.tr ? GW.tr('لا يوجد إطار') : 'لا يوجد إطار', W / 2, H / 2 - 9); g.fillStyle = '#5a5a5a'; g.font = '11px "IBM Plex Sans Arabic", sans-serif'; g.fillText(GW.tr ? GW.tr('حرّك مؤشر التشغيل فوق لقطة لعرض المقاييس') : 'حرّك مؤشر التشغيل فوق لقطة لعرض المقاييس', W / 2, H / 2 + 11); return; }
     const pad = 4, m = S.mode;
-    if (m === 'all') { const w = (W - pad * 3) / 2, h = (H - pad * 3) / 2; waveform(g, pad, pad, w, h, false); waveform(g, pad * 2 + w, pad, w, h, true); vectorscope(g, pad, pad * 2 + h, w, h); histogram(g, pad * 2 + w, pad * 2 + h, w, h); }
+    if (m === 'pv') { const sq = Math.min(H - 2 * pad, (W - pad * 3) * .42); waveform(g, pad, pad, W - pad * 3 - sq, H - 2 * pad, true); vectorscope(g, W - pad - sq, pad + (H - 2 * pad - sq) / 2, sq, sq); }
+    else if (m === 'all') { const w = (W - pad * 3) / 2, h = (H - pad * 3) / 2; waveform(g, pad, pad, w, h, false); waveform(g, pad * 2 + w, pad, w, h, true); vectorscope(g, pad, pad * 2 + h, w, h); histogram(g, pad * 2 + w, pad * 2 + h, w, h); }
     else if (m === 'wave') waveform(g, pad, pad, W - 2 * pad, H - 2 * pad, false); else if (m === 'parade') waveform(g, pad, pad, W - 2 * pad, H - 2 * pad, true);
     else if (m === 'vector') vectorscope(g, pad, pad, W - 2 * pad, H - 2 * pad); else histogram(g, pad, pad, W - 2 * pad, H - 2 * pad);
   };

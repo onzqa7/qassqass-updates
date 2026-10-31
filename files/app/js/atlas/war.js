@@ -86,18 +86,73 @@
   const ccOf = (f) => f ? (f.src === 'modern' ? f.key : (f.properties.k || f.key)) : null;
   WR.ccOf = ccOf;
 
+  /* ================= every era: entities (merged pieces) + cities of an entity ================= */
+  // historical-basemaps snapshots split an empire into several features sharing one key: merge them into one MultiPolygon
+  const grpCache = new WeakMap();
+  WR.groups = (feats) => {
+    if (!feats) return new Map(); let g = grpCache.get(feats); if (g) return g; g = new Map(); const by = new Map();
+    for (const f of feats) { const a = by.get(f.key); a ? a.push(f) : by.set(f.key, [f]); }
+    for (const [k, fs] of by) {
+      if (fs.length === 1) { g.set(k, fs[0]); continue; }
+      const coords = []; for (const f of fs) { const gm = f.geometry; if (!gm) continue; if (gm.type === 'Polygon') coords.push(gm.coordinates); else if (gm.type === 'MultiPolygon') coords.push(...gm.coordinates); }
+      const big = fs.slice().sort((a, b) => (b.area || 0) - (a.area || 0))[0];
+      const m = { type: 'Feature', geometry: { type: 'MultiPolygon', coordinates: coords }, properties: big.properties, key: k, src: big.src, en: big.en, ar: big.ar, lab: big.lab, area: fs.reduce((s, f) => s + (f.area || 0), 0), ci: big.ci, cs: big.cs, merged: fs.length };
+      m.bounds = d3.geoBounds(m); let r = 0; for (const f of fs) r = Math.max(r, d3.geoDistance(m.lab, f.lab) + f.rad); m.rad = Math.min(Math.PI, r); g.set(k, m);
+    }
+    grpCache.set(feats, g); return g;
+  };
+  // sorted list of the political entities that exist at an era: [{key, name, en, f, area}]
+  WR.entities = (era, lang = 'ar') => {
+    const fs = G.features(era, 0); if (!fs) return []; const g = WR.groups(fs); const out = [];
+    for (const [k, f] of g) { const ar = G.name(f, 'ar', era); if (!ar && !f.en) continue; out.push({ key: k, name: lang === 'en' ? f.en : ar, ar, en: f.en, f, area: f.area || d3.geoArea(f) * 1e4 }); }
+    return out.sort((a, b) => b.area - a.area);
+  };
+  WR.entitySearch = (era, q, limit = 80) => { const n = G.norm(q); const all = WR.entities(era); if (!n) return all.slice(0, limit); const sc = (s) => { const t = G.norm(s); return !t ? 0 : t === n ? 100 : t.startsWith(n) ? 70 : t.includes(n) ? 40 : 0; }; return all.map(e => [Math.max(sc(e.ar), sc(e.en)), e]).filter(x => x[0]).sort((a, b) => b[0] - a[0] || b[1].area - a[1].area).slice(0, limit).map(x => x[1]); };
+  // historical / renamed cities (modern places.json has today's names): [lon, lat, ar, en, from, to, capital]
+  WR.HIST_CITIES = [
+    [28.974, 41.018, 'القسطنطينية', 'Constantinople', 330, 1922, 1, [[1204, 'Byzantine Empire'], [1261, 'Latin Empire'], [1453, 'Byzantine Empire'], [1922, 'Ottoman Empire']]], [28.974, 41.018, 'بيزنطة', 'Byzantium', -660, 329, 0], [44.58, 33.09, 'المدائن (طيسفون)', 'Ctesiphon', -120, 637, 1],
+    [44.42, 32.54, 'بابل', 'Babylon', -1900, -100, 1], [43.15, 36.36, 'نينوى', 'Nineveh', -1800, -612, 1], [52.89, 29.93, 'برسبوليس', 'Persepolis', -515, -330, 1], [10.32, 36.85, 'قرطاج', 'Carthage', -800, 698, 1],
+    [36.16, 36.2, 'أنطاكية', 'Antioch', -300, 1268, 0], [31.23, 30.0, 'الفسطاط', 'Fustat', 641, 1168, 1], [44.4, 32.03, 'الكوفة', 'Kufa', 638, 1300, 0], [38.79, 37.16, 'الرها', 'Edessa', -300, 1637, 0],
+    [29.72, 40.43, 'نيقية', 'Nicaea', -300, 1331, 0], [38.27, 34.55, 'تدمر', 'Palmyra', -100, 273, 1], [44.4, 31.88, 'الحيرة', 'Al-Hira', 200, 640, 1], [61.84, 37.66, 'مرو', 'Merv', -300, 1221, 0],
+    [19.04, 47.5, 'بودا', 'Buda', 1200, 1873, 1], [30.31, 59.94, 'لينينغراد', 'Leningrad', 1924, 1991, 0], [44.5, 48.7, 'ستالينغراد', 'Stalingrad', 1925, 1961, 0], [106.8, -6.13, 'باتافيا', 'Batavia', 1619, 1942, 1],
+    [-99.13, 19.43, 'تينوتشتيتلان', 'Tenochtitlan', 1325, 1521, 1], [31.25, 29.85, 'منف', 'Memphis', -3000, -300, 1], [32.64, 25.7, 'طيبة', 'Thebes', -2000, -300, 1], [46.1, 30.96, 'أور', 'Ur', -3000, -500, 1],
+    [43.26, 35.46, 'آشور', 'Assur', -2500, -612, 1], [48.25, 32.19, 'سوسة (شوش)', 'Susa', -4000, -300, 1], [39.61, 24.47, 'يثرب', 'Yathrib', -600, 621, 0], [43.87, 34.2, 'سامراء', 'Samarra', 836, 892, 1],
+    [-4.78, 37.88, 'قرطبة', 'Cordoba', 711, 1236, 1], [-3.6, 37.18, 'غرناطة', 'Granada', 1013, 1492, 1], [-4.02, 39.86, 'طليطلة', 'Toledo', 711, 1085, 0], [12.5, 41.9, 'روما', 'Rome', -750, 3000, 1],
+    [35.23, 31.78, 'القدس', 'Jerusalem', -1000, 3000, 0], [35.08, 32.93, 'عكا', 'Acre', -1000, 3000, 0], [36.29, 33.51, 'دمشق', 'Damascus', -1000, 3000, 1], [37.16, 36.2, 'حلب', 'Aleppo', -1000, 3000, 0],
+    [44.39, 33.34, 'بغداد', 'Baghdad', 762, 3000, 1], [31.24, 30.04, 'القاهرة', 'Cairo', 969, 3000, 1], [29.92, 31.2, 'الإسكندرية', 'Alexandria', -331, 3000, 0], [26.55, 41.68, 'أدرنة', 'Edirne', 1365, 3000, 0],
+    [29.06, 40.19, 'بورصة', 'Bursa', 1326, 3000, 0], [39.72, 41.0, 'طرابزون', 'Trebizond', 1204, 3000, 0], [46.29, 38.08, 'تبريز', 'Tabriz', 1250, 3000, 0], [51.67, 32.65, 'أصفهان', 'Isfahan', 1000, 3000, 0],
+    [66.97, 39.65, 'سمرقند', 'Samarkand', -500, 3000, 0], [62.2, 34.35, 'هرات', 'Herat', -500, 3000, 0], [16.37, 48.21, 'فيينا', 'Vienna', 1100, 3000, 0], [20.46, 44.82, 'بلغراد', 'Belgrade', 800, 3000, 0], [23.73, 37.98, 'أثينا', 'Athens', -1400, 3000, 0],
+  ];
+  // cities inside an entity at a year (modern ISO lists when available, else geographic containment + historical names)
+  WR.citiesOf = (f, era, year, limit = 400) => {
+    if (!f) return []; const y = year != null ? year : era.y != null ? era.y : era.d ? Math.floor(era.d / 10000) : 2025;
+    const cc = ccOf(f); if (era.src !== 'hist' && cc && /^[A-Z]{3}$/.test(cc)) { const l = WR.cities(cc); if (l.length) return l.slice(0, limit).map(WR.cityRec); }
+    const b = f.bounds; const inB = (lon, lat) => { const [w, s] = b[0], [e, n] = b[1]; if (lat < s - .3 || lat > n + .3) return false; return w <= e ? lon >= w - .3 && lon <= e + .3 : lon >= w - .3 || lon <= e + .3; };
+    const inF = (lon, lat) => inB(lon, lat) && (d3.geoContains(f, [lon, lat]) || G.hit([f], [lon, lat]));
+    const verts = []; { const gm = f.geometry; const cs = gm.type === 'Polygon' ? [gm.coordinates] : gm.coordinates; for (const poly of cs) { const r = poly[0]; const st = Math.max(1, Math.floor(r.length / 400)); for (let i = 0; i < r.length; i += st) verts.push(r[i]); } }
+    // simplified snapshots can miss a coastal city by a few km: accept it when it lies in no entity and the nearest one is this
+    const nearF = (lon, lat) => { let bd = 9; for (const v of verts) { const d = d3.geoDistance(v, [lon, lat]); if (d < bd) bd = d; } if (bd > 90 / 6371) return false; const all = G.features(era, 0) || []; return !G.hit(all, [lon, lat]); };
+    const out = []; for (const h of WR.HIST_CITIES) if (y >= h[4] && y <= h[5] && (inF(h[0], h[1]) || (h[7] ? (h[7].find(o => y <= o[0]) || [])[1] === f.en : nearF(h[0], h[1])))) out.push({ key: 'H:' + h[3], n: h[3], a: h[2], lon: h[0], lat: h[1], cc: f.key, cap: h[6], rank: 0, hist: 1 });
+    const near = (p) => out.some(c => Math.abs(c.lon - p[0]) < .3 && Math.abs(c.lat - p[1]) < .3);
+    const maxRank = era.src === 'hist' ? (y < 1500 ? 3 : 5) : 8;
+    for (const p of G.places || []) { if (p[4] > maxRank || !inF(p[0], p[1]) || near(p)) continue; out.push(WR.cityRec(p)); if (out.length > limit) break; }
+    return out.sort((a, b) => (b.hist || 0) - (a.hist || 0) || b.cap - a.cap || a.rank - b.rank);
+  };
+  WR.citySearch = (q, era, year, f, limit = 8) => { const n = G.norm(q); const pool = f ? WR.citiesOf(f, era, year) : []; const sc = (s) => { const t = G.norm(s); return !t ? 0 : t === n ? 100 : t.startsWith(n) ? 70 : t.includes(n) ? 40 : 0; }; const r = pool.map(c => [Math.max(sc(c.a), sc(c.n)), c]).filter(x => x[0] || !n); if (r.length || !n) return r.sort((a, b) => b[0] - a[0]).slice(0, limit).map(x => x[1]); const y = year != null ? year : 2025; const hs = WR.HIST_CITIES.filter(h => y >= h[4] && y <= h[5] && (sc(h[2]) || sc(h[3]))).map(h => ({ key: 'H:' + h[3], n: h[3], a: h[2], lon: h[0], lat: h[1], cap: h[6], rank: 0, hist: 1 })); const ps = (G.places || []).filter(p => sc(p[2]) || sc(p[3])).sort((a, b) => a[4] - b[4]).slice(0, limit).map(WR.cityRec); return hs.concat(ps).slice(0, limit); };
+
   /* ================= campaign model ================= */
   // unit = a piece of territory: an admin-1 province (modern/cs eras), a whole country (historical eras) or a drawn region
   const models = new Map();
   function sideOf(L, id) { return (L.sides || []).find(s => s.id === id) || null; }
-  WR.model = (L, era, byKey) => {
-    const sig = era.id + '|' + JSON.stringify([L.sides, L.units, (L.events || []).map(e => [e.units, e.cities && e.cities.map(c => c.key), e.from, e.to]), L.cities, !!G.admin1, !!WR.a1topo, byKey.size]);
+  WR.model = (L, era, byKey, feats) => {
+    const grp = WR.groups(feats || G.features(era, 0)); const fOf = (k) => grp.get(k) || byKey.get(k);
+    const sig = era.id + '|' + JSON.stringify([L.sides, L.units, (L.events || []).map(e => [e.units, e.cities && e.cities.map(c => c.key + (c.r || '')), e.from, e.to, e.kind, e.line]), L.cities, !!G.admin1, !!WR.a1topo, byKey.size, grp.size]);
     let m = models.get(L.id); if (m && m.sig === sig) return m;
     m = { sig, units: new Map(), cities: new Map(), split: new Set(), customs: [] };
     const canSplit = era.src !== 'hist' && G.admin1 && WR.a1topo;
     const addU = (key, f, side, kind, name) => { if (m.units.has(key)) return m.units.get(key); const u = { key, f, side0: side, kind, name: name || (f && (f.ar || f.en)) || key, area: f ? d3.geoArea(f) : 0, lab: f ? f.lab : [0, 0], rad: f ? f.rad : 0 }; if (u.area > 2 * Math.PI) u.area = 4 * Math.PI - u.area; m.units.set(key, u); return u; };
     for (const sd of L.sides || []) for (const ck of sd.countries || []) {
-      const f = byKey.get(ck); const cc = ccOf(f) || ck; const provs = canSplit && sd.split !== 0 ? WR.provinces(cc) : [];
+      const f = fOf(ck); const cc = ccOf(f) || ck; const provs = canSplit && sd.split !== 0 ? WR.provinces(cc) : [];
       if (provs.length) { m.split.add(cc); for (const p of provs) addU(p.key, p, sd.id, 'prov'); }
       else if (f) addU(f.key, f, sd.id, 'country');
     }
@@ -109,7 +164,7 @@
     // units referenced by events but not in any side (neutral territory)
     for (const ev of L.events || []) for (const k of ev.units || []) if (!m.units.has(k)) {
       let f = null; if (k.startsWith('P:') && G.admin1) { const i = WR.a1byKey && WR.a1byKey.get(k); f = i != null ? G.admin1[i] : G.admin1.find(x => x.key === k); }
-      else f = byKey.get(k); if (f) addU(k, f, null, k.startsWith('P:') ? 'prov' : 'country');
+      else f = fOf(k); if (f) addU(k, f, null, k.startsWith('P:') ? 'prov' : 'country');
     }
     // cities: from events and the layer's extra list; initial owner = owner of the unit that contains it
     const unitAt = (ll) => { let best = null; for (const u of m.units.values()) { if (!u.f || d3.geoDistance(u.lab, ll) > u.rad + .05) continue; if (d3.geoContains(u.f, ll) && (!best || u.kind === 'custom' || u.area < best.area)) best = u; } return best; };
@@ -127,12 +182,22 @@
     const cityOwn = new Map(); for (const c of m.cities.values()) cityOwn.set(c.key, c.side0);
     const prog = [], flips = new Map(); const evs = (L.events || []).slice().sort((a, b) => a.t - b.t);
     for (const ev of evs) {
-      if (lt < ev.t) break; const dur = Math.max(.1, ev.dur || 2.5); const p = clamp((lt - ev.t) / dur, 0, 1);
-      for (const k of ev.units || []) { if (!m.units.has(k)) continue; if (p >= 1) own.set(k, ev.to); else prog.push({ u: m.units.get(k), ev, p, from: own.get(k), to: ev.to }); }
-      const tf = ev.t + dur * .55; for (const c of ev.cities || []) { if (lt >= tf) cityOwn.set(c.key, ev.to); const q = (lt - tf) / .5 + .5; if (q > 0 && q < 4) flips.set(c.key, { ev, q }); }
+      if (lt < ev.t) break; const kind = ev.kind || 'capture'; if (kind === 'battle' || kind === 'strike') continue;
+      const dur = Math.max(.1, ev.dur || 2.5); const p = clamp((lt - ev.t) / dur, 0, 1);
+      let units = ev.units || [], cities = ev.cities || [];
+      // «النصر»: the winner takes every unit and city the loser still holds when the event starts
+      if (kind === 'victory') { units = [...m.units.values()].filter(u => own.get(u.key) === ev.from).map(u => u.key); cities = [...m.cities.values()].filter(c => cityOwn.get(c.key) === ev.from); }
+      // «هدنة / تقسيم»: the loser's units on the winner's side of the drawn line change hands
+      else if (kind === 'truce') { units = ev.line && ev.line.length >= 2 ? WR.truceUnits(L, m, ev, own) : []; cities = cities.length ? cities : (ev.line && ev.line.length >= 2 ? [...m.cities.values()].filter(c => cityOwn.get(c.key) === ev.from && WR.lineSide(ev.line, [c.lon, c.lat]) === WR.lineSide(ev.line, WR.sideCentre(m, own, ev.to))) : []); }
+      for (const k of units) { if (!m.units.has(k)) continue; if (kind === 'victory' && own.get(k) !== ev.from) continue; if (p >= 1) own.set(k, ev.to); else prog.push({ u: m.units.get(k), ev, p, from: own.get(k), to: ev.to }); }
+      const tf = ev.t + dur * .55; for (const c of cities) { if (lt >= tf) cityOwn.set(c.key, ev.to); const q = (lt - tf) / .5 + .5; if (q > 0 && q < 4) flips.set(c.key, { ev, q }); }
     }
     return { own, prog, cityOwn, flips, evs };
   };
+  // truce line helpers: side of a point relative to a polyline (sign of the cross product with the nearest segment)
+  WR.lineSide = (line, p) => { let best = 0, bd = 1e9; for (let i = 0; i < line.length - 1; i++) { const a = line[i], b = line[i + 1]; const dx = b[0] - a[0], dy = b[1] - a[1]; const L2 = dx * dx + dy * dy || 1e-9; const u = clamp(((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2, 0, 1); const qx = a[0] + dx * u, qy = a[1] + dy * u; const d = (p[0] - qx) ** 2 + (p[1] - qy) ** 2; if (d < bd) { bd = d; best = Math.sign(dx * (p[1] - a[1]) - dy * (p[0] - a[0])) || 1; } } return best; };
+  WR.sideCentre = (m, own, side) => { let x = 0, y = 0, n = 0; for (const u of m.units.values()) if (own.get(u.key) === side && u.kind !== 'custom') { x += u.lab[0] * u.area; y += u.lab[1] * u.area; n += u.area; } return n ? [x / n, y / n] : [0, 0]; };
+  WR.truceUnits = (L, m, ev, own) => { const s0 = WR.lineSide(ev.line, WR.sideCentre(m, own, ev.to)); return [...m.units.values()].filter(u => own.get(u.key) === ev.from && WR.lineSide(ev.line, u.lab) === s0).map(u => u.key); };
   // where a capture wipe starts: the city, or the point of the unit nearest to the attacker's territory at that moment
   const originCache = new Map();
   function originOf(L, m, ev, u, own) {
@@ -164,7 +229,7 @@
     const camps = HK.layers.filter(x => x.Ly.type === 'campaign'); if (!camps.length) return;
     if (HK.era.src !== 'hist') WR.loadA1();
     for (const { Ly: L, s } of camps) {
-      const m = WR.model(L, HK.era, HK.byKey); const st = WR.state(L, m, s.lt); // transient, non-enumerable (scene JSON stays clean)
+      const m = WR.model(L, HK.era, HK.byKey, HK.feats); const st = WR.state(L, m, s.lt); // transient, non-enumerable (scene JSON stays clean)
       Object.defineProperty(L, '__m', { value: m, configurable: true, writable: true, enumerable: false }); Object.defineProperty(L, '__st', { value: st, configurable: true, writable: true, enumerable: false });
       const { vw, W, H, k } = HK; const oc = offCanvas(W, H); const pin = S.easeOut(s.pin); const A0 = s.a * (L.in === 'fade' ? pin : 1);
       const vis = (u) => vw.mode !== 'globe' || d3.geoDistance(u.lab, HK.nad) < HK.capR + u.rad;
@@ -174,11 +239,12 @@
         const P = new Path2D(); const gp = d3.geoPath(vw.proj, P); let any = false;
         for (const u of m.units.values()) { if (u.kind === 'custom' || !vis(u)) continue; const o = inProg.has(u.key) ? st.prog.find(x => x.u === u).from : st.own.get(u.key); if (o === sd.id) { gp(u.f); any = true; } }
         if (!any) continue; const fa = sd.fill == null ? .5 : sd.fill;
-        oc.globalAlpha = fa; oc.fillStyle = sd.color; oc.fill(P);
+        const wv = sd.pattern === 'weave' ? { scale: sd.patS, angle: sd.patR, opacity: sd.patA } : null;
+        if (wv) V.weaveFill(oc, () => oc.fill(P), sd.color, fa, k, wv); else { oc.globalAlpha = fa; oc.fillStyle = sd.color; oc.fill(P); }
         if (!WR.fast) { const ms = meshes(L, m, st); oc.save(); oc.clip(P); oc.globalAlpha = Math.min(1, fa * .9); oc.lineJoin = 'round'; oc.lineWidth = 10 * k; oc.strokeStyle = shade(sd.color, -.6); oc.filter = `blur(${(5 * k).toFixed(1)}px)`; if (ms) { oc.beginPath(); d3.geoPath(vw.proj, oc)(ms.bound[sd.id]); oc.stroke(); } else oc.stroke(P); oc.restore(); }
       }
       // 2) drawn regions (overlap their country): painter's order
-      for (const u of m.customs) { const o = inProg.has(u.key) ? st.prog.find(x => x.u === u).from : st.own.get(u.key); const sd = sideOf(L, o); if (!sd || !vis(u)) continue; const P = new Path2D(); d3.geoPath(vw.proj, P)(u.f); oc.globalCompositeOperation = 'destination-out'; oc.globalAlpha = 1; oc.fill(P); oc.globalCompositeOperation = 'source-over'; oc.globalAlpha = sd.fill == null ? .5 : sd.fill; oc.fillStyle = sd.color; oc.fill(P); }
+      for (const u of m.customs) { const o = inProg.has(u.key) ? st.prog.find(x => x.u === u).from : st.own.get(u.key); const sd = sideOf(L, o); if (!sd || !vis(u)) continue; const P = new Path2D(); d3.geoPath(vw.proj, P)(u.f); oc.globalCompositeOperation = 'destination-out'; oc.globalAlpha = 1; oc.fill(P); oc.globalCompositeOperation = 'source-over'; if (sd.pattern === 'weave') V.weaveFill(oc, () => oc.fill(P), sd.color, sd.fill == null ? .5 : sd.fill, HK.k, { scale: sd.patS, angle: sd.patR, opacity: sd.patA }); else { oc.globalAlpha = sd.fill == null ? .5 : sd.fill; oc.fillStyle = sd.color; oc.fill(P); } }
       // 3) captures in progress: radial wipe from the attacker's border (or the city)
       const edges = [];
       for (const pr of st.prog) {
@@ -187,7 +253,7 @@
         const blob = V.blob([o[0], o[1]], r, strSeed(pr.ev.id) % 97, 0, .1);
         const PU = new Path2D(); d3.geoPath(vw.proj, PU)(pr.u.f); const PB = new Path2D(); d3.geoPath(vw.proj, PB)(blob);
         oc.save(); oc.clip(PU); oc.clip(PB); oc.globalCompositeOperation = 'destination-out'; oc.globalAlpha = 1; oc.fillRect(0, 0, W, H);
-        oc.globalCompositeOperation = 'source-over'; oc.globalAlpha = sd.fill == null ? .5 : sd.fill; oc.fillStyle = sd.color; oc.fillRect(0, 0, W, H);
+        oc.globalCompositeOperation = 'source-over'; if (sd.pattern === 'weave') V.weaveFill(oc, () => oc.fillRect(0, 0, W, H), sd.color, sd.fill == null ? .5 : sd.fill, k, { scale: sd.patS, angle: sd.patR, opacity: sd.patA }); else { oc.globalAlpha = sd.fill == null ? .5 : sd.fill; oc.fillStyle = sd.color; oc.fillRect(0, 0, W, H); }
         // freshly taken ground glows briefly
         oc.globalAlpha = .22 * (1 - pr.p); oc.fillStyle = shade(sd.color, .55); oc.fillRect(0, 0, W, H); oc.restore();
         edges.push({ PU, PB, color: sd.color, p: pr.p });
@@ -196,7 +262,7 @@
       for (const c of m.cities.values()) {
         const o = st.cityOwn.get(c.key); const sd = sideOf(L, o); if (!sd) continue; const under = c.unit ? (inProg.has(c.unit) ? st.prog.find(x => x.u.key === c.unit).to : st.own.get(c.unit)) : null; if (under === o) continue;
         const fl = st.flips.get(c.key); const g0 = fl ? clamp(fl.q / 1.6, 0, 1) : 1; const sp = vw.project(c.lon, c.lat); if (!sp) continue;
-        const R = kmPx(vw, c.lon, c.lat, (L.cityR || 18) * S.easeOut(g0)); if (R < 1) continue;
+        const R = kmPx(vw, c.lon, c.lat, (c.r || L.cityR || 18) * S.easeOut(g0)); if (R < 1) continue;
         const gr = oc.createRadialGradient(sp[0], sp[1], 0, sp[0], sp[1], R); const fa = Math.min(1, (sd.fill == null ? .5 : sd.fill) + .2);
         gr.addColorStop(0, rgba(sd.color, fa)); gr.addColorStop(.62, rgba(sd.color, fa * .85)); gr.addColorStop(1, rgba(sd.color, 0));
         oc.globalAlpha = 1; oc.fillStyle = gr; oc.beginPath(); oc.arc(sp[0], sp[1], R, 0, TAU); oc.fill();
@@ -454,7 +520,11 @@
     }
   });
 
-  function evPoint(m, ev) { if (ev.cities && ev.cities.length) return [ev.cities[0].lon, ev.cities[0].lat]; const u = (ev.units || []).map(q => m.units.get(q)).find(Boolean); return u ? u.lab : null; }
+  function evPoint(m, ev) { if (ev.at) return ev.at; if (ev.cities && ev.cities.length) return [ev.cities[0].lon, ev.cities[0].lat]; const u = (ev.units || []).map(q => m.units.get(q)).find(Boolean); if (u) return u.lab; if ((ev.kind === 'victory' || ev.kind === 'truce') && ev.from) { let best = null; for (const v of m.units.values()) if (v.side0 === ev.from && (!best || v.area > best.area)) best = v; return best ? best.lab : null; } return null; }
+  // caption text of an event (chips «سقوط مدينة …»)
+  WR.evCaption = (L, m, ev) => { if (ev.text) return ev.text; const place = ev.place || (ev.cities && ev.cities.length ? ev.cities.map(c => c.a || c.n).join(' و') : (ev.units || []).map(q => m.units.get(q)).filter(Boolean).map(u => u.name).join(' و')); const k = ev.kind || 'capture';
+    if (k === 'battle') return 'معركة ' + place; if (k === 'strike') return 'قصف ' + place; if (k === 'retreat') return 'انسحاب من ' + place; if (k === 'advance') return 'تقدم نحو ' + place;
+    return ev.cities && ev.cities.length ? 'سقوط مدينة ' + place : 'السيطرة على ' + place; };
   WR.evPoint = evPoint;
   function campaignTop(HK, L, s) {
     const { g, vw, k, fam, W, H } = HK; const m = L.__m, st = L.__st; const lt = s.lt; const A0 = s.a * (L.in === 'fade' ? S.easeOut(s.pin) : 1);
@@ -484,12 +554,31 @@
     if (L.captions !== 0) for (const ev of st.evs) {
       if (ev.caption === 0) continue; const dur = Math.max(.1, ev.dur || 2.5); const a = lt - (ev.t + dur * .5); const life = 2.8; if (a < 0 || a > life) continue;
       const P = evPoint(m, ev); if (!P) continue; const sp = vw.project(P[0], P[1]); if (!sp) continue; const sd = sideOf(L, ev.to);
-      const txt = ev.text || (ev.cities && ev.cities.length ? 'سقوط مدينة ' + ev.cities.map(c => c.a || c.n).join(' و') : 'السيطرة على ' + (ev.units || []).map(q => m.units.get(q)).filter(Boolean).map(u => u.name).join(' و'));
+      if (ev.kind === 'victory' || ev.kind === 'truce') continue; const txt = WR.evCaption(L, m, ev);
       const q = Math.min(1, a / .35) * Math.min(1, (life - a) / .5); const sbr = L.__sb; let cy = sp[1] - 44 * k; if (sbr && sp[0] > sbr[0] - 160 * k && sp[0] < sbr[2] + 160 * k && cy < sbr[3] + 20 * k && cy > sbr[1] - 20 * k) cy = sp[1] + 40 * k; chip(g, sp[0], cy - 8 * k * (1 - q), txt, sd ? sd.color : '#e5243b', k, fam, A0 * q);
     }
+    // truce lines (dashed, from the event on)
+    for (const ev of st.evs) { if (ev.kind !== 'truce' || !ev.line || ev.line.length < 2) continue; const a = clamp((lt - ev.t) / .8, 0, 1); if (a <= 0) continue; const pts = V.geoLine(vw, ev.line, 0); if (pts.length < 2) continue; g.save(); g.globalAlpha = A0 * a; g.lineJoin = 'round'; g.lineCap = 'round'; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.lineWidth = 6 * k; g.strokeStyle = 'rgba(0,0,0,.5)'; g.stroke(); g.setLineDash([12 * k, 8 * k]); g.lineWidth = 3 * k; g.strokeStyle = '#f4ead0'; g.stroke(); g.setLineDash([]); const mid = pts[Math.floor(pts.length / 2)]; chip(g, mid[0], mid[1] - 26 * k, ev.lineText || 'خط الهدنة', '#f4ead0', k, fam, A0 * a); g.restore(); }
     g.restore();
     if (L.legend !== 0) scoreboard(g, L, m, st, s, W, H, k, fam);
+    // victory / truce title card «انتصار X» · «سقوط Y»
+    for (const ev of st.evs) {
+      if (ev.kind !== 'victory' && ev.kind !== 'truce') continue; if (ev.card === 0) continue; const dur = Math.max(.1, ev.dur || 3.5); const a = lt - (ev.t + dur * .55); const life = ev.cardDur || 4; if (a < 0 || (a > life && !ev.hold)) continue;
+      const win = sideOf(L, ev.to), lose = sideOf(L, ev.from); const q = Math.min(1, a / .45) * (ev.hold ? 1 : Math.min(1, (life - a) / .6));
+      const title = ev.title || (ev.kind === 'victory' ? 'انتصار ' + (win ? win.name : '') : 'هدنة'); const sub = ev.sub != null ? ev.sub : ev.kind === 'victory' ? 'سقوط ' + (lose ? lose.name : '') : (win && lose ? 'تقسيم بين ' + win.name + ' و' + lose.name : '');
+      titleCard(g, W, H, k, fam, title, sub, win ? win.color : '#e5243b', q * A0, a);
+    }
   }
+  // full-width band with a big title (scales in), accent bars in the winner's colour
+  function titleCard(g, W, H, k, fam, title, sub, color, a, age) {
+    if (a <= 0) return; const px = 64 * k, spx = 28 * k; const e = S.easeOut(clamp(age / .5, 0, 1)); const bh = (sub ? 170 : 120) * k; const y0 = H * .5 - bh / 2;
+    g.save(); g.globalAlpha = a; const gr = g.createLinearGradient(0, 0, W, 0); gr.addColorStop(0, 'rgba(8,9,12,0)'); gr.addColorStop(.18, 'rgba(8,9,12,.82)'); gr.addColorStop(.82, 'rgba(8,9,12,.82)'); gr.addColorStop(1, 'rgba(8,9,12,0)');
+    g.fillStyle = gr; g.fillRect(0, y0, W, bh); const bw = W * .56 * e; g.fillStyle = color; g.fillRect(W / 2 - bw / 2, y0, bw, 4 * k); g.fillRect(W / 2 - bw / 2, y0 + bh - 4 * k, bw, 4 * k);
+    g.translate(W / 2, y0 + (sub ? bh * .42 : bh / 2)); const sc = .86 + .14 * e; g.scale(sc, sc);
+    V.haloText(g, title, 0, 0, px, '#ffffff', 'soft', fam, 800); if (sub) V.haloText(g, sub, 0, 64 * k, spx, shade(color, .55), 'soft', fam, 700);
+    g.restore();
+  }
+  WR.titleCard = titleCard;
   function drawFlag(g, x, y, h, col, ph, k) {
     g.save(); g.lineCap = 'round'; g.strokeStyle = 'rgba(20,16,12,.9)'; g.lineWidth = 1.6 * k; g.beginPath(); g.moveTo(x, y); g.lineTo(x, y - h); g.stroke();
     const w = h * .7, fh = h * .42; g.beginPath(); const n = 6; for (let i = 0; i <= n; i++) { const f = i / n; g.lineTo(x + w * f, y - h + Math.sin(ph * 6 + f * 4) * 1.4 * k * f); } for (let i = n; i >= 0; i--) { const f = i / n; g.lineTo(x + w * f, y - h + fh + Math.sin(ph * 6 + f * 4) * 1.4 * k * f); } g.closePath();
@@ -497,7 +586,7 @@
   }
   // live control panel: contested territory share and cities held, per faction
   WR.score = (L, m, st) => {
-    const lost = new Set(); for (const ev of L.events || []) for (const q of ev.units || []) { const u = m.units.get(q); if (u && u.side0 != null) lost.add(u.side0); }
+    const lost = new Set(); for (const ev of L.events || []) { for (const q of ev.units || []) { const u = m.units.get(q); if (u && u.side0 != null) lost.add(u.side0); } if ((ev.kind === 'victory' || ev.kind === 'truce') && ev.from) lost.add(ev.from); }
     const base = [...m.units.values()].filter(u => u.kind !== 'custom' && (lost.size ? lost.has(u.side0) : true)); let tot = 0; for (const u of base) tot += u.area; tot = tot || 1;
     const out = {}; for (const sd of L.sides || []) out[sd.id] = { pct: 0, cities: 0 };
     for (const u of base) { const pr = st.prog.find(x => x.u === u); if (pr) { const f = S.ease(pr.p); if (out[pr.from]) out[pr.from].pct += u.area * (1 - f); if (out[pr.to]) out[pr.to].pct += u.area * f; } else { const o = st.own.get(u.key); if (out[o]) out[o].pct += u.area; } }
@@ -534,11 +623,13 @@
   // one camera move per event: frame the captured ground shortly before it falls, then hold
   WR.cameraKeys = (L, scn, o = {}) => {
     const era = G.era(GW.pv(scn.year, 0), scn.eraMode); const fs = G.features(era, 0) || []; const byKey = new Map(fs.map(f => [f.key, f]));
-    const m = WR.model(L, era, byKey); const keys = []; const st0 = L.start || 0; const tilt = o.tilt == null ? 18 : o.tilt;
+    const m = WR.model(L, era, byKey, fs); const keys = []; const st0 = L.start || 0; const tilt = o.tilt == null ? 18 : o.tilt;
     const zMax = o.zMax || 7.2;
     for (const ev of (L.events || []).slice().sort((a, b) => a.t - b.t)) {
       const us = (ev.units || []).map(q => m.units.get(q)).filter(Boolean); let b = null;
-      const pts = []; for (const u of us) { const bb = d3.geoBounds(u.f); pts.push(bb[0], bb[1]); } for (const c of ev.cities || []) pts.push([c.lon - .6, c.lat - .4], [c.lon + .6, c.lat + .4]);
+      const pts = []; for (const u of us) { const bb = d3.geoBounds(u.f); pts.push(bb[0], bb[1]); } for (const c of ev.cities || []) { const dd = Math.max(.6, (c.r || 0) / 60); pts.push([c.lon - dd, c.lat - dd * .7], [c.lon + dd, c.lat + dd * .7]); } if (ev.at) pts.push([ev.at[0] - .8, ev.at[1] - .5], [ev.at[0] + .8, ev.at[1] + .5]);
+      if (ev.kind === 'victory' || ev.kind === 'truce') for (const u of m.units.values()) if (u.kind !== 'custom' && (u.side0 === ev.from || u.side0 === ev.to)) { const bb = d3.geoBounds(u.f); pts.push(bb[0], bb[1]); }
+      if (ev.line) for (const p of ev.line) pts.push(p);
       if (!pts.length) continue; b = d3.geoBounds({ type: 'MultiPoint', coordinates: pts });
       const f = Cm.fit(b, tilt, 0, o.frac || .42); f.zoom = Math.min(zMax, f.zoom);
       keys.push({ t: st0 + Math.max(0, ev.t - (o.lead == null ? .9 : o.lead)), lon: f.lon, lat: f.lat, zoom: f.zoom, tilt });
@@ -591,6 +682,47 @@
     const wide = Cm.fit(wideB, 0, 0, .78);
     return { layer: L, year, era, dur, wide, nA, nB, FA, FB, focus: FB.lab };
   };
+  /* ================= war wizard «حرب بين دولتين» (any era) ================= */
+  // o: {year, eraMode, a:{key, name, color}, b:{...}, events:[{kind, city:{…rec}, units:[], r, text}], withProv, cityR, legendPos}
+  WR.EV_KINDS = { capture: { ar: 'سيطرة على مدينة', dur: 2.6, fx: 'clash' }, region: { ar: 'سيطرة على منطقة', dur: 2.8, fx: 'none' }, battle: { ar: 'معركة', dur: 3, fx: 'clash' }, advance: { ar: 'تقدم الجبهة', dur: 3, fx: 'none' },
+    strike: { ar: 'قصف', dur: 3, fx: 'strike' }, retreat: { ar: 'انسحاب', dur: 2.6, fx: 'none' }, victory: { ar: 'النصر', dur: 3.8, fx: 'none' }, truce: { ar: 'هدنة / تقسيم', dur: 3, fx: 'none' } };
+  WR.buildCampaign = async (o) => {
+    await G.load(); const year = +o.year || 2024; const era = G.era(year, o.eraMode || 'auto'); await G.ensureEra(era, 0); if (era.src !== 'hist') await WR.loadA1();
+    const grp = WR.groups(G.features(era, 0)); const FA = grp.get(o.a && o.a.key), FB = grp.get(o.b && o.b.key);
+    if (!FA || !FB) throw new Error('اختر الطرفين من دول هذا العصر'); const nA = (o.a.name || G.name(FA, 'ar', era)), nB = (o.b.name || G.name(FB, 'ar', era));
+    const sides = [{ id: 'a', name: nA, color: o.a.color || PALS[0][0], countries: [FA.key], fill: .5, border: 'solid' }, { id: 'b', name: nB, color: o.b.color || PALS[0][1], countries: [FB.key], fill: .45, border: 'solid' }];
+    const canProv = era.src !== 'hist' && G.admin1; const provOf = (c) => { if (!canProv) return null; const cc = ccOf(FB); const p = WR.provinces(cc).find(f => d3.geoContains(f, [c.lon, c.lat])); return p ? p.key : null; };
+    const evs = []; let t = 2.2; const units = [];
+    for (const e0 of o.events || []) {
+      const K = WR.EV_KINDS[e0.kind] || WR.EV_KINDS.capture; const ev = { id: GW.uid(), t: +t.toFixed(2), dur: e0.dur || K.dur, from: 'b', to: 'a', origin: 'border', fx: e0.fx || K.fx, caption: 1, units: [], cities: [] };
+      const city = e0.city ? Object.assign({}, e0.city) : null; if (city && e0.r) city.r = +e0.r;
+      if (e0.kind === 'capture' || e0.kind === 'advance' || e0.kind === 'retreat' || !e0.kind) { if (city) { if (!city.r && era.src === 'hist') city.r = o.cityR || 45; ev.cities = [city]; const pk = o.withProv !== 0 && e0.kind !== 'retreat' ? provOf(city) : null; if (pk) ev.units = [pk]; } if (e0.units) ev.units = ev.units.concat(e0.units); if (e0.kind === 'advance') ev.kind = 'advance'; }
+      if (e0.kind === 'region') { ev.units = (e0.units || []).slice(); if (e0.pts && e0.pts.length >= 3) { const id = GW.uid(); units.push({ id, name: e0.place || 'منطقة', pts: e0.pts, side: 'b' }); ev.units.push('U:' + id); } if (!ev.units.length && city) { city.r = e0.r || (o.cityR || 45) * 2.2; ev.cities = [city]; } ev.place = e0.place || (city && city.a); }
+      if (e0.kind === 'retreat') { ev.from = 'a'; ev.to = 'b'; ev.kind = 'retreat'; }
+      if (e0.kind === 'battle' || e0.kind === 'strike') { ev.kind = e0.kind; if (city) { ev.at = [city.lon, city.lat]; ev.place = city.a || city.n; } }
+      if (e0.kind === 'victory') { ev.kind = 'victory'; if (e0.title) ev.title = e0.title; if (e0.sub != null) ev.sub = e0.sub; ev.caption = 0; }
+      if (e0.kind === 'truce') { ev.kind = 'truce'; ev.line = e0.line || []; ev.caption = 0; }
+      if (e0.text) ev.text = e0.text; if (e0.shake) ev.shake = 1;
+      evs.push(ev); t += ev.dur + (ev.kind === 'victory' || ev.kind === 'truce' ? 4.6 : 1.1);
+    }
+    const dur = Math.max(8, Math.ceil(t + 1.2));
+    const cities = []; const capOf = (F) => (WR.citiesOf(F, era, year, 60).find(c => c.cap) || null); const cB = capOf(FB), cA = capOf(FA); if (cA) cities.push(cA); if (cB && (!cA || cB.key !== cA.key)) cities.push(cB);
+    const L = S.newLayer('campaign', { name: 'حرب: ' + nA + ' – ' + nB, sides, events: evs, cities, units, start: 0, cityR: o.cityR || (era.src === 'hist' ? 45 : 18), legendPos: o.legendPos || 'tl' });
+    const focusB = []; for (const e of evs) { for (const c of e.cities) focusB.push([c.lon, c.lat]); if (e.at) focusB.push(e.at); }
+    const big = FA.rad > .35 || FB.rad > .35; const pts = big && focusB.length ? focusB.concat([FB.lab]) : [FA.bounds[0], FA.bounds[1], FB.bounds[0], FB.bounds[1]];
+    const wide = Cm.fit(d3.geoBounds({ type: 'MultiPoint', coordinates: pts }), 0, 0, big ? .55 : .78); if (big) wide.zoom = Math.min(wide.zoom, 6.2);
+    return { layer: L, year, era, dur, wide, nA, nB, FA, FB, focus: FB.lab };
+  };
+  // suggested course of a war: the defender's cities nearest the attacker, then victory
+  WR.suggestEvents = (era, year, aKey, bKey, n = 3) => {
+    const grp = WR.groups(G.features(era, 0)); const FA = grp.get(aKey), FB = grp.get(bKey); if (!FA || !FB) return [];
+    const va = []; { const gg = FA.geometry; const cs = gg.type === 'Polygon' ? [gg.coordinates] : gg.coordinates; for (const poly of cs) { const r = poly[0]; const st = Math.max(1, Math.floor(r.length / 300)); for (let i = 0; i < r.length; i += st) va.push(r[i]); } }
+    const d = (c) => { let bd = 9; for (const p of va) { const x = d3.geoDistance(p, [c.lon, c.lat]); if (x < bd) bd = x; } return bd; };
+    const cs = WR.citiesOf(FB, era, year, 120).map(c => ({ c, d: d(c) - (c.cap ? .05 : 0) })).sort((x, y) => x.d - y.d);
+    const out = []; for (const x of cs) { if (out.length >= n) break; if (out.some(e => d3.geoDistance([e.city.lon, e.city.lat], [x.c.lon, x.c.lat]) < .02)) continue; out.push({ kind: 'capture', city: x.c }); }
+    const cap = cs.find(x => x.c.cap); if (cap && !out.some(e => e.city.key === cap.c.key)) out.push({ kind: 'capture', city: cap.c });
+    out.push({ kind: 'victory' }); return out;
+  };
   WR.cameraForWar = (scn, L, wide, dur, o2) => {
     const keys = [{ t: 0, lon: wide.lon, lat: wide.lat, zoom: wide.zoom - .35, tilt: 0 }, { t: 1.6, lon: wide.lon, lat: wide.lat, zoom: wide.zoom, tilt: 8 }];
     const cB = o2 && o2.focus || [wide.lon, wide.lat]; for (const kk of WR.cameraKeys(L, scn, { frac: .4, zMax: wide.zoom + 1.1, tilt: 18 })) if (kk.t > 1.8 && kk.t < dur - 1.6) { kk.lon = kk.lon * .72 + cB[0] * .28; kk.lat = kk.lat * .72 + cB[1] * .28; keys.push(kk); }
@@ -604,80 +736,180 @@
     return Ly.bannerC || Ly.ring || '#5b6b3a';
   }
   WR.bannerColor = bannerColor;
+  // woven fabric texture (threads + slubs), cached tile used as an overlay on the cloth
+  let weave = null;
+  const weaveTile = () => {
+    if (weave) return weave; const c = document.createElement('canvas'); c.width = c.height = 48; const q = c.getContext('2d');
+    for (let y = 0; y < 48; y++) for (let x = 0; x < 48; x++) { const warp = (x % 3 === 0) ? 1 : 0, weft = (y % 3 === 0) ? 1 : 0; const v = 128 + (warp ? 34 : -6) + (weft ? -28 : 6) + (rnd(x, y, 7) - .5) * 36 + (rnd(x >> 3, y, 9) > .93 ? 26 : 0); q.fillStyle = `rgb(${v | 0},${v | 0},${v | 0})`; q.fillRect(x, y, 1, 1); }
+    weave = c; return c;
+  };
+  const brassG = (g, x0, y0, x1, y1) => { const gr = g.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, '#f6e1a0'); gr.addColorStop(.35, '#d7ad5a'); gr.addColorStop(.6, '#a87a32'); gr.addColorStop(.82, '#e4c47c'); gr.addColorStop(1, '#6e4e1d'); return gr; };
+  WR.brassG = brassG;
+  // parchment ribbon with the name (folded ends, gold edges) — shared by the banner and the portrait frames
+  WR.ribbon = (g, Ly, y, minW, sz, fam, q) => {
+    const nm = String(Ly.name || ''); if (!nm && !Ly.sub) return 0; const ar = isAr(nm); const fpx = (ar ? 15 : 11.5) * sz; const ffam = ar ? (/thmanyah/.test(fam) ? fam : 'Amiri') : 'Amiri';
+    g.save(); g.font = V.font(fpx, 700, ffam); if ('letterSpacing' in g) g.letterSpacing = ar ? '0px' : (fpx * .14).toFixed(1) + 'px'; const tw = g.measureText(ar ? nm : nm.toUpperCase()).width; if ('letterSpacing' in g) g.letterSpacing = '0px'; g.restore();
+    const rw = Math.max(minW, tw + 30 * sz) / 2, rh = 11.5 * sz; g.save(); g.globalAlpha *= q == null ? 1 : q;
+    if (nm) {
+      for (const sg of [-1, 1]) { // folded tails: back fold (dark) then the tail
+        g.fillStyle = '#6f5a35'; g.beginPath(); g.moveTo(sg * rw * .9, ry(y, rh, -.62)); g.lineTo(sg * (rw + 3 * sz), y - rh * .2); g.lineTo(sg * rw * .9, y + rh * .9); g.closePath(); g.fill();
+        const tg = g.createLinearGradient(0, y - rh, 0, y + rh); tg.addColorStop(0, '#cdb688'); tg.addColorStop(1, '#8f7748'); g.fillStyle = tg;
+        g.beginPath(); g.moveTo(sg * (rw + 2 * sz), y - rh * .5); g.lineTo(sg * (rw + 13 * sz), y - rh * .25); g.lineTo(sg * (rw + 7 * sz), y + rh * .35); g.lineTo(sg * (rw + 13 * sz), y + rh * 1.05); g.lineTo(sg * (rw + 2 * sz), y + rh * .9); g.closePath(); g.fill();
+      }
+      const pr = g.createLinearGradient(0, y - rh, 0, y + rh); pr.addColorStop(0, '#f4ead0'); pr.addColorStop(.5, '#e2cfa2'); pr.addColorStop(1, '#bba070');
+      g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 7 * sz; g.shadowOffsetY = 2 * sz; g.fillStyle = pr;
+      g.beginPath(); g.moveTo(-rw, y - rh); g.quadraticCurveTo(0, y - rh - 3.5 * sz, rw, y - rh); g.lineTo(rw, y + rh); g.quadraticCurveTo(0, y + rh - 3.5 * sz, -rw, y + rh); g.closePath(); g.fill(); g.shadowBlur = 0; g.shadowOffsetY = 0;
+      g.save(); g.clip(); g.globalAlpha *= .1; g.fillStyle = g.createPattern(weaveTile(), 'repeat'); g.fillRect(-rw, y - rh - 4 * sz, rw * 2, rh * 2 + 8 * sz); g.restore();
+      g.lineWidth = .9 * sz; g.strokeStyle = 'rgba(176,132,58,.95)'; for (const e of [-1, 1]) { g.beginPath(); g.moveTo(-rw + 3 * sz, y + e * (rh - 2.6 * sz) - 1.6 * sz); g.quadraticCurveTo(0, y + e * (rh - 2.6 * sz) - 5 * sz, rw - 3 * sz, y + e * (rh - 2.6 * sz) - 1.6 * sz); g.stroke(); }
+      g.fillStyle = '#2c2114'; g.font = V.font(fpx, 700, ffam); g.textAlign = 'center'; g.textBaseline = 'middle'; g.direction = ar ? 'rtl' : 'ltr'; if ('letterSpacing' in g) g.letterSpacing = ar ? '0px' : (fpx * .14).toFixed(1) + 'px';
+      g.fillStyle = 'rgba(255,248,226,.55)'; g.fillText(ar ? nm : nm.toUpperCase(), 0, y - 1.2 * sz + .8 * sz); g.fillStyle = '#2c2114'; g.fillText(ar ? nm : nm.toUpperCase(), 0, y - 1.2 * sz); if ('letterSpacing' in g) g.letterSpacing = '0px';
+    }
+    if (Ly.sub) V.haloText(g, Ly.sub, 0, y + rh + 11 * sz, 10.5 * sz, '#efe6d0', 'soft', ar ? fam : 'Amiri', 700);
+    g.restore(); return rh * 2 + (Ly.sub ? 20 * sz : 0);
+  };
+  const ry = (y, rh, f) => y + rh * f;
   V.banner = (g, sc, Ly, sp, s, k, fam) => {
     const sz = (Ly.size || 1) * (Ly.scale == null ? 1 : Ly.scale) * k; const lt = s.lt; const seed = strSeed(Ly.id) % 100;
     const bw = 112 * sz, bh = 150 * sz, poleH0 = 220 * sz; const a = s.a * Math.min(1, s.pin * 3);
     // stacking: a banner whose cloth would cover an earlier one hangs lower and leans away
     let poleH = poleH0, lean = 0; const box = () => [sp[0] + lean - bw * .6, sp[1] - poleH - 10 * sz, sp[0] + lean + bw * .6, sp[1] - poleH + bh + 34 * sz];
-    // hangs a little lower and leans away (pole planted at its own point), allowing a graceful partial overlap
     for (let it = 0; it < 4; it++) { const bx = box(); const hit = (WR.banners || []).find(q => bx[0] < q[2] - bw * .3 && bx[2] > q[0] + bw * .3 && bx[1] < q[3] && bx[3] > q[1]); if (!hit) break; poleH = poleH0 - bh * .3; const dir = sp[0] + lean >= (hit[0] + hit[2]) / 2 ? 1 : -1; const need = dir > 0 ? hit[2] - bx[0] : bx[2] - hit[0]; lean += dir * Math.max(4 * sz, need - bw * .3 + 2 * sz); }
     (WR.banners = WR.banners || []).push(box());
     const raise = S.easeOut(clamp(s.pin * 1.8, 0, 1)), unroll = S.ease(clamp((s.pin - .35) / .65, 0, 1));
-    const col = bannerColor(sc, Ly); const cloth = mix(mix(col, '#3b3f2a', .38), '#1b1a17', .12); const dark = shade(cloth, -.45), light = shade(cloth, .18);
+    const col = bannerColor(sc, Ly); const cloth = mix(mix(col, '#2f3324', .28), '#1b1a17', .08); const dark = shade(cloth, -.5), light = shade(cloth, .26);
     const top = [sp[0] + lean, sp[1] - poleH * raise];
     g.save(); g.globalAlpha = a;
-    // ground: soft contact shadow + ring
     g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(sp[0], sp[1], 9 * sz, 3.6 * sz, 0, 0, TAU); g.fill();
     g.strokeStyle = rgba(col, .9); g.lineWidth = 1.6 * sz; g.beginPath(); g.ellipse(sp[0], sp[1], 6.5 * sz, 2.6 * sz, 0, 0, TAU); g.stroke();
-    // pole (dark wood, lit from the left)
-    const pg0 = g.createLinearGradient(sp[0] - 3 * sz, 0, sp[0] + 3 * sz, 0); pg0.addColorStop(0, '#6b5238'); pg0.addColorStop(.5, '#3e2d1e'); pg0.addColorStop(1, '#22180f');
-    g.strokeStyle = pg0; g.lineWidth = 3.2 * sz; g.lineCap = 'round'; g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 6 * sz; g.beginPath(); g.moveTo(sp[0], sp[1]); g.lineTo(top[0], top[1]); g.stroke(); g.shadowBlur = 0;
+    const pg0 = g.createLinearGradient(sp[0] - 3 * sz, 0, sp[0] + 3 * sz, 0); pg0.addColorStop(0, '#7a5e40'); pg0.addColorStop(.45, '#4a3624'); pg0.addColorStop(1, '#22180f');
+    g.strokeStyle = pg0; g.lineWidth = 3.4 * sz; g.lineCap = 'round'; g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 6 * sz; g.beginPath(); g.moveTo(sp[0], sp[1]); g.lineTo(top[0], top[1]); g.stroke(); g.shadowBlur = 0;
     if (raise < .98) { g.restore(); return; }
-    // sway about the pole top
-    const sway = Math.sin(lt * 1.15 + seed) * .018 + Math.sin(lt * 2.3 + seed * 2) * .006;
+    // wind: a slow gust envelope drives the sway, the hem lift and the ripples travelling down the cloth
+    const gust = .55 + .45 * Math.sin(lt * .37 + seed) * Math.sin(lt * .23 + seed * .7);
+    const sway = (Math.sin(lt * 1.15 + seed) * .018 + Math.sin(lt * 2.3 + seed * 2) * .006) * (.7 + .6 * gust);
     g.translate(top[0], top[1] + 6 * sz); g.rotate(sway);
-    // finial: brass crescent-blade above the crossbar
-    const brass = (x0, y0, x1, y1) => { const gr = g.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, '#f1d58f'); gr.addColorStop(.5, '#b8893e'); gr.addColorStop(1, '#6e4e1d'); return gr; };
-    g.fillStyle = brass(-4 * sz, -20 * sz, 4 * sz, -6 * sz); g.beginPath(); g.moveTo(0, -22 * sz); g.quadraticCurveTo(5.5 * sz, -13 * sz, 0, -6 * sz); g.quadraticCurveTo(-5.5 * sz, -13 * sz, 0, -22 * sz); g.fill();
-    g.beginPath(); g.arc(0, -5 * sz, 2.6 * sz, 0, TAU); g.fill();
-    // crossbar with ring finials
-    const cbw = bw * .62 + 10 * sz; g.fillStyle = brass(0, -3 * sz, 0, 3 * sz); g.beginPath(); if (g.roundRect) g.roundRect(-cbw, -2.2 * sz, cbw * 2, 4.4 * sz, 2 * sz); else g.rect(-cbw, -2.2 * sz, cbw * 2, 4.4 * sz); g.fill();
-    for (const sg of [-1, 1]) { g.beginPath(); g.arc(sg * (cbw + 2.5 * sz), 0, 3.4 * sz, 0, TAU); g.lineWidth = 1.8 * sz; g.strokeStyle = '#c99a4a'; g.stroke(); }
-    // cloth: waving edges, swallow-tail hem, unrolls downward
-    const H = bh * unroll; const ww = bw / 2; const wave = (y, side) => Math.sin(lt * 2.2 + y / (14 * sz) + side * .7 + seed) * 2.1 * sz * (y / bh);
+    // finial: brass crescent-blade + collar
+    g.fillStyle = brassG(g, -5 * sz, -22 * sz, 5 * sz, -4 * sz); g.beginPath(); g.moveTo(0, -23 * sz); g.quadraticCurveTo(6 * sz, -13 * sz, 0, -6 * sz); g.quadraticCurveTo(-6 * sz, -13 * sz, 0, -23 * sz); g.fill();
+    g.beginPath(); g.arc(0, -5 * sz, 2.8 * sz, 0, TAU); g.fill(); g.fillRect(-2.2 * sz, -3.4 * sz, 4.4 * sz, 3 * sz);
+    const cbw = bw * .62 + 10 * sz; g.fillStyle = brassG(g, 0, -3 * sz, 0, 3 * sz); g.beginPath(); if (g.roundRect) g.roundRect(-cbw, -2.3 * sz, cbw * 2, 4.6 * sz, 2.2 * sz); else g.rect(-cbw, -2.3 * sz, cbw * 2, 4.6 * sz); g.fill();
+    for (const sg of [-1, 1]) { g.beginPath(); g.arc(sg * (cbw + 3 * sz), 0, 3.6 * sz, 0, TAU); g.fillStyle = brassG(g, sg * cbw, -4 * sz, sg * cbw, 4 * sz); g.fill(); g.beginPath(); g.arc(sg * (cbw + 3 * sz), 0, 1.4 * sz, 0, TAU); g.fillStyle = '#4b3514'; g.fill(); }
+    // cloth geometry
+    const H = bh * unroll; const ww = bw / 2;
+    const wave = (y, side) => { const f = y / bh; return (Math.sin(lt * 2.4 - y / (15 * sz) + side * .7 + seed) * 2.3 * sz + Math.sin(lt * 4.1 - y / (7 * sz) + seed * 1.3) * .7 * sz) * f * (.6 + .6 * gust); };
+    const drift = (y) => Math.sin(lt * 1.3 + seed) * 4.5 * sz * Math.pow(y / bh, 1.6) * gust; // the free hem drifts with the wind
     if (H > 2) {
-      const P = new Path2D(); const n = 12; P.moveTo(-ww, 3 * sz);
-      for (let i = 0; i <= n; i++) { const y = 3 * sz + H * i / n; P.lineTo(-ww + wave(y, -1), y); }
-      const notch = Math.min(H * .2, 26 * sz) * unroll; P.lineTo(-ww * .02 + wave(H, 0), H + 3 * sz - notch); // swallow-tail: two tails, notch in the middle
-      for (let i = n; i >= 0; i--) { const y = 3 * sz + H * i / n; if (i === n) P.lineTo(ww + wave(y, 1), y); else P.lineTo(ww + wave(y, 1), y); }
+      const P = new Path2D(); const n = 16; P.moveTo(-ww, 3 * sz);
+      for (let i = 0; i <= n; i++) { const y = 3 * sz + H * i / n; P.lineTo(-ww + wave(y, -1) + drift(y), y); }
+      const notch = Math.min(H * .2, 26 * sz) * unroll; P.lineTo(-ww * .02 + wave(H, 0) + drift(H), H + 3 * sz - notch);
+      for (let i = n; i >= 0; i--) { const y = 3 * sz + H * i / n; P.lineTo(ww + wave(y, 1) + drift(y), y); }
       P.closePath();
       g.save(); g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 14 * sz; g.shadowOffsetY = 4 * sz; g.fillStyle = cloth; g.fill(P); g.restore();
-      // folds: vertical light/dark bands drifting with the wave
-      g.save(); g.clip(P); const fg = g.createLinearGradient(-ww, 0, ww, 0); for (let i = 0; i <= 8; i++) { const f = i / 8; const v = Math.sin(f * 9 + lt * 1.6 + seed) * .5 + .5; fg.addColorStop(f, v > .5 ? rgba(light, (v - .5) * .5) : rgba(dark, (.5 - v) * .6)); } g.fillStyle = fg; g.fillRect(-ww - 5 * sz, 0, bw + 10 * sz, H + 10 * sz);
-      const vg = g.createLinearGradient(0, 0, 0, H); vg.addColorStop(0, 'rgba(0,0,0,.35)'); vg.addColorStop(.12, 'rgba(0,0,0,0)'); vg.addColorStop(.8, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.3)'); g.fillStyle = vg; g.fillRect(-ww - 5 * sz, 0, bw + 10 * sz, H + 10 * sz);
-      // darker selvedge + inner gold piping
-      g.lineJoin = 'round'; g.lineWidth = 5 * sz; g.strokeStyle = rgba(dark, .75); g.stroke(P);
-      g.restore(); g.save(); g.lineWidth = .9 * sz; g.strokeStyle = 'rgba(214,176,98,.75)'; g.setLineDash([]); g.translate(0, 0); g.scale(.86, .9); g.translate(0, 4 * sz); g.stroke(P); g.restore();
-      // portrait window: arch-topped, desaturated, vignette, thin gold frame
+      g.save(); g.clip(P);
+      // folds: vertical light/dark bands drifting with the wave (cloth lit from the upper left)
+      const fg = g.createLinearGradient(-ww, 0, ww, 0); for (let i = 0; i <= 10; i++) { const f = i / 10; const v = Math.sin(f * 10 + lt * 1.7 + seed) * .5 + .5; const lit = .25 * (1 - f); fg.addColorStop(f, v > .5 ? rgba(light, (v - .5) * .55 + lit * .4) : rgba(dark, (.5 - v) * .7)); } g.fillStyle = fg; g.fillRect(-ww - 8 * sz, 0, bw + 16 * sz, H + 12 * sz);
+      // diagonal ripples travelling down (wind)
+      for (let r = 0; r < 3; r++) { const yy = ((lt * 22 * sz + r * bh / 3 + seed * 3) % (bh * 1.2)) - bh * .1; const rg = g.createLinearGradient(0, yy - 14 * sz, 0, yy + 14 * sz); rg.addColorStop(0, 'rgba(255,255,255,0)'); rg.addColorStop(.5, rgba(light, .16 * gust)); rg.addColorStop(1, 'rgba(0,0,0,0)'); g.save(); g.transform(1, 0, -.35, 1, 0, 0); g.fillStyle = rg; g.fillRect(-ww - 30 * sz, yy - 14 * sz, bw + 60 * sz, 28 * sz); g.restore(); }
+      // fabric weave + sheen + top/bottom shading
+      if (!WR.fast) { g.save(); g.globalCompositeOperation = 'overlay'; g.globalAlpha = .38; g.fillStyle = g.createPattern(weaveTile(), 'repeat'); g.scale(sz * .9, sz * .9); g.fillRect(-ww / (sz * .9) - 10, 0, bw / (sz * .9) + 20, H / (sz * .9) + 10); g.restore(); }
+      const sh = g.createLinearGradient(-ww, 0, ww * .4, H); sh.addColorStop(0, 'rgba(255,240,210,.14)'); sh.addColorStop(.45, 'rgba(255,240,210,0)'); g.fillStyle = sh; g.fillRect(-ww - 5 * sz, 0, bw + 10 * sz, H + 10 * sz);
+      const vg = g.createLinearGradient(0, 0, 0, H); vg.addColorStop(0, 'rgba(0,0,0,.42)'); vg.addColorStop(.1, 'rgba(0,0,0,0)'); vg.addColorStop(.78, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.34)'); g.fillStyle = vg; g.fillRect(-ww - 5 * sz, 0, bw + 10 * sz, H + 10 * sz);
+      g.lineJoin = 'round'; g.lineWidth = 6 * sz; g.strokeStyle = rgba(dark, .8); g.stroke(P);
+      g.restore();
+      // gold trim: double piping inside the edge
+      g.save(); g.lineJoin = 'round'; g.translate(0, 4 * sz); g.scale(.87, .9); g.lineWidth = 1.6 * sz; g.strokeStyle = 'rgba(120,84,30,.75)'; g.stroke(P); g.lineWidth = 1.1 * sz; g.strokeStyle = brassG(g, -ww, 0, ww, H); g.stroke(P); g.restore();
+      g.save(); g.translate(0, 6 * sz); g.scale(.8, .86); g.lineWidth = .6 * sz; g.strokeStyle = 'rgba(232,200,120,.55)'; g.stroke(P); g.restore();
+      // fringe on the swallow-tail hem (tassels swing with the wind)
+      if (unroll > .9) { g.save(); g.globalAlpha *= clamp((unroll - .9) / .1, 0, 1); g.lineCap = 'round';
+        const hem = (f) => { const x = -ww + f * bw; const yb = H + 3 * sz - notch * (1 - Math.abs(f - .5) * 2); return [x + wave(H, f * 2 - 1) + drift(H), yb]; };
+        for (let i = 0; i <= 22; i++) { const f = i / 22; const [x, y] = hem(f); const sw = Math.sin(lt * 3 + i * .7 + seed) * 1.6 * sz * gust; g.strokeStyle = i % 2 ? '#c99a4a' : '#e8c87a'; g.lineWidth = 1.1 * sz; g.beginPath(); g.moveTo(x, y - 1 * sz); g.lineTo(x + sw, y + 7 * sz); g.stroke(); }
+        g.restore(); }
+      // portrait window: arch-topped, crop-aware, desaturated, vignette, double gold frame with a keystone
       const pw = bw * .66, ph = pw * 1.12, px0 = -pw / 2, py0 = 12 * sz;
       if (H > py0 + 8 * sz) {
         const win = new Path2D(); win.moveTo(px0, py0 + ph); win.lineTo(px0, py0 + pw / 2); win.arc(0, py0 + pw / 2, pw / 2, Math.PI, 0); win.lineTo(px0 + pw, py0 + ph); win.closePath();
         g.save(); g.beginPath(); g.rect(-ww - 10 * sz, 0, bw + 20 * sz, H); g.clip(); g.save(); g.clip(win); g.fillStyle = '#1d1c19'; g.fillRect(px0, py0, pw, ph);
         const im = V.img(sc, Ly.img);
-        if (im) { if (!WR.fast) g.filter = 'saturate(.72) contrast(1.06) sepia(.12)'; const ar = im.naturalWidth / im.naturalHeight; const w = ar > pw / ph ? ph * ar : pw, h = ar > pw / ph ? ph : pw / ar; g.drawImage(im, -w / 2, py0 + (ph - h) * .3, w, h); g.filter = 'none'; }
+        if (im) { if (!WR.fast) g.filter = 'saturate(.72) contrast(1.06) sepia(.12)'; V.drawCrop(g, im, Ly.crop, px0, py0, pw, ph, .3); g.filter = 'none'; }
         else { g.fillStyle = 'rgba(240,230,210,.28)'; g.beginPath(); g.arc(0, py0 + ph * .42, pw * .2, 0, TAU); g.fill(); g.beginPath(); g.ellipse(0, py0 + ph * .95, pw * .36, ph * .26, 0, Math.PI, 0); g.fill(); }
         const vgn = g.createRadialGradient(0, py0 + ph * .45, pw * .2, 0, py0 + ph * .5, pw * .85); vgn.addColorStop(0, 'rgba(0,0,0,0)'); vgn.addColorStop(1, 'rgba(10,8,4,.62)'); g.fillStyle = vgn; g.fillRect(px0, py0, pw, ph); g.restore();
-        g.lineWidth = 1.6 * sz; g.strokeStyle = '#d4b06a'; g.stroke(win); g.restore();
-      }
-      // parchment ribbon with the name, folded ends, across the lower cloth
-      const ry = Math.min(H - 6 * sz, py0 + ph + 13 * sz);
-      if (unroll > .85 && (Ly.name || Ly.sub)) {
-        const nm = String(Ly.name || ''); const ar = isAr(nm); const fpx = (ar ? 15 : 11.5) * sz; const ffam = ar ? (/thmanyah/.test(fam) ? fam : 'Amiri') : 'Amiri';
-        g.save(); g.font = V.font(fpx, 700, ffam); if ('letterSpacing' in g) g.letterSpacing = ar ? '0px' : (fpx * .14).toFixed(1) + 'px'; const tw = g.measureText(ar ? nm : nm.toUpperCase()).width; if ('letterSpacing' in g) g.letterSpacing = '0px'; g.restore();
-        const rw = Math.max(bw * .95, tw + 26 * sz) / 2, rh = 11 * sz; const q = clamp((unroll - .85) / .15, 0, 1);
-        g.save(); g.globalAlpha *= q;
-        for (const sg of [-1, 1]) { g.fillStyle = '#9c8458'; g.beginPath(); g.moveTo(sg * rw * .92, ry - rh * .6); g.lineTo(sg * (rw + 9 * sz), ry - rh * .35); g.lineTo(sg * (rw + 4 * sz), ry + rh * .2); g.lineTo(sg * (rw + 9 * sz), ry + rh * .8); g.lineTo(sg * rw * .92, ry + rh * .7); g.closePath(); g.fill(); }
-        const pr = g.createLinearGradient(0, ry - rh, 0, ry + rh); pr.addColorStop(0, '#efe3c2'); pr.addColorStop(.55, '#dcc89a'); pr.addColorStop(1, '#bfa776');
-        g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 6 * sz; g.fillStyle = pr; g.beginPath(); g.moveTo(-rw, ry - rh); g.quadraticCurveTo(0, ry - rh - 3 * sz, rw, ry - rh); g.lineTo(rw, ry + rh); g.quadraticCurveTo(0, ry + rh - 3 * sz, -rw, ry + rh); g.closePath(); g.fill(); g.shadowBlur = 0;
-        g.lineWidth = .7 * sz; g.strokeStyle = 'rgba(90,64,30,.6)'; g.stroke();
-        g.fillStyle = '#2c2114'; g.font = V.font(fpx, 700, ffam); g.textAlign = 'center'; g.textBaseline = 'middle'; g.direction = ar ? 'rtl' : 'ltr'; if ('letterSpacing' in g) g.letterSpacing = ar ? '0px' : (fpx * .14).toFixed(1) + 'px';
-        g.fillText(ar ? nm : nm.toUpperCase(), 0, ry - 1.2 * sz); if ('letterSpacing' in g) g.letterSpacing = '0px';
-        if (Ly.sub) V.haloText(g, Ly.sub, 0, ry + rh + 11 * sz, 10.5 * sz, '#efe6d0', 'soft', ar ? fam : 'Amiri', 700);
+        g.lineWidth = 2.6 * sz; g.strokeStyle = 'rgba(40,26,8,.7)'; g.stroke(win); g.lineWidth = 1.8 * sz; g.strokeStyle = brassG(g, px0, py0, px0 + pw, py0 + ph); g.stroke(win);
+        g.save(); g.translate(0, 0); const w2 = new Path2D(); w2.addPath(win, new DOMMatrix().translate(0, py0 + ph / 2).scale(1.09, 1.06).translate(0, -(py0 + ph / 2))); g.lineWidth = .7 * sz; g.strokeStyle = 'rgba(226,190,110,.7)'; g.stroke(w2); g.restore();
+        g.fillStyle = brassG(g, -4 * sz, py0 - 6 * sz, 4 * sz, py0 + 2 * sz); g.beginPath(); g.moveTo(0, py0 - 6.5 * sz); g.lineTo(4 * sz, py0 - 1.5 * sz); g.lineTo(0, py0 + 2.5 * sz); g.lineTo(-4 * sz, py0 - 1.5 * sz); g.closePath(); g.fill();
         g.restore();
       }
+      const ryy = Math.min(H - 6 * sz, py0 + ph + 13 * sz);
+      if (unroll > .85 && (Ly.name || Ly.sub)) WR.ribbon(g, Ly, ryy, bw * .95, sz, fam, clamp((unroll - .85) / .15, 0, 1));
     }
     g.restore();
   };
+
+  /* ================= portrait frames: oval medallion «ميدالية» · heraldic shield «درع» · coin / seal «عملة» ================= */
+  V.leaderFrame = (g, sc, Ly, sp, s, k, fam) => {
+    const sz = 120 * k * (Ly.size || 1) * (Ly.scale == null ? 1 : Ly.scale); const u = sz / 120;
+    const pop = Ly.in === 'pop' ? Math.max(0, S.back(s.pin)) : Ly.in === 'grow' ? S.easeOut(s.pin) : Ly.in === 'zoom' ? 1.6 - .6 * S.easeOut(s.pin) : 1;
+    const a = s.a * (Ly.in === 'fade' || Ly.in === 'zoom' ? S.easeOut(s.pin) : Ly.in === 'pop' ? Math.min(1, s.pin * 3) : 1);
+    const st = V.leaderFrame.styles[Ly.disp]; const hh = st.h * sz; const nameH = Ly.plate !== 0 && (Ly.name || Ly.sub) ? 40 * u : 0;
+    const dyk = Ly.dy == null ? -1 : Ly.dy; const dy = dyk < 0 ? dyk * (hh * .5 + nameH + 18 * k) : dyk * sz * .85; const cx = sp[0], cy = sp[1] + dy;
+    g.save(); g.globalAlpha = a; const ring = bannerColor(sc, Ly);
+    if (dy) { g.strokeStyle = '#c99a4a'; g.lineWidth = 2 * k; g.beginPath(); g.moveTo(sp[0], sp[1]); g.lineTo(cx, cy + Math.sign(-dy) * (hh * .5 + (dy < 0 ? nameH : 0)) * pop); g.stroke(); V.icon(g, 'dot', sp[0], sp[1], 12 * k, ring, 0, 0, 1); }
+    g.translate(cx, cy); g.scale(pop, pop);
+    st.draw(g, sc, Ly, sz, u, k, ring, s);
+    if (Ly.plate !== 0 && (Ly.name || Ly.sub)) WR.ribbon(g, Ly, hh * .5 + 14 * u, Math.max(sz * .9, 90 * u), u, fam, 1);
+    g.restore();
+  };
+  const photo = (g, sc, Ly, x, y, w, h, fy, filt) => { const im = V.img(sc, Ly.img); if (im) { if (!WR.fast && filt) g.filter = filt; V.drawCrop(g, im, Ly.crop, x, y, w, h, fy); g.filter = 'none'; } else { g.fillStyle = '#3a3a36'; g.fillRect(x, y, w, h); g.fillStyle = 'rgba(240,230,210,.3)'; g.beginPath(); g.arc(x + w / 2, y + h * .4, w * .2, 0, TAU); g.fill(); g.beginPath(); g.ellipse(x + w / 2, y + h * .98, w * .36, h * .3, 0, Math.PI, 0); g.fill(); } };
+  // frame shapes (local coords, centred) — also used by the crop dialog mask
+  WR.frameShape = {
+    medallion: (g, sz) => { g.beginPath(); g.ellipse(0, 0, sz * .36, sz * .47, 0, 0, TAU); },
+    heraldic: (g, sz) => { const w = sz * .4, t = -sz * .44; g.beginPath(); g.moveTo(-w, t); g.lineTo(w, t); g.lineTo(w, sz * .04); g.bezierCurveTo(w, sz * .3, sz * .2, sz * .42, 0, sz * .52); g.bezierCurveTo(-sz * .2, sz * .42, -w, sz * .3, -w, sz * .04); g.closePath(); },
+    coin: (g, sz) => { g.beginPath(); g.arc(0, 0, sz * .31, 0, TAU); }
+  };
+  V.leaderFrame.styles = {
+    medallion: { n: 'ميدالية بيضاوية', h: 1.12, draw(g, sc, Ly, sz, u, k, ring) {
+      const rx = sz * .44, ry = sz * .56;
+      g.save(); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 16 * u; g.shadowOffsetY = 5 * u; g.fillStyle = brassG(g, -rx, -ry, rx, ry); g.beginPath(); g.ellipse(0, 0, rx, ry, 0, 0, TAU); g.fill(); g.restore();
+      g.fillStyle = '#6e4e1d'; g.beginPath(); g.ellipse(0, 0, rx * .9, ry * .9, 0, 0, TAU); g.fill(); g.fillStyle = brassG(g, rx, ry, -rx, -ry); g.beginPath(); g.ellipse(0, 0, rx * .875, ry * .88, 0, 0, TAU); g.fill();
+      for (let i = 0; i < 36; i++) { const an = i / 36 * TAU; g.fillStyle = i % 2 ? '#f3dc9c' : '#b6873c'; g.beginPath(); g.arc(Math.cos(an) * rx * .95, Math.sin(an) * ry * .955, 1.7 * u, 0, TAU); g.fill(); }
+      g.save(); WR.frameShape.medallion(g, sz); g.clip(); photo(g, sc, Ly, -sz * .36, -sz * .47, sz * .72, sz * .94, .35, 'sepia(.22) saturate(.8) contrast(1.05)');
+      const vg = g.createRadialGradient(0, -sz * .05, sz * .2, 0, 0, sz * .55); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(20,12,0,.55)'); g.fillStyle = vg; g.fillRect(-sz / 2, -sz / 2, sz, sz); g.restore();
+      WR.frameShape.medallion(g, sz); g.lineWidth = 1.4 * u; g.strokeStyle = '#4b3514'; g.stroke();
+      // crest: bow on top with ribbon tails in the side colour
+      g.save(); g.translate(0, -ry - 2 * u); g.fillStyle = ring; for (const sg of [-1, 1]) { g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(sg * 16 * u, -12 * u, sg * 18 * u, 2 * u); g.quadraticCurveTo(sg * 10 * u, 4 * u, 0, 0); g.fill(); g.beginPath(); g.moveTo(sg * 2 * u, 2 * u); g.lineTo(sg * 9 * u, 16 * u); g.lineTo(sg * 5 * u, 15 * u); g.lineTo(sg * 6 * u, 20 * u); g.lineTo(0, 4 * u); g.fill(); }
+      g.fillStyle = brassG(g, -4 * u, -4 * u, 4 * u, 4 * u); g.beginPath(); g.arc(0, 0, 4.5 * u, 0, TAU); g.fill(); g.restore();
+    } },
+    heraldic: { n: 'درع شعار', h: 1.16, draw(g, sc, Ly, sz, u, k, ring) {
+      const big = (f) => { g.save(); g.scale(f, f); WR.frameShape.heraldic(g, sz); g.restore(); };
+      g.save(); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 16 * u; g.shadowOffsetY = 5 * u; big(1.16); g.fillStyle = brassG(g, -sz * .5, -sz * .5, sz * .5, sz * .6); g.fill(); g.restore();
+      big(1.09); g.fillStyle = mix(ring, '#101010', .25); g.fill();
+      g.save(); big(1.09); g.clip(); g.strokeStyle = rgba(shade(ring, .3), .5); g.lineWidth = 5 * u; for (let i = -6; i < 6; i++) { g.beginPath(); g.moveTo(i * 16 * u - sz, -sz); g.lineTo(i * 16 * u + sz, sz); g.stroke(); } g.restore();
+      g.save(); WR.frameShape.heraldic(g, sz); g.clip(); photo(g, sc, Ly, -sz * .4, -sz * .44, sz * .8, sz * .96, .25, 'saturate(.75) contrast(1.08) sepia(.1)');
+      const vg = g.createLinearGradient(0, -sz * .5, 0, sz * .55); vg.addColorStop(0, 'rgba(255,240,200,.12)'); vg.addColorStop(.5, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); g.fillStyle = vg; g.fillRect(-sz / 2, -sz / 2, sz, sz * 1.1); g.restore();
+      WR.frameShape.heraldic(g, sz); g.lineWidth = 2.2 * u; g.strokeStyle = brassG(g, -sz * .4, -sz * .4, sz * .4, sz * .5); g.stroke();
+      // crown on top
+      g.save(); g.translate(0, -sz * .5 - 4 * u); g.fillStyle = brassG(g, -20 * u, -16 * u, 20 * u, 4 * u); g.beginPath(); g.moveTo(-20 * u, 2 * u); g.lineTo(-22 * u, -12 * u); g.lineTo(-11 * u, -4 * u); g.lineTo(0, -17 * u); g.lineTo(11 * u, -4 * u); g.lineTo(22 * u, -12 * u); g.lineTo(20 * u, 2 * u); g.closePath(); g.fill(); g.lineWidth = .8 * u; g.strokeStyle = '#5a3f14'; g.stroke();
+      for (const [x, y] of [[-22, -12], [0, -17], [22, -12]]) { g.beginPath(); g.arc(x * u, y * u, 2.4 * u, 0, TAU); g.fillStyle = '#f3dc9c'; g.fill(); } g.fillStyle = ring; g.beginPath(); g.arc(0, -3 * u, 2.6 * u, 0, TAU); g.fill(); g.restore();
+    } },
+    coin: { n: 'عملة / ختم', h: 1, draw(g, sc, Ly, sz, u, k, ring, s) {
+      const R = sz * .5; const metal = Ly.metal === 'silver' ? ['#f4f4f2', '#b9bcc0', '#7b7f86', '#3f4248'] : Ly.metal === 'bronze' ? ['#f0c49a', '#b77a46', '#7c4b26', '#3b2210'] : ['#fbe7a8', '#d8ad55', '#9c7128', '#4d3510'];
+      const mg = (r) => { const gr = g.createLinearGradient(-r, -r, r, r); gr.addColorStop(0, metal[0]); gr.addColorStop(.45, metal[1]); gr.addColorStop(.75, metal[2]); gr.addColorStop(1, metal[3]); return gr; };
+      g.save(); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 16 * u; g.shadowOffsetY = 5 * u; g.fillStyle = mg(R); g.beginPath(); g.arc(0, 0, R, 0, TAU); g.fill(); g.restore();
+      g.strokeStyle = 'rgba(0,0,0,.28)'; g.lineWidth = .8 * u; for (let i = 0; i < 120; i++) { const an = i / 120 * TAU; g.beginPath(); g.moveTo(Math.cos(an) * R * .955, Math.sin(an) * R * .955); g.lineTo(Math.cos(an) * R, Math.sin(an) * R); g.stroke(); } // reeded edge
+      g.fillStyle = mg(-R); g.beginPath(); g.arc(0, 0, R * .9, 0, TAU); g.fill(); g.fillStyle = mg(R * .86); g.beginPath(); g.arc(0, 0, R * .86, 0, TAU); g.fill();
+      g.lineWidth = 1 * u; g.strokeStyle = 'rgba(60,40,10,.45)'; g.beginPath(); g.arc(0, 0, R * .66, 0, TAU); g.stroke(); g.strokeStyle = 'rgba(255,250,220,.5)'; g.beginPath(); g.arc(.8 * u, .8 * u, R * .66, 0, TAU); g.stroke();
+      // legend around the rim: Latin names follow the circle; Arabic names sit on a straight band (letters must stay joined)
+      const nm = String(Ly.name || ''); const ar = isAr(nm);
+      if (nm && !ar) { const txt = nm.toUpperCase(); g.save(); g.font = V.font(10.5 * u, 700, 'Amiri'); g.fillStyle = metal[3]; g.textAlign = 'center'; g.textBaseline = 'middle'; const span = Math.min(Math.PI * 1.25, g.measureText(txt).width / (R * .76) * 1.15); const n = txt.length; for (let i = 0; i < n; i++) { const an = -Math.PI / 2 - span / 2 + span * (i + .5) / n; g.save(); g.rotate(an + Math.PI / 2); g.fillText(txt[i], 0, -R * .76); g.restore(); } g.restore(); }
+      for (let i = 0; i < 2; i++) { const an = Math.PI * (.78 + i * .44); g.fillStyle = metal[3]; star(g, Math.cos(an) * R * .76, Math.sin(an) * R * .76, 3.2 * u); }
+      g.save(); WR.frameShape.coin(g, sz); g.clip(); photo(g, sc, Ly, -R * .62, -R * .62, R * 1.24, R * 1.24, .3, 'grayscale(1) contrast(1.25) brightness(1.05)');
+      if (!WR.fast) { g.globalCompositeOperation = 'color'; g.fillStyle = metal[1]; g.fillRect(-R, -R, R * 2, R * 2); g.globalCompositeOperation = 'source-over'; }
+      const hl = g.createLinearGradient(-R * .6, -R * .6, R * .6, R * .6); hl.addColorStop(0, 'rgba(255,255,240,.28)'); hl.addColorStop(.5, 'rgba(255,255,255,0)'); hl.addColorStop(1, 'rgba(40,25,0,.35)'); g.fillStyle = hl; g.fillRect(-R, -R, R * 2, R * 2); g.restore();
+      // a slow glint sweeping over the coin
+      const gl = ((s.lt * .35) % 2.2) - .6; if (gl > -.4 && gl < 1.4) { g.save(); g.beginPath(); g.arc(0, 0, R, 0, TAU); g.clip(); const sg = g.createLinearGradient(-R + gl * R * 2 - R * .3, -R, -R + gl * R * 2 + R * .3, R); sg.addColorStop(0, 'rgba(255,255,255,0)'); sg.addColorStop(.5, 'rgba(255,255,240,.25)'); sg.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = sg; g.fillRect(-R, -R, R * 2, R * 2); g.restore(); }
+      if (nm && ar && Ly.plate === 0) V.haloText(g, nm, 0, R * .78, 11 * u, metal[3], null, 'Amiri', 700);
+    } }
+  };
+  const star = (g, x, y, r) => { g.beginPath(); for (let i = 0; i < 10; i++) { const an = -Math.PI / 2 + i * Math.PI / 5; const rr = i % 2 ? r * .45 : r; g.lineTo(x + Math.cos(an) * rr, y + Math.sin(an) * rr); } g.closePath(); g.fill(); };
+  WR.FRAMES = [['banner', 'راية'], ...Object.entries(V.leaderFrame.styles).map(([k, v]) => [k, v.n])];
 
   /* ================= leader moves «تحرك إلى مدينة» ================= */
   // Ly.moves = [{t, dur, to:[lon,lat], name, style:'direct'|'curve'|'route'|'via', via:[[lon,lat]]}] (layer-local seconds); segments chain

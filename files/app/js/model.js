@@ -193,7 +193,7 @@
     const visit = o => { if (!o || typeof o !== 'object') return; if ('v' in o && (o.k || o.v !== undefined) && Object.keys(o).every(k => k === 'v' || k === 'k')) { fn(o); return; } for (const k in o) if (k !== 'scene') visit(o[k]); };
     visit(c.motion); visit(c.cam); visit({ o: c.opacity }); visit({ v: c.vol }); visit({ p: c.pan });
     (c.fx || []).forEach(f => visit(f.params)); (c.afx || []).forEach(f => visit(f.params)); (c.masks || []).forEach(m => visit(m));
-    if (c.text && c.text.animators) visit(c.text.animators); if (c.shape) visit(c.shape); // text animators (text_anim.js) / shape layers (shape.js)
+    if (c.text && c.text.animators) visit(c.text.animators); if (c.shape) visit(c.shape); if (c.s3d) visit(c.s3d); // 3D scenes (s3d.js) // text animators (text_anim.js) / shape layers (shape.js)
   }
   GW.eachParam = eachParam;
   GW.shiftKeys = (c, dt, from, to) => eachParam(c, p => { if (!p.k) return; p.k.forEach(k => k.t -= dt); if (from != null) { p.k = p.k.filter(k => k.t >= from - 1e-6 && k.t <= to + 1e-6); if (!p.k.length) delete p.k; } });

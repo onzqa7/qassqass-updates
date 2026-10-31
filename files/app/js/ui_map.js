@@ -29,8 +29,10 @@
     const scn = sc(c); const cam = scn.cam;
     if (Cm.animated(cam)) Cm.setKey(cam, keyT(c), v, { eps: .5 / GW.seq().fps, mode: scn.mode });
     else { for (const q in v) if (v[q] != null && isFinite(+v[q])) cam[q] = +v[q]; }
-    changed(label || 'تحريك كاميرا الخريطة', true); M.refreshCam(); GW.bus.emit('camkeys');
+    changed(label || 'تحريك كاميرا الخريطة', true); camUI();
   };
+  // panel/viewer refresh coalesced to one per animation frame (a drag fires many pointer events per frame)
+  let camUIp = false; const camUI = () => { if (camUIp) return; camUIp = true; requestAnimationFrame(() => { camUIp = false; M.refreshCam(); GW.bus.emit('camkeys'); }); };
   // «مفتاح عند المؤشر» / K: key the animated groups (all groups when the camera is still static) with their current values
   M.addKey = (c, groups) => {
     const scn = sc(c); const cam = scn.cam; const t = keyT(c); const cur = Cm.atRaw(cam, t, scn.mode);
@@ -251,7 +253,7 @@
   function pinSec(c) {
     const s = GW.seq(); const s0 = sec('دمج الطبقات مع الخريطة', false, 'pins');
     const cands = s.clips.filter(x => x.tt === 'v' && x !== c && x.ti > c.ti && x.start < c.start + c.dur && x.start + x.dur > c.start && x.kind !== 'adjust');
-    s0.body.append(h('div', 'mp-note', 'ثبّت أي نص أو صورة أو فيديو فوق الخريطة على نقطة جغرافية ليتحرك مع الكاميرا تماماً. اختر النقطة بالنقر على الخريطة في وضع «كاميرا» ثم اضغط «تثبيت هنا».'));
+    s0.body.append(h('div', 'mp-note', 'ثبّت أي نص أو صورة أو فيديو فوق الخريطة على نقطة جغرافية ليتحرك مع الكاميرا تماماً. اختر النقطة بالنقر على الخريطة في لوحة «كاميرا الخريطة» ثم اضغط «تثبيت هنا».'));
     const where = M.picked && M.picked.ll ? M.picked.ll : [camNow(c).lon, camNow(c).lat];
     s0.body.append(h('div', 'mp-note', `النقطة الحالية: ${where[0].toFixed(3)}°, ${where[1].toFixed(3)}°`));
     if (!cands.length) s0.body.append(h('div', 'mp-note', 'لا توجد طبقات فوق مقطع الخريطة. أضف نصاً أو صورة على مسار أعلى من الخريطة.'));
@@ -289,6 +291,7 @@
     const scroll = h('div', 'pscroll mp'); P.append(scroll);
     // keep the scroll position after every change (the panel is rebuilt on each edit)
     requestAnimationFrame(() => { scroll.scrollTop = keepTop; if (feKey) { const n = scroll.querySelector(`[data-k="${feKey}"]`); if (n && n.focus) n.focus({ preventScroll: true }); } }); scroll.scrollTop = keepTop;
+    if (GW.MapUX) { GW.MapUX.render(scroll, c); return; }
     if (!c) { scroll.append(...welcome()); return; }
     const scn = sc(c);
     // header + mode switch
@@ -369,8 +372,8 @@
   M.refreshCam = () => { if (!P) return; const c = selMap(); if (!c) return; const v = camNow(c); for (const k of ['lon', 'lat', 'zoom', 'tilt', 'heading', 'fov', 'roll', 'offX', 'offY']) { const i = P.querySelector(`[data-cam=${k}]`); if (i && document.activeElement !== i) i.value = k === 'offX' || k === 'offY' ? Math.round((+v[k] || 0) * 100) : (+v[k] || 0).toFixed(k === 'zoom' ? 2 : k === 'fov' || k === 'roll' ? 1 : 3); } const al = P.querySelector('[data-cam=alt]'); if (al && document.activeElement !== al) al.value = fmtKm(Cm.altitudeKm(v.zoom, v.lat, v.fov)); const at = P.querySelector('[data-a=alt]'); if (at) at.textContent = fmtAlt(Cm.altitudeKm(v.zoom, v.lat, v.fov)); };
   const fmtKm = (km) => km >= 100 ? Math.round(km) : +km.toFixed(km >= 10 ? 1 : 2);
   const fmtAlt = (km) => km > 1000 ? (km / 1000).toFixed(1) + ' ألف كم' : km > 2 ? km.toFixed(0) + ' كم' : (km * 1000).toFixed(0) + ' م';
-  function camSec(c) {
-    const scn = sc(c); const cam = scn.cam; const s0 = sec('الكاميرا', true, 'cam'); const v = camNow(c);
+  function camSec(c, fieldsOnly) {
+    const scn = sc(c); const cam = scn.cam; const s0 = fieldsOnly ? (() => { const d = h('div'); d.body = d; return d; })() : sec('الكاميرا', true, 'cam'); const v = camNow(c);
     s0.body.append(row('العرض', sel([['globe', 'كرة أرضية ثلاثية الأبعاد'], ['flat', 'خريطة مسطحة (مركاتور)']], scn.mode, val => { scn.mode = val; changed('نوع العرض'); renderPanel(); })));
     const f = (k, step, opts) => { const i = num((+v[k] || 0).toFixed(k === 'fov' || k === 'roll' ? 1 : 3), step, val => M.setCam(c, { [k]: val }), opts); i.dataset.cam = k; return i; };
     const flat = scn.mode === 'flat';
@@ -385,7 +388,7 @@
     // focus on a country: search + fit with padding, written as a key at the playhead
     const fq = txt(M.focusQ || '', val => { M.focusQ = val; }, 'اسم دولة…'); fq.dataset.k = 'focusq'; fq.onkeydown = (e) => { e.stopPropagation(); if (e.key === 'Enter') M.focusCountry(c, fq.value, M.focusPad || .6); };
     const fp = sel([[.85, 'ملء الإطار'], [.6, 'مع هامش'], [.42, 'مكان للنص'], [.3, 'بعيد']], String(M.focusPad || .6), val => { M.focusPad = +val; });
-    const frow = row('تركيز على دولة', fq, fp, btn(GW.ico('key', 13) + ' تركيز', () => M.focusCountry(c, fq.value, M.focusPad || .6), 'pri')); frow.title = 'يبحث عن الدولة ويضيف مفتاح كاميرا عند المؤشر يجعلها تملأ الإطار بالهامش المختار'; s0.body.append(frow);
+    const frow = row('تركيز على دولة', fq, fp, btn(GW.ico('key', 13) + ' تركيز', () => M.focusCountry(c, fq.value, M.focusPad || .6), 'pri')); frow.title = 'يبحث عن الدولة ويضيف مفتاح كاميرا عند المؤشر يجعلها تملأ الإطار بالهامش المختار'; if (!fieldsOnly) s0.body.append(frow);
     // 3D: tilt + terrain in one click (globe mode; terrain needs zoom ≥ 5)
     const is3D = (v.tilt || 0) > 5 && scn.mode === 'globe' && (scn.look.terrain > 0);
     const b3 = btn(GW.ico('globe', 13) + (is3D ? ' ثلاثي الأبعاد مفعّل' : ' تفعيل ثلاثي الأبعاد (3D)'), () => {
@@ -395,10 +398,10 @@
     }, is3D ? 'pri on' : 'pri'); b3.dataset.a = 'btn3d';
     s0.body.append(h('div', 'mp-row'), row('تضخيم التضاريس', rng(scn.look.terrain || 0, 0, 8, .1, val => { scn.look.terrain = val; GW.invalidate(); })));
     s0.body.children[s0.body.children.length - 2].append(b3);
-    s0.body.append(camKeysBox(c));
+    if (!fieldsOnly) s0.body.append(camKeysBox(c));
     s0.body.append(row('دوران مداري', rng(cam.orbit || 0, -20, 20, .5, val => { cam.orbit = val; GW.invalidate(); })), row('اقتراب تدريجي', rng(cam.drift || 0, -.5, .5, .01, val => { cam.drift = val; GW.invalidate(); })), row('اهتزاز', rng(cam.shake || 0, 0, 3, .05, val => { cam.shake = val; GW.invalidate(); })));
     const pres = h('div', 'mp-chips'); for (const [n, fn] of [['رحلة طيران إلى الهدف', () => camPreset(c, 'flight')], ['دوران حول الهدف', () => camPreset(c, 'orbit')], ['كشف (إمالة للأعلى)', () => camPreset(c, 'reveal')], ['اقتراب العدسة (Dolly)', () => camPreset(c, 'dolly')], ['جولة ثلاثية الأبعاد', () => camPreset(c, 'tour3d')], ['دخول من الفضاء', () => camPreset(c, 'space')], ['طيران للهدف', () => camPreset(c, 'push')], ['إمالة سينمائية', () => camPreset(c, 'tilt')]]) { const b = h('button', 'chip'); b.textContent = n; b.onclick = fn; pres.append(b); }
-    s0.body.append(h('div', 'mp-sub', 'حركات جاهزة'), pres);
+    if (!fieldsOnly) s0.body.append(h('div', 'mp-sub', 'حركات جاهزة'), pres);
     return s0;
   }
   function camPreset(c, kind) {
@@ -607,7 +610,7 @@
     return s0;
   }
   /* ---------------- layers ---------------- */
-  function addLayer(c, type, o = {}) { if (GW.WarUI) o = GW.WarUI.preAdd(c, type, o); const L = S.newLayer(type, Object.assign({ start: Math.max(0, lt(c) - (c.in || 0)) }, o)); sc(c).layers.push(L); M.layerId = L.id; changed('إضافة طبقة: ' + S.LAYERS[type].ar); M.mode = { country: 'pick', invasion: 'pick', arrow: 'draw', front: 'draw', route: 'draw', marker: 'place', label: 'place', image: 'place', range: 'place' }[type] || (GW.WarUI && GW.WarUI.modeFor(type)) || 'nav'; if (type === 'invasion' && !o.from) M.pickRole = 'from'; renderPanel(); return L; }
+  function addLayer(c, type, o = {}) { if (GW.WarUI) o = GW.WarUI.preAdd(c, type, o); if (type === 'country' && sc(c).style === 'woven' && !o.pattern) o = S.wovenCountry(Object.assign({ color: S.WOVEN[sc(c).layers.filter(l => l.type === 'country').length % 3] }, o)); if (['marker', 'label', 'range', 'image'].includes(type) && o.lon == null) { const v = camNow(c); o = Object.assign({ lon: +v.lon.toFixed(4), lat: +v.lat.toFixed(4) }, o); } const L = S.newLayer(type, Object.assign({ start: Math.max(0, lt(c) - (c.in || 0)) }, o)); sc(c).layers.push(L); M.layerId = L.id; changed('إضافة طبقة: ' + S.LAYERS[type].ar); M.mode = { country: 'pick', invasion: 'pick', arrow: 'draw', front: 'draw', route: 'draw', marker: 'place', label: 'place', image: 'place', range: 'place' }[type] || (GW.WarUI && GW.WarUI.modeFor(type)) || 'nav'; if (type === 'invasion' && !o.from) M.pickRole = 'from'; M.modeHint = { pick: type === 'invasion' && !o.from ? 'لتحديد الدولة المهاجمة' : 'لاختيار الدول', draw: 'لرسم النقاط (كل نقرة تضيف نقطة)', place: 'لتحديد الموقع' }[M.mode] || ''; renderPanel(); return L; }
   M.addLayer = addLayer;
   // leader portrait: image layer with a framed photo + name plate, pinned to a place; optional travel path
   M.addLeader = async (c, o = {}) => {
@@ -659,7 +662,11 @@
     box.append(row('المدة (ث)', num(L.dur != null ? L.dur.toFixed(2) : '', .1, v => { L.dur = v > 0 ? v : null; changed('توقيت'); renderPanel(); }), btn('حتى النهاية', () => { L.dur = null; changed('توقيت'); renderPanel(); }), btn('ينتهي عند المؤشر', () => { L.dur = Math.max(.1, +(t0() - (L.start || 0)).toFixed(2)); changed('توقيت'); renderPanel(); })));
     const anims = { fade: 'تلاشي', grow: 'نمو', draw: 'رسم تدريجي', pop: 'ظهور مرن', wipe: 'مسح', spread: 'انتشار', none: 'بدون' };
     box.append(row('حركة الدخول', sel(Object.entries(anims), L.in || 'fade', set('in', 1)), num(L.inDur || .8, .1, set('inDur', 1))), row('حركة الخروج', sel([['none', 'بدون'], ['fade', 'تلاشي']], L.out || 'none', set('out', 1)), num(L.outDur || .5, .1, set('outDur', 1))));
-    const pats = [['solid', 'مصمت'], ['hatch', 'خطوط مائلة'], ['cross', 'شبكة'], ['dots', 'نقاط']];
+    const pats = [['solid', 'مصمت'], ['weave', 'نسيج متقاطع'], ['hatch', 'خطوط مائلة'], ['cross', 'شبكة'], ['dots', 'نقاط']];
+    // «نسيج متقاطع» texture controls (scale / opacity / angle) + the muted woven palette
+    const weaveRows = (o, re) => { if (o.pattern !== 'weave') return h('div'); const w = h('div', 'mx-weave'); const sw = h('div', 'mp-chips'); for (const cc of S.WOVEN) { const b = h('button', 'chip mx-sw'); b.style.background = cc; b.title = cc; b.onclick = () => { o.color = cc; changed('لون منسوج'); re(); }; sw.append(b); }
+      w.append(row('ألوان منسوجة', sw), row('حجم النسيج', rng(o.patS || 1, .5, 3, .05, v => { o.patS = v; GW.invalidate(); })), row('وضوح النسيج', rng(o.patA == null ? .55 : o.patA, 0, 1, .02, v => { o.patA = v; GW.invalidate(); })), row('زاوية النسيج', rng(o.patR || 0, -90, 90, 1, v => { o.patR = v; GW.invalidate(); }))); return w; };
+    M.weaveRows = weaveRows;
     // keyframes on layer props (stopwatch like AE): {v, k:[{t,v,e}]} in layer-local time
     const tl = () => +(lt(c) - (L.start || 0)).toFixed(3);
     const isA = (k) => L[k] && typeof L[k] === 'object' && !Array.isArray(L[k]);
@@ -679,30 +686,30 @@
     };
     switch (L.type) {
       case 'country':
-        box.append(btn(M.mode === 'pick' ? 'وضع اختيار الدول فعّال' : 'اختيار الدول من الشاشة', () => { M.mode = 'pick'; renderPanel(); }), keyChips(c, L.keys, k => { L.keys.splice(L.keys.indexOf(k), 1); changed('إزالة دولة'); renderLayerProps(); }),
-          row('اللون', col(L.color, set('color'))), countryColors(c, L), row('شفافية التعبئة', rng(pv('fill', .5), 0, 1, .02, setA('fill')), sw('fill', .5)), row('النقش', sel(pats, L.pattern, set('pattern', 1))),
+        box.append(btn(GW.ico('pin', 13) + (M.mode === 'pick' ? ' اختيار الدول فعّال…' : ' اختر الدول على الخريطة'), () => { M.enter('pick', 'لاختيار الدول (انقر مرة للإضافة ومرة للإزالة)'); }, M.mode === 'pick' ? 'pri' : ''), keyChips(c, L.keys, k => { L.keys.splice(L.keys.indexOf(k), 1); changed('إزالة دولة'); renderLayerProps(); }),
+          row('اللون', col(L.color, set('color'))), countryColors(c, L), row('شفافية التعبئة', rng(pv('fill', .5), 0, 1, .02, setA('fill')), sw('fill', .5)), row('النقش', sel(pats, L.pattern, v => { L.pattern = v; if (v === 'weave') Object.assign(L, { fill: Math.max(L.fill || 0, .55), line: L.line || '#cfcfcc', inner: 1 }); changed('النقش'); renderLayerProps(); })), weaveRows(L, renderLayerProps),
           row('الإطار', sel([['solid', 'متصل'], ['dashed', 'متقطع (منطقة ناشئة / متنازع عليها)'], ['none', 'بدون']], L.outline || 'solid', set('outline', 1))), row('لون الإطار', col(L.line || '#f3e6c0', set('line'))), row('سماكة الإطار', rng(L.stroke, 0, 6, .1, set('stroke'))),
           row('ظل داخلي (عمق)', chk(L.inner, set('inner', 1))), row('توهج', chk(L.glow, set('glow', 1))), row('تعتيم باقي العالم', chk(L.dim, set('dim', 1))), row('نبض', chk(L.pulse, set('pulse', 1))),
           row('اسم الدولة', sel([['', 'حسب النمط'], ['soft', 'كبير بظل ناعم'], ['plate', 'بخلفية'], ['outline', 'بحد']], L.labelStyle || '', set('labelStyle', 1)), chk(L.label !== 0, set('label', 1))), row('حجم الاسم', rng(L.labelSize || 1, .4, 3, .05, set('labelSize'))), row('نص بديل للاسم', txt(L.labelText, set('labelText'), 'مثال: الأندلس')), animRows(['opacity']));
         break;
       case 'invasion':
-        box.append(h('div', 'mp-row')); box.lastChild.append(btn((M.pickRole === 'from' && M.mode === 'pick' ? '' : '') + 'اختر المهاجم', () => { M.mode = 'pick'; M.pickRole = 'from'; renderPanel(); }), btn((M.pickRole !== 'from' && M.mode === 'pick' ? '' : '') + 'اختر الأهداف', () => { M.mode = 'pick'; M.pickRole = 'to'; renderPanel(); }));
+        box.append(h('div', 'mp-row')); box.lastChild.append(btn(GW.ico('pin', 13) + ' حدد المهاجم على الخريطة', () => { M.pickRole = 'from'; M.enter('pick', 'لتحديد الدولة المهاجمة'); }), btn(GW.ico('pin', 13) + ' حدد الأهداف على الخريطة', () => { M.pickRole = 'to'; M.enter('pick', 'لتحديد الدول المستهدفة'); }));
         box.append(row('المهاجم', keyChips(c, L.from ? [L.from] : [], () => { L.from = null; changed('مهاجم'); renderLayerProps(); })), row('الأهداف', keyChips(c, L.to || [], k => { L.to.splice(L.to.indexOf(k), 1); changed('هدف'); renderLayerProps(); })),
           row('اللون', col(L.color, set('color'))), row('شكل السهم', sel([['military', 'سهم عسكري'], ['line', 'خط'], ['dashed', 'متقطع متحرك'], ['double', 'مزدوج']], L.arrowStyle, set('arrowStyle', 1))), row('عرض السهم', rng(L.width || 1, .3, 3, .05, set('width'))), row('انحناء', rng(L.curve == null ? .25 : L.curve, -1, 1, .02, set('curve'))),
           row('زمن وصول السهم (ث)', num(L.inDur || 4, .1, set('inDur', 1))), row('فارق بين الأهداف (ث)', num(L.stagger != null ? L.stagger : (L.inDur || 4) * .35, .1, set('stagger', 1))), row('مدة الانتشار (ث)', num(L.spreadDur || (L.inDur || 4) * 1.2, .1, set('spreadDur', 1))),
           row('الأسهم', chk(L.arrows, set('arrows', 1))), row('احتلال الأرض', chk(L.spread, set('spread', 1))), row('نسبة الاحتلال', rng(L.occupy == null ? 1 : L.occupy, .05, 1, .01, set('occupy'))), row('انفجارات عند الوصول', chk(L.impacts, set('impacts', 1))));
         break;
       case 'arrow': case 'route':
-        box.append(h('div', 'mp-row')); box.lastChild.append(btn(M.mode === 'draw' ? 'وضع الرسم فعّال' : 'رسم المسار في الشاشة', () => { M.mode = 'draw'; renderPanel(); }), btn('مسح النقاط', () => { L.pts = []; changed('مسح'); renderLayerProps(); }), btn('حذف آخر نقطة', () => { L.pts.pop(); changed('حذف نقطة'); renderLayerProps(); }));
+        box.append(h('div', 'mp-row')); box.lastChild.append(btn(GW.ico('pen', 13) + ' ارسم على الخريطة', () => { M.enter('draw', 'لرسم المسار (كل نقرة تضيف نقطة)'); }, M.mode === 'draw' ? 'pri' : ''), btn('مسح النقاط', () => { L.pts = []; changed('مسح'); renderLayerProps(); }), btn('حذف آخر نقطة', () => { L.pts.pop(); changed('حذف نقطة'); renderLayerProps(); }));
         box.append(h('div', 'mp-note', `${(L.pts || []).length} نقاط`), row('اللون', col(L.color, set('color'))), row('العرض', rng(L.width || 1, .2, 4, .05, set('width'))), row('انحناء', rng(L.curve || 0, -1, 1, .02, set('curve'))));
         if (L.type === 'arrow') box.append(row('الشكل', sel([['military', 'سهم عسكري'], ['line', 'خط'], ['dashed', 'متقطع متحرك'], ['double', 'مزدوج']], L.style, set('style', 1))), row('توهج', chk(L.glow, set('glow', 1))), row('حد خارجي', chk(L.outline, set('outline', 1))));
         else box.append(row('الأيقونة', sel(V.ICONS.filter(x => ['plane', 'jet', 'heli', 'missile', 'ship', 'tank', 'soldier', 'dot'].includes(x[0])), L.icon, set('icon', 1))), row('حجم الأيقونة', rng(L.size || 1, .3, 4, .05, set('size'))), row('خط متقطع', chk(L.dashed, set('dashed', 1))));
         break;
       case 'front': {
-        box.append(h('div', 'mp-row')); box.lastChild.append(btn(M.mode === 'draw' ? 'وضع الرسم فعّال' : 'رسم المنطقة في الشاشة', () => { M.mode = 'draw'; renderPanel(); }), btn('مسح', () => { L.pts = []; L.shapes = []; changed('مسح'); renderLayerProps(); }));
+        box.append(h('div', 'mp-row')); box.lastChild.append(btn(GW.ico('pen', 13) + ' ارسم المنطقة على الخريطة', () => { M.enter('draw', 'لرسم المنطقة (كل نقرة تضيف نقطة)'); }, M.mode === 'draw' ? 'pri' : ''), btn('مسح', () => { L.pts = []; L.shapes = []; changed('مسح'); renderLayerProps(); }));
         const ns = (L.shapes || []).length;
         box.append(btn(GW.ico('key', 13) + (ns ? ` شكل عند المؤشر (${ns} مفاتيح)` : ' تحريك الجبهة عبر الزمن'), () => { const t = lt(c) - (c.in || 0) - (L.start || 0); L.shapes = L.shapes || []; if (!L.shapes.length && L.pts && L.pts.length > 2) L.shapes.push({ t: 0, pts: GW.clone(L.pts) }); const cur = V.frontRing(L, t) || L.pts || []; if (!L.shapes.find(s => Math.abs(s.t - t) < .05)) { L.shapes.push({ t, pts: GW.clone(cur) }); L.shapes.sort((a, b) => a.t - b.t); } changed('مفتاح جبهة'); renderLayerProps(); GW.toast('حرّك نقاط الجبهة الآن — سيتحرك الخط تدريجياً بين المفاتيح'); }));
-        box.append(h('div', 'mp-note', 'أو اختر دولاً كاملة لتكون منطقة السيطرة:'), btn('اختيار دول', () => { M.mode = 'pick'; renderPanel(); }), keyChips(c, L.keys || [], k => { L.keys.splice(L.keys.indexOf(k), 1); changed('إزالة'); renderLayerProps(); }),
+        box.append(h('div', 'mp-note', 'أو اختر دولاً كاملة لتكون منطقة السيطرة:'), btn(GW.ico('pin', 13) + ' اختر دولاً على الخريطة', () => { M.enter('pick', 'لاختيار الدول'); }), keyChips(c, L.keys || [], k => { L.keys.splice(L.keys.indexOf(k), 1); changed('إزالة'); renderLayerProps(); }),
           row('اللون', col(L.color, set('color'))), row('شفافية', rng(L.fill, 0, 1, .02, set('fill'))), row('النقش', sel(pats, L.pattern, set('pattern', 1))), row('خط الجبهة', rng(L.stroke, 0, 6, .1, set('stroke'))), row('أسنان الجبهة', chk(L.teeth, set('teeth', 1))));
         break; }
       case 'marker':
@@ -716,7 +723,7 @@
         box.append(h('div', 'mp-row')); box.lastChild.append(btn(GW.ico('folder', 13) + ' اختيار صورة من الجهاز…', () => M.pickPhoto(c, L), 'pri'));
         if (imgs.length) box.append(row('من صور المشروع', sel([['', '—'], ...imgs.map(m => [m.id, m.name])], '', id => { const m = imgs.find(x => x.id === id); if (!m) return; const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => { const k = Math.min(1, 640 / Math.max(im.naturalWidth, im.naturalHeight)); const cv = document.createElement('canvas'); cv.width = im.naturalWidth * k | 0; cv.height = im.naturalHeight * k | 0; cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); const iid = GW.uid(); sc(c).images[iid] = cv.toDataURL('image/jpeg', .9); L.img = iid; changed('صورة'); renderLayerProps(); }; im.src = GW.Media && GW.Media.url ? GW.Media.url(m) : (window.gws ? gws.mediaUrl(m.path) : m.path); })));
         box.append(row('الشكل', sel([['circle', 'دائرة'], ['square', 'مربع'], ['rounded', 'مربع مستدير'], ['hex', 'سداسي'], ['shield', 'درع']], L.shape, set('shape', 1))), row('الاسم', txt(L.name, set('name'))), row('اللقب / الوصف', txt(L.sub, set('sub'))), row('لون الإطار', col(L.ring, set('ring'))), row('الحجم', rng(pv('size', 1), .3, 3, .05, setA('size')), sw('size', 1)), row('ارتفاع عن النقطة', rng(L.dy == null ? -1 : L.dy, -2, 2, .05, set('dy'))), row('لوحة الاسم', chk(L.plate, set('plate', 1))), lonlat(L), animRows());
-        box.append(h('div', 'mp-sub', 'تحرك القائد على مسار'), h('div', 'mp-row')); box.lastChild.append(btn(M.mode === 'draw' ? 'وضع رسم المسار فعّال' : 'رسم المسار في الشاشة', () => { M.mode = 'draw'; renderPanel(); }), btn('من الموقع الحالي', () => { L.pts = [[+pv('lon', 0), +pv('lat', 0)]]; M.mode = 'draw'; changed('بداية المسار'); renderPanel(); }), btn('مسح المسار', () => { L.pts = []; changed('مسح'); renderLayerProps(); }));
+        box.append(h('div', 'mp-sub', 'تحرك القائد على مسار'), h('div', 'mp-row')); box.lastChild.append(btn(GW.ico('pen', 13) + ' ارسم المسار على الخريطة', () => { M.enter('draw', 'لرسم مسار القائد'); }), btn('من الموقع الحالي', () => { L.pts = [[+pv('lon', 0), +pv('lat', 0)]]; M.mode = 'draw'; changed('بداية المسار'); renderPanel(); }), btn('مسح المسار', () => { L.pts = []; changed('مسح'); renderLayerProps(); }));
         box.append(h('div', 'mp-note', (L.pts || []).length >= 2 ? `${L.pts.length} نقاط — يتحرك القائد من أول نقطة إلى آخر نقطة` : 'ارسم نقطتين أو أكثر ليتحرك القائد بينها (مثل طبقة المسار).'),
           row('يبدأ الحركة بعد (ث)', num(L.moveStart == null ? 1 : L.moveStart, .1, set('moveStart', 1))), row('مدة الحركة (ث)', num(L.moveDur || 4, .1, set('moveDur', 1))), row('انحناء', rng(L.curve || 0, -1, 1, .02, set('curve'))),
           row('أثر متلاشٍ', chk(L.trail, set('trail', 1))), row('سهم المسار', chk(L.arrow, set('arrow', 1))), row('لون الأثر', col(L.trailColor || L.ring, set('trailColor'))));
@@ -746,7 +753,7 @@
   }
   /* ---------------- war campaigns & combat animations (atlas/war.js, ui_war.js) ---------------- */
   function warSec(c) { return GW.WarUI.section(c); }
-  function lonlat(L) { const c = selMap(); const tt = c ? lt(c) - (L.start || 0) : 0; const w = h('div', 'mp-row'); w.append(btn(M.mode === 'place' ? 'انقر على الخريطة للتحديد' : 'تحديد الموقع من الشاشة', () => { M.mode = 'place'; renderPanel(); }), h('span', 'kv', `${(+GW.pv(L.lon, tt)).toFixed(2)}°, ${(+GW.pv(L.lat, tt)).toFixed(2)}°`)); return w; }
+  function lonlat(L) { const c = selMap(); const tt = c ? lt(c) - (L.start || 0) : 0; const w = h('div', 'mp-row'); w.append(btn(GW.ico('pin', 13) + ' حدد على الخريطة', () => { M.enter('place', 'لتحديد الموقع'); }, M.mode === 'place' ? 'pri' : ''), h('span', 'kv', `${(+GW.pv(L.lon, tt)).toFixed(2)}°, ${(+GW.pv(L.lat, tt)).toFixed(2)}°`)); return w; }
   // a colour picker per selected country (overrides the layer colour)
   function countryColors(c, L) {
     const w = h('div'); if ((L.keys || []).length < 2) return w; const scn = sc(c); const era = G.era(GW.pv(scn.year, lt(c)), scn.eraMode); const by = new Map((G.features(era, 0) || []).map(f => [f.key, f]));
@@ -754,6 +761,10 @@
     return w;
   }
 
+  // contextual interaction mode (banner «انقر على الخريطة في لوحة كاميرا الخريطة …» + «تم»)
+  M.enter = (mode, hint) => { M.mode = mode; M.modeHint = hint || ''; renderPanel(); GW.invalidate(); if (GW.panels.mapcam && GW.showPanel && !(GW.panels.mapcam.el && GW.panels.mapcam.el.isConnected && !GW.panels.mapcam.el.closest('#store'))) GW.showPanel('mapcam'); };
+  M.done = () => { M.mode = 'nav'; M.modeHint = ''; if (GW.WarUI) GW.WarUI.st.pend = null; renderPanel(); GW.invalidate(); };
+  M.B = { h, row, num, txt, sel, chk, col, rng, btn, sec, esc, eraSec, styleSec, lookSec, camSec, camKeysBox, camPreset, pinSec, searchBox, pickedBox, welcome, fillProps, keyRuler, setYear, lt, camNow, layer, sc, renderLayerProps: () => renderLayerProps() };
   // project load: convert legacy map clips
   GW.bus.on('project', () => { for (const s of GW.prj.seqs || []) for (const c of s.clips) if (c.kind === 'map' && c.map && c.map.scene && c.map.scene.v !== 3) c.map.scene = A.newScene(); });
 })();

@@ -44,6 +44,13 @@
         country layers: outline:'natgeo'|'historic'|'neon'|'ribbon', cut:1 (paper cut-out lift). Styles: 'mission' (HUD), 'papercut'; look.borderStyle: natgeo|historic|neon|ribbon
    importRoute({id, path | text, name, follow=false, start, inDur=8, color, …move props}) → layer   GPX / GeoJSON / KML line → animated route (elevation profile when present);
         follow: camera keys along the route (setCameraKey)
+   3D scenes (js/s3d*.js, ui_3d.js; positions in metres, Y up, floor y=0, rotations in degrees):
+   add3DScene({preset:'living'|'news'|'doc'|'office'|'warroom'|'studio'|'empty', lights, start, dur, track, transparent}) → {id, objects}
+   add3DObject({id, type (see list3DLibrary) | path (model file) | ref (model id), pos, rot, scl, light, text, size}) → {clip, obj}
+   set3DScreenMedia({id, obj, media | seq, in, speed, loop, fit}) → screen (video synced to clip time)
+   set3DCamera({id, pos, target, fov, roll, time, ease, preset:'dolly'|'dollyout'|'orbit'|'push'|'crane'|'truck', obj, start, dur})
+   set3DObject({id, obj, pos, rot, scl, time, ease, hide, mat, light, size, text}) · set3DScene({id, lights, bg, exposure, env, fog, bloom, dof})
+   import3DModel({paths}) → [{id, name, clips, skinned}] · set3DAnimation({id, obj, strips, walk, look}) · list3DLibrary() · delete3DObject({id, obj})
    addSfx({id|query, time, track})                → [clip]
    addMarker({time, name, color, note})           → marker
    Smart audio (js/audio_tools.js; each edit = one undo step):
@@ -273,6 +280,7 @@
 
   /* ----- effects / transitions ----- */
   const LOOKS = { kenburns: 'تكبير بطيء (Ken Burns)', kenburnsOut: 'تصغير بطيء', fadeInOut: 'ظهور واختفاء تدريجي', cinematic: 'مظهر سينمائي كامل', warDoc: 'مظهر وثائقي حربي', explosionShake: 'اهتزاز انفجار', greenScreen: 'إزالة شاشة خضراء', oldFilm: 'فيلم قديم', nightVision: 'رؤية ليلية', thermal: 'كاميرا حرارية', quake: 'زلزال', dream: 'حلم / ذكرى', cctv: 'كاميرا مراقبة', storm: 'عاصفة وبرق', newsMap: 'خلفية أخبار متحركة', comic: 'رسم كوميكس', oldTV: 'تلفاز قديم', sunset: 'غروب دافئ', coldWar: 'حرب باردة (أزرق بارد)', flashback: 'استرجاع (فلاش باك)' };
+  if (GW.FX_PRESETS) for (const [k, v] of Object.entries(GW.FX_PRESETS)) if (!(k in LOOKS) && !v.tr) LOOKS[k] = v.n; // pro looks (fx_pro.js presets in the effects browser)
   const pval = (v) => (v && typeof v === 'object' && Array.isArray(v.keyframes)) ? { v: v.keyframes[0].value, k: v.keyframes.map(k => ({ t: +k.t, v: k.value, e: k.ease || 'linear' })) } : GW.P(v);
   M.addEffect = ({ id, ids, type, params = {} } = {}) => {
     const s = seq(); const cs = (ids || [id]).filter(Boolean).map(clipOf); if (!cs.length) fail('id required');
@@ -696,6 +704,24 @@
   M.autoColor = (p) => { if (!GW.Color) fail('colour module not loaded'); return GW.Color.autoApi(p); };
   M.setHslSecondary = (p) => { if (!GW.Color) fail('colour module not loaded'); return GW.Color.hslApi(p); };
   M.trackPoint = (p) => { if (!GW.Track) fail('tracker module not loaded'); return GW.Track.api(p); };
+  // collage (collage.js / collage_tpl.js / cutout.js) and leader portraits (ui_photocrop.js):
+  // removeBackground({media|id, time, addToTimeline=false, look:'sticker'|'torn'|…, margin}) → {media, path, coverage, engine, width, height, clip}
+  // addCollageTemplate({template, start, dur, track, fields}) → clip (fields of type img take a media id / name / path)
+  // setLeaderCrop({id, layer, x, y, scale, rot, reset}) → {layer, crop} · leaderFromTimeline({id, layer, clip, time, cutout}) → {layer, media, img}
+  M.removeBackground = async (p = {}) => {
+    if (!GW.Cutout) fail('cutout module not loaded'); const o = { ask: false, refine: false, addToTimeline: !!p.addToTimeline, look: p.look || false, margin: p.margin };
+    if (p.id) o.clip = clipOf(p.id); else if (p.media) o.media = mediaOf(p.media); if (p.time != null) o.time = num(p.time, 'time');
+    const r = await GW.Cutout.run(o); if (!r) fail('cancelled'); if (r.clip) GW.commit(label('قص الخلفية'));
+    return { media: r.media ? r.media.id : null, path: r.path || null, coverage: r.coverage, engine: r.engine, width: r.width, height: r.height, clip: r.clip || null };
+  };
+  M.addCollageTemplate = (p = {}) => {
+    const id = p.template || p.id; const T = GW.MG.get(id) || GW.MG.get('cl-' + id) || GW.MG.get('cl-scene-' + id);
+    if (!T || T.cat !== 'collage') fail('unknown collage template "' + id + '" (' + GW.MG.list.filter(x => x.cat === 'collage').map(x => x.id).join(', ') + ')');
+    const fields = Object.assign({}, p.fields || {}); for (const fd of T.fields) if (fd.t === 'img' && fields[fd.k]) fields[fd.k] = mediaOf(fields[fd.k]).id;
+    return M.addTemplate(Object.assign({}, p, { id: T.id, template: undefined, fields }));
+  };
+  M.setLeaderCrop = (p = {}) => { if (!GW.PhotoCrop) fail('photo crop module not loaded'); return GW.PhotoCrop.api('crop', p, { clipOf, fail, label }); };
+  M.leaderFromTimeline = (p = {}) => { if (!GW.PhotoCrop) fail('photo crop module not loaded'); return GW.PhotoCrop.api('grab', p, { clipOf, fail, label, num }); };
   GW.API = { version: VERSION, methods: M, call, parseTrack, clipInfo };
 
   function badge() {

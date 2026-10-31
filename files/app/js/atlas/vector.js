@@ -18,6 +18,7 @@
   /* ---------------- patterns ---------------- */
   const patCache = new Map();
   function pattern(ctx, kind, color, k) {
+    if (kind === 'weave') return V.weave(ctx, color, k);
     const key = kind + color + Math.round(k * 4); let p = patCache.get(key);
     if (p) return ctx.createPattern(p, 'repeat');
     const s = Math.max(6, Math.round(12 * k)); const c = document.createElement('canvas'); c.width = c.height = s; const g = c.getContext('2d');
@@ -28,6 +29,24 @@
     else if (kind === 'grid') { g.strokeRect(0, 0, s, s); }
     patCache.set(key, c); return ctx.createPattern(c, 'repeat');
   }
+
+  // «نسيج متقاطع»: fine woven / cross-hatch texture (printed linen): two families of thin diagonal threads ~3–4 px apart,
+  // slightly lighter than the fill, with brighter knots where they cross. o: {scale, angle(deg)}; alpha is set by the caller.
+  const weaveCache = new Map();
+  V.weave = (ctx, color, k, o = {}) => {
+    const sc = Math.max(.4, Math.min(4, +o.scale || 1)); const key = color + '|' + Math.round(k * 8) + '|' + sc.toFixed(2); let c = weaveCache.get(key);
+    if (!c) {
+      const d = Math.max(2.4, 3.6 * k * sc); const s = Math.max(4, Math.round(d * Math.SQRT2 * 2)); c = document.createElement('canvas'); c.width = c.height = s; const g = c.getContext('2d');
+      const lw = Math.max(.6, .75 * k * Math.min(1.4, sc)); g.lineCap = 'butt';
+      const fam = (dir, alpha) => { g.globalAlpha = alpha; g.strokeStyle = color; g.lineWidth = lw; g.beginPath(); for (let i = -2; i <= 2; i++) { const o0 = i * s / 2; if (dir > 0) { g.moveTo(o0 - s, -s + 0); g.lineTo(o0 + s * 2, s * 2); } else { g.moveTo(o0 - s, s * 2); g.lineTo(o0 + s * 2, -s); } } g.stroke(); };
+      fam(1, .9); fam(-1, .65);
+      g.globalAlpha = .9; g.fillStyle = color; const kn = Math.max(.6, lw * .9); for (let i = 0; i <= 2; i++) for (let j = 0; j <= 2; j++) { g.fillRect(i * s / 2 - kn / 2, j * s / 2 - kn / 2, kn, kn); }
+      weaveCache.set(key, c); if (weaveCache.size > 60) weaveCache.delete(weaveCache.keys().next().value);
+    }
+    const p = ctx.createPattern(c, 'repeat'); const ang = o.angle == null ? 0 : +o.angle; if (ang && p.setTransform && window.DOMMatrix) p.setTransform(new DOMMatrix().rotate(ang)); return p;
+  };
+  // fill the current path with a colour + optional woven texture (country layers, war factions, fronts)
+  V.weaveFill = (ctx, fill, color, alpha, k, o = {}) => { ctx.globalAlpha = alpha; ctx.fillStyle = color; fill(); ctx.globalAlpha = (o.opacity == null ? .55 : +o.opacity) * Math.min(1, alpha / .6); ctx.fillStyle = V.weave(ctx, shade(color, .38), k, o); fill(); };
 
   /* ---------------- icons ---------------- */
   const P2 = {};
@@ -95,7 +114,28 @@
   // fam = installed or bundled family; Thmanyah families (installed by the user, never bundled) fall back to "thmanyah sans" then Cairo
   function font(px, weight, fam, italic) { const f = String(fam || 'Cairo'); return `${italic ? 'italic ' : ''}${weight || 700} ${Math.max(1, px).toFixed(1)}px "${f}", ${f.startsWith('thmanyah') && f !== 'thmanyah sans' ? '"thmanyah sans", ' : ''}"Cairo", "Segoe UI", sans-serif`; }
   V.font = font;
+  // label sprites: a halo'd label (soft shadow blur / stroke) is rasterised once and blitted afterwards — text with shadowBlur is
+  // the most expensive per-frame Canvas2D work during camera moves. Only for untransformed contexts once fonts are loaded.
+  const SPR = new Map(); let sprN = 0;
+  const fontsOK = () => !document.fonts || document.fonts.status === 'loaded';
+  function haloSprite(ctx, s, x, y, px, ink, halo, fam, weight, align, spacing) {
+    if (!fontsOK() || px > 160 || !s) return false; const tf = ctx.getTransform ? ctx.getTransform() : null; if (!tf || tf.a !== 1 || tf.d !== 1 || tf.b || tf.c) return false;
+    const q = Math.round(px * 4) / 4; const key = s + '\u0001' + q + '|' + ink + '|' + halo + '|' + fam + '|' + (weight || 700) + '|' + (spacing || 0);
+    let e = SPR.get(key);
+    if (!e) {
+      const w = measure(ctx, s, q, fam, weight, spacing); const pad = Math.ceil(q * .7 + 6); const cv = document.createElement('canvas'); cv.width = Math.ceil(w + pad * 2); cv.height = Math.ceil(q * 1.7 + pad * 2);
+      const g2 = cv.getContext('2d'); haloDraw(g2, s, pad + w / 2, cv.height / 2, q, ink, halo, fam, weight, 'center', spacing); e = { cv, w, pad }; SPR.set(key, e); sprN++;
+      if (SPR.size > 900) { let i = 0; for (const k of SPR.keys()) { SPR.delete(k); if (++i > 300) break; } }
+    }
+    const ax = align === 'left' ? 0 : align === 'right' ? e.w : e.w / 2;
+    ctx.drawImage(e.cv, Math.round(x - ax - e.pad), Math.round(y - e.cv.height / 2)); return true;
+  }
+  V.sprites = () => ({ n: SPR.size, made: sprN });
   function haloText(ctx, s, x, y, px, ink, halo, fam, weight, align, spacing) {
+    if (V.labelSprites !== false && haloSprite(ctx, s, x, y, px, ink, halo, fam, weight, align, spacing)) return;
+    haloDraw(ctx, s, x, y, px, ink, halo, fam, weight, align, spacing);
+  }
+  function haloDraw(ctx, s, x, y, px, ink, halo, fam, weight, align, spacing) {
     ctx.font = font(px, weight, fam); ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.direction = isAr(s) ? 'rtl' : 'ltr';
     if ('letterSpacing' in ctx) ctx.letterSpacing = isAr(s) ? '0px' : ((spacing || 0) * px).toFixed(1) + 'px';
     if (halo === 'soft' || (halo && halo.startsWith && halo.startsWith('soft'))) { // documentary 'soft shadow': blurred drop shadow, no hard stroke
@@ -109,7 +149,9 @@
     if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   }
   V.haloText = haloText;
-  function measure(ctx, s, px, fam, weight, spacing) { ctx.font = font(px, weight, fam); if ('letterSpacing' in ctx) ctx.letterSpacing = isAr(s) ? '0px' : ((spacing || 0) * px).toFixed(1) + 'px'; const w = ctx.measureText(s).width; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; return w; }
+  const MEAS = new Map();
+  function measure(ctx, s, px, fam, weight, spacing) { const fk = fontsOK() ? s + '\u0001' + px.toFixed(2) + '|' + fam + '|' + weight + '|' + (spacing || 0) : null; if (fk) { const m = MEAS.get(fk); if (m != null) return m; } const w = measure0(ctx, s, px, fam, weight, spacing); if (fk) { if (MEAS.size > 4000) MEAS.clear(); MEAS.set(fk, w); } return w; }
+  function measure0(ctx, s, px, fam, weight, spacing) { ctx.font = font(px, weight, fam); if ('letterSpacing' in ctx) ctx.letterSpacing = isAr(s) ? '0px' : ((spacing || 0) * px).toFixed(1) + 'px'; const w = ctx.measureText(s).width; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; return w; }
   function plate(ctx, x, y, w, h, fill, r) { ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, w, h, r || h * .2); else ctx.rect(x, y, w, h); ctx.fillStyle = fill; ctx.fill(); }
 
   /* ---------------- geometry helpers ---------------- */
@@ -221,6 +263,18 @@
   /* ---------------- images (portraits) ---------------- */
   const imgCache = new Map();
   V.img = (sc, id) => { const src = sc.images && sc.images[id]; if (!src) return null; let im = imgCache.get(id); if (!im || im._src !== src) { im = new Image(); im._src = src; im.onload = () => A.onAsset && A.onAsset(); im.src = src; imgCache.set(id, im); } return im.complete && im.naturalWidth ? im : null; };
+  // precise crop (Ly.crop = {x, y, scale, rot}): the photo is cover-fitted into the frame box (x0,y0,w,h), then zoomed by
+  // scale (1 = cover), rotated by rot (degrees) and shifted by x / y (fractions of the box size) about the box centre.
+  // fy = vertical anchor of the default cover fit (0 = top, .5 = centre); the crop dialog (ui_photocrop.js) uses the same maths.
+  V.drawCrop = (g, im, crop, x0, y0, w, h, fy) => {
+    const iw = im.naturalWidth || im.width, ih = im.naturalHeight || im.height; if (!iw || !ih) return;
+    const s0 = Math.max(w / iw, h / ih), dw = iw * s0, dh = ih * s0; const cx = x0 + w / 2, cy = y0 + h / 2;
+    const ox = (w - dw) / 2, oy = (h - dh) * (fy == null ? .5 : fy); // offset of the default fit relative to centring
+    if (!crop) { g.drawImage(im, x0 + ox, y0 + oy, dw, dh); return; }
+    const sc = Math.max(.05, +crop.scale || 1), rot = (+crop.rot || 0) * Math.PI / 180;
+    g.save(); g.translate(cx + (+crop.x || 0) * w, cy + (+crop.y || 0) * h); if (rot) g.rotate(rot); g.scale(sc, sc);
+    g.drawImage(im, -dw / 2 + ox - (w - dw) / 2, -dh / 2 + oy - (h - dh) / 2, dw, dh); g.restore();
+  };
   V.imgsReady = (sc) => Promise.all(Object.keys(sc.images || {}).map(id => new Promise(r => { V.img(sc, id); const im = imgCache.get(id); if (!im || im.complete) r(); else { im.addEventListener('load', r, { once: true }); im.addEventListener('error', r, { once: true }); } })));
 
   // Arabic name for a (historical) capital via the Natural Earth places table
@@ -297,7 +351,8 @@
         if (Ly.in === 'spread' && pin < 1) { const f0 = fs[0]; b.beginPath(); pb(blob(f0.lab, Math.max(...fs.map(f => d3.geoDistance(f0.lab, f.lab) + f.rad)) * pin, 3, t, .08)); b.clip(); }
         else if (Ly.in === 'wipe' && pin < 1) { b.beginPath(); b.rect(0, 0, W * pin, H); b.clip(); }
         const fa = Ly.in === 'fade' ? pin : 1;
-        for (const f of fs) { const fc = (Ly.colors && Ly.colors[f.key]) || Ly.color; b.beginPath(); pb(f); b.globalAlpha = Ly.fill * fa * a; b.fillStyle = Ly.pattern === 'solid' ? fc : pattern(b, Ly.pattern, Ly.pattern === 'hatch' && Ly.outline === 'dashed' ? shade(fc, .35) : fc, k); b.fill(); if (Ly.pattern !== 'solid') { b.globalAlpha = Ly.fill * fa * a * .35; b.fillStyle = fc; b.fill(); } }
+        if (Ly.pattern === 'weave') for (const f of fs) { const fc = (Ly.colors && Ly.colors[f.key]) || Ly.color; b.beginPath(); pb(f); V.weaveFill(b, () => b.fill(), fc, Ly.fill * fa * a, k, { scale: Ly.patS, angle: Ly.patR, opacity: Ly.patA }); }
+        else for (const f of fs) { const fc = (Ly.colors && Ly.colors[f.key]) || Ly.color; b.beginPath(); pb(f); b.globalAlpha = Ly.fill * fa * a; b.fillStyle = Ly.pattern === 'solid' ? fc : pattern(b, Ly.pattern, Ly.pattern === 'hatch' && Ly.outline === 'dashed' ? shade(fc, .35) : fc, k); b.fill(); if (Ly.pattern !== 'solid') { b.globalAlpha = Ly.fill * fa * a * .35; b.fillStyle = fc; b.fill(); } }
         if (Ly.inner) { // inner edge shading: gives the translucent fill depth (documentary look)
           const pa = new Path2D(); const pp = d3.geoPath(vw.proj, pa); for (const f of fs) pp(f);
           b.save(); b.clip(pa, 'evenodd'); b.globalAlpha = .55 * fa * a; b.lineJoin = 'round'; b.lineWidth = 9 * k; b.strokeStyle = shade(Ly.color, -.55); b.filter = `blur(${(4 * k).toFixed(1)}px)`; b.stroke(pa); b.restore();
@@ -490,6 +545,7 @@
 
   function drawPortrait(g, sc, Ly, sp, s, k, fam) {
     if (Ly.disp === 'banner' && V.banner) return V.banner(g, sc, Ly, sp, s, k, fam); // «راية» style (war.js)
+    if (V.leaderFrame && V.leaderFrame.styles[Ly.disp]) return V.leaderFrame(g, sc, Ly, sp, s, k, fam); // medallion / heraldic / coin (war.js)
     const sz = 120 * k * (Ly.size || 1) * (Ly.scale == null ? 1 : Ly.scale); const pop = Ly.in === 'pop' ? Math.max(0, S.back(s.pin)) : Ly.in === 'grow' ? S.easeOut(s.pin) : Ly.in === 'zoom' ? 1.6 - .6 * S.easeOut(s.pin) : 1;
     const a = s.a * (Ly.in === 'fade' || Ly.in === 'zoom' ? S.easeOut(s.pin) : Ly.in === 'pop' ? Math.min(1, s.pin * 3) : 1);
     const plH = Ly.plate && (Ly.name || Ly.sub) ? (Ly.sub ? 20 * k * 1.3 + 13 * k * 1.4 : 20 * k * 1.5) + 10 * k : 0; const dyk = Ly.dy == null ? -1 : Ly.dy;
@@ -500,7 +556,7 @@
     const shp = () => { g.beginPath(); const r = sz / 2; if (Ly.shape === 'square') g.rect(-r, -r, sz, sz); else if (Ly.shape === 'rounded') { if (g.roundRect) g.roundRect(-r, -r, sz, sz, sz * .18); else g.rect(-r, -r, sz, sz); } else if (Ly.shape === 'hex') { for (let i = 0; i < 6; i++) { const an = Math.PI / 6 + i * Math.PI / 3; g.lineTo(Math.cos(an) * r, Math.sin(an) * r); } g.closePath(); } else if (Ly.shape === 'shield') { g.moveTo(-r, -r); g.lineTo(r, -r); g.lineTo(r, r * .2); g.quadraticCurveTo(r * .8, r * .85, 0, r * 1.1); g.quadraticCurveTo(-r * .8, r * .85, -r, r * .2); g.closePath(); } else g.arc(0, 0, r, 0, 7); };
     g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 18 * k; shp(); g.fillStyle = '#1b2230'; g.fill(); g.shadowBlur = 0;
     const im = V.img(sc, Ly.img);
-    if (im) { g.save(); shp(); g.clip(); const ar = im.naturalWidth / im.naturalHeight; const w = ar > 1 ? sz * ar : sz, h = ar > 1 ? sz : sz / ar; g.drawImage(im, -w / 2, -h / 2, w, h); g.restore(); }
+    if (im) { g.save(); shp(); g.clip(); V.drawCrop(g, im, Ly.crop, -sz / 2, -sz / 2, sz, sz, .5); g.restore(); }
     else { g.fillStyle = 'rgba(255,255,255,.35)'; g.beginPath(); g.arc(0, -sz * .1, sz * .17, 0, 7); g.fill(); g.beginPath(); g.ellipse(0, sz * .28, sz * .3, sz * .2, 0, Math.PI, 0); g.fill(); }
     shp(); g.lineWidth = 5 * k; g.strokeStyle = Ly.ring; g.stroke();
     if (Ly.plate && (Ly.name || Ly.sub)) {

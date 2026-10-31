@@ -14,6 +14,8 @@
     A.master.connect(ctx.destination); A.master.connect(A.split); A.split.connect(A.anL, 0); A.split.connect(A.anR, 1);
     A.bufL = new Float32Array(1024); A.bufR = new Float32Array(1024);
   }
+  const tb = new Float32Array(512);
+  A.trackLevels = (ti) => { const an = A.playing && A.trackAn && A.trackAn[ti]; if (!an) return [0, 0]; return an.map(a => { a.getFloatTimeDomainData(tb); let m = 0; for (let i = 0; i < 512; i++) { const v = tb[i] < 0 ? -tb[i] : tb[i]; if (v > m) m = v; } return m; }); };
   A.levels = () => {
     if (!A.anL) return [0, 0];
     A.anL.getFloatTimeDomainData(A.bufL); A.anR.getFloatTimeDomainData(A.bufR);
@@ -75,7 +77,15 @@
   A.schedule = (ctx, s, t0, when, dest, tEnd) => {
     const nodes = [];
     const master = ctx.createGain(); master.gain.value = dbToGain(s.master || 0); master.connect(dest); nodes.push(master);
-    const tGain = s.at.map(tr => { const g = ctx.createGain(); g.gain.value = dbToGain(tr.vol || 0); g.connect(master); nodes.push(g); return g; });
+    // per track: gain → (pan, only when set) → master; live playback also taps each track for the Mixer's channel meters (A.trackAn)
+    const live = ctx === A.ctx() && !A._depth; if (live) A.trackAn = [];
+    const tGain = s.at.map((tr, ti) => {
+      const g = ctx.createGain(); g.gain.value = dbToGain(tr.vol || 0); nodes.push(g); let out = g;
+      if (tr.pan) { const p = ctx.createStereoPanner(); p.pan.value = GW.clamp(tr.pan / 100, -1, 1); g.connect(p); out = p; nodes.push(p); }
+      out.connect(master);
+      if (live) { const sp = ctx.createChannelSplitter(2), l = ctx.createAnalyser(), r = ctx.createAnalyser(); l.fftSize = r.fftSize = 512; out.connect(sp); sp.connect(l, 0); sp.connect(r, 1); nodes.push(sp, l, r); A.trackAn[ti] = [l, r]; }
+      return g;
+    });
     if (GW.AudioFX && GW.AudioFX.duckTracks) try { GW.AudioFX.duckTracks(ctx, s, t0, when, tGain, tEnd); } catch (e) { console.error(e); } // real-time sidechain ducking per track (audio_fx.js)
     for (const c of s.clips) {
       if (c.kind === 'nest' && c.on !== 0 && (A._depth || 0) < 4) {

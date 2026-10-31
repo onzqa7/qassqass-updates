@@ -1,7 +1,7 @@
 {
   "name": "qassqass",
   "productName": "QassQass",
-  "version": "2.6.0",
+  "version": "3.0.0",
   "description": "قص قص — video editor with 3D war & history maps",
   "main": "bootstrap.js",
   "author": "QassQass",
@@ -69,13 +69,15 @@
     "electronVersion": "37.10.3",
     "compression": "normal",
     "asarUnpack": [
-      "app/sfx/**/*"
+      "app/sfx/**/*",
+      "app/bin/**/*"
     ]
   },
   "devDependencies": {
     "electron": "^37.10.3",
     "electron-builder": "^26.0.12",
     "pe-library": "^1.0.1",
-    "resedit": "^2.0.3"
+    "resedit": "^2.0.3",
+    "three": "0.169.0"
   }
 }

@@ -11,48 +11,115 @@
     greenScreen: { n: 'إزالة شاشة خضراء' }, oldFilm: { n: 'فيلم قديم' }, nightVision: { n: 'رؤية ليلية' }, thermal: { n: 'كاميرا حرارية' },
     quake: { n: 'زلزال' }, dream: { n: 'حلم / ذكرى' }, cctv: { n: 'كاميرا مراقبة' }, storm: { n: 'عاصفة وبرق' }, newsMap: { n: 'خلفية أخبار متحركة' }, comic: { n: 'رسم كوميكس' }, oldTV: { n: 'تلفاز قديم' }, sunset: { n: 'غروب دافئ' }, coldWar: { n: 'حرب باردة (أزرق بارد)' }, flashback: { n: 'استرجاع (فلاش باك)' }
   };
+  /* pro looks built on fx_pro.js (Deep Glow, real VHS, CRT, film…); `tr` = one-click transition preset */
+  if (GW.FXPro) Object.assign(PRESETS, {
+    ww2Archive: { n: 'أرشيف حرب عالمية', cat: 'مظاهر احترافية' }, vhsFamily: { n: 'تسجيل VHS عائلي', cat: 'مظاهر احترافية' }, oldBroadcast: { n: 'بث تلفزيوني قديم', cat: 'مظاهر احترافية' }, opsRoom: { n: 'شاشة غرفة عمليات', cat: 'مظاهر احترافية' },
+    film16: { n: 'فيلم 16مم', cat: 'مظاهر احترافية' }, dreamPro: { n: 'حلم/ذكرى (توهج عميق)', cat: 'مظاهر احترافية' }, memFlash: { n: 'فلاش ذكرى', cat: 'مظاهر احترافية' }, flashCut: { n: 'قطع مع وميض', cat: 'مظاهر احترافية' }, kodakLook: { n: 'مظهر سينما كوداك', cat: 'مظاهر احترافية' }, noirLook: { n: 'نوار كلاسيكي', cat: 'مظاهر احترافية' }, heatDesert: { n: 'حر الصحراء', cat: 'مظاهر احترافية' }, holoMsg: { n: 'رسالة هولوغرام', cat: 'مظاهر احترافية' },
+    vhs90s: { n: 'فيديو منزلي 90s', cat: 'VHS' }, vhsDamaged: { n: 'شريط تالف', cat: 'VHS' }, vhsNews: { n: 'أرشيف أخبار', cat: 'VHS' },
+    crtOldTV: { n: 'تلفزيون قديم', cat: 'CRT' }, crt80s: { n: 'شاشة كمبيوتر 80s', cat: 'CRT' }, crtSecurity: { n: 'مونيتر أمني', cat: 'CRT' },
+    grain16: { n: 'حبيبات 16مم', cat: 'فيلم' }, grain35: { n: 'حبيبات 35مم', cat: 'فيلم' }, super8: { n: 'سوبر 8 منزلي', cat: 'فيلم' },
+    glowSoft: { n: 'توهج عميق ناعم', cat: 'توهج' }, glowAnam: { n: 'توهج أنامورفي أزرق', cat: 'توهج' }, glowSun: { n: 'شمس ذهبية مع وهج', cat: 'توهج' },
+    neonText: { n: 'توهج نيون للنص', cat: 'نصوص' }, neonFlicker: { n: 'نيون وامض للنص', cat: 'نصوص' }, goldText: { n: 'نص ذهبي لامع', cat: 'نصوص' }, outlineShadow: { n: 'حدود وظل طويل للنص', cat: 'نصوص' },
+    trVhs: { n: 'ترجيع VHS', cat: 'انتقالات جاهزة', tr: 'vhsRewind' }, trCrt: { n: 'إطفاء شاشة CRT', cat: 'انتقالات جاهزة', tr: 'crtOff' }, trGlitch: { n: 'قطع جليتش', cat: 'انتقالات جاهزة', tr: 'glitchCut' }, trBurn: { n: 'احتراق الفيلم', cat: 'انتقالات جاهزة', tr: 'filmBurn' },
+    trLeak: { n: 'مسح بتسرب ضوئي', cat: 'انتقالات جاهزة', tr: 'leakWipe' }, trWhip: { n: 'سحب سريع مع ضبابية حركة', cat: 'انتقالات جاهزة', tr: 'whipBlur' }, trZoom: { n: 'تكبير عبر المشهد', cat: 'انتقالات جاهزة', tr: 'zoomThrough' },
+    trExp: { n: 'تعريض ضبابي', cat: 'انتقالات جاهزة', tr: 'expBlur' }, trFlare: { n: 'انتقال وهج عدسة', cat: 'انتقالات جاهزة', tr: 'flareT' }, trFlick: { n: 'قطع وامض', cat: 'انتقالات جاهزة', tr: 'flickerCut' }
+  });
+  GW.FX_PRESETS = PRESETS;
   const FX_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 15l3-6 2 4 1-2 2 4"/></svg>';
   const TR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="11" height="12" rx="1.5"/><rect x="11" y="6" width="11" height="12" rx="1.5" fill="currentColor" fill-opacity=".25"/></svg>';
   const AU_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg>';
-  let fxQuery = '', closedCats = {};
+  /* v6 browser: search + category chips (all / favourites / presets / video / transitions / audio / audio transitions), sub-category
+     headers, a star per item (favourites in localStorage), and a live preview while hovering: the effect is applied temporarily to the
+     selected video clip and the Program redraws (never committed — removed on leave, click, drag or any commit). */
+  let fxQuery = '', closedCats = {}, fxCat = 'all';
+  let favs = new Set(); try { favs = new Set(JSON.parse(localStorage.getItem('qq.fxFavs') || '[]')); } catch (e) {}
+  const saveFavs = () => { try { localStorage.setItem('qq.fxFavs', JSON.stringify([...favs])); } catch (e) {} };
+  const FX_CATS = [['all', 'الكل', 'grid'], ['fav', 'المفضلة', 'star'], ['preset', 'قوالب', 'sparkle'], ['v', 'فيديو', 'wand'], ['tr', 'انتقالات', 'layers'], ['a', 'صوت', 'sound'], ['atr', 'انتقالات صوت', 'wave']];
   GW.registerPanel('effects', 'التأثيرات', (el) => {
-    el.innerHTML = `<div class="search" dir="rtl"><input class="inp" placeholder="ابحث عن تأثير أو انتقال…" data-a="q"></div><div class="pscroll tree" data-a="tree"></div><div class="ptool" dir="rtl" style="border-top:1px solid var(--line);border-bottom:0;color:var(--mute)">اسحب التأثير إلى مقطع في الخط الزمني، أو انقر مرتين لتطبيقه على المحدد.</div>`;
+    el.innerHTML = `<div class="search fx6-search" dir="rtl">${GW.ico('search', 14, 'fx6-si')}<input class="inp" placeholder="ابحث عن تأثير أو انتقال…" data-a="q"></div><div class="fx6-cats" data-a="cats" dir="rtl"></div><div class="pscroll tree fx6" data-a="tree"></div><div class="fx6-foot" dir="rtl" data-a="foot">${GW.ico('play', 12)}<span>مرّر فوق تأثير لمعاينته على المقطع المحدد · انقر مرتين للتطبيق أو اسحبه إلى مقطع</span></div>`;
+    const cats = el.querySelector('[data-a=cats]');
+    const paintCats = () => { cats.innerHTML = FX_CATS.concat(UI.fxExtraCats ? UI.fxExtraCats() : []).map(([k, n, ic]) => `<button class="chip ${fxCat === k ? 'on' : ''}" data-c="${k}">${GW.ico(ic, 12)}<span>${n}</span>${k === 'fav' && favs.size ? `<i>${favs.size}</i>` : ''}</button>`).join(''); cats.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { fxCat = b.dataset.c; paintCats(); renderTree(el.querySelector('[data-a=tree]')); }); };
+    UI.fxPaintCats = paintCats; paintCats();
+    UI.fxSetCat = (k) => { fxCat = k; paintCats(); renderTree(el.querySelector('[data-a=tree]')); }; UI.fxRefresh = () => { if (el.isConnected) { paintCats(); renderTree(el.querySelector('[data-a=tree]')); } }; // extra groups (e.g. «من أدوبي», adobe_import.js)
     el.querySelector('[data-a=q]').oninput = e => { fxQuery = e.target.value.trim(); renderTree(el.querySelector('[data-a=tree]')); };
+    el.querySelector('[data-a=q]').onkeydown = e => e.stopPropagation();
     renderTree(el.querySelector('[data-a=tree]'));
   });
+  // ---- hover preview (temporary, never committed) ----
+  const PV = { c: null, snap: null, t: 0 };
+  function endPreview() { clearTimeout(PV.t); if (!PV.c) return; const c = PV.c; if (PV.snap) { c.fx = PV.snap.fx; c.motion = PV.snap.motion; c.opacity = PV.snap.opacity; } PV.c = PV.snap = null; GW.invalidate(); const f = document.querySelector('.fx6-foot'); if (f) f.classList.remove('pv'); }
+  function startPreview(grp, k) {
+    endPreview(); if (grp !== 'v' && grp !== 'preset' && !(grp === 'adobe' && UI.fxPreviewExtra)) return; const c = [...GW.sel.clips].map(id => GW.clipById(id)).find(x => x && x.tt === 'v' && x.motion); if (!c) return;
+    PV.t = setTimeout(() => { PV.c = c; PV.snap = { fx: c.fx, motion: c.motion, opacity: c.opacity }; c.fx = (c.fx || []).slice(); c.motion = GW.clone(c.motion); c.opacity = GW.clone(c.opacity);
+      try { if (grp === 'v') c.fx.push(GW.newFx(k, 'v')); else if (grp === 'adobe') UI.fxPreviewExtra(c, grp, k); else applyPreset(c, k); } catch (e) { endPreview(); return; }
+      GW.invalidate(); const f = document.querySelector('.fx6-foot'); if (f) f.classList.add('pv'); }, 220);
+  }
+  UI.fxEndPreview = endPreview;
+  // floating animated thumbnail (transitions, or effects/looks when no clip is selected): rendered offline by fx_pro.js
+  const TH = { el: null, iv: 0, t: 0 };
+  function endThumb() { clearTimeout(TH.t); clearInterval(TH.iv); if (TH.el) TH.el.remove(); TH.el = null; }
+  function startThumb(leaf, grp, k) {
+    endThumb(); if (!GW.FXPro || !GW.FXPro.thumbs) return;
+    const hasSel = [...GW.sel.clips].map(id => GW.clipById(id)).some(x => x && x.tt === 'v' && x.motion);
+    if (!(grp === 'tr' || ((grp === 'v' || grp === 'preset') && !hasSel))) return;
+    TH.t = setTimeout(() => {
+      let spec;
+      if (grp === 'tr') spec = { group: 'tr', type: k };
+      else if (grp === 'preset' && PRESETS[k] && PRESETS[k].tr) spec = { group: 'tr', type: PRESETS[k].tr };
+      else if (grp === 'preset') { const fake = { fx: [], motion: { pos: GW.P([0, 0]), anchor: GW.P([0, 0]), scale: GW.P(100), scaleW: GW.P(100), rot: GW.P(0), uni: 1 }, opacity: GW.P(100), dur: 5, tt: 'v' }; try { applyPreset(fake, k); } catch (e) { return; } if (!fake.fx.length) return; spec = { fx: fake.fx }; }
+      else spec = { group: 'v', type: k };
+      let frames; try { frames = GW.FXPro.thumbs(spec, grp === 'v' || (grp === 'preset' && !spec.group) ? 6 : 10, 224); } catch (e) { console.warn('thumb', e); return; }
+      if (!frames || !frames.length) return;
+      const box = document.createElement('div'); box.className = 'fx6-thumb'; box.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;background:#0c0c0e;border:1px solid var(--line,#333);border-radius:8px;padding:4px;box-shadow:0 8px 24px rgba(0,0,0,.5)';
+      const cv = document.createElement('canvas'); cv.width = frames[0].width; cv.height = frames[0].height; cv.style.cssText = 'display:block;width:224px;border-radius:5px'; box.append(cv); document.body.append(box);
+      const r = leaf.getBoundingClientRect(); const bw = 234; let x = r.left - bw - 8; if (x < 4) x = r.right + 8; box.style.left = x + 'px'; box.style.top = Math.max(4, Math.min(innerHeight - 140, r.top - 40)) + 'px';
+      const g = cv.getContext('2d'); let i = 0; const draw = () => { g.putImageData(frames[i % frames.length], 0, 0); i++; }; draw(); TH.iv = setInterval(draw, grp === 'tr' ? 110 : 160); TH.el = box;
+    }, 260);
+  }
+  { const c0 = GW.commit; if (c0) GW.commit = function () { endPreview(); return c0.apply(this, arguments); }; }
   function renderTree(box) {
-    box.innerHTML = '';
+    endPreview(); endThumb(); box.innerHTML = '';
     const groups = [
-      ['قوالب جاهزة', 'preset', Object.entries(PRESETS).map(([k, v]) => [k, v.n, null])],
+      ['قوالب جاهزة', 'preset', Object.entries(PRESETS).map(([k, v]) => [k, v.n, v.cat || 'مظاهر سريعة'])],
       ['تأثيرات الفيديو', 'v', Object.entries(GW.FX).map(([k, v]) => [k, v.n, v.cat])],
       ['انتقالات الفيديو', 'tr', Object.entries(GW.TRANS).map(([k, v]) => [k, v.n, v.cat])],
       ['تأثيرات الصوت', 'a', Object.entries(GW.AFX).map(([k, v]) => [k, v.n, null])],
       ['انتقالات الصوت', 'atr', Object.entries(GW.ATRANS).map(([k, v]) => [k, v.n, null])]
     ];
-    const q = fxQuery.toLowerCase();
+    const q = fxQuery.toLowerCase(); let total = 0;
+    if (UI.fxExtraGroups) for (const g of UI.fxExtraGroups(fxCat, q)) groups.push(g);
     for (const [title, grp, items] of groups) {
-      const list = items.filter(([k, n]) => !q || n.toLowerCase().includes(q) || k.toLowerCase().includes(q)); if (!list.length) continue;
-      const cat = document.createElement('div'); cat.className = 'cat' + (closedCats[grp] && !q ? ' closed' : ''); cat.textContent = title; box.append(cat);
+      if (fxCat !== 'all' && fxCat !== 'fav' && fxCat !== grp) continue;
+      const list = items.filter(([k, n]) => (!q || n.toLowerCase().includes(q) || k.toLowerCase().includes(q)) && (fxCat !== 'fav' || favs.has(grp + ':' + k))); if (!list.length) continue; total += list.length;
+      const cat = document.createElement('div'); cat.className = 'cat' + (closedCats[grp] && !q ? ' closed' : ''); cat.innerHTML = `<span>${esc(title)}</span><span class="cat-n">${list.length}</span>`; box.append(cat);
       const wrap = document.createElement('div'); wrap.hidden = !!closedCats[grp] && !q; box.append(wrap);
       cat.onclick = () => { closedCats[grp] = !closedCats[grp]; renderTree(box); };
       let lastSub = null;
+      { const ord = new Map(); list.forEach(x => { if (!ord.has(x[2])) ord.set(x[2], ord.size); }); list.sort((x, y) => ord.get(x[2]) - ord.get(y[2])); } // one header per sub-category (stable within it)
       for (const [k, n, sub] of list) {
-        if (sub && sub !== lastSub) { const sc = document.createElement('div'); sc.style.cssText = 'color:var(--mute);font-size:11px;padding:4px 18px 2px'; sc.textContent = sub; wrap.append(sc); lastSub = sub; }
-        const leaf = document.createElement('div'); leaf.className = 'leaf'; leaf.draggable = true; leaf.innerHTML = (grp === 'tr' || grp === 'atr' ? TR_ICON : grp === 'a' ? AU_ICON : FX_ICON) + `<span>${esc(n)}</span>`;
-        leaf.addEventListener('dragstart', e => { e.dataTransfer.setData('application/x-gws-fx', JSON.stringify({ group: grp, type: k })); e.dataTransfer.effectAllowed = 'copy'; });
-        leaf.ondblclick = () => UI.applyFxTo({ group: grp, type: k }, null, {});
+        if (sub && sub !== lastSub) { const sc = document.createElement('div'); sc.className = 'fx6-sub'; sc.textContent = sub; wrap.append(sc); lastSub = sub; }
+        const id = grp + ':' + k; const leaf = document.createElement('div'); leaf.className = 'leaf'; leaf.draggable = true;
+        leaf.innerHTML = (grp === 'tr' || grp === 'atr' ? TR_ICON : grp === 'a' ? AU_ICON : grp === 'preset' ? GW.ico('sparkle', 14) : FX_ICON) + `<span class="lf-n">${esc(n)}</span><button class="lf-star ${favs.has(id) ? 'on' : ''}" title="${favs.has(id) ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}">${GW.ico(favs.has(id) ? 'starf' : 'star', 13)}</button>`;
+        if (UI.fxDecorateLeaf) UI.fxDecorateLeaf(leaf, grp, k);
+        leaf.querySelector('.lf-star').onclick = (e) => { e.stopPropagation(); if (favs.has(id)) favs.delete(id); else favs.add(id); saveFavs(); UI.fxPaintCats && UI.fxPaintCats(); renderTree(box); };
+        leaf.addEventListener('dragstart', e => { endPreview(); e.dataTransfer.setData('application/x-gws-fx', JSON.stringify({ group: grp, type: k })); e.dataTransfer.effectAllowed = 'copy'; });
+        leaf.onmouseenter = () => { startPreview(grp, k); startThumb(leaf, grp, k); }; leaf.onmouseleave = () => { endPreview(); endThumb(); }; leaf.onmousedown = () => { endPreview(); endThumb(); };
+        leaf.ondblclick = () => { endPreview(); UI.applyFxTo({ group: grp, type: k }, null, {}); };
         wrap.append(leaf);
       }
     }
+    if (!total) box.innerHTML = fxCat === 'fav' && !q ? '<div class="empty">لا توجد مفضلة بعد — انقر النجمة بجانب أي تأثير لتجده هنا بسرعة.</div>' : '<div class="empty">لا توجد نتائج — جرّب كلمة أخرى أو فئة «الكل».</div>';
   }
   UI.applyFxTo = (f, clip, hit) => {
     const s = GW.seq(); let clips = clip ? [clip] : [...GW.sel.clips].map(id => GW.clipById(id)).filter(Boolean);
     if (!clips.length) { GW.toast('حدد مقطعًا أولًا أو اسحب التأثير إلى مقطع'); return; }
+    if (UI.fxApplyExtra && UI.fxApplyExtra(f, clips)) return;
     if (f.group === 'tr' || f.group === 'atr') {
       const tt = f.group === 'tr' ? 'v' : 'a';
       for (const c of clips.filter(c => c.tt === tt)) { let side = hit && hit.edge; if (!side && hit && hit.t != null) side = hit.t > c.start + c.dur / 2 ? 'R' : 'L'; GW.TL.addTransitionAt(f.type, c, side || 'R'); }
       return;
     }
+    if (f.group === 'preset' && PRESETS[f.type] && PRESETS[f.type].tr) return UI.applyFxTo({ group: 'tr', type: PRESETS[f.type].tr }, clip, hit);
     if (f.group === 'preset') { clips.filter(c => c.tt === 'v').forEach(c => applyPreset(c, f.type)); GW.commit('قالب: ' + PRESETS[f.type].n); GW.FXC.render(); return; }
     let n = 0;
     for (let c of clips) {
@@ -64,6 +131,40 @@
     GW.commit('تطبيق تأثير'); GW.FXC.render();
     if (!GW.isShown('fxc')) GW.showPanel('fxc');
   };
+  // keyframed param in clip-local seconds: pts = [[t, v], …]
+  function kfp(f, key, pts, e) { f.params[key] = { v: pts[0][1], k: pts.map(([t, v]) => ({ t, v, e: e || 'ease' })) }; return f; }
+  function applyProPreset(c, k) {
+    const has = (t) => !!GW.FX[t]; if (!has('deepglow')) return;
+    const D = Math.max(.5, c.dur || 5);
+    if (k === 'ww2Archive') { fxWith(c, 'filmemu', { stock: 'trix', contrast: 25 }); fxWith(c, 'olddoc', { tone: 12, grain: 60, vig: 65, flicker: 45, weave: 40, dust: 45, contrast: 35, soft: 35 }); fxWith(c, 'filmdamage', { dust: 55, scratch: 50, hair: 25, weave: 0, flicker: 0, blotch: 12, tone: 'mix', fps: 18 }); fxWith(c, 'letterbox', { ratio: '133' }); }
+    if (k === 'vhsFamily') { fxWith(c, 'lumetri', { temp: 18, sat: 110, contrast: -6 }); fxWith(c, 'vhsreal', { gen: 40, osd: 'play', osdDate: 1, year: 1996, month: 7, day: 23, hour: 17, minute: 12, crop43: 1, track: 8 }); }
+    if (k === 'oldBroadcast') { fxWith(c, 'vhsreal', { gen: 25, noiz: 30, track: 0, headSw: 0, crop43: 1, jitter: 10, wobble: 15 }); fxWith(c, 'crt', { curv: 45, mask: 'shadow', lines: 480, glare: 30, bloom: 45, border: 4 }); }
+    if (k === 'opsRoom') { fxWith(c, 'lumetri', { sat: 55, temp: -30, contrast: 22, shadowTint: '#5a7c96' }); fxWith(c, 'crt', { curv: 18, corner: 15, mask: 'aperture', maskSize: 2.5, lines: 540, roll: 35, glare: 35, bloom: 50, border: 2, bright: 120 }); fxWith(c, 'hud', { style: 'target', color: '#7dd8ff', op: 55, grid: 20, scan: 40 }); }
+    if (k === 'film16') { fxWith(c, 'filmemu', { stock: 'portra', fade: 15 }); fxWith(c, 'halation', { amount: 60 }); fxWith(c, 'filmgrain', { stock: '16', amount: 70 }); fxWith(c, 'filmdamage', { dust: 25, scratch: 15, hair: 10, weave: 35, flicker: 20, blotch: 0 }); fxWith(c, 'lensdist', { k1: 8, ca: 20, vig: 45 }); }
+    if (k === 'dreamPro') { fxWith(c, 'deepglow', { thr: 50, radius: 420, int: .6, colorMode: 'tint', tint: '#ffd6a8' }); fxWith(c, 'bokeh', { radius: 3 }); fxWith(c, 'filmemu', { stock: 'portra', fade: 30, warmth: 20 }); fxWith(c, 'vignette', { amount: -35, feather: 80 }); }
+    if (k === 'memFlash') { const g = fxWith(c, 'deepglow', { thr: 30, radius: 500, colorMode: 'tint', tint: '#fff0d8' }); kfp(g, 'int', [[0, 4], [.45, .5], [D, .5]]); const l = fxWith(c, 'lumetri', { sat: 70, temp: 12, fade: 15 }); kfp(l, 'exposure', [[0, 2.5], [.35, 0]]); fxWith(c, 'filmgrain', { amount: 35 }); fxWith(c, 'vignette', { amount: 45 }); }
+    if (k === 'flashCut') { const l = fxWith(c, 'lumetri', {}); kfp(l, 'exposure', [[0, 4], [.1, 1.4], [.28, 0]], 'linear'); const g = fxWith(c, 'deepglow', { thr: 20, radius: 400 }); kfp(g, 'int', [[0, 5], [.3, 0]], 'linear'); }
+    if (k === 'kodakLook') { fxWith(c, 'filmemu', { stock: 'k2383' }); fxWith(c, 'halation', { amount: 45 }); fxWith(c, 'filmgrain', { stock: '35', amount: 35 }); fxWith(c, 'letterbox', { ratio: '239' }); }
+    if (k === 'noirLook') { fxWith(c, 'noir', {}); fxWith(c, 'filmgrain', { amount: 40, color: 0 }); fxWith(c, 'filmdamage', { dust: 15, scratch: 10, hair: 5, weave: 15, flicker: 25 }); }
+    if (k === 'heatDesert') { fxWith(c, 'lumetri', { temp: 35, sat: 90, contrast: 12, exposure: .15 }); fxWith(c, 'heatwave', { amount: 25, bottom: 70 }); fxWith(c, 'deepglow', { thr: 78, radius: 260, int: .5, colorMode: 'tint', tint: '#ffb860' }); }
+    if (k === 'holoMsg') { fxWith(c, 'holo', {}); fxWith(c, 'deepglow', { thr: 30, radius: 160, int: .8 }); }
+    if (k === 'vhs90s') fxWith(c, 'vhsreal', { gen: 35, osd: 'play', osdDate: 1, year: 1995, track: 6, crop43: 1 });
+    if (k === 'vhsDamaged') fxWith(c, 'vhsreal', { gen: 85, noiz: 70, drop: 70, track: 70, trackSpd: 2.5, wobble: 70, headSw: 90, jitter: 60, sat: 60, drift: 70, halo: 70 });
+    if (k === 'vhsNews') { fxWith(c, 'lumetri', { sat: 80, contrast: 10 }); fxWith(c, 'vhsreal', { gen: 55, noiz: 40, drop: 25, track: 10, headSw: 70, sat: 75, drift: 40, crop43: 1 }); }
+    if (k === 'crtOldTV') fxWith(c, 'crt', { curv: 70, corner: 55, vig: 60, mask: 'shadow', maskSize: 3, lines: 400, bloom: 60, conv: 40, flicker: 25, roll: 30, glare: 40, border: 5 });
+    if (k === 'crt80s') fxWith(c, 'crt', { curv: 40, corner: 30, mask: 'aperture', maskSize: 2, lines: 240, beamMin: 20, beamMax: 60, phos: 'amber', bloom: 80, bloomR: 8, glare: 30, border: 6, bright: 130 });
+    if (k === 'crtSecurity') { fxWith(c, 'lumetri', { sat: 0, contrast: 25 }); fxWith(c, 'crt', { curv: 25, mask: 'slot', lines: 360, phos: 'white', roll: 50, rollSpd: 1.5, noiz: 30, flicker: 30, glare: 20, border: 3 }); fxWith(c, 'vhsreal', { gen: 30, osd: 'rec', osdDate: 1, sat: 0, crop43: 0, track: 0 }); }
+    if (k === 'grain16') fxWith(c, 'filmgrain', { stock: '16', amount: 70 });
+    if (k === 'grain35') fxWith(c, 'filmgrain', { stock: '35', amount: 45 });
+    if (k === 'super8') { fxWith(c, 'filmemu', { stock: 'kchrome', fade: 20, warmth: 25 }); fxWith(c, 'filmgrain', { stock: '8', amount: 80 }); fxWith(c, 'filmdamage', { dust: 45, scratch: 20, weave: 60, flicker: 45, fps: 18 }); fxWith(c, 'lensdist', { k1: 15, vig: 70, ca: 40 }); fxWith(c, 'letterbox', { ratio: '133' }); }
+    if (k === 'glowSoft') fxWith(c, 'deepglow', { thr: 45, radius: 350, int: 1 });
+    if (k === 'glowAnam') fxWith(c, 'deepglow', { thr: 70, radius: 260, int: .6, aspect: 35, streak: 70, streakLen: 80 });
+    if (k === 'glowSun') { fxWith(c, 'deepglow', { thr: 50, radius: 600, int: 1.1, colorMode: 'grad', inner: '#fff4d0', outer: '#ff6a1a' }); fxWith(c, 'lensflare', { kind: 'sun' }); }
+    if (k === 'neonText') fxWith(c, 'neon', { color: '#ff2bd6' });
+    if (k === 'neonFlicker') fxWith(c, 'neon', { color: '#25e8ff', flicker: 45 });
+    if (k === 'goldText') { fxWith(c, 'luster', {}); fxWith(c, 'deepglow', { thr: 60, radius: 120, int: .6, colorMode: 'tint', tint: '#ffcf6a' }); }
+    if (k === 'outlineShadow') { fxWith(c, 'stroke', { width: 5, color: '#111111' }); fxWith(c, 'longshadow', { len: 260, op: 45 }); }
+  }
   function fxWith(c, type, vals) { const f = GW.newFx(type, 'v'); for (const k in vals) f.params[k] = GW.P(vals[k]); c.fx = c.fx || []; c.fx.push(f); return f; }
   function applyPreset(c, k) {
     const m = c.motion;
@@ -85,6 +186,7 @@
     if (k === 'oldTV') { fxWith(c, 'vhs', { amount: 70, lines: 60, wobble: 50 }); fxWith(c, 'lens', { amount: 30 }); fxWith(c, 'vignette', { amount: 70 }); fxWith(c, 'chroma', { amount: 5 }); }
     if (k === 'sunset') { fxWith(c, 'photofilter', { color: '#ff8a3d', density: 35 }); fxWith(c, 'ramp', { c1: '#ff7a3d', c2: '#000000', amount: 25 }); fxWith(c, 'flare', { center: [.75, .25], bright: 80 }); }
     if (k === 'coldWar') { fxWith(c, 'tritone', { hi: '#e8f1ff', mid: '#4a6a8a', sh: '#05101e', amount: 85 }); fxWith(c, 'grain', { amount: 20 }); fxWith(c, 'vignette', { amount: 50 }); }
+    if (PRESETS[k] && PRESETS[k].cat) applyProPreset(c, k);
     if (k === 'flashback') { fxWith(c, 'bw', { amount: 70 }); fxWith(c, 'glow', { thr: 50, radius: 30, int: .8 }); fxWith(c, 'vignette', { amount: 70, feather: 80 }); fxWith(c, 'grain', { amount: 25 }); }
   }
 
@@ -212,66 +314,199 @@
     ['ليلي', { temp: -45, exposure: -.6, sat: 70, contrast: 15 }, 'linear-gradient(90deg,#060f22,#3c5a8a)'], ['وثائقي حربي', { sat: 55, contrast: 28, fade: 12, temp: 10, exposure: -.1 }, 'linear-gradient(90deg,#2d2a20,#a59a78)'],
     ['صحراوي', { temp: 32, tint: 6, sat: 112, contrast: 14 }, 'linear-gradient(90deg,#5a3a14,#e8c070)']
   ];
-  GW.registerPanel('lumetri', 'ألوان Lumetri', (el) => { el.innerHTML = '<div class="pscroll" data-a="b"></div>'; UI.lumEl = el; renderLum(); });
+  GW.registerPanel('lumetri', 'ألوان Lumetri', (el) => { el.innerHTML = '<div class="pscroll lum6" data-a="b"></div>'; UI.lumEl = el; renderLum(); });
+  /* v6: collapsible sections like Premiere's Lumetri — أساسي / إبداعي و LUT / المنحنيات / العجلات / HSL ثانوي / تظليل الحواف / مطابقة.
+     Open state per section in localStorage. Wheels map onto the shadow / highlight tint colours (neutral #808080 = centre). */
+  let lumOpen = { basic: 1, creative: 1, curves: 0, wheels: 1, hsl: 0, vig: 0, match: 0 }; try { Object.assign(lumOpen, JSON.parse(localStorage.getItem('qq.lumOpen') || '{}')); } catch (e) {}
+  const LUM_SECS = [['basic', 'تصحيح أساسي', 'sparkle'], ['creative', 'إبداعي و LUT', 'color'], ['curves', 'المنحنيات', 'track'], ['wheels', 'عجلات الألوان', 'globe'], ['hsl', 'HSL ثانوي', 'wand'], ['vig', 'تظليل الحواف', 'image'], ['match', 'مطابقة اللون', 'split']];
+  function lumSec(root, key, title, ico, badge) {
+    const d = document.createElement('div'); d.className = 'lsec' + (lumOpen[key] ? ' open' : ''); d.dataset.sec = key;
+    const h = document.createElement('button'); h.className = 'lsec-h'; h.innerHTML = `${GW.ico('down', 12, 'lsec-tw')}${GW.ico(ico, 14)}<span>${esc(title)}</span>${badge ? `<i class="lsec-b">${esc(badge)}</i>` : ''}`;
+    const body = document.createElement('div'); body.className = 'lsec-body form';
+    h.onclick = () => { lumOpen[key] = lumOpen[key] ? 0 : 1; d.classList.toggle('open', !!lumOpen[key]); try { localStorage.setItem('qq.lumOpen', JSON.stringify(lumOpen)); } catch (e) {} };
+    d.append(h, body); root.append(d); return body;
+  }
+  const hex2rgb = (h) => { const n = parseInt(String(h || '#808080').slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const rgb2hex = (r, g, b) => '#' + [r, g, b].map(v => Math.round(clamp(v, 0, 255)).toString(16).padStart(2, '0')).join('');
+  // wheel position (angle = hue, radius = strength) ↔ tint colour around neutral grey (HSV with V = 128/255)
+  const wheelToHex = (ang, rad) => { const h = ((ang / (2 * Math.PI)) % 1 + 1) % 1, sv = clamp(rad, 0, 1), v = 128; const i = Math.floor(h * 6), f = h * 6 - i, p = v * (1 - sv), q = v * (1 - f * sv), t = v * (1 - (1 - f) * sv); const [r, g, b] = [[v, t, p], [q, v, p], [p, v, t], [p, q, v], [t, p, v], [v, p, q]][i % 6]; return rgb2hex(r, g, b); };
+  const hexToWheel = (hx) => { const [r, g, b] = hex2rgb(hx); const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let h = 0; if (d) { if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4; h /= 6; } return { ang: h * 2 * Math.PI, rad: mx ? d / mx : 0 }; };
+  function colorWheel(label, P, lt) {
+    const w = document.createElement('div'); w.className = 'cwheel';
+    const cv = document.createElement('canvas'); cv.width = cv.height = 220; const cap = document.createElement('div'); cap.className = 'cw-cap';
+    const paint = () => {
+      const g = cv.getContext('2d'), R = 100, C = 110; g.clearRect(0, 0, 220, 220);
+      const img = g.createImageData(220, 220); for (let y = 0; y < 220; y++) for (let x = 0; x < 220; x++) { const dx = x - C, dy = y - C, r = Math.hypot(dx, dy); if (r > R) continue; const [cr, cg, cb] = hex2rgb(wheelToHex(Math.atan2(-dy, dx), r / R)); const k = 1.6; const o = (y * 220 + x) * 4; img.data[o] = clamp((cr - 128) * k + 118, 0, 255); img.data[o + 1] = clamp((cg - 128) * k + 118, 0, 255); img.data[o + 2] = clamp((cb - 128) * k + 118, 0, 255); img.data[o + 3] = r > R - 1 ? 120 : 255; }
+      g.putImageData(img, 0, 0); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1; g.beginPath(); g.moveTo(C - R, C); g.lineTo(C + R, C); g.moveTo(C, C - R); g.lineTo(C, C + R); g.stroke();
+      const { ang, rad } = hexToWheel(GW.pv(P, lt)); const px = C + Math.cos(ang) * rad * R, py = C - Math.sin(ang) * rad * R;
+      g.beginPath(); g.arc(px, py, 7, 0, Math.PI * 2); g.fillStyle = GW.pv(P, lt); g.fill(); g.lineWidth = 2.5; g.strokeStyle = '#fff'; g.stroke();
+      cap.innerHTML = `<b>${esc(label)}</b><span dir="ltr">${rad < .01 ? '—' : Math.round(ang / Math.PI * 180 + 360) % 360 + '° · ' + Math.round(rad * 100) + '%'}</span>`;
+    };
+    const set = (e, fin) => { const r = cv.getBoundingClientRect(); const dx = (e.clientX - r.left) / r.width * 220 - 110, dy = (e.clientY - r.top) / r.height * 220 - 110; let rad = Math.min(1, Math.hypot(dx, dy) / 100); if (rad < .04) rad = 0; GW.setPv(P, lt, wheelToHex(Math.atan2(-dy, dx), rad)); paint(); GW.invalidate(); if (fin) GW.commit('عجلة الألوان: ' + label); };
+    cv.onpointerdown = (e) => { e.preventDefault(); cv.setPointerCapture(e.pointerId); set(e); cv.onpointermove = (ev) => set(ev); cv.onpointerup = (ev) => { cv.onpointermove = null; set(ev, true); }; };
+    cv.ondblclick = () => { GW.setPv(P, lt, '#808080'); paint(); GW.invalidate(); GW.commit('إعادة ضبط العجلة'); };
+    cv.title = 'اسحب لتلوين ' + label + ' · نقر مزدوج: محايد'; w.append(cv, cap); paint(); return w;
+  }
   function renderLum() {
-    const el = UI.lumEl; if (!el) return; const b = el.querySelector('[data-a=b]'); b.innerHTML = '';
+    const el = UI.lumEl; if (!el) return; const b = el.querySelector('[data-a=b]'); const st = b.scrollTop; b.innerHTML = '';
     const c = [...GW.sel.clips].map(id => GW.clipById(id)).find(x => x && x.tt === 'v');
-    if (!c) { b.innerHTML = '<div class="empty">حدد مقطع فيديو أو طبقة ضبط لتصحيح ألوانه.</div>'; return; }
+    if (!c) { b.innerHTML = '<div class="empty">حدد لقطة في شريط اللقطات أو الخط الزمني لتصحيح ألوانها.<br>نصيحة: طبقة ضبط فوق المسارات تلوّن كل ما تحتها.</div>'; return; }
     let fx = (c.fx || []).find(f => f.type === 'lumetri');
-    const f = document.createElement('div'); f.className = 'form'; b.append(f);
-    f.append(sec('مظاهر جاهزة'));
-    const looks = document.createElement('div'); looks.className = 'looks';
-    for (const [n, vals, grad] of LOOKS) { const d = document.createElement('div'); d.className = 'look'; d.innerHTML = `<div style="background:${grad}"></div>${esc(n)}`; d.onclick = () => { if (!fx) { fx = GW.newFx('lumetri'); c.fx.unshift(fx); } const base = GW.newFx('lumetri'); for (const k in base.params) fx.params[k] = base.params[k]; for (const k in vals) fx.params[k] = GW.P(vals[k]); GW.commit('مظهر: ' + n); renderLum(); }; looks.append(d); }
-    f.append(looks);
-    if (!fx) { const add = document.createElement('button'); add.className = 'btn pri'; add.textContent = 'إضافة تصحيح الألوان'; add.onclick = () => { c.fx.unshift(GW.newFx('lumetri')); GW.commit('تصحيح الألوان'); renderLum(); }; f.append(add); return; }
-    const lt = GW.seq().t - c.start;
-    const groups = [['تصحيح أساسي', ['exposure', 'contrast', 'highlights', 'shadows', 'whites', 'blacks']], ['توازن الأبيض', ['temp', 'tint']], ['الألوان', ['sat', 'vib', 'fade', 'shadowTint', 'highTint']]];
-    for (const [title, keys] of groups) {
-      f.append(sec(title));
-      for (const k of keys) {
-        const d = GW.FX.lumetri.p.find(p => p.k === k); const P = fx.params[k];
-        if (d.t === 'color') f.append(frow(d.n, colorIn(GW.pv(P, lt), v => { GW.setPv(P, lt, v); GW.invalidate(); GW.commitSoon('ألوان'); })));
-        else f.append(frow(d.n, rangeIn(GW.pv(P, lt), d.min, d.max, d.step, v => { GW.setPv(P, lt, v); GW.invalidate(); GW.commitSoon('ألوان'); GW.bus.emit('param'); })));
-      }
+    const hd = document.createElement('div'); hd.className = 'lum-head'; hd.innerHTML = `${GW.ico('color', 14)}<b>${esc(c.name || 'لقطة')}</b>${fx ? `<button class="btn sm ghost" data-a="byp" title="تجاوز التصحيح للمقارنة">${fx.on === 0 ? 'معطّل' : 'مفعّل'}</button><button class="btn sm ghost ico" data-a="rst" title="إعادة ضبط كل التصحيح">${GW.ico('reset', 13)}</button>` : ''}`; b.append(hd);
+    if (fx) { hd.querySelector('[data-a=byp]').onclick = () => { fx.on = fx.on === 0 ? 1 : 0; GW.commit(fx.on ? 'تفعيل الألوان' : 'تجاوز الألوان'); GW.invalidate(); }; hd.querySelector('[data-a=rst]').onclick = () => { const base = GW.newFx('lumetri'); fx.params = base.params; delete fx.curves; delete fx.hsl; GW.commit('إعادة ضبط الألوان'); renderLum(); }; }
+    const lookGrid = (f) => { const looks = document.createElement('div'); looks.className = 'looks'; for (const [n, vals, grad] of LOOKS) { const d = document.createElement('div'); d.className = 'look'; d.innerHTML = `<div style="background:${grad}"></div>${esc(n)}`; d.onclick = () => { if (!fx) { fx = GW.newFx('lumetri'); c.fx.unshift(fx); } const base = GW.newFx('lumetri'); for (const k in base.params) if (!/^(lut|cv|hsl)/.test(k)) fx.params[k] = base.params[k]; for (const k in vals) fx.params[k] = GW.P(vals[k]); GW.commit('مظهر: ' + n); renderLum(); }; looks.append(d); } f.append(looks); };
+    if (!fx) {
+      const f = document.createElement('div'); f.className = 'form lum-start'; b.append(f); f.append(sec('ابدأ بمظهر جاهز')); lookGrid(f);
+      const add = document.createElement('button'); add.className = 'btn pri'; add.innerHTML = GW.ico('plus', 13) + ' إضافة تصحيح الألوان'; add.onclick = () => { c.fx.unshift(GW.newFx('lumetri')); GW.commit('تصحيح الألوان'); renderLum(); }; f.append(add); return;
     }
-    if (GW.LUT) { f.append(sec('LUT')); GW.LUT.panelRows(f, c, fx, UI.form, renderLum); }
-    if (GW.Color) GW.Color.panelRows(f, c, fx, UI.form, renderLum); // curves, HSL secondary, colour match (color.js)
-    const rs = document.createElement('button'); rs.className = 'btn'; rs.textContent = 'إعادة الضبط'; rs.onclick = () => { const base = GW.newFx('lumetri'); fx.params = base.params; GW.commit('إعادة ضبط الألوان'); renderLum(); }; f.append(rs);
+    const lt = GW.seq().t - c.start;
+    const rowOf = (f, k) => { const d = GW.FX.lumetri.p.find(p => p.k === k); const P = fx.params[k] || (fx.params[k] = GW.P(d.def)); if (d.t === 'color') f.append(frow(d.n, colorIn(GW.pv(P, lt), v => { GW.setPv(P, lt, v); GW.invalidate(); GW.commitSoon('ألوان'); }))); else f.append(frow(d.n, rangeIn(GW.pv(P, lt), d.min, d.max, d.step, v => { GW.setPv(P, lt, v); GW.invalidate(); GW.commitSoon('ألوان'); GW.bus.emit('param'); }))); };
+    const B = {}; const changed = (keys) => keys.some(k => { const d = GW.FX.lumetri.p.find(p => p.k === k); return d && fx.params[k] && String(GW.pv(fx.params[k], lt)) !== String(d.def); });
+    for (const [k, n, ic] of LUM_SECS) {
+      const badge = k === 'basic' ? (changed(['exposure', 'contrast', 'highlights', 'shadows', 'whites', 'blacks', 'temp', 'tint', 'sat']) ? '●' : '') : k === 'curves' ? (fx.curves ? '●' : '') : k === 'hsl' ? (fx.hsl && fx.hsl.on ? '●' : '') : k === 'wheels' ? (changed(['shadowTint', 'highTint']) ? '●' : '') : k === 'vig' ? ((c.fx || []).some(f => f.type === 'vignette') ? '●' : '') : k === 'creative' ? (changed(['fade', 'vib']) || (fx.lut && (fx.lut.in || fx.lut.cr)) ? '●' : '') : '';
+      B[k] = lumSec(b, k, n, ic, badge);
+    }
+    B.basic.append(sec('توازن الأبيض')); for (const k of ['temp', 'tint']) rowOf(B.basic, k);
+    B.basic.append(sec('الدرجات')); for (const k of ['exposure', 'contrast', 'highlights', 'shadows', 'whites', 'blacks']) rowOf(B.basic, k);
+    B.basic.append(sec('التشبع')); rowOf(B.basic, 'sat');
+    B.creative.append(sec('المظهر')); lookGrid(B.creative); for (const k of ['fade', 'vib']) rowOf(B.creative, k);
+    if (GW.LUT) { B.creative.append(sec('LUT')); GW.LUT.panelRows(B.creative, c, fx, UI.form, renderLum); }
+    const ww = document.createElement('div'); ww.className = 'cwheels'; ww.append(colorWheel('الظلال', fx.params.shadowTint || (fx.params.shadowTint = GW.P('#808080')), lt), colorWheel('الإضاءات', fx.params.highTint || (fx.params.highTint = GW.P('#808080')), lt)); B.wheels.append(ww);
+    // curves / HSL / match from color.js, distributed by their section titles
+    if (GW.Color) {
+      const tmp = document.createElement('div'); GW.Color.panelRows(tmp, c, fx, UI.form, renderLum);
+      let dest = B.curves; for (const n of [...tmp.childNodes]) { if (n.classList && n.classList.contains('sec-t')) { const t = n.textContent; if (t === 'المنحنيات') { dest = B.curves; continue; } if (t === 'HSL ثانوي') { dest = B.hsl; continue; } if (t === 'مطابقة اللون') { dest = B.match; continue; } } dest.append(n); }
+    }
+    const vg = (c.fx || []).find(f => f.type === 'vignette');
+    if (!vg) { const a = document.createElement('button'); a.className = 'btn sm'; a.innerHTML = GW.ico('plus', 12) + ' إضافة تظليل الحواف'; a.onclick = () => { const f = GW.newFx('vignette', 'v'); c.fx.push(f); GW.commit('تظليل الحواف'); renderLum(); }; B.vig.append(a); }
+    else { for (const d of GW.FX.vignette.p) { const P = vg.params[d.k]; B.vig.append(frow(d.n, rangeIn(GW.pv(P, lt), d.min, d.max, d.step, v => { GW.setPv(P, lt, v); GW.invalidate(); GW.commitSoon('تظليل الحواف'); }))); } const rm = document.createElement('button'); rm.className = 'btn sm ghost'; rm.innerHTML = GW.ico('trash', 12) + ' إزالة'; rm.onclick = () => { c.fx = c.fx.filter(f => f !== vg); GW.commit('إزالة تظليل الحواف'); renderLum(); }; B.vig.append(rm); }
+    b.scrollTop = st;
   }
   GW.bus.on('selection', () => renderLum()); GW.bus.on('hist', () => renderLum());
 
-  /* ================= audio mixer ================= */
-  GW.registerPanel('mixer', 'خلاط الصوت', (el) => { el.innerHTML = '<div class="mixer" data-a="m"></div>'; UI.mixEl = el; renderMixer(); });
-  function strip(name, getDb, setDb, extra, master) {
-    const d = document.createElement('div'); d.className = 'strip' + (master ? ' master' : '');
-    d.innerHTML = `<span class="nm">${esc(name)}</span>`;
-    if (extra && extra.pan) { const p = document.createElement('input'); p.type = 'range'; p.min = -100; p.max = 100; p.value = extra.pan.get(); p.title = 'التوازن'; p.style.width = '60px'; p.oninput = () => extra.pan.set(+p.value); d.append(p); }
+  /* ================= audio mixer (v6: channel strips) =================
+     Strip per audio track: inserts (effects on the track's clips — click opens the editor in Effect Controls, «+» adds to every
+     clip on the track), pan, Duck send (sidechain, audio_fx.js), fader in dB with a scale, stereo peak meter (live, per track),
+     mute / solo. Master: fader + meter; audio_fx.js appends the LUFS read-out (.strip.master .lufs). */
+  GW.registerPanel('mixer', 'خلاط الصوت', (el) => { el.innerHTML = '<div class="mixer mx6" data-a="m"></div>'; UI.mixEl = el; renderMixer(); });
+  const MX_FX = [['peq', 'معادل (EQ)'], ['comp', 'ضاغط'], ['deesser', 'مزيل الصفير'], ['limiter', 'محدِّد'], ['reverb', 'صدى'], ['highpass', 'قطع منخفض'], ['gain', 'كسب']];
+  const fxShort = (t) => ({ peq: 'EQ', comp: 'Comp', deesser: 'De-ess', limiter: 'Limit', reverb: 'Reverb', highpass: 'HPF', lowpass: 'LPF', gain: 'Gain', eq3: 'EQ3', delay: 'Delay', radio: 'Radio' }[t] || (GW.AFX[t] ? GW.AFX[t].n : t));
+  const trackAudio = (s, ti) => s.clips.filter(c => c.tt === 'a' && c.ti === ti);
+  const clipAtPh = (s, ti) => { const cs = trackAudio(s, ti); return cs.find(c => s.t >= c.start && s.t < c.start + c.dur) || cs.find(c => GW.sel.clips.has(c.id)) || cs[0] || null; };
+  const liveRestart = () => { if (GW.pb.playing) { const t = GW.seq().t; GW.stop(); GW.seq().t = t; GW.play(1); } };
+  function openFx(s, ti, type) {
+    const c = clipAtPh(s, ti); if (!c) { GW.toast('لا توجد مقاطع على هذا المسار'); return; }
+    GW.sel.clips.clear(); GW.sel.clips.add(c.id); GW.bus.emit('selection'); GW.showPanel('fxc'); if (GW.FXC && GW.FXC.render) GW.FXC.render();
+    setTimeout(() => { const n = GW.AFX[type] && GW.AFX[type].n; const sec = n && [...document.querySelectorAll('[data-panel=fxc] .fx-sec')].reverse().find(x => (x.querySelector('.fxn') || {}).textContent === n); if (sec && sec.scrollIntoView) { sec.scrollIntoView({ block: 'start' }); sec.classList.add('flash'); setTimeout(() => sec.classList.remove('flash'), 900); } }, 80);
+  }
+  function mxFxMenu(e, s, ti) {
+    const cs = trackAudio(s, ti); if (!cs.length) { GW.toast('أضف مقطعًا صوتيًا إلى المسار أولًا'); return; }
+    GW.menu(e.clientX, e.clientY, MX_FX.filter(([k]) => GW.AFX[k]).map(([k, n]) => ({ label: n, action: () => { for (const c of cs) { c.afx = c.afx || []; c.afx.push(GW.newFx(k, 'a')); } GW.commit('إدراج تأثير: ' + n); liveRestart(); renderMixer(); openFx(s, ti, k); } })));
+  }
+  const DB_MARKS = [12, 0, -12, -24, -36, -60];
+  function strip(name, getDb, setDb, o, master) {
+    o = o || {};
+    const d = document.createElement('div'); d.className = 'strip' + (master ? ' master' : ''); if (o.ti != null) d.dataset.ti = o.ti;
+    const hd = document.createElement('div'); hd.className = 'mxs-head'; hd.innerHTML = `<i class="mxs-dot"></i><span class="nm">${esc(name)}</span>`; d.append(hd);
+    if (o.tr) hd.ondblclick = async () => { const n = await GW.prompt('إعادة تسمية المسار', 'الاسم', o.tr.name); if (n) { o.tr.name = n; GW.commit('إعادة تسمية مسار'); } };
+    // inserts
+    const fx = document.createElement('div'); fx.className = 'mxs-fx';
+    if (o.tr) {
+      const s = GW.seq(); const types = []; for (const c of trackAudio(s, o.ti)) for (const f of c.afx || []) if (!types.includes(f.type)) types.push(f.type);
+      for (let i = 0; i < 3; i++) {
+        const t = types[i]; const b = document.createElement('button'); b.className = 'mxs-slot' + (t ? ' on' : '');
+        if (t) { b.textContent = fxShort(t); b.title = (GW.AFX[t] ? GW.AFX[t].n : t) + ' — انقر لفتح المحرر'; b.onclick = () => openFx(s, o.ti, t); }
+        else { b.innerHTML = GW.ico('plus', 11); b.title = 'إدراج تأثير على كل مقاطع المسار'; b.onclick = (e) => mxFxMenu(e, s, o.ti); }
+        fx.append(b);
+      }
+      if (types.length > 3) { const more = document.createElement('span'); more.className = 'mxs-more'; more.textContent = '+' + (types.length - 3); fx.append(more); }
+    } else { fx.innerHTML = '<span class="mxs-fx-l">المخرج الرئيسي</span>'; }
+    d.append(fx);
+    // pan
+    const pw = document.createElement('div'); pw.className = 'mxs-panw';
+    if (o.tr) {
+      const p = document.createElement('input'); p.type = 'range'; p.className = 'mxs-pan'; p.min = -100; p.max = 100; p.step = 1; p.value = o.tr.pan || 0; p.title = 'التوازن (نقر مزدوج: الوسط)';
+      const pv = document.createElement('span'); pv.className = 'mxs-panv'; const lbl = () => { const v = +p.value; pv.textContent = v === 0 ? 'C' : (v < 0 ? 'L' : 'R') + Math.abs(v); }; lbl();
+      p.oninput = () => { o.tr.pan = +p.value; lbl(); }; p.onchange = () => { if (!o.tr.pan) delete o.tr.pan; GW.commit('توازن المسار'); liveRestart(); };
+      p.ondblclick = () => { p.value = 0; p.oninput(); p.onchange(); };
+      pw.append(p, pv);
+    } else pw.innerHTML = '<span class="mxs-panv">ستيريو</span>';
+    d.append(pw);
+    // send / duck
+    const sd = document.createElement('div'); sd.className = 'ms mxs-send';
+    if (o.tr) { const b = document.createElement('button'); b.className = 'btn sm duckb' + (o.tr.duck && o.tr.duck.on ? ' on' : ''); b.innerHTML = GW.ico('down', 11) + '<span>Duck</span>'; b.title = 'خفض تلقائي أثناء الكلام (Sidechain) · Shift+نقر: الإعدادات'; b.onclick = (e) => { const AF = GW.AudioFX; if (!AF) return; const S = GW.seq(), T = S.at[o.ti]; const cur = !!(T && T.duck && T.duck.on); if (e.shiftKey || !cur) AF.duckDialog(o.ti); else AF.setDuck(S, o.ti, { on: 0 }); }; sd.append(b); }
+    d.append(sd);
+    // fader + meter
     const fd = document.createElement('div'); fd.className = 'fader';
-    const r = document.createElement('input'); r.type = 'range'; r.setAttribute('orient', 'vertical'); r.min = -60; r.max = 12; r.step = .1; r.value = getDb();
-    const m = document.createElement('canvas'); m.width = 12; m.height = 200; if (master) UI.masterMeter = m;
-    fd.append(r, m); d.append(fd);
-    const db = document.createElement('span'); db.className = 'db'; db.textContent = (+getDb()).toFixed(1) + ' dB'; d.append(db);
-    r.oninput = () => { setDb(+r.value); db.textContent = (+r.value).toFixed(1) + ' dB'; };
-    r.onchange = () => { GW.commit('مستوى المسار'); if (GW.pb.playing) { const t = GW.seq().t; GW.stop(); GW.seq().t = t; GW.play(1); } };
+    const sc = document.createElement('div'); sc.className = 'mxs-scale'; sc.innerHTML = DB_MARKS.map(v => `<span style="top:${((12 - v) / 72 * 100).toFixed(2)}%">${v > 0 ? '+' + v : v}</span>`).join('');
+    const r = document.createElement('input'); r.type = 'range'; r.setAttribute('orient', 'vertical'); r.min = -60; r.max = 12; r.step = .1; r.value = getDb(); r.className = 'mxs-fader';
+    const m = document.createElement('canvas'); m.className = 'mxs-meter'; m.width = 14; m.height = 200; m.dataset.ti = master ? 'M' : o.ti; if (master) UI.masterMeter = m;
+    fd.append(sc, r, m); d.append(fd);
+    const db = document.createElement('span'); db.className = 'db'; db.title = 'انقر مرتين لإدخال قيمة'; const showDb = (v) => { db.textContent = (v > 0 ? '+' : '') + (+v).toFixed(1) + ' dB'; }; showDb(+getDb()); d.append(db);
+    r.oninput = () => { setDb(+r.value); showDb(+r.value); };
+    r.onchange = () => { GW.commit('مستوى المسار'); liveRestart(); };
     r.ondblclick = () => { r.value = 0; r.oninput(); r.onchange(); };
-    if (extra && extra.ms) { const ms = document.createElement('div'); ms.className = 'ms'; for (const [k, n] of [['mute', 'M'], ['solo', 'S']]) { const b = document.createElement('button'); b.className = 'btn sm' + (extra.ms[k] ? ' on' : ''); b.textContent = n; b.onclick = () => { extra.ms[k] = extra.ms[k] ? 0 : 1; GW.commit(n === 'M' ? 'كتم' : 'منفرد'); renderMixer(); GW.TL.renderHeads(); }; ms.append(b); } d.append(ms); }
+    db.ondblclick = async () => { const v = await GW.prompt('المستوى', 'dB (من -60 إلى +12)', (+r.value).toFixed(1)); if (v != null && v !== '' && isFinite(+v)) { r.value = GW.clamp(+v, -60, 12); r.oninput(); r.onchange(); } };
+    if (o.ms) { const ms = document.createElement('div'); ms.className = 'ms'; for (const [k, n, tip] of [['mute', 'M', 'كتم'], ['solo', 'S', 'منفرد']]) { const b = document.createElement('button'); b.className = 'btn sm mx-' + k + (o.ms[k] ? ' on' : ''); b.textContent = n; b.title = tip; b.onclick = () => { o.ms[k] = o.ms[k] ? 0 : 1; GW.commit(n === 'M' ? 'كتم' : 'منفرد'); renderMixer(); GW.TL.renderHeads(); liveRestart(); }; ms.append(b); } d.append(ms); }
     return d;
   }
   function renderMixer() {
-    const el = UI.mixEl; if (!el) return; const m = el.querySelector('[data-a=m]'); m.innerHTML = ''; const s = GW.seq();
-    s.at.forEach(tr => m.append(strip(tr.name, () => tr.vol || 0, v => { tr.vol = v; }, { ms: tr })));
-    m.append(strip('الرئيسي', () => s.master || 0, v => { s.master = v; }, null, true));
+    const el = UI.mixEl; if (!el) return; const m = el.querySelector('[data-a=m]'); const sl = m.scrollLeft; m.innerHTML = ''; const s = GW.seq();
+    const strips = document.createElement('div'); strips.className = 'mxs-strips';
+    s.at.forEach((tr, ti) => strips.append(strip(tr.name || ('A' + (ti + 1)), () => tr.vol || 0, v => { tr.vol = v; }, { ms: tr, tr, ti })));
+    const add = document.createElement('button'); add.className = 'mxs-add'; add.innerHTML = GW.ico('plus', 14) + '<span>مسار صوت</span>'; add.title = 'إضافة مسار صوت'; add.onclick = () => GW.cmd.addTrack('a'); strips.append(add);
+    m.append(strips, strip('الرئيسي', () => s.master || 0, v => { s.master = v; }, null, true));
+    m.scrollLeft = sl;
   }
+  UI.renderMixer = renderMixer;
   GW.bus.on('project', renderMixer); GW.bus.on('hist', renderMixer);
-  GW.bus.on('tick', () => { const c = UI.masterMeter; if (!c || !c.isConnected) return; const g = c.getContext('2d'); const [l, r] = GW.Audio.playing ? GW.Audio.levels() : [0, 0]; const v = Math.max(l, r); const db = 20 * Math.log10(Math.max(v, 1e-5)); const h = clamp((db + 48) / 48, 0, 1) * c.height; g.clearRect(0, 0, c.width, c.height); g.fillStyle = '#0b0b0b'; g.fillRect(0, 0, c.width, c.height); g.fillStyle = db > -3 ? '#e5484d' : db > -12 ? '#d8c94a' : '#2fae5a'; g.fillRect(0, c.height - h, c.width, h); });
+  // meters: stereo peak bars with 1.5 s peak hold; idle → painted once at rest
+  const mHold = {};
+  function paintMeter(c, l, r, key) {
+    const W = c.clientWidth || 14, H = c.clientHeight || 200; if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+    const g = c.getContext('2d'); g.clearRect(0, 0, W, H); g.fillStyle = '#07080a'; g.fillRect(0, 0, W, H);
+    const now = performance.now(); const hd = mHold[key] || (mHold[key] = [[-90, 0], [-90, 0]]); const bw = Math.max(2, Math.floor((W - 3) / 2));
+    [l, r].forEach((v, i) => {
+      const db = 20 * Math.log10(Math.max(v, 1e-5)); const y = (x) => GW.clamp((12 - x) / 72, 0, 1) * H; const top = y(Math.max(-60, db)); const x0 = 1 + i * (bw + 1);
+      if (db > -60) { const gr = g.createLinearGradient(0, H, 0, 0); gr.addColorStop(0, '#2fae6a'); gr.addColorStop((60 - 12) / 72, '#4cc38a'); gr.addColorStop((60 - 6) / 72, '#e9c35a'); gr.addColorStop(60 / 72, '#ef5350'); gr.addColorStop(1, '#ef5350'); g.fillStyle = gr; g.fillRect(x0, top, bw, H - top); }
+      if (db > hd[i][0] || now - hd[i][1] > 1500) hd[i] = [db, now];
+      if (hd[i][0] > -60) { g.fillStyle = hd[i][0] > -1 ? '#ef5350' : '#e9ebef'; g.fillRect(x0, y(hd[i][0]), bw, 2); }
+    });
+    g.fillStyle = 'rgba(255,255,255,.08)'; for (const v of [0, -6, -12, -24, -36]) g.fillRect(0, Math.round((12 - v) / 72 * H), W, 1);
+  }
+  let mIdle = 0;
+  GW.bus.on('tick', () => {
+    const el = UI.mixEl; if (!el || !el.isConnected) return; const A = GW.Audio; const on = A.playing;
+    if (!on) { if (mIdle > 2) return; mIdle++; } else mIdle = 0;
+    el.querySelectorAll('canvas.mxs-meter').forEach(c => { const k = c.dataset.ti; const [l, r] = !on ? [0, 0] : k === 'M' ? A.levels() : (A.trackLevels ? A.trackLevels(+k) : [0, 0]); paintMeter(c, l, r, k); });
+  });
 
   /* ================= markers & history ================= */
-  GW.registerPanel('markers', 'العلامات', (el) => { el.innerHTML = '<div class="pscroll" data-a="b"></div>'; UI.mkEl = el; renderMarkers(); });
+  /* markers = review notes: add marker / comment at the playhead, colour, edit name & note in place, jump, delete */
+  const MK_COLS = [['#4e9a52', 'أخضر'], ['#e9c35a', 'أصفر'], ['#ef5350', 'أحمر'], ['#4cc2ff', 'أزرق'], ['#b07cff', 'بنفسجي']];
+  GW.registerPanel('markers', 'العلامات', (el) => {
+    el.innerHTML = `<div class="ptool mk6-tool" dir="rtl"><button class="btn sm" data-a="add" title="إضافة علامة عند مؤشر التشغيل (M)">${GW.ico('marker', 13)}<span>علامة</span></button><button class="btn sm" data-a="note" title="ملاحظة مراجعة عند مؤشر التشغيل">${GW.ico('chat', 13)}<span>ملاحظة</span></button><span class="grow"></span><span class="kv" data-a="n"></span></div><div class="pscroll mk6" data-a="b"></div>`;
+    el.querySelector('[data-a=add]').onclick = () => GW.cmd.marker();
+    el.querySelector('[data-a=note]').onclick = async () => { const s = GW.seq(); const t = s.t; const n = await GW.prompt('ملاحظة مراجعة', 'الملاحظة عند ' + GW.fmtTC(t, s.fps), ''); if (!n) return; s.markers.push({ id: GW.uid(), t, name: 'ملاحظة ' + (s.markers.length + 1), note: n, color: '#e9c35a' }); GW.commit('ملاحظة مراجعة'); };
+    UI.mkEl = el; renderMarkers();
+  });
   function renderMarkers() {
     const el = UI.mkEl; if (!el) return; const b = el.querySelector('[data-a=b]'); const s = GW.seq(); b.innerHTML = '';
-    if (!s.markers.length) { b.innerHTML = '<div class="empty">لا توجد علامات. اضغط M لإضافة علامة عند مؤشر التشغيل.</div>'; return; }
-    for (const m of [...s.markers].sort((a, c) => a.t - c.t)) { const r = document.createElement('div'); r.className = 'mk-i'; r.innerHTML = `<i style="background:${esc(m.color || '#4e9a52')}"></i><span style="flex:1">${esc(m.name || 'علامة')}${m.note ? ` <span style="color:var(--mute)">— ${esc(m.note)}</span>` : ''}</span><span class="kv">${GW.fmtTC(m.t, s.fps)}</span>`; r.onclick = () => GW.seek(m.t); r.oncontextmenu = e => { e.preventDefault(); GW.menu(e.clientX, e.clientY, [{ label: 'حذف', action: () => { s.markers = s.markers.filter(x => x !== m); GW.commit('حذف علامة'); } }]); }; b.append(r); }
+    const nEl = el.querySelector('[data-a=n]'); if (nEl) nEl.textContent = s.markers.length ? s.markers.length + ' علامة' : '';
+    if (!s.markers.length) { b.innerHTML = '<div class="empty">لا توجد علامات أو ملاحظات بعد.<br>اضغط M أو «ملاحظة» أثناء المشاهدة لتدوين ما يحتاج إلى تعديل.</div>'; return; }
+    const cur = [...s.markers].sort((a, c) => a.t - c.t).filter(m => m.t <= s.t + 1e-4).pop();
+    for (const m of [...s.markers].sort((a, c) => a.t - c.t)) {
+      const r = document.createElement('div'); r.className = 'mk-i mk6-i' + (m === cur ? ' cur' : '');
+      r.innerHTML = `<button class="mk-col" style="background:${esc(m.color || '#4e9a52')}" title="لون العلامة"></button><div class="mk-t"><span class="mk-n">${esc(m.name || 'علامة')}</span>${m.note ? `<span class="mk-note">${esc(m.note)}</span>` : ''}</div><span class="kv" dir="ltr">${GW.fmtTC(m.t, s.fps)}</span><button class="ib mk-del" title="حذف">${GW.ico('close', 12)}</button>`;
+      r.onclick = () => GW.seek(m.t);
+      r.querySelector('.mk-col').onclick = (e) => { e.stopPropagation(); GW.menu(e.clientX, e.clientY, MK_COLS.map(([c, n]) => ({ label: n, check: m.color === c, action: () => { m.color = c; GW.commit('لون العلامة'); } }))); };
+      r.querySelector('.mk-del').onclick = (e) => { e.stopPropagation(); s.markers = s.markers.filter(x => x !== m); GW.commit('حذف علامة'); };
+      r.ondblclick = async (e) => { e.stopPropagation(); const n = await GW.prompt('تحرير العلامة', 'الاسم', m.name || ''); if (n == null) return; const note = await GW.prompt('تحرير العلامة', 'الملاحظة', m.note || ''); m.name = n || m.name; if (note != null) m.note = note; GW.commit('تحرير علامة'); };
+      r.oncontextmenu = e => { e.preventDefault(); GW.menu(e.clientX, e.clientY, [{ label: 'حذف', action: () => { s.markers = s.markers.filter(x => x !== m); GW.commit('حذف علامة'); } }]); };
+      b.append(r);
+    }
   }
+  { let lt = -1; GW.bus.on('time', () => { if (!UI.mkEl || !UI.mkEl.isConnected || GW.pb.playing) return; const t = GW.seq().t; if (Math.abs(t - lt) > .05) { lt = t; renderMarkers(); } }); }
   GW.bus.on('changed', renderMarkers); GW.bus.on('hist', renderMarkers); GW.bus.on('project', renderMarkers);
   GW.registerPanel('history', 'السجل', (el) => { el.innerHTML = '<div class="pscroll" data-a="b"></div>'; UI.hiEl = el; renderHist(); });
   function renderHist() {

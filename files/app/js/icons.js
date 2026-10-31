@@ -3,6 +3,17 @@
 (function () {
   const GW = window.GW = window.GW || {};
   const P = {
+    mic: '<rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5"/>',
+    wave: '<path d="M3 12h1.5M6.5 8.5v7M9.5 5.5v13M12.5 9v6M15.5 6.5v11M18.5 10v4M21 12h0"/>',
+    meter: '<rect x="5" y="3.5" width="4" height="17" rx="1"/><rect x="15" y="3.5" width="4" height="17" rx="1"/><path d="M5 13h4M15 9h4"/>',
+    star: '<path d="m12 3.8 2.5 5.1 5.6.8-4 3.9 1 5.6-5.1-2.7-5 2.7.9-5.6-4-3.9 5.6-.8z"/>',
+    starf: '<path fill="currentColor" d="m12 3.8 2.5 5.1 5.6.8-4 3.9 1 5.6-5.1-2.7-5 2.7.9-5.6-4-3.9 5.6-.8z"/>',
+    split: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M12 3v18"/><path d="M7 12h2M15 12h2" />',
+    dialog: '<path d="M4.5 6.5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H11l-4 3.5V15.5h-.5a2 2 0 0 1-2-2z"/><path d="M8.5 9h7M8.5 12h4.5"/>',
+    bolt: '<path d="M13 3.5 5.5 13.5H12l-1 7 7.5-10H12z"/>',
+    ambience: '<path d="M3.5 15c2-2 4-2 6 0s4 2 6 0 3.5-1.5 5 0M3.5 10c2-2 4-2 6 0s4 2 6 0 3.5-1.5 5 0"/>',
+    align: '<path d="M4 5h16M7 9.5h10M4 14h16M7 18.5h10"/>',
+    safe: '<rect x="3.5" y="5" width="17" height="14" rx="1.5"/><rect x="6.5" y="8" width="11" height="8" rx="1" stroke-dasharray="2 2"/>',
     search: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
     folder: '<path d="M3.5 6.5a1.5 1.5 0 0 1 1.5-1.5h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5z"/>',
     import: '<path d="M12 4v11m0 0-4-4m4 4 4-4"/><path d="M5 17v2.5h14V17"/>',
@@ -72,7 +83,29 @@
     mixer: '<path d="M6 4v16M12 4v16M18 4v16"/><rect x="3.5" y="9" width="5" height="3.5" rx="1" fill="currentColor" stroke="none"/><rect x="9.5" y="13" width="5" height="3.5" rx="1" fill="currentColor" stroke="none"/><rect x="15.5" y="6" width="5" height="3.5" rx="1" fill="currentColor" stroke="none"/>',
     export: '<path d="M12 15V4m0 0-4 4m4-4 4 4"/><path d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/>',
     plusbox: '<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M12 8.5v7M8.5 12h7"/>',
+    /* maps panel redesign (v5 grid): layer types, war events, lock, grip, tour */
+    flag: '<path d="M5.5 20.5V4"/><path d="M5.5 4.5h11l-2.5 4 2.5 4h-11"/>', area: '<path d="M4.5 7.5 9 4l6.5 2 4 4.5-2 7.5-7 2-5.5-4.5z"/><path d="m9 9 2 6 4-3" stroke-dasharray="2 2"/>',
+    arrow: '<path d="M4 18 15.5 6.5"/><path d="M9 6h7v7"/>', target: '<circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>',
+    crown: '<path d="m4 8 4 4 4-7 4 7 4-4-1.5 10h-13z"/><path d="M5.5 20.5h13"/>', pause: '<path d="M8.5 5.5v13M15.5 5.5v13"/>',
+    plane: '<path d="M12 3.5c.9 0 1.5.8 1.5 2v4.5l7 4v2l-7-2v4l2.2 1.6V21L12 20l-3.7 1v-1.4l2.2-1.6v-4l-7 2v-2l7-4V5.5c0-1.2.6-2 1.5-2z"/>',
+    circle: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>', chart: '<path d="M4.5 19.5h15M7 16v-5M11 16V7M15 16v-3M19 16V9"/>',
+    lock: '<rect x="5.5" y="10.5" width="13" height="9.5" rx="1.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/>', unlock: '<rect x="5.5" y="10.5" width="13" height="9.5" rx="1.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 6.8-1.2"/>',
+    grip: '<circle cx="9" cy="6.5" r="1.2" fill="currentColor"/><circle cx="15" cy="6.5" r="1.2" fill="currentColor"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/><circle cx="9" cy="17.5" r="1.2" fill="currentColor"/><circle cx="15" cy="17.5" r="1.2" fill="currentColor"/>',
+    user: '<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20.5c.8-4 3.9-6 7.5-6s6.7 2 7.5 6"/>', sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>',
+    help: '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.2 1-1.2 1.8v.5"/><circle cx="12" cy="17" r=".9" fill="currentColor"/>', calendar: '<rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
+    frame: '<rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><rect x="12" y="12" width="6" height="5" rx="1"/>', route: '<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6.5a3.5 3.5 0 0 0 0-7h-5a3.5 3.5 0 0 1 0-7H16" stroke-dasharray="3 2.2"/>',
+    legend: '<rect x="4" y="5" width="4" height="4" rx="1"/><rect x="4" y="15" width="4" height="4" rx="1"/><path d="M11 7h9M11 17h9"/>',
     menu: '<path d="M4 7h16M4 12h16M4 17h16"/>', grid: '<rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1"/>',
+    // 3D scene (ui_3d.js)
+    cube3d: '<path d="m12 3.5 7.5 4.2v8.6L12 20.5l-7.5-4.2V7.7z"/><path d="m4.5 7.7 7.5 4.3 7.5-4.3M12 12v8.5"/>', bulb: '<path d="M9 17.5h6M10 20.5h4M12 3.5a5.5 5.5 0 0 0-3.2 10c.7.5 1.2 1.3 1.2 2.2v.3h4v-.3c0-.9.5-1.7 1.2-2.2A5.5 5.5 0 0 0 12 3.5z"/>',
+    sun: '<circle cx="12" cy="12" r="3.8"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/>', spot: '<path d="M8 4.5h8l-1.5 5h-5z"/><path d="m9.5 9.5-4 10M14.5 9.5l4 10M5.5 19.5h13" stroke-dasharray="2 2"/>',
+    softbox: '<rect x="4" y="5" width="16" height="10" rx="1.5"/><path d="M7 8h10M7 11h10" opacity=".55"/><path d="M12 15v5M8.5 20h7"/>', tv: '<rect x="3" y="5" width="18" height="11.5" rx="1.5"/><path d="M8.5 20h7M12 16.5V20"/>',
+    sofa: '<path d="M5 11V8.5A2.5 2.5 0 0 1 7.5 6h9A2.5 2.5 0 0 1 19 8.5V11"/><path d="M3.5 12.5a1.5 1.5 0 0 1 3 0V14h11v-1.5a1.5 1.5 0 0 1 3 0V17a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1zM6 18v1.5M18 18v1.5"/>', room: '<path d="M3.5 19.5 8 15.5V4.5M20.5 19.5 16 15.5V4.5M8 15.5h8M3.5 19.5h17"/><path d="M8 4.5h8" opacity=".5"/>',
+    move3d: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.2 2.2M12 3.5l2.2 2.2M12 20.5l-2.2-2.2M12 20.5l2.2-2.2M3.5 12l2.2-2.2M3.5 12l2.2 2.2M20.5 12l-2.2-2.2M20.5 12l-2.2 2.2"/>', rotate3d: '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v3.6h-3.6"/><ellipse cx="12" cy="12" rx="7.5" ry="2.6" opacity=".55"/>',
+    scale3d: '<rect x="3.5" y="10.5" width="10" height="10" rx="1"/><path d="M13 11 20.5 3.5M15 3.5h5.5V9"/>', orbit: '<ellipse cx="12" cy="12" rx="8.5" ry="3.5"/><circle cx="12" cy="12" r="2.2"/><path d="M17.5 6.5l2-1M6.5 17.5l-2 1"/>',
+    magnet: '<path d="M6 4.5v7a6 6 0 0 0 12 0v-7h-4v7a2 2 0 0 1-4 0v-7z"/><path d="M6 8h4M14 8h4"/>', walk: '<circle cx="13" cy="4.5" r="1.8"/><path d="m9.5 21 2-6.5 2.5 2.5 1 4M11.5 14.5l1-5.5-3 1.5-1.5 3M12.5 9l2.5 3 3 1"/>',
+    bone: '<path d="M8.5 15.5 15.5 8.5"/><circle cx="6.5" cy="15.5" r="2"/><circle cx="8.5" cy="17.5" r="2"/><circle cx="15.5" cy="6.5" r="2"/><circle cx="17.5" cy="8.5" r="2"/>', model3d: '<path d="m12 3.5 7.5 4.2v8.6L12 20.5l-7.5-4.2V7.7z"/><path d="M12 8v8M8.5 12.5 12 16l3.5-3.5"/>',
+    focus3d: '<path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/><circle cx="12" cy="12" r="3"/>', outline3d: '<path d="M4 5.5h9M7 10h11M7 14.5h11M7 19h7"/><path d="M4 5.5v13.5M4 10h3M4 14.5h3M4 19h3" opacity=".55"/>',
   };
   /* design v4: keep the accent fill of horizontal sliders in sync with their value (CSS var --p) */
   const fill = (r) => { if (!r || r.type !== 'range' || r.getAttribute('orient') === 'vertical') return; const mn = +r.min || 0, mx = r.max === '' ? 100 : +r.max; const p = mx > mn ? (+r.value - mn) / (mx - mn) * 100 : 0; r.style.setProperty('--p', Math.max(0, Math.min(100, p)).toFixed(2) + '%'); };

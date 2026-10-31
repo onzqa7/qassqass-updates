@@ -59,9 +59,18 @@
     return s0;
   };
 
+  FU.sceneOpts = (c) => {
+    const M = GW.MapUI; const scn = c.map.scene; const w = h('div', 'mp-body'); w.style.padding = '0';
+    const looks = h('div', 'mp-row'); looks.append(btn(GW.ico('wand', 13) + ' وثائقي داكن', () => M.docLook(c, 'doc_dark'), scn.style === 'doc_dark' ? 'pri' : ''), btn('وثائقي فاتح', () => M.docLook(c, 'doc_light'), scn.style === 'doc_light' ? 'pri' : ''), btn(GW.ico('layers', 13) + ' منسوج وثائقي', () => { S.applyWovenLook(scn); changed('مظهر منسوج وثائقي'); M.render(); }, scn.style === 'woven' ? 'pri' : ''), btn(GW.ico('eye', 13) + ' مهمة سرية', () => FU.look(c, 'mission'), scn.style === 'mission' ? 'pri' : ''), btn(GW.ico('scissors', 13) + ' ورق وقص', () => FU.look(c, 'papercut'), scn.style === 'papercut' ? 'pri' : ''));
+    w.append(looks, row('واجهة HUD', sel([['', 'حسب النمط'], ['1', 'إظهار'], ['0', 'إخفاء']], scn.look.hud == null ? '' : String(scn.look.hud), v => { scn.look.hud = v === '' ? null : +v; changed('واجهة HUD'); })));
+    w.append(row('نمط حدود الدول', sel([['', 'افتراضي'], ['glow', 'متوهج'], ['dashed', 'متقطع'], ...ent(FX.BSTYLES)], scn.look.borderStyle || '', v => { scn.look.borderStyle = v || null; changed('نمط الحدود'); M.render(); })));
+    if (FX.BSTYLES[scn.look.borderStyle]) w.append(row('لون الحدود المنمّقة', col(scn.look.borderC || FX.BCOL[scn.look.borderStyle], v => { scn.look.borderC = v; GW.invalidate(); }), btn('افتراضي', () => { delete scn.look.borderC; changed('لون الحدود'); M.render(); })));
+    return w;
+  };
+  FU.props = (c, L) => props(c, L);
   function props(c, L) {
     const M = GW.MapUI; const box = h('div', 'mp-props'); const set = (k, now) => (v) => { L[k] = v; changed('خصائص ' + L.name, !now); }; const re = () => M.render();
-    const drawBtns = () => { const r = h('div', 'mp-row'); r.append(btn(M.mode === 'draw' ? 'وضع الرسم فعّال' : 'رسم المسار في الشاشة', () => { M.mode = 'draw'; re(); }), btn('حذف آخر نقطة', () => { (L.pts || []).pop(); changed('حذف نقطة'); re(); }), btn('مسح النقاط', () => { L.pts = []; L.eles = null; changed('مسح'); re(); })); return r; };
+    const drawBtns = () => { const r = h('div', 'mp-row'); r.append(btn(GW.ico('pen', 13) + ' ارسم على الخريطة', () => M.enter('draw', 'لرسم المسار (كل نقرة تضيف نقطة)'), M.mode === 'draw' ? 'pri' : ''), btn('حذف آخر نقطة', () => { (L.pts || []).pop(); changed('حذف نقطة'); re(); }), btn('مسح النقاط', () => { L.pts = []; L.eles = null; changed('مسح'); re(); })); return r; };
     switch (L.type) {
       case 'country':
         box.append(h('div', 'mp-sub', 'حدود منمّقة وقص ورقي'), row('نمط الإطار', sel([['solid', 'متصل'], ['dashed', 'متقطع'], ['none', 'بدون'], ...ent(FX.BSTYLES)], L.outline || 'solid', v => { L.outline = v; changed('نمط الإطار'); re(); })));
@@ -75,7 +84,7 @@
         box.append(h('div', 'mp-sub', 'غيوم من الأعلى'), row('الكثافة', rng(L.cover, 0, 1, .01, set('cover'))), row('حجم الغيوم', rng(L.scale || 1, .3, 3, .05, set('scale'))), row('الشفافية', rng(L.opacity == null ? .92 : (typeof L.opacity === 'object' ? GW.pv(L.opacity, 0) : L.opacity), 0, 1, .01, set('opacity'))), row('اللون', col(L.color, set('color'))),
           row('ظل على الأرض', rng(L.shadow, 0, 1, .01, set('shadow'))), row('اتجاه الريح (°)', rng(L.wind || 0, 0, 360, 1, set('wind'))), row('سرعة الريح', rng(L.speed == null ? 1 : L.speed, 0, 10, .1, set('speed'))), row('اختراق الغيوم عند التقريب (مستوى)', rng(L.pass == null ? 9.5 : L.pass, 4, 16, .1, set('pass'))),
           row('طبقة تفاصيل ثانية', chk(L.detail, set('detail', 1))), row('فوق أسماء الخريطة', chk(L.above, set('above', 1))), row('بذرة الشكل', num(L.seed || 1, 1, v => { L.seed = Math.max(1, v | 0); changed('بذرة'); })));
-        box.append(h('div', 'mp-note', 'تتحرك الغيوم مع الكاميرا بعمق (parallax) وتكبر ثم تتلاشى عند التقريب الشديد كأن الكاميرا تخترقها.'));
+        box.append(h('div', 'mp-note', 'تظهر الغيوم عند التقريب (لا تظهر والكرة الأرضية كاملة في الإطار). تتحرك مع الكاميرا بعمق وتتلاشى عند التقريب الشديد كأن الكاميرا تخترقها.'));
         break;
       case 'move':
         box.append(h('div', 'mp-sub', 'حركة متقدمة'), drawBtns(), h('div', 'mp-note', `${(L.pts || []).length} نقاط` + (L.eles ? ' · مع ارتفاعات' : '') + (L.km ? ` · ${(+L.km).toFixed(1)} كم` : '')),
@@ -92,11 +101,11 @@
         box.append(h('div', 'mp-sub', 'تعليق بخط إشارة'), row('النص', txt(L.text, set('text'))), row('سطر فرعي', txt(L.sub, set('sub'), 'يُترك فارغاً لإحداثيات تلقائية في نمط المهمة')), row('القالب', sel(ent(FX.CSTYLES), L.style || 'boxed', set('style', 1))), row('علامة المكان', sel(ent(FX.DOTS), L.dot || 'ring', set('dot', 1))),
           row('الاتجاه', sel([['auto', 'تلقائي (تجنب التداخل)'], ['ne', 'أعلى يمين'], ['nw', 'أعلى يسار'], ['se', 'أسفل يمين'], ['sw', 'أسفل يسار'], ['e', 'يمين'], ['w', 'يسار'], ['n', 'أعلى'], ['s', 'أسفل']], L.dir || 'auto', set('dir', 1))),
           row('طول الخط', rng(L.len || 1, .3, 3, .05, set('len'))), row('الكوع الأفقي', rng(L.elbow == null ? 1 : L.elbow, 0, 3, .05, set('elbow'))), row('الحجم', rng(L.size || 1, .4, 3, .05, set('size'))), row('لون النص', col(L.color, set('color'))), row('لون مميز', col(L.accent, set('accent'))));
-        const r = h('div', 'mp-row'); r.append(btn(M.mode === 'place' ? 'انقر على الخريطة للتحديد' : 'تحديد الموقع من الشاشة', () => { M.mode = 'place'; re(); }), h('span', 'kv', `${(+GW.pv(L.lon, tl())).toFixed(2)}°, ${(+GW.pv(L.lat, tl())).toFixed(2)}°`)); box.append(r);
+        const r = h('div', 'mp-row'); r.append(btn(GW.ico('pin', 13) + ' حدد على الخريطة', () => M.enter('place', 'لتحديد مكان التعليق'), M.mode === 'place' ? 'pri' : ''), h('span', 'kv', `${(+GW.pv(L.lon, tl())).toFixed(2)}°, ${(+GW.pv(L.lat, tl())).toFixed(2)}°`)); box.append(r);
         break; }
       case 'district':
         box.append(h('div', 'mp-sub', 'مناطق إدارية مرفوعة'), row('كل مناطق الدولة', txt(L.country, set('country'), 'مثال: السعودية، مصر')), row('مناطق محددة', txt(L.regions, set('regions'), 'مثال: منطقة الرياض، المنطقة الشرقية')),
-          h('div', 'mp-note', 'أو اختر دولاً كاملة من الشاشة لرفعها:'), btn(M.mode === 'pick' ? 'وضع الاختيار فعّال' : 'اختيار دول من الشاشة', () => { M.mode = 'pick'; re(); }),
+          h('div', 'mp-note', 'أو اختر دولاً كاملة من الشاشة لرفعها:'), btn(GW.ico('pin', 13) + ' اختر دولاً على الخريطة', () => M.enter('pick', 'لاختيار الدول المرفوعة')),
           row('الألوان', sel([['single', 'لون واحد'], ['multi', 'ألوان متعددة']], L.palette || 'single', set('palette', 1))), row('اللون', col(L.color, set('color'))), row('ارتفاع الرفع', rng(L.lift == null ? 1 : L.lift, 0, 4, .05, set('lift'))), row('الشفافية', rng(L.fill == null ? .92 : L.fill, 0, 1, .01, set('fill'))), row('تتابع الظهور (ث)', rng(L.stagger || 0, 0, 1, .01, set('stagger'))), row('أسماء المناطق', chk(L.labels, set('labels', 1))),
           h('div', 'mp-note', 'بيانات اختيارية (سطر لكل منطقة: الاسم ثم القيمة) — يصبح الارتفاع واللون حسب القيمة:'), area(L.data, v => { L.data = v; GW.invalidate(); GW.commitSoon('بيانات المناطق'); }, 4), row('لون أقل / أعلى قيمة', col(L.c0, set('c0')), col(L.c1, set('c1'))));
         if ((A.Geo.loadAdmin1)) A.Geo.loadAdmin1();

@@ -55,6 +55,12 @@ contextBridge.exposeInMainWorld('gws', {
   , asrOpenModels: () => ipcRenderer.invoke('asr:open-models')
   , onAsrProgress: (cb) => { const f = (e, p) => cb(p); ipcRenderer.on('asr:progress', f); return () => ipcRenderer.removeListener('asr:progress', f); }
   /* ===== /whisper ===== */
+  /* ===== segmentation ===== (background removal model; see the segmentation block in main.js) */
+  , segStatus: () => ipcRenderer.invoke('seg:status')
+  , segDownload: (id) => ipcRenderer.invoke('seg:download', id)
+  , segCancel: () => ipcRenderer.invoke('seg:cancel')
+  , onSegProgress: (cb) => { const f = (e, p) => cb(p); ipcRenderer.on('seg:progress', f); return () => ipcRenderer.removeListener('seg:progress', f); }
+  /* ===== /segmentation ===== */
   /* ===== media perf ===== (see the media perf block in main.js) */
   , stat: (p) => ipcRenderer.invoke('mp:stat', p)
   , existsMany: (list) => ipcRenderer.invoke('mp:existsMany', list)
@@ -80,6 +86,29 @@ contextBridge.exposeInMainWorld('gws', {
   , ttsOpenVoices: () => ipcRenderer.invoke('tts:open-voices')
   , onTtsProgress: (cb) => { const f = (e, p) => cb(p); ipcRenderer.on('tts:progress', f); return () => ipcRenderer.removeListener('tts:progress', f); }
   /* ===== /tts ===== */
+  /* ===== ofx ===== (experimental OpenFX bridge; see the ofx block in main.js) */
+  , ofxInfo: () => ipcRenderer.invoke('ofx:info')
+  , ofxScan: (o) => ipcRenderer.invoke('ofx:scan', o)
+  , ofxRender: (o) => ipcRenderer.invoke('ofx:render', o)
+  , ofxCancel: (id) => ipcRenderer.invoke('ofx:cancel', id)
+  , ofxPresets: (o) => ipcRenderer.invoke('ofx:presets', o)
+  , ofxPickFolder: (def) => ipcRenderer.invoke('ofx:pickFolder', def)
+  , ofxOpenLog: () => ipcRenderer.invoke('ofx:openLog')
+  , ofxFx: (o) => ipcRenderer.invoke('ofx:fx', o)
+  , ofxFxStop: () => ipcRenderer.invoke('ofx:fxStop')
+  , onOfxFxMsg: (cb) => { const f = (e, m) => cb(m); ipcRenderer.on('ofx:fxmsg', f); return () => ipcRenderer.removeListener('ofx:fxmsg', f); }
+  , onOfxProgress: (cb) => { const f = (e, p) => cb(p); ipcRenderer.on('ofx:progress', f); return () => ipcRenderer.removeListener('ofx:progress', f); }
+  /* ===== /ofx ===== */
+  /* ===== adobe import ===== (see the adobe import block in main.js) */
+  , adobeDefaults: () => ipcRenderer.invoke('adobe:defaults')
+  , adobeLibrary: () => ipcRenderer.invoke('adobe:library')
+  , adobeScan: (o) => ipcRenderer.invoke('adobe:scan', o)
+  , adobeCancel: () => ipcRenderer.invoke('adobe:cancel')
+  , adobeClear: () => ipcRenderer.invoke('adobe:clear')
+  , adobeReadBin: (p) => ipcRenderer.invoke('adobe:readBin', p)
+  , adobePickFolder: (d) => ipcRenderer.invoke('adobe:pickFolder', d)
+  , onAdobeProgress: (cb) => { const f = (e, p) => cb(p); ipcRenderer.on('adobe:progress', f); return () => ipcRenderer.removeListener('adobe:progress', f); }
+  /* ===== /adobe import ===== */
 });
 
 /* ===== api ===== (assistant automation bridge: main forwards JSON-RPC calls → GW.API in app/js/api.js) */
@@ -90,3 +119,16 @@ contextBridge.exposeInMainWorld('gwsApi', {
   reply: (id, res) => ipcRenderer.send('api:result', id, res)
 });
 /* ===== /api ===== */
+
+/* ===== ai ===== («المونتير الذكي»; see the ai block in main.js — the API key never crosses into the renderer) */
+contextBridge.exposeInMainWorld('gwsAi', {
+  status: () => ipcRenderer.invoke('ai:status'),
+  setKey: (k) => ipcRenderer.invoke('ai:setKey', String(k || '')),
+  clearKey: () => ipcRenderer.invoke('ai:clearKey'),
+  setSettings: (o) => ipcRenderer.invoke('ai:setSettings', o),
+  models: () => ipcRenderer.invoke('ai:models'),
+  messages: (id, body) => ipcRenderer.invoke('ai:messages', id, body),
+  cancel: (id) => ipcRenderer.invoke('ai:cancel', id),
+  playbook: () => ipcRenderer.invoke('ai:playbook')
+});
+/* ===== /ai ===== */

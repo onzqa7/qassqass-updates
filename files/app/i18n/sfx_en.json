@@ -534,5 +534,69 @@
 "vinyl_crackle": {
 "name": "Old vinyl crackle",
 "use": "Under archive photos and old recordings"
+},
+"tape_rip": {
+"name": "Tape pull",
+"use": "Taping a photo or scrap in a collage scene"
+},
+"tape_snap": {
+"name": "Tape snap",
+"use": "Quick tape-down of a scrap or sticker"
+},
+"stamp_office": {
+"name": "Office stamp",
+"use": "Stamp «TOP SECRET» or «DENIED» on a document"
+},
+"paper_drop": {
+"name": "Paper drop",
+"use": "A document or photo slides into frame"
+},
+"paper_pickup": {
+"name": "Paper pick-up / map open",
+"use": "Opening a paper map or lifting a document"
+},
+"photocopier": {
+"name": "Photocopier",
+"use": "Printing a photo or copying a document (photocopy look)"
+},
+"cloth_rip": {
+"name": "Cloth rip",
+"use": "Tearing a flag or a torn reveal"
+},
+"marker_draw": {
+"name": "Marker drawing",
+"use": "Hand-drawn arrow, circle or route"
+},
+"sword_clash": {
+"name": "Swords clash",
+"use": "Historic battles — armies meet"
+},
+"arrows_volley": {
+"name": "Arrow volley",
+"use": "Archers loose a volley in a historic battle"
+},
+"bow_release": {
+"name": "Bow release",
+"use": "A single archer shoots"
+},
+"cavalry_gallop": {
+"name": "Cavalry gallop",
+"use": "Cavalry charge or a rider arriving"
+},
+"ballista": {
+"name": "Ballista shot",
+"use": "Ancient siege of a city"
+},
+"catapult": {
+"name": "Catapult launch",
+"use": "Stones hurled at the walls"
+},
+"battering_ram": {
+"name": "Battering ram",
+"use": "Breaking a city or castle gate"
+},
+"cannon_old": {
+"name": "Old cannon",
+"use": "16th–19th century battles and forts"
 }
 }

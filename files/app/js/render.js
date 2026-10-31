@@ -23,7 +23,10 @@
     return c && c.on !== 0 ? { c } : null;
   };
 
-  function shakeFx(c, lt) {
+  function shakeFx(c, lt) { const e = shakeFx0(c, lt); return RN.xfHooks.length ? RN.xfHooks.reduce((acc, h) => h(c, lt, acc) || acc, e) : e; }
+  RN.xfHooks = []; // extra per-layer transform offsets (collage.js: stop-motion jitter, cut-out tilt) → {x, y, rot, zoom}
+  RN.holdHooks = []; // per-layer time hold (collage.js: stop-motion «on twos») → sequence time to sample the clip at
+  function shakeFx0(c, lt) {
     const f = (c.fx || []).find(x => x.type === 'shake' && x.on); if (!f) return null;
     const p = {}; for (const k in f.params) p[k] = GW.pv(f.params[k], lt);
     const n = (x, s) => { const i = Math.floor(x), fr = x - i; const h = q => (Math.sin(q * 127.1 + s * 311.7) * 43758.5453) % 1; const a = h(i), b = h(i + 1); return (a + (b - a) * fr * fr * (3 - 2 * fr)) * 2; };
@@ -56,6 +59,14 @@
       const tx = R.upload('sh:' + c.id, e.canvas, lw, lh, e.ver);
       const f = R.fbo(lw, lh); R.pass('copy', f, [tx.tex]); return f;
     }
+    if (c.kind === 'scene3d') { // three.js scene (js/s3d.js), rendered offscreen at the layer size
+      const S3 = GW.S3D; if (!S3 || !c.s3d) return null;
+      if (!S3.T) { S3.ready.then(() => GW.invalidate()); return null; }
+      let cv; try { cv = S3.render(c, lt, lw, lh, { exporting: !!opts.exporting, live: !opts.exporting && (opts.depth || 0) === 0 }); } catch (e) { console.error('scene3d render', e); return null; }
+      if (!cv) return null;
+      const tx = R.upload('s3:' + c.id, cv, lw, lh, null);
+      const f = R.fbo(lw, lh); R.pass('copy', f, [tx.tex]); return f;
+    }
     if (c.kind === 'map') {
       if (!GW.Atlas || !c.map || !c.map.scene || c.map.scene.v !== 3) return null;
       const fastM = !opts.exporting && GW.mapFast && performance.now() - GW.mapFast < 350;
@@ -63,7 +74,10 @@
       // scene changes or more tiles have arrived), so background work (proxies, thumbnails, GC) can never alter the frame
       const mk = opts.exporting || fastM ? null : [lt, lw, lh, GW.Atlas.Tiles ? GW.Atlas.Tiles.loaded : 0, GW.mapPreviewQ || .85, c.map.bg || '', JSON.stringify(c.map.scene)].join('|');
       const mc = RN._mapMemo || (RN._mapMemo = new Map()); const hit = mk && mc.get(c.id);
-      let cv; if (hit && hit.k === mk) cv = hit.cv; else { try { cv = GW.Atlas.render(c.map.scene, lt + (c.in || 0), lw, lh, { bg: c.map.bg || 'full', dur: c.dur, quality: opts.exporting ? 1 : (GW.mapPreviewQ || 1), fast: fastM }); } catch (e) { console.error('map render', e); return null; }
+      // while the map viewer is being dragged it already renders this clip every frame: reuse its picture (one map render per frame)
+      const vf = fastM && !GW.noMapShare && GW.MapCamFrame; let cv = null;
+      if (vf && vf.id === c.id && Math.abs(vf.lt - lt) < 1e-4 && performance.now() - vf.at < 1000 && vf.cv.width) { const sc2 = RN._vfc || (RN._vfc = document.createElement('canvas')); if (sc2.width !== lw || sc2.height !== lh) { sc2.width = lw; sc2.height = lh; } const g2 = sc2.getContext('2d'); g2.clearRect(0, 0, lw, lh); g2.drawImage(vf.cv, vf.sx, vf.sy, vf.sw, vf.sh, 0, 0, lw, lh); cv = sc2; RN.mapShared = (RN.mapShared || 0) + 1; }
+      if (cv) {} else if (hit && hit.k === mk) cv = hit.cv; else { try { cv = GW.Atlas.render(c.map.scene, lt + (c.in || 0), lw, lh, { bg: c.map.bg || 'full', dur: c.dur, quality: opts.exporting ? 1 : (GW.mapPreviewQ || 1), fast: fastM }); } catch (e) { console.error('map render', e); return null; }
         if (mk) { const keep = document.createElement('canvas'); keep.width = cv.width; keep.height = cv.height; keep.getContext('2d').drawImage(cv, 0, 0); mc.set(c.id, { k: mk, cv: keep }); if (mc.size > 6) mc.delete(mc.keys().next().value); } }
       const tx = R.upload('mp:' + c.id, cv, lw, lh, null);
       const f = R.fbo(lw, lh); R.pass('copy', f, [tx.tex]); return f;
@@ -174,6 +188,7 @@
 
   RN.placedClip = (s, c, t, r, W, H, acc, opts) => {
     if (c.kind === 'null' || c.kind === 'camera') return null; // controllers render nothing
+    if (RN.holdHooks.length && c.fx && c.fx.length) for (const h of RN.holdHooks) t = h(c, t);
     if (GW.X && GW.X.is3D(c)) return placed3D(s, c, t, r, W, H, acc, opts);
     const lt = t - c.start;
     const par = c.parent && c.kind !== 'adjust' && GW.X ? GW.X.parentOf(s, c) : null;
@@ -230,7 +245,7 @@
       for (const c of [it.c, it.A, it.B]) {
         if (!c || c.on === 0) continue;
         if (c.kind === 'video') out.push({ c, t, s });
-        else if (c.kind === 'map' && maps) maps.push({ c, t, s });
+        else if ((c.kind === 'map' || c.kind === 'scene3d') && maps) maps.push({ c, t, s });
         else if (c.kind === 'nest' && depth < 4) { const sub = GW.prj.seqs.find(x => x.id === c.ref); if (sub && sub !== s) out.push(...RN.neededVideos(sub, GW.srcTime(c, t), depth + 1, maps)); }
       }
     }
@@ -240,6 +255,7 @@
     if (GW.LUT) await GW.LUT.ready(); // .cube data parsed before the frame renders (export = preview)
     const maps = []; const cs = RN.neededVideos(s, t, 0, maps);
     for (const { c, t: tt, s: ss } of maps) {
+      if (c.kind === 'scene3d') { if (GW.S3D) { try { await GW.S3D.ensure(c, tt - c.start); } catch (e) { console.warn('scene3d ensure', e); } } continue; }
       if (!GW.Atlas || !c.map || !c.map.scene || c.map.scene.v !== 3) continue;
       const lt = tt - c.start; const ls = RN.layerScale(c, lt, r * (ss === s ? 1 : 1)); const lw = Math.max(2, Math.round((c.sw || ss.w) * ls)), lh = Math.max(2, Math.round((c.sh || ss.h) * ls));
       try { await GW.Atlas.ensure(c.map.scene, lt + (c.in || 0), lw, lh, { bg: c.map.bg || 'full', dur: c.dur, timeout: 20000 }); } catch (e) { console.warn('map ensure', e); }

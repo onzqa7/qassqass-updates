@@ -245,6 +245,7 @@ float noise(float x){ float i=floor(x),f=fract(x); float a=hash(vec2(i,1.3)),b=h
     void main(){ float Y=(texture(t0,uv).r-16./255.)*(255./219.); float U=(texture(t1,uv).r-128./255.)*(255./224.); float V=(texture(t2,uv).r-128./255.)*(255./224.);
       o=vec4(clamp(vec3(Y+1.5748*V, Y-.1873*U-.4681*V, Y+1.8556*U),0.,1.),1.); }`;
   const TR_KIND = { addDiss: 22, filmDiss: 23, irisBox: 24, irisDiamond: 25, irisCross: 26, barnH: 27, barnV: 28, blinds: 29, checkerW: 30, radialW: 31, gradW: 32, randBlocks: 33, zigzag: 34, pinwheel: 35, crossZoom: 36, cube: 37, flipOver: 38, lightLeakT: 39, chromaT: 40, blurColor: 41, lumaFade: 42, stretchT: 43, splitT: 44, bandSlide: 45, zoomBlurT: 46, neonSweep: 47, centerSplit: 48, dissolve: 0, dipBlack: 1, dipWhite: 2, blurx: 3, flash: 4, pushL: 5, pushR: 6, pushU: 7, pushD: 8, slideL: 9, slideR: 10, whip: 11, spin: 12, zoomIn: 13, wipeL: 14, wipeR: 15, wipeU: 16, wipeD: 17, iris: 18, clock: 19, glitchT: 20, pixelT: 21 };
+  R.FS = FS; R.TR_KIND = TR_KIND; R.multi = {}; R.trans2 = {}; // extension points (fx_pro.js): extra shaders, multi-pass effects, extra transitions
   const BLEND = { normal: 0, multiply: 1, screen: 2, overlay: 3, darken: 4, lighten: 5, add: 6, difference: 7, softlight: 8, dodge: 9, burn: 10, hardlight: 11 };
   GW.BLENDS = [['normal', 'عادي'], ['multiply', 'ضرب'], ['screen', 'شاشة'], ['overlay', 'تراكب'], ['softlight', 'ضوء ناعم'], ['hardlight', 'ضوء ساطع'], ['darken', 'تغميق'], ['lighten', 'تفتيح'], ['add', 'إضافة'], ['difference', 'فرق'], ['dodge', 'تفتيح لوني'], ['burn', 'حرق لوني']];
 
@@ -260,7 +261,7 @@ float noise(float x){ float i=floor(x),f=fract(x); float a=hash(vec2(i,1.3)),b=h
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
-    for (const k in FS) prog(k);
+    for (const k in FS) { try { prog(k); } catch (e) { console.error(e); if (!R.FS || !GW.FXPro || !GW.FXPro.H2 || !(k in (GW.FXPro.S || {}))) throw e; } } // a broken add-on shader (fx_pro.js) must not take the whole compositor down
     R.maskCanvas = document.createElement('canvas');
     R.maskCtx = R.maskCanvas.getContext('2d');
   };
@@ -369,6 +370,7 @@ float noise(float x){ float i=floor(x),f=fract(x); float a=hash(vec2(i,1.3)),b=h
       if (!fx.on || !GW.FX[fx.type]) continue;
       const pr = fxParams(fx, lt), t = fx.type;
       if (t === 'shake') continue; // handled in transform
+      if (R.multi[t]) { const out = R.multi[t](cur, pr, lt, pxs, fx, clipKey, fxList); if (out && out !== cur) { R.free(cur); cur = out; } continue; } // multi-pass effects (fx_pro.js)
       if (t === 'gblur') { const out = blurTex(cur, pr.amount * pxs * .5, pr.dims, pr.edges); if (out !== cur) { R.free(cur); cur = out; } continue; }
       if (t === 'glow') {
         const br = R.fbo(cur.w, cur.h); R.pass('bright', br, [cur.tex], { thr: pr.thr, color: pr.color, colorMix: pr.colorMix });
@@ -492,6 +494,7 @@ float noise(float x){ float i=floor(x),f=fract(x); float a=hash(vec2(i,1.3)),b=h
   };
   R.blend = (src, dst, mode, op) => { const out = R.fbo(dst.w, dst.h); R.pass('blend', out, [src.tex, dst.tex], { mode: BLEND[mode] || 0, op: op ?? 1 }); return out; };
   R.transition = (a, b, kind, p) => {
+    if (R.trans2[kind]) return R.trans2[kind](a, b, p);
     const out = R.fbo(a.w, a.h); const k = TR_KIND[kind] ?? 0;
     if (k === 3) { for (const f of [a, b]) { R.gl.bindTexture(R.gl.TEXTURE_2D, f.tex); R.gl.texParameteri(R.gl.TEXTURE_2D, R.gl.TEXTURE_MIN_FILTER, R.gl.LINEAR_MIPMAP_LINEAR); R.gl.generateMipmap(R.gl.TEXTURE_2D); } }
     R.pass('tr', out, [a.tex, b.tex], { p, kind: k });

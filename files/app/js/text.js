@@ -28,6 +28,7 @@
       g.save(); try { GW.MG.draw(g, x.mg, lt, dur, w / k, h / k, k); } catch (er) { console.error('mg draw', er); } g.restore();
       e.key = key; e.ver = key; return e;
     }
+    if (x.ca && GW.CapAnim) return GW.CapAnim.draw(clip, lt, w, h, k, cache); // animated captions (js/cap_anim.js): word cells, in/out + emphasis
     let pin = x.animIn && x.animIn !== 'none' ? GW.clamp(lt / ad, 0, 1) : 1;
     let pout = x.animOut && x.animOut !== 'none' ? GW.clamp((dur - lt) / ad, 0, 1) : 1;
     const kst = x.kara && x.kara !== 'none' && T.karaState ? T.karaState(x, lt, dur) : null; // word-timed captions (karaoke)

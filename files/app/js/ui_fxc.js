@@ -205,6 +205,7 @@
       else if (p.t === 'point') ctl = pointCtl(c, P, { step: .005, dec: 3 });
       sec.body.append(row(c, P, p.n, ctl, { def: p.def, noAnim: p.t === 'select' || p.t === 'bool' }));
     }
+    if (def.fxcRows) try { def.fxcRows(sec, c, fx, row, numCtl); } catch (e) { console.error(e); } // per-type extra rows (OFX presets / status: ofx_fx.js)
     if (fx.type === 'lumetri' && GW.LUT) GW.LUT.fxcRows(sec, c, fx, row, numCtl);
     if (fx.type === 'lumetri' && GW.Color) GW.Color.fxcRows(sec, c, fx, row, numCtl);
     if (grp === 'a' && GW.AudioFX && GW.AudioFX.fxcRows) try { GW.AudioFX.fxcRows(sec, c, fx, row, numCtl); } catch (e) { console.error(e); } // EQ curve / gain-reduction meters (audio_fx.js)

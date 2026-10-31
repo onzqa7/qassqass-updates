@@ -129,7 +129,8 @@
             if (isCancel()) { rb.dispose(); await gws.ffCancel(job.id); return { cancelled: true }; }
             const t = t0 + i / fps;
             await GW.Render.prepareExportFrame(s, t, k);
-            const acc = GW.Render.frame(s, t, { scale: k, exporting: true });
+            let acc = GW.Render.frame(s, t, { scale: k, exporting: true });
+            if (GW.OfxFx && GW.OfxFx.pending()) acc = await GW.OfxFx.settle(acc, () => GW.Render.frame(s, t, { scale: k, exporting: true })); // OFX effects answer asynchronously (ofx_fx.js)
             if (acc.w !== w || acc.h !== h) { GW.R.free(acc); throw new Error('حجم الإطار غير متطابق'); }
             const slot = rb.kick(acc);
             const tn = performance.now();
@@ -158,7 +159,10 @@
 
   UI.exportFrame = async () => {
     GW.stop(); const s = GW.seq();
-    const acc = GW.Render.frame(s, s.t, { scale: 1, exporting: false });
+    let acc = GW.Render.frame(s, s.t, { scale: 1, exporting: false });
+    if (GW.OfxFx && GW.OfxFx.defs && s.clips.some(c => (c.fx || []).some(f => GW.OfxFx.defs[f.type]))) { // OFX effects: full-quality frame like export
+      GW.R.free(acc); GW.Render.exporting = true; try { acc = GW.Render.frame(s, s.t, { scale: 1, exporting: false }); acc = await GW.OfxFx.settle(acc, () => GW.Render.frame(s, s.t, { scale: 1, exporting: false })); } finally { GW.Render.exporting = false; }
+    }
     const buf = GW.R.readRGBA(acc.w, acc.h, acc, null, true); const w = acc.w, h = acc.h; GW.R.free(acc);
     const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(buf.buffer), w, h), 0, 0);
     const blob = await new Promise(r => c.toBlob(r, 'image/png'));

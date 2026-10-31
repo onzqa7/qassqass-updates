@@ -660,6 +660,7 @@
       } else if (fd.t === 'color') f.append(Fm.frow(fd.n, Fm.colorIn(v, val => on(val))));
       else if (fd.t === 'num') { const lim = Math.abs(fd.max) > 1e6; if (lim) { const i = document.createElement('input'); i.type = 'number'; i.className = 'inp'; i.value = v; i.step = fd.step; i.dataset.mgf = fd.k; i.oninput = () => { const n = parseFloat(i.value); if (isFinite(n)) on(n); }; i.onkeydown = e => e.stopPropagation(); f.append(Fm.frow(fd.n, i)); } else f.append(Fm.frow(fd.n, Fm.rangeIn(v, fd.min, fd.max, fd.step, val => on(val)))); }
       else if (fd.t === 'sel') f.append(Fm.frow(fd.n, Fm.selectIn(fd.opts, v, val => on(val, true))));
+      else if (fd.t === 'img' && MG.imgField) f.append(Fm.frow(fd.n, MG.imgField(fd, v, (val, fin) => on(val, fin)))); // collage_tpl.js
     }
     f.append(Fm.sec('التوقيت'));
     const dr = Fm.rangeIn(+c.dur.toFixed(2), .5, Math.max(30, Math.ceil(c.dur)), .1, val => { const d = MG.setDur(c, val); dr[1].textContent = +d.toFixed(2); redraw(); }); dr[0].dataset.mgf = 'dur';

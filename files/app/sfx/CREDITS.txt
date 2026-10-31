@@ -9,933 +9,1045 @@ camera/shutter_click.mp3 — غالق كاميرا (نقرة) / Camera shutter c
   Credit: jzielke011 (freesound)
   Source: https://freesound.org/people/jzielke011/sounds/439673/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/tool/camera_shutter_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 camera/shutter_dslr.mp3 — غالق كاميرا احترافية / DSLR shutter
   License: CC-BY-3.0
   Credit: caseymoura (freesound) via KDE oxygen-sounds
   Source: https://freesound.org/people/caseymoura/sounds/445482/
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 camera/camera_snap.mp3 — كاميرا فيلم قديمة / Vintage camera snap
   License: CC-BY-4.0
   Credit: Taken from freesound, edited by ketufaispikinut(GitHub)
   Source: https://freesound.org/people/thecheeseman/sounds/51360/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Misc/camera_snap.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 camera/shutter_phone.mp3 — كاميرا الجوال / Phone camera click
   License: Apache-2.0
   Credit: The Android Open Source Project
   Source: https://github.com/aosp-mirror/platform_frameworks_base/blob/master/data/sounds/effects/camera_click.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 camera/shutter_burst.mp3 — تصوير متتابع (برست) / Shutter burst
   License: CC0-1.0
   Credit: jzielke011 (freesound)
   Source: https://freesound.org/people/jzielke011/sounds/439673/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/tool/camera_shutter_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 camera/polaroid.mp3 — كاميرا فورية (بولارويد) / Instant camera (polaroid)
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/items/polaroid/polaroid1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 transitions/whoosh.mp3 — ووش انتقال / Whoosh
   License: CC0-1.0
   Credit: Halgrimm (freesound) via Sonic Pi
   Source: https://freesound.org/people/Halgrimm/sounds/169867/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/ambi_swoosh.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 transitions/whoosh_soft.mp3 — ووش ناعم / Soft whoosh
   License: CC0-1.0
   Credit: hullum (freesound) via Sonic Pi
   Source: https://freesound.org/people/hullum/sounds/415580/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/perc_swoosh.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 transitions/whoosh_dark.mp3 — ووش عميق / Deep whoosh
   License: CC0-1.0
   Credit: EcoDTR (freesound) via Sonic Pi
   Source: https://freesound.org/people/EcoDTR/sounds/27281/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/ambi_dark_woosh.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 transitions/swish.mp3 — سويش سريع / Quick swish
   License: CC0-1.0
   Credit: qubodup (freesound) via Sonic Pi
   Source: https://freesound.org/people/qubodup/sounds/60009/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/perc_swash.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 transitions/swing_heavy.mp3 — ضربة هواء قوية / Heavy air swing
   License: CC0-1.0
   Credit: orangesheepdog (freesound)
   Source: https://freesound.org/people/orangesheepdog/sounds/367182/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/melee_swing/big_bash/big_bash_swing_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 transitions/swipe.mp3 — سحب (سوايب) / Swipe
   License: CC0-1.0
   Credit: Danjocross (freesound)
   Source: https://freesound.org/people/Danjocross/sounds/507470/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/melee_swing/small_bash/small_bash_swing_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 transitions/swish_blade.mp3 — شق الهواء / Blade swish
   License: CC0-1.0
   Credit: qubodup (freesound)
   Source: https://freesound.org/people/qubodup/sounds/59992/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/melee_swing/big_cutting/big_cutting_swing_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 transitions/reverse_cymbal.mp3 — صنج معكوس (تصاعد) / Reverse cymbal riser
   License: CC0-1.0
   Credit: menegass (freesound) via Sonic Pi
   Source: https://freesound.org/people/menegass/sounds/100056/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/drum_cymbal_hard.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 transitions/riser_boom.mp3 — سحب تصاعدي عميق / Deep reverse riser
   License: CC0-1.0
   Credit: Northern_Monkey (freesound) via Sonic Pi
   Source: https://freesound.org/people/Northern_Monkey/sounds/177242/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/misc_cineboom.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/cine_boom.mp3 — بوم سينمائي / Cinematic boom
   License: CC0-1.0
   Credit: Northern_Monkey (freesound) via Sonic Pi
   Source: https://freesound.org/people/Northern_Monkey/sounds/177242/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/misc_cineboom.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/impact_thud.mp3 — ارتطام ثقيل / Heavy thud
   License: CC0-1.0
   Credit: Made by philRacoIndie freesound.org, modified by brainfood1183 (github)
   Source: https://freesound.org/people/philRacoIndie/sounds/512483/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Footsteps/largethud.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/kick_drum.mp3 — ضربة طبل / Kick drum hit
   License: CC0-1.0
   Credit: Zajo (freesound) via Sonic Pi
   Source: https://freesound.org/people/Zajo/sounds/4832/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/drum_heavy_kick.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/cymbal_crash.mp3 — صنج / Cymbal crash
   License: CC0-1.0
   Credit: menegass (freesound) via Sonic Pi
   Source: https://freesound.org/people/menegass/sounds/100060/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/drum_splash_hard.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/gong.mp3 — غونغ / Gong
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/gong.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/metal_slam.mp3 — ضربة معدنية / Metal slam
   License: CC-BY-SA-3.0
   Credit: Based on sounds from OpenSourceWeb at edb003dc8ff5009476a9bcb74e79206039fb3390, edited and reworked by mirrorcult
   Source: https://github.com/Open-SourceWeb/OpenSourceWeb
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/metal_slam1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/punch.mp3 — لكمة / Punch
   License: CC-BY-3.0
   Credit: Taken from Ryan Conway on freesound.org
   Source: https://freesound.org/people/ryanconway/sounds/260739/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Weapons/boxingpunch1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/glass_shatter.mp3 — تحطم زجاج / Glass shatter
   License: CC0-1.0
   Credit: chewiesmissus (freesound)
   Source: https://freesound.org/people/chewiesmissus/sounds/244238/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/smash_success/glass/smash_success_glass_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/wood_smash.mp3 — تكسر خشب / Wood smash
   License: CC0-1.0
   Credit: egomassive (freesound)
   Source: https://freesound.org/people/egomassive/sounds/536777/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/smash_success/window/wood_smash_success.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/building_collapse.mp3 — انهيار مبنى / Building collapse
   License: CC-BY-SA-3.0
   Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
   Source: https://github.com/0ad/0ad
   Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/destruction/building_collapse_large_01.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/tree_fall.mp3 — سقوط شجرة / Tree fall
   License: CC0-1.0
   Credit: "Tree falls in a forest." by felix.blume of Freesound.org. Cropped and mixed from stereo to mono.
   Source: https://freesound.org/people/felix.blume/sounds/414093/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/tree_fell.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 cinematic/heartbeat.mp3 — نبض قلب / Heartbeat
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/heart_beat.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/mouse_click.mp3 — نقرة فأرة / Mouse click
   License: CC0-1.0
   Credit: Kenney (kenney.nl) — UI Audio
   Source: https://kenney.nl/assets/ui-audio
   Via: https://github.com/Calinou/kenney-ui-audio/blob/master/addons/kenney_ui_audio/mouseclick1.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/switch.mp3 — مفتاح تبديل / Toggle switch
   License: CC0-1.0
   Credit: Kenney (kenney.nl) — UI Audio
   Source: https://kenney.nl/assets/ui-audio
   Via: https://github.com/Calinou/kenney-ui-audio/blob/master/addons/kenney_ui_audio/switch2.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/keyboard_typing.mp3 — كتابة على لوحة المفاتيح / Keyboard typing
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/machines/computer/keyboard_clicks_1.ogg; https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/machines/computer/keyboard_clicks_3.ogg; https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/machines/computer/keyboard_clicks_2.ogg; https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/machines/computer/keyboard_clicks_1.ogg; https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/machines/computer/keyboard_clicks_3.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/key_press.mp3 — ضغطة مفاتيح قصيرة / Short key presses
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/machines/computer/keyboard_clicks_3.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/ding.mp3 — دينغ إشعار / Notification ding
   License: CC-BY-4.0
   Credit: "Bike, Bell Ding, Single, 01-01.wav" byInspectorJ (www.jshaw.co.uk) of Freesound.org; The volume has been reduced.
   Source: https://freesound.org/people/InspectorJ/sounds/484344/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/voteding.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/desk_bell.mp3 — جرس مكتب / Desk bell
   License: CC-BY-SA-3.0
   Credit: Created by SamKolber, shortened and converted to OGG and mono
   Source: https://freesound.org/people/SamKolber/sounds/210022/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Items/desk_bell_ring.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/success_chime.mp3 — رنين نجاح / Success chime
   License: CC0-1.0
   Credit: AlaskaRobotics (freesound) via Sonic Pi
   Source: https://freesound.org/people/AlaskaRobotics/sounds/221515/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/perc_bell.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/error_buzz.mp3 — خطأ (بازر) / Error buzz
   License: CC0-1.0
   Credit: philRacoIndie (freesound)
   Source: https://freesound.org/s/551543/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/menu_error/menu_error.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/pop.mp3 — فرقعة / Pop
   License: CC0-1.0
   Credit: Taken from 0ne_one111yt on freesound.org
   Source: https://freesound.org/people/0ne_one111yt/sounds/478213/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Weapons/pop.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/pop_high.mp3 — فرقعة حادة / High pop
   License: CC-BY-4.0
   Credit: "Pop, High, A (H1).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org. Mixed from stereo to mono.
   Source: https://freesound.org/people/InspectorJ/sounds/411642/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/pop_high.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/finger_snap.mp3 — طقطقة أصابع / Finger snap
   License: CC0-1.0
   Credit: SoundCollectah (freesound) via Sonic Pi
   Source: https://freesound.org/people/SoundCollectah/sounds/109400/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/perc_snap.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/beep.mp3 — صفير جهاز / Device beep
   License: CC0-1.0
   Credit: Created by dotY21.
   Source: https://freesound.org/people/dotY21/sounds/330726/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Machines/beep.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/phone_ring.mp3 — رنين هاتف / Phone ring
   License: CC0-1.0
   Credit: Created by fspera, converted to OGG and modified by chromiumboy.
   Source: https://freesound.org/people/fspera/sounds/528111/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Machines/double_ring.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/coin.mp3 — عملة معدنية / Coin
   License: CC0-1.0
   Credit: Sampled from sfx created by Sorce, from freesound
   Source: https://freesound.org/people/sorce/sounds/425130
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Items/Dice/coin1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 ui/cash_register.mp3 — آلة نقود (كاشير) / Cash register
   License: CC-BY-3.0
   Credit: "Cash till" by Janis Lukss — OpenSFX (OpenTTD)
   Source: https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo
   Via: https://github.com/OpenTTD/OpenSFX/blob/master/src/wav/osfx_20.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 paper/page_turn.mp3 — قلب صفحة / Page turn
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/page_turn/pageturn3.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 paper/page_flip.mp3 — تقليب ورقة / Paper flip
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/page_turn/pageturn1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 paper/pen_write.mp3 — كتابة بالقلم / Pen writing
   License: CC0-1.0
   Credit: Originally 'Pen Clicks and Writing on Paper' created by PDaefaul. Cut, spliced and converted by Krunklehorn.
   Source: https://freesound.org/people/PDaefaul/sounds/631971/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Items/Paper/paper_scribble1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 paper/pen_scribble.mp3 — خربشة قلم / Pen scribble
   License: CC0-1.0
   Credit: Originally 'Pen Clicks and Writing on Paper' created by PDaefaul. Cut, spliced and converted by Krunklehorn.
   Source: https://freesound.org/people/PDaefaul/sounds/631971/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Items/Paper/paper_scribble3.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 paper/pen_click.mp3 — نقرة قلم / Pen click
   License: CC0-1.0
   Credit: Created by dslrguide, converted to ogg and mono by Themias
   Source: https://freesound.org/people/dslrguide/sounds/321484
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Items/pen_click.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 paper/stamp.mp3 — ختم / Rubber stamp
   License: CC-BY-4.0
   Credit: Created by kermite607. Converted from WAV to OGG by Lomcastar, then to mono by crazybrain23.
   Source: https://freesound.org/people/kermite607/sounds/362624/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Items/Stamp/automatic_stamp.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 paper/stamp_heavy.mp3 — ختم ثقيل / Heavy stamp
   License: CC-BY-4.0
   Credit: Created by newagesoup. Converted from WAV to OGG by Lomcastar, then to mono by crazybrain23.
   Source: https://freesound.org/people/newagesoup/sounds/347323/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Items/Stamp/thick_stamp_sub.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 paper/printer.mp3 — طباعة وقطع ورقة / Print & tear
   License: CC0-1.0
   Credit: receipt printing.wav by 13F_Panska_Tlolkova_Matilda. This version is cleaned up, shortened, and converted to OGG.
   Source: https://freesound.org/people/13F_Panska_Tlolkova_Matilda/sounds/378331
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Machines/short_print_and_rip.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 paper/scissors.mp3 — مقص / Scissors
   License: CC0-1.0
   Credit: User Hanbaal on freesound.org. Converted to ogg by TheShuEd
   Source: https://freesound.org/people/Hanbaal/sounds/178669/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Items/scissors.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 news/tv_static.mp3 — تشويش تلفاز / TV static
   License: CC-BY-4.0
   Credit: digifishmusic (freesound)
   Source: https://freesound.org/people/digifishmusic/sounds/74936/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/radio/static.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 news/radio_static.mp3 — تشويش راديو / Radio static
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/items/radiostatic.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 news/radio_chatter.mp3 — اتصال لاسلكي / Radio chatter
   License: CC-BY-3.0
   Credit: kwahmah_02 (freesound)
   Source: https://freesound.org/people/kwahmah_02/sounds/255851/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/radio/inaudible_chatter.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 news/morse.mp3 — شيفرة مورس / Morse code
   License: CC-BY-3.0
   Credit: "Morse" by Janis Lukss — OpenSFX (OpenTTD)
   Source: https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo
   Via: https://github.com/OpenTTD/OpenSFX/blob/master/src/wav/osfx_22.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 news/siren_long.mp3 — صفارة إنذار طويلة / Long warning siren
   License: CC-BY-4.0
   Credit: IFartInUrGeneralDirection (freesound) via tgstation
   Source: https://freesound.org/s/46092/
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/siren.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 news/police_siren.mp3 — صفارة شرطة / Police siren
   License: CC0-1.0
   Credit: Piotr Zaczek (blukotek) on freesound.org
   Source: https://freesound.org/people/blukotek/sounds/431651/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Vehicle/policesiren.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 news/ambulance_siren.mp3 — صفارة إسعاف / Ambulance siren
   License: CC-BY-3.0
   Credit: Lalks on freesound.org, small edit by Velken
   Source: https://freesound.org/people/Lalks/sounds/336894/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Vehicle/ambulancesiren.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 news/car_alarm.mp3 — إنذار سيارة / Car alarm
   License: CC-BY-4.0
   Credit: InspectorJ (freesound)
   Source: https://freesound.org/people/InspectorJ/sounds/422051/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/vehicle/car_alarm/car_alarm.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 news/alarm_bell.mp3 — جرس إنذار / Alarm bell
   License: CC0-1.0
   Credit: kyles (freesound)
   Source: https://freesound.org/people/kyles/sounds/452175/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/environment/ambient/alarm.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 news/factory_whistle.mp3 — صافرة مصنع / Factory whistle
   License: CC-BY-3.0
   Credit: "Factory Whistle" by Janis Lukss — OpenSFX (OpenTTD)
   Source: https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo
   Via: https://github.com/OpenTTD/OpenSFX/blob/master/src/wav/osfx_03.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/explosion_huge.mp3 — انفجار ضخم / Huge explosion
   License: CC0-1.0
   Credit: unfa (freesound)
   Source: https://freesound.org/people/unfa/sounds/352143/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/explosion/huge/explosion_huge_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/explosion_big.mp3 — انفجار قوي / Big explosion
   License: CC-BY-SA-3.0
   Credit: vgstation at c5edbfd7179288080f081e2b8ac2496b7e4455db
   Source: https://github.com/vgstation-coders/vgstation13/tree/c5edbfd7179288080f081e2b8ac2496b7e4455db/sound/effects
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/explosion1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/explosion_debris.mp3 — انفجار مع حطام / Explosion with debris
   License: CC-BY-SA-3.0
   Credit: vgstation at c5edbfd7179288080f081e2b8ac2496b7e4455db
   Source: https://github.com/vgstation-coders/vgstation13/tree/c5edbfd7179288080f081e2b8ac2496b7e4455db/sound/effects
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/explosion5.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/explosion_rumble.mp3 — انفجار وتساقط ركام / Explosion & falling rubble
   License: CC-BY-SA-3.0
   Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
   Source: https://github.com/0ad/0ad
   Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/destruction/explode_debris_20.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/explosion_medium.mp3 — انفجار متوسط / Medium explosion
   License: CC-BY-3.0
   Credit: bmlake (freesound)
   Source: https://freesound.org/people/bmlake/sounds/251617/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/explosion/default/explosion_default_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/explosion_small.mp3 — انفجار صغير / Small explosion
   License: CC0-1.0
   Credit: j1987 (freesound)
   Source: https://freesound.org/people/j1987/sounds/140727/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/explosion/small/explosion_small.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/explosion_far.mp3 — انفجار بعيد / Distant explosion
   License: CC-BY-SA-3.0
   Credit: vgstation at c5edbfd7179288080f081e2b8ac2496b7e4455db
   Source: https://github.com/vgstation-coders/vgstation13/tree/c5edbfd7179288080f081e2b8ac2496b7e4455db/sound/effects
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/explosionfar.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/artillery_far.mp3 — قصف مدفعي بعيد / Distant artillery
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/explosion/explosion_distant.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/rifle_shot.mp3 — طلقة بندقية / Rifle shot
   License: CC-BY-4.0
   Credit: DoctorBoomstick (CDDA-Soundpacks, own recording)
   Source: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/rifles/automatic_rifle/outdoor_gunfire/credits.md
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/rifles/automatic_rifle/outdoor_gunfire/556_auto_rifle_shot_01.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/rifle_burst.mp3 — رشقة بندقية آلية / Assault rifle burst
   License: CC-BY-4.0
   Credit: DoctorBoomstick (CDDA-Soundpacks, own recording)
   Source: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/rifles/automatic_rifle/outdoor_gunfire/credits.md
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/rifles/automatic_rifle/outdoor_gunfire/556_auto_rifle_shot_03.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/machine_gun.mp3 — رشاش / Machine gun
   License: CC-BY-3.0
   Credit: WEL (soundbible)
   Source: https://soundbible.com/1575-High-Definition-Machine-Gun.html
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/machineguns/machinegun_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/ww2_rifle.mp3 — بندقية حرب عالمية (غاراند) / WWII rifle (M1 Garand)
   License: CC-BY-3.0
   Credit: battlestar10 (soundbible)
   Source: https://soundbible.com/1666-M1-Garand-Gunfire.html
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/generic/genericgun_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/gunshot.mp3 — إطلاق نار / Gunshot
   License: CC-BY-3.0
   Credit: Mike Koenig (soundbible)
   Source: https://soundbible.com/1998-Gun-Fire.html
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/rifles/rifle_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/pistol.mp3 — طلقة مسدس / Pistol shot
   License: CC-BY-3.0
   Credit: GoodSoundForYou (soundbible)
   Source: https://soundbible.com/2120-9mm-Gunshot.html
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/handguns/handgun_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/shotgun.mp3 — بندقية خرطوش / Shotgun
   License: CC-BY-4.0
   Credit: MATRIXXX_ (freesound)
   Source: https://freesound.org/people/MATRIXXX_/sounds/473846/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/shotguns/shotgun_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/rocket_launch.mp3 — إطلاق صاروخ / Rocket launch
   License: CC0-1.0 + CC-BY-4.0
   Credit: morganpurkis (CC0) & CGEffex (CC-BY-4.0) (freesound)
   Source: https://freesound.org/people/CGEffex/sounds/100772/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/rockets/rocket_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/mortar.mp3 — قاذف / هاون / Launcher / mortar
   License: CC0-1.0
   Credit: LeMudCrab (freesound)
   Source: https://freesound.org/people/LeMudCrab/sounds/163458/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/fire_gun/launchers/launcher_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/reload_rifle.mp3 — تلقيم بندقية / Rifle reload
   License: CC-BY-4.0
   Credit: DoctorBoomstick (CDDA-Soundpacks, own recording)
   Source: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/reload/mag_fed_bolt_action_rifle/credits.md
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/reload/mag_fed_bolt_action_rifle/bolt_action_rifle_load_01.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/helicopter.mp3 — مروحية / Helicopter
   License: CC-BY-SA-3.0
   Credit: "helicopterRaw_16sec.wav" by lorenzosu, edited by Wuzzy — OpenSFX (OpenTTD)
   Source: https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo
   Via: https://github.com/OpenTTD/OpenSFX/blob/master/src/wav/osfx_24.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/jet_flyby.mp3 — مرور طائرات نفاثة / Jet fly-by
   License: CC0-1.0
   Credit: "5_Navy-Blue-Angels-jets_CLIP.wav" by ibisradio, edited by Wuzzy — OpenSFX (OpenTTD)
   Source: https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo
   Via: https://github.com/OpenTTD/OpenSFX/blob/master/src/wav/osfx_61.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/jet_takeoff.mp3 — طائرة نفاثة قريبة / Close jet
   License: CC-BY-3.0
   Credit: "Landing Jet 5 (Close).wav" by bigpickle51, edited by Wuzzy — OpenSFX (OpenTTD)
   Source: https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo
   Via: https://github.com/OpenTTD/OpenSFX/blob/master/src/wav/osfx_59.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/airliner_takeoff.mp3 — إقلاع طائرة ركاب / Airliner take-off
   License: CC-BY-3.0
   Credit: "Passenger jet departs 2.wav" by digifishmusic, edited by Wuzzy — OpenSFX (OpenTTD)
   Source: https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo
   Via: https://github.com/OpenTTD/OpenSFX/blob/master/src/wav/osfx_09.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/prop_plane.mp3 — طائرة مروحية قديمة / Propeller plane
   License: CC-BY-3.0
   Credit: "Plane Cessna start stop.wav" by Cheeseheadburger, edited by Wuzzy — OpenSFX (OpenTTD)
   Source: https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo
   Via: https://github.com/OpenTTD/OpenSFX/blob/master/src/wav/osfx_08.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/engine_start.mp3 — تشغيل محرك / Engine start
   License: CC-BY-3.0
   Credit: Frederik_Sunne (freesound)
   Source: https://freesound.org/people/Frederik_Sunne/sounds/324138/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/engine_start/v8/engine_start_v8.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/vehicle_start.mp3 — تشغيل مركبة / Vehicle start-up
   License: CC-BY-4.0
   Credit: InspectorJ (www.jshaw.co.uk) of Freesound.org
   Source: https://freesound.org/people/InspectorJ/sounds/338954/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Vehicle/vehiclestartup.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/ship_horn.mp3 — بوق سفينة / Ship horn
   License: CC-BY-3.0
   Credit: "ship2_bergen.aif" by Leon Milo, edited by Wuzzy — OpenSFX (OpenTTD)
   Source: https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo
   Via: https://github.com/OpenTTD/OpenSFX/blob/master/src/wav/osfx_06.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/trench_whistle.mp3 — صافرة الخنادق / Trench whistle
   License: CC0-1.0
   Credit: Deleted user on freesound.org.
   Source: https://freesound.org/people/deleted_user_2104797/sounds/324539/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Items/Whistle/trench_whistle_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/geiger.mp3 — عداد إشعاع (غايغر) / Geiger counter
   License: CC0-1.0
   Credit: JustLaz (freesound)
   Source: https://freesound.org/s/616512/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/tool/geiger_high.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 war/radar_ping.mp3 — رادار / Radar ping
   License: CC0-1.0
   Credit: User unfa from freesound.org Remixed to mono and .ogg by metalgearsloth.
   Source: https://freesound.org/people/unfa/sounds/215415/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Shuttle/radar_ping.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/applause.mp3 — تصفيق جمهور / Audience applause
   License: CC-BY-3.0
   Credit: "Approx 850 - Enthusiast Audience.wav" by lonemonk, edited by Wuzzy — OpenSFX (OpenTTD)
   Source: https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo
   Via: https://github.com/OpenTTD/OpenSFX/blob/master/src/wav/osfx_29.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/slow_clap.mp3 — تصفيق بطيء (ساخر) / Slow clap
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/machines/slowclap.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/crowd_ooh.mp3 — دهشة جماعية (أووه) / Crowd "oooh"
   License: CC-BY-3.0
   Credit: "Oooh sound" by Janis Lukss — OpenSFX (OpenTTD)
   Source: https://github.com/OpenTTD/OpenSFX/blob/master/src/opensfx.psfo
   Via: https://github.com/OpenTTD/OpenSFX/blob/master/src/wav/osfx_30.wav
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/laugh_crowd.mp3 — ضحك جمهور / Audience laughter
   License: CC0-1.0
   Credit: Created by Kinoton, clipped by github Henri215, turned into mono by github lapatison
   Source: https://freesound.org/people/Kinoton/sounds/371562/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Items/Toys/sitcom_laugh.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/gasp_male.mp3 — شهقة رجل / Male gasp
   License: CC-BY-SA-3.0
   Credit: Taken from tgstation at https://github.com/tgstation/tgstation/commit/f7a49c4068f1277e6857baf0892d355f1c055974
   Source: https://github.com/tgstation/tgstation/tree/f7a49c4068f1277e6857baf0892d355f1c055974/sound/voice/human
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Gasp/gasp_male1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/gasp_female.mp3 — شهقة امرأة / Female gasp
   License: CC-BY-SA-3.0
   Credit: Taken from tgstation at https://github.com/tgstation/tgstation/commit/f7a49c4068f1277e6857baf0892d355f1c055974
   Source: https://github.com/tgstation/tgstation/tree/f7a49c4068f1277e6857baf0892d355f1c055974/sound/voice/human
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Gasp/gasp_female1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/cough.mp3 — سعال / Cough
   License: CC0-1.0
   Credit: dastudiospr on freesound.org
   Source: https://freesound.org/people/dastudiospr/sounds/537150/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Voice/Human/male_cough_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/whistle_human.mp3 — صفير إعجاب / Human whistle
   License: CC0-1.0
   Credit: Taken from https://freesound.org/
   Source: https://freesound.org/people/taure/sounds/411638/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Voice/Human/whistle_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/market_crowd.mp3 — سوق وزحام / Market crowd
   License: CC-BY-SA-3.0
   Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
   Source: https://github.com/0ad/0ad
   Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/ambient/building/amb_trade_10.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 people/harbor.mp3 — ميناء / Harbor
   License: CC-BY-SA-3.0
   Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
   Source: https://github.com/0ad/0ad
   Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/ambient/building/amb_port_10.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 people/steps_concrete.mp3 — خطوات على رصيف / Footsteps (pavement)
   License: CC-BY-4.0
   Credit: InspectorJ (freesound)
   Source: https://freesound.org/people/InspectorJ/sounds/336598/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_concrete_1.ogg; https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_concrete_2.ogg; https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_concrete_3.ogg; https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_concrete_4.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/steps_gravel.mp3 — خطوات على حصى / Footsteps (gravel)
   License: CC0-1.0
   Credit: ali-6868 (freesound)
   Source: https://freesound.org/people/ali-6868/sounds/384871/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_gravel_1.ogg; https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_gravel_2.ogg; https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_gravel_3.ogg; https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_gravel_4.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/steps_floor.mp3 — خطوات داخل مبنى / Footsteps (indoor)
   License: CC0-1.0
   Credit: kretopi (freesound)
   Source: https://freesound.org/people/kretopi/sounds/406744/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_floor/walk_t_floor_1.ogg; https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_floor/walk_t_floor_2.ogg; https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_floor/walk_t_floor_3.ogg; https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/plmove/walk_t_floor/walk_t_floor_4.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/heels.mp3 — خطوات حذاء رسمي / Formal shoes steps
   License: CC0-1.0
   Credit: Taken from NachtmahrTV on freesound.org, clipped by Centronias
   Source: https://freesound.org/people/NachtmahrTV/sounds/571801/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Footsteps/heelsclack1.ogg; https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Footsteps/heelsclack2.ogg; https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Footsteps/heelsclack3.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/steps_snow.mp3 — خطوات على ثلج / Footsteps (snow)
   License: CC0-1.0
   Credit: alexo400, split by EmoGarbage404
   Source: https://freesound.org/people/alexo400/sounds/543385/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Footsteps/snowstep1.ogg; https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Footsteps/snowstep2.ogg; https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/Footsteps/snowstep3.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 people/door_close.mp3 — إغلاق باب / Door close
   License: CC0-1.0
   Credit: kyles (freesound)
   Source: https://freesound.org/people/kyles/sounds/407312/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/close_door/door_wood/close_door.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 nature/rain.mp3 — مطر غزير / Heavy rain
   License: CC0-1.0
   Credit: Ali@k (freesound)
   Source: https://freesound.org/people/Ali@k/sounds/128907/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/environment/weather/heavyrain.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/thunder.mp3 — رعد قريب / Close thunder
   License: CC-BY-3.0
   Credit: mrsorbias (freesound)
   Source: https://freesound.org/people/mrsorbias/sounds/574687/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/environment/weather/thunder_near.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 nature/thunder_far.mp3 — رعد بعيد / Distant thunder
   License: CC0-1.0
   Credit: chromakei (freesound)
   Source: https://freesound.org/people/chromakei/sounds/398287/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/environment/weather/thunder_far.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 nature/thunderstorm.mp3 — عاصفة رعدية / Thunderstorm
   License: CC0-1.0
   Credit: bruno.auzet (freesound)
   Source: https://freesound.org/people/bruno.auzet/sounds/531041/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/environment/weather/thunderstorm.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/wind.mp3 — رياح / Wind
   License: CC-BY-SA-3.0
   Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
   Source: https://github.com/0ad/0ad
   Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/ambient/weather/wind_11.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/wind_storm.mp3 — عاصفة رياح / Wind storm
   License: CC-BY-SA-3.0
   Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
   Source: https://github.com/0ad/0ad
   Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/ambient/weather/windstorm_11.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/snowstorm.mp3 — عاصفة ثلجية / Snowstorm
   License: CC0-1.0
   Credit: guyburns (freesound)
   Source: https://freesound.org/people/guyburns/sounds/473815/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/environment/weather/WEATHER_SNOWSTORM.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/fire.mp3 — نار مشتعلة / Crackling fire
   License: CC-BY-4.0
   Credit: Taken and edited from source
   Source: https://freesound.org/people/juskiddink/sounds/215658/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Ambience/Objects/fireplace.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/flames.mp3 — اشتعال لهب / Flame burst
   License: CC0-1.0
   Credit: "Cardboard burning 2" by raremess of Freesound.org. Edited
   Source: https://freesound.org/people/raremess/sounds/222557/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/fire.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 nature/waves.mp3 — أمواج بحر / Sea waves
   License: CC-BY-SA-3.0
   Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
   Source: https://github.com/0ad/0ad
   Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/ambient/water/wave_21.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/waves_crash.mp3 — تلاطم أمواج / Crashing waves
   License: CC-BY-SA-3.0
   Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
   Source: https://github.com/0ad/0ad
   Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/ambient/water/wavecrash_21.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/river.mp3 — نهر جارٍ / River
   License: CC-BY-SA-3.0
   Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
   Source: https://github.com/0ad/0ad
   Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/ambient/water/river_med_21.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/birds.mp3 — عصافير صباحية / Morning birds
   License: CC0-1.0
   Credit: Modding (freesound)
   Source: https://freesound.org/people/Modding/sounds/574108/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/environment/weather/weather_sunny/weather_sunny_spring.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/forest_day.mp3 — غابة نهاراً / Forest daytime
   License: CC-BY-SA-3.0
   Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
   Source: https://github.com/0ad/0ad
   Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/ambient/dayscape/day_temperate_11.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/crickets_night.mp3 — ليل وصراصير / Night crickets
   License: CC0-1.0
   Credit: rsn267 (freesound)
   Source: https://freesound.org/people/rsn267/sounds/275595/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/environment/weather/night/clear_night_1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
 
 nature/crow.mp3 — غراب / Crow
   License: CC0-1.0
   Credit: davidworksonline (freesound) via Sonic Pi
   Source: https://freesound.org/people/davidworksonline/sounds/54973/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/misc_crow.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 nature/dog_bark.mp3 — نباح كلب / Dog bark
   License: CC0-1.0
   Credit: Original sound by https://freesound.org/people/abhisheky948/sounds/625497/
   Source: https://freesound.org/people/abhisheky948/sounds/625497/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Voice/Vulpkanin/dog_bark1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 time/clock_tick.mp3 — تكتكة ساعة / Clock ticking
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/clock_tick.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 time/clock_tick_fast.mp3 — تكتكة سريعة / Fast ticking
   License: CC-BY-SA-3.0
   Credit: tgstation contributors (Space Station 13)
   Source: https://github.com/tgstation/tgstation
   Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/clock_tick.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 time/countdown_beeps.mp3 — عد تنازلي بصفير / Countdown beeps
   License: CC-BY-4.0
   Credit: "10 Second Countdown.wav" by Thomas Evdokimoff of Freesound.org
   Source: https://freesound.org/people/thomas_evdokimoff/sounds/202193/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/minibombcountdown.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 time/church_bell.mp3 — دقة جرس كبير / Big bell strike
   License: CC0-1.0
   Credit: "the bell of my schools church.wav" by fonografico https://freesound.org/s/636113/". Pitch variations created via edits by Sphiral.
   Source: https://freesound.org/people/fonografico/sounds/636113/?
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Effects/church_bell1.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 time/bells_far.mp3 — أجراس بعيدة / Distant bells
   License: CC0-1.0
   Credit: Nox_Sound (freesound)
   Source: https://freesound.org/people/Nox_Sound/sounds/563885/
   Via: https://github.com/Fris0uman/CDDA-Soundpacks/blob/master/sound/CC-Sounds/environment/ambient/church_bells.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 time/boxing_bell.mp3 — جرس حلبة / Boxing bell
   License: CC0-1.0
   Credit: Taken from Herkules92 on freesound.org
   Source: https://freesound.org/people/Herkules92/sounds/520998/
   Via: https://github.com/space-wizards/space-station-14/blob/master/Resources/Audio/Weapons/boxingbell.ogg
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: de-clipped, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 fun/drum_roll.mp3 — قرع طبول (ترقب) / Drum roll
   License: CC0-1.0
   Credit: Heigh-hoo (freesound) via Sonic Pi
   Source: https://freesound.org/people/Heigh-hoo/sounds/19433/
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/drum_roll.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 fun/record_scratch.mp3 — خدش أسطوانة / Record scratch
   License: CC0-1.0
   Credit: Sonic Pi samples (freesound CC0 originals)
   Source: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/README.md
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/vinyl_scratch.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 fun/rewind.mp3 — ترجيع / Rewind
   License: CC0-1.0
   Credit: Sonic Pi samples (freesound CC0 originals)
   Source: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/README.md
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/vinyl_rewind.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 fun/backspin.mp3 — لف أسطوانة للخلف / Vinyl backspin
   License: CC0-1.0
   Credit: Sonic Pi samples (freesound CC0 originals)
   Source: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/README.md
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/vinyl_backspin.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
 
 fun/vinyl_crackle.mp3 — طقطقة أسطوانة قديمة / Old vinyl crackle
   License: CC0-1.0
   Credit: Sonic Pi samples (freesound CC0 originals)
   Source: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/README.md
   Via: https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/vinyl_hiss.flac
-  Edit: trimmed, faded, normalized (قص قص)
+  Edit: trimmed, faded, loudness-normalised to -23 LUFS (قص قص)
+
+paper/tape_rip.mp3 — سحب شريط لاصق / Tape pull
+  License: CC-BY-SA-3.0
+  Credit: tgstation contributors (Space Station 13)
+  Source: https://github.com/tgstation/tgstation
+  Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/items/duct_tape/duct_tape_rip.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+paper/tape_snap.mp3 — قطع الشريط اللاصق / Tape snap
+  License: CC-BY-SA-3.0
+  Credit: tgstation contributors (Space Station 13)
+  Source: https://github.com/tgstation/tgstation
+  Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/items/duct_tape/duct_tape_snap.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+paper/stamp_office.mp3 — ختم مكتبي / Office stamp
+  License: CC-BY-SA-3.0
+  Credit: tgstation contributors, adapted from tom_woysky's “Stamp.wav” (freesound)
+  Source: https://freesound.org/people/tom_woysky/sounds/348316/
+  Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/items/handling/standard_stamp.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+paper/paper_drop.mp3 — سقوط ورقة على الطاولة / Paper drop
+  License: CC-BY-SA-3.0
+  Credit: tgstation contributors (Space Station 13)
+  Source: https://github.com/tgstation/tgstation
+  Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/items/handling/paper_drop.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+paper/paper_pickup.mp3 — رفع ورقة / فتح خريطة / Paper pick-up / map open
+  License: CC-BY-SA-3.0
+  Credit: tgstation contributors (Space Station 13)
+  Source: https://github.com/tgstation/tgstation
+  Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/items/handling/paper_pickup.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+paper/photocopier.mp3 — آلة نسخ (طباعة صورة) / Photocopier
+  License: CC-BY-SA-3.0
+  Credit: tgstation contributors (Space Station 13)
+  Source: https://github.com/tgstation/tgstation
+  Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/machines/copier.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+paper/cloth_rip.mp3 — تمزيق قماش / Cloth rip
+  License: CC-BY-SA-3.0
+  Credit: tgstation contributors (Space Station 13)
+  Source: https://github.com/tgstation/tgstation
+  Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/cloth_rip.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+paper/marker_draw.mp3 — رسم بالقلم على الخريطة / Marker drawing
+  License: CC-BY-SA-3.0
+  Credit: sadboysuss (tgstation)
+  Source: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/writing_pen/attribution.txt
+  Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/writing_pen/writing_pen2.ogg; https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/writing_pen/writing_pen4.ogg; https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/writing_pen/writing_pen6.ogg
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+war/sword_clash.mp3 — اشتباك سيوف / Swords clash
+  License: CC-BY-SA-3.0
+  Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
+  Source: https://github.com/0ad/0ad
+  Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/weapon/swordhit_10a.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/weapon/swordhit_12a.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/weapon/swordhit_11a.ogg
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+war/arrows_volley.mp3 — وابل سهام / Arrow volley
+  License: CC-BY-SA-3.0
+  Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
+  Source: https://github.com/0ad/0ad
+  Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/weapon/arrowfly_01.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/weapon/arrowfly_03.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/weapon/arrowfly_05.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/weapon/arrowfly_07.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/weapon/arrowfly_09.ogg
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+war/bow_release.mp3 — إطلاق سهم / Bow release
+  License: CC-BY-SA-3.0
+  Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
+  Source: https://github.com/0ad/0ad
+  Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/weapon/bow_attack_10.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+war/cavalry_gallop.mp3 — خيول تعدو (فرسان) / Cavalry gallop
+  License: CC-BY-SA-3.0
+  Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
+  Source: https://github.com/0ad/0ad
+  Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/actor/mounted/movement/mstep110.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/actor/mounted/movement/mstep111.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/actor/mounted/movement/mstep112.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/actor/mounted/movement/mstep113.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/actor/mounted/movement/mstep114.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/actor/mounted/movement/mstep115.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/actor/mounted/movement/mstep110.ogg; https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/actor/mounted/movement/mstep112.ogg
+  Edit: layered, trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+war/ballista.mp3 — قذّاف (بالستا) / Ballista shot
+  License: CC-BY-SA-3.0
+  Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
+  Source: https://github.com/0ad/0ad
+  Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/siege/ballist_attack_01.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+war/catapult.mp3 — منجنيق يقذف / Catapult launch
+  License: CC-BY-SA-3.0
+  Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
+  Source: https://github.com/0ad/0ad
+  Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/siege/onager_shooting_11.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+war/battering_ram.mp3 — كبش حصار يضرب البوابة / Battering ram
+  License: CC-BY-SA-3.0
+  Credit: Wildfire Games (0 A.D.) — http://www.wildfiregames.com/
+  Source: https://github.com/0ad/0ad
+  Via: https://github.com/0ad/0ad/blob/master/binaries/data/mods/public/audio/attack/siege/ram_attack.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)
+
+war/cannon_old.mp3 — مدفع قديم / Old cannon
+  License: CC-BY-SA-3.0
+  Credit: tgstation contributors (Space Station 13)
+  Source: https://github.com/tgstation/tgstation
+  Via: https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/items/weapons/gun/general/cannon.ogg
+  Edit: trimmed, faded, loudness-normalised to -16 LUFS (قص قص)

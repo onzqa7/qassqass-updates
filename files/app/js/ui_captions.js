@@ -10,32 +10,64 @@
   const CAP = GW.Captions = {};
 
   /* ================= caption styles ================= */
-  const BASE = { weight: 900, font: 'Cairo', color: '#ffffff', stroke: 6, strokeColor: '#000000', shadow: 1, shadowColor: '#000000', shadowOp: 65, shadowBlur: 10, shadowDist: 4, shadowAng: 90, bg: 0, animIn: 'pop', animOut: 'none', animDur: .12, kara: 'color', hiColor: '#ffd400', hiScale: 1.12, leading: 1.15 };
+  const BASE = { weight: 900, font: 'Cairo', color: '#ffffff', stroke: 6, strokeColor: '#000000', shadow: 1, shadowColor: '#000000', shadowOp: 65, shadowBlur: 10, shadowDist: 4, shadowAng: 90, bg: 0, animIn: 'none', animOut: 'none', animDur: .12, kara: 'color', hiColor: '#ffd400', hiScale: 1.12, leading: 1.15 };
+  const CA0 = { in: 'pop', out: 'none', inDur: .22, outDur: .14, ease: 'out', unit: 'block', stagger: .06, emMotion: 'scale', box: 'block', kw: 1, kwColor: '#4cc2ff' };
+  // 22 presets (t = text fields, ca = animation). Cards in the panel preview them live; «تطبيق على كل الترجمات» restyles existing captions.
   CAP.STYLES = [
-    { id: 'tiktok', n: 'تيك توك — تمييز أصفر', t: {} },
-    { id: 'white', n: 'أبيض بحد أسود', t: { font: 'Tajawal', weight: 800, stroke: 5, shadow: 0, kara: 'none', animIn: 'none' } },
-    { id: 'news', n: 'صندوق أخبار', t: { font: 'Cairo', weight: 700, stroke: 0, shadow: 0, bg: 1, bgColor: '#0b2a5b', bgOp: 92, bgPad: 22, bgRad: 6, kara: 'none', animIn: 'fade' }, size: .8 },
-    { id: 'karaoke', n: 'كاريوكي (تعبئة تدريجية)', t: { kara: 'fill', hiColor: '#22d3ee', hiScale: 1, animIn: 'none' } },
-    { id: 'reveal', n: 'كلمة بكلمة (ظهور)', t: { kara: 'reveal', hiColor: '#ffffff', hiScale: 1.18, animIn: 'none' } },
-    { id: 'boxhi', n: 'صندوق ملوّن للكلمة', t: { kara: 'box', hiBg: '#7c3aed', hiText: '#ffffff', stroke: 0, shadow: 1, shadowOp: 80, hiScale: 1.06 } },
-    { id: 'neon', n: 'أخضر نيون', t: { font: 'Lalezar', weight: 400, stroke: 7, hiColor: '#39ff14', hiScale: 1.15 } },
-    { id: 'red', n: 'أحمر عريض', t: { font: 'Changa', weight: 800, stroke: 6, hiColor: '#ff3b3b', hiScale: 1.1 } }
+    { id: 'hormozi', n: 'شورت: أبيض + كلمة صفراء', t: { font: 'Cairo', weight: 900, stroke: 7, hiColor: '#ffd400', hiScale: 1.15, caps: 1 }, ca: { in: 'pop', emMotion: 'scale', kwColor: '#39ff88' } },
+    { id: 'boldYellow', n: 'صندوق أصفر عريض', t: { font: 'Cairo', weight: 900, stroke: 0, shadow: 1, shadowOp: 80, kara: 'box', hiBg: '#ffd400', hiText: '#111111', hiScale: 1.06 }, ca: { in: 'bounce', emMotion: 'scale', kwColor: '#ffd400' } },
+    { id: 'beast', n: 'حد سميك (أسلوب MrBeast)', t: { font: 'Lalezar', weight: 400, stroke: 11, shadow: 1, shadowDist: 7, shadowBlur: 0, shadowOp: 90, hiColor: '#7dff3a', hiScale: 1.2, caps: 1 }, ca: { in: 'bounce', inDur: .3, emMotion: 'bounce', kwColor: '#ff4d4d' }, size: 1.1 },
+    { id: 'minimal', n: 'أبيض بسيط', t: { font: 'Tajawal', weight: 700, stroke: 0, shadow: 1, shadowOp: 55, shadowBlur: 14, shadowDist: 2, kara: 'none' }, ca: { in: 'fade', out: 'fade', inDur: .15, kw: 0 }, size: .85 },
+    { id: 'docLower', n: 'وثائقي — ثلث سفلي', t: { font: 'IBM Plex Sans Arabic', weight: 600, stroke: 0, shadow: 0, bg: 1, bgColor: '#0b0f15', bgOp: 72, bgPad: 22, bgRad: 6, kara: 'none' }, ca: { in: 'fadeBlur', out: 'fade', inDur: .25, kw: 0, box: 'line' }, size: .62, pos: 'bottom', lines: 2 },
+    { id: 'cinema', n: 'ترجمة سينمائية', t: { font: 'Tajawal', weight: 500, stroke: 0, shadow: 1, shadowOp: 85, shadowBlur: 6, shadowDist: 2, kara: 'none' }, ca: { in: 'fade', out: 'fade', inDur: .12, kw: 0 }, size: .58, pos: 'bottom', lines: 2 },
+    { id: 'neon', n: 'نيون متوهج', t: { font: 'Lalezar', weight: 400, color: '#e8fff6', stroke: 0, shadow: 1, shadowColor: '#00ffc8', shadowOp: 70, shadowBlur: 18, shadowDist: 0, kara: 'glow', hiColor: '#39ff14', hiScale: 1.1 }, ca: { in: 'glitch', inDur: .3, emMotion: 'scale', kwColor: '#ff3df2' } },
+    { id: 'boxKaraoke', n: 'كاريوكي بصندوق', t: { kara: 'box', hiBg: '#7c3aed', hiText: '#ffffff', stroke: 0, shadow: 1, shadowOp: 80, hiScale: 1.06 }, ca: { in: 'pop', emMotion: 'scale' } },
+    { id: 'karaokeFill', n: 'كاريوكي (تعبئة)', t: { kara: 'fill', hiColor: '#22d3ee', hiScale: 1 }, ca: { in: 'fade', emMotion: 'none', kw: 0 } },
+    { id: 'wordPop', n: 'كلمة بكلمة', t: { kara: 'color', hiColor: '#ffffff', hiScale: 1.18 }, ca: { in: 'words', inDur: .18, emMotion: 'scale', kwColor: '#ffd400' } },
+    { id: 'typewriter', n: 'آلة كاتبة', t: { font: 'Changa', weight: 800, stroke: 5, kara: 'none' }, ca: { in: 'typewriter', kw: 1, kwColor: '#ffd400' } },
+    { id: 'underline', n: 'خط تحت الكلمة', t: { font: 'Tajawal', weight: 800, stroke: 0, shadow: 1, shadowOp: 75, kara: 'underline', hiColor: '#ff6a2b', hiScale: 1 }, ca: { in: 'slideUp', unit: 'word', stagger: .05, emMotion: 'none', kwColor: '#ff8d5c' } },
+    { id: 'redImpact', n: 'أحمر عريض (سقوط)', t: { font: 'Changa', weight: 800, stroke: 6, hiColor: '#ff3b3b', hiScale: 1.12 }, ca: { in: 'drop', inDur: .35, emMotion: 'scale', kwColor: '#ffb020' } },
+    { id: 'elastic', n: 'مطاطي', t: { font: 'Cairo', weight: 900, stroke: 6, hiColor: '#ff8d5c', hiScale: 1.15 }, ca: { in: 'elastic', inDur: .45, emMotion: 'bounce' } },
+    { id: 'glitch', n: 'جلتش', t: { font: 'Cairo', weight: 800, stroke: 0, shadow: 1, shadowOp: 90, shadowDist: 3, hiColor: '#00e5ff', hiScale: 1.08 }, ca: { in: 'glitch', out: 'glitch', inDur: .28, outDur: .16, emMotion: 'shake', kwColor: '#ff2d55' } },
+    { id: 'news', n: 'صندوق أخبار', t: { font: 'Cairo', weight: 700, stroke: 0, shadow: 0, bg: 1, bgColor: '#0b2a5b', bgOp: 92, bgPad: 22, bgRad: 6, kara: 'none' }, ca: { in: 'wipe', out: 'fade', inDur: .25, kw: 1, kwColor: '#ffcf4a' }, size: .8 },
+    { id: 'slideUp', n: 'انزلاق كلمة كلمة', t: { font: 'Cairo', weight: 900, stroke: 6, hiColor: '#ffd400' }, ca: { in: 'slideUp', unit: 'word', stagger: .07, inDur: .25, emMotion: 'scale' } },
+    { id: 'blurIn', n: 'ضبابية ناعمة', t: { font: 'IBM Plex Sans Arabic', weight: 700, stroke: 0, shadow: 1, shadowOp: 60, shadowBlur: 16, kara: 'color', hiColor: '#ffe9a8', hiScale: 1 }, ca: { in: 'fadeBlur', out: 'fadeBlur', inDur: .3, emMotion: 'none', kw: 0 } },
+    { id: 'shake', n: 'تمييز مهتز', t: { font: 'Changa', weight: 800, stroke: 6, hiColor: '#ff3b3b', hiScale: 1.1 }, ca: { in: 'pop', emMotion: 'shake', kwColor: '#ffd400' } },
+    { id: 'gold', n: 'ذهبي وثائقي', t: { font: 'Amiri', weight: 700, stroke: 0, shadow: 1, shadowOp: 85, shadowBlur: 12, color: '#f6efe0', kara: 'color', hiColor: '#e9c35a', hiScale: 1 }, ca: { in: 'fade', out: 'fade', inDur: .3, emMotion: 'none', kw: 0 }, size: .8 },
+    { id: 'podcast', n: 'بودكاست (صندوق لكل سطر)', t: { font: 'Tajawal', weight: 800, stroke: 0, shadow: 0, bg: 1, bgColor: '#000000', bgOp: 82, bgPad: 18, bgRad: 10, kara: 'color', hiColor: '#ffd400', hiScale: 1 }, ca: { in: 'pop', box: 'line', emMotion: 'none' }, size: .85 },
+    { id: 'tiktok', n: 'تيك توك — تمييز أصفر', t: {}, ca: { in: 'pop', emMotion: 'scale' } }
   ];
+  const ALIAS = { white: 'minimal', karaoke: 'karaokeFill', reveal: 'wordPop', boxhi: 'boxKaraoke', red: 'redImpact' };
+  CAP.preset = (id) => CAP.STYLES.find(x => x.id === (ALIAS[id] || id)) || CAP.STYLES.find(x => x.id === 'tiktok');
   CAP.POS = [['top', 'أعلى', .18], ['center', 'الوسط', .5], ['lower', 'الثلث السفلي', .7], ['bottom', 'أسفل', .86]];
   const vertical = (s) => s.h > s.w;
   const OPT_KEY = 'gws.captions.opts';
-  const defOpts = (s) => ({ style: 'tiktok', maxWords: vertical(s) ? 3 : 7, lines: vertical(s) ? 1 : 2, pos: vertical(s) ? 'lower' : 'bottom', size: 100, font: '', upper: 0 });
+  // layout options + optional style overrides ('' = as in the preset)
+  const OVR = ['animIn', 'animOut', 'inDur', 'outDur', 'ease', 'unit', 'stagger', 'emph', 'emMotion', 'hiColor', 'hiScale', 'kw', 'kwColor', 'color', 'weight', 'stroke', 'strokeColor', 'shadow', 'box', 'bgColor', 'bgOp', 'bgRad', 'bgPad', 'leading'];
+  const defOpts = (s) => Object.assign({ style: 'hormozi', maxWords: vertical(s) ? 3 : 7, lines: vertical(s) ? 1 : 2, perLine: 0, pos: vertical(s) ? 'lower' : 'bottom', size: 100, font: '', upper: 0, safe: 1, emoji: 0 }, Object.fromEntries(OVR.map(k => [k, ''])));
   let opts = null;
   function getOpts() { const s = GW.seq(); if (!opts) { opts = defOpts(s); try { Object.assign(opts, JSON.parse(localStorage.getItem(OPT_KEY) || '{}')); } catch (e) {} } return opts; }
   function saveOpts() { try { localStorage.setItem(OPT_KEY, JSON.stringify(opts)); } catch (e) {} }
+  CAP.getOpts = getOpts; CAP.saveOpts = saveOpts; CAP.OVR = OVR;
+  const set = (v) => v !== '' && v != null;
   CAP.styleText = (s, o) => {
-    const st = CAP.STYLES.find(x => x.id === o.style) || CAP.STYLES[0];
+    const st = CAP.preset(o.style);
     const t = Object.assign(GW.defaultText(), BASE, GW.clone(st.t));
+    t.ca = Object.assign({}, CA0, GW.clone(st.ca || {}));
+    const ov = (k, f) => { if (set(o[k])) f(o[k]); };
+    ov('animIn', v => t.ca.in = v); ov('animOut', v => t.ca.out = v); ov('inDur', v => t.ca.inDur = +v); ov('outDur', v => t.ca.outDur = +v); ov('ease', v => t.ca.ease = v); ov('unit', v => t.ca.unit = v); ov('stagger', v => t.ca.stagger = +v);
+    ov('emph', v => t.kara = v); ov('emMotion', v => t.ca.emMotion = v); ov('hiColor', v => { t.hiColor = v; if (t.kara === 'box') t.hiBg = v; }); ov('hiScale', v => t.hiScale = +v); ov('kw', v => t.ca.kw = +v); ov('kwColor', v => t.ca.kwColor = v);
+    ov('color', v => t.color = v); ov('weight', v => t.weight = +v); ov('strokeColor', v => t.strokeColor = v); ov('shadow', v => t.shadow = +v); ov('leading', v => t.leading = +v);
+    ov('box', v => { if (v === 'none') t.bg = 0; else { t.bg = 1; t.ca.box = v; if (!st.t.bg) { t.bgColor = '#000000'; t.bgOp = 75; t.bgPad = 18; t.bgRad = 10; } } });
+    ov('bgColor', v => t.bgColor = v); ov('bgOp', v => t.bgOp = +v); ov('bgRad', v => t.bgRad = +v); ov('bgPad', v => t.bgPad = +v);
     t.size = Math.round(Math.min(s.w, s.h) * .085 * (st.size || 1) * (o.size || 100) / 100);
-    t.stroke = t.stroke ? Math.max(1, Math.round(t.stroke * t.size / 92 * 10) / 10) : 0; t.bgPad = Math.round((t.bgPad || 0) * t.size / 92);
+    const sw = set(o.stroke) ? +o.stroke : t.stroke; t.stroke = sw ? Math.max(1, Math.round(sw * t.size / 92 * 10) / 10) : 0; t.bgPad = Math.round((t.bgPad || 0) * t.size / 92); t.bgRad = Math.round((t.bgRad || 0) * t.size / 92);
     if (o.font) t.font = o.font; if (o.upper) t.caps = 1;
+    t.animIn = 'none'; t.animOut = 'none'; // legacy title anims are replaced by t.ca
     return t;
   };
+  // vertical position of the caption block: preset (or chosen) slot, kept inside the safe area (Shorts UI at the bottom / top)
+  CAP.posY = (s, o) => { const st = CAP.preset(o.style); const key = o.pos || st.pos || 'lower'; let y = (CAP.POS.find(p => p[0] === key) || CAP.POS[2])[2]; if (o.safe !== 0 && vertical(s)) y = clamp(y, .14, .78); return y; };
 
   /* ================= time / SRT helpers ================= */
   const p2 = (n, w = 2) => String(n).padStart(w, '0');
@@ -85,7 +117,7 @@
   // group words into caption chunks: ≤ maxWords, break at pauses / punctuation / too wide for the frame
   CAP.chunks = (segs, o, s) => {
     s = s || GW.seq(); const st = CAP.styleText(s, o); const maxW = s.w * (vertical(s) ? .86 : .8); const lines = clamp(o.lines || 1, 1, 3);
-    const tooWide = (ws) => { if (ws.length < 2) return false; const txt = layout(ws.map(w => w.w), lines); const m = GW.TextR.measure(Object.assign({}, st, { str: txt }), 1); return m.w > maxW; };
+    const tooWide = (ws) => { if (ws.length < 2) return false; const txt = layout(ws.map(w => w.w), lines, o.perLine); const m = GW.TextR.measure(Object.assign({}, st, { str: txt }), 1); return m.w > maxW; };
     const out = []; let cur = [];
     const flush = () => { if (cur.length) out.push(cur); cur = []; };
     for (const g of segs) {
@@ -101,7 +133,8 @@
     return out;
   };
   // split words into n balanced lines (by characters)
-  function layout(words, n) {
+  function layout(words, n, perLine) {
+    if (perLine > 0 && words.length > perLine) { const out = []; for (let i = 0; i < words.length; i += perLine) out.push(words.slice(i, i + perLine).join(' ')); return out.join('\n'); }
     if (n <= 1 || words.length < 2) return words.join(' ');
     n = Math.min(n, words.length); const tot = words.join(' ').length; const lines = []; let cur = [];
     for (const w of words) { cur.push(w); const left = n - lines.length - 1; if (left > 0 && cur.join(' ').length >= tot / n && words.length - (lines.flat().length + cur.length) >= left) { lines.push(cur); cur = []; } }
@@ -121,16 +154,19 @@
     const old = CAP.captionClips(s); const ti = old.length ? captionTrack(s) : null;
     old.forEach(c => GW.ops.remove(s, c));
     const track = ti != null ? ti : captionTrack(s);
-    const st = CAP.styleText(s, o); const pos = (CAP.POS.find(p => p[0] === o.pos) || CAP.POS[2])[2];
+    const st = CAP.styleText(s, o); const pos = CAP.posY(s, o); const kwOn = o.keywords !== false && o.keywords !== 0;
     const fps = s.fps || 30; const snap = t => Math.round(t * fps) / fps;
     const ch = CAP.chunks(tr.segs, o, s); const made = [];
     ch.forEach((ws, i) => {
       const next = ch[i + 1]; let a = snap(ws[0].t0); let b = ws[ws.length - 1].t1;
       b = next && next[0].t0 - b < .8 ? next[0].t0 : b + .25; b = snap(Math.max(b, a + Math.max(.3, 2 / fps)));
       if (made.length) { const p = made[made.length - 1]; if (p.start + p.dur > a) p.dur = Math.max(1 / fps, a - p.start); }
-      const str = layout(ws.map(w => w.w), o.lines);
+      let wl = ws.map(w => ({ w: w.w, s: +Math.max(0, w.t0 - a).toFixed(3), e: +Math.max(0, w.t1 - a).toFixed(3) }));
+      if (kwOn && GW.CapAnim) { const K = GW.CapAnim.keywords(wl.map(w => w.w)); wl.forEach((w, j) => { if (K.has(j)) w.k = 1; }); }
+      if (o.emoji && GW.CapAnim) { const em = GW.CapAnim.emojiFor(wl.map(w => w.w).join(' ')); if (em) { const l = wl[wl.length - 1]; wl.push({ w: em, s: l.s, e: l.e }); } }
+      const str = layout(wl.map(w => w.w), o.lines, o.perLine);
       const c = GW.newClip('text', { ti: track, start: a, dur: b - a, name: str.replace(/\n/g, ' ').slice(0, 40), label: '#d6c04a' });
-      Object.assign(c.text, GW.clone(st), { str, words: ws.map(w => ({ w: w.w, s: +Math.max(0, w.t0 - a).toFixed(3), e: +Math.max(0, w.t1 - a).toFixed(3) })) });
+      Object.assign(c.text, GW.clone(st), { str, words: wl });
       c.motion.pos = GW.P([Math.round(s.w / 2), Math.round(s.h * pos)]); c.cap = 1;
       s.clips.push(c); made.push(c);
     });
@@ -139,8 +175,9 @@
     return made;
   };
   CAP.restyle = (o, s) => { // apply the current style / position to existing caption clips, keeping their text & timing
-    s = s || GW.seq(); o = Object.assign({}, getOpts(), o || {}); const st = CAP.styleText(s, o); const pos = (CAP.POS.find(p => p[0] === o.pos) || CAP.POS[2])[2];
-    const cs = CAP.captionClips(s); for (const c of cs) { const keep = { str: c.text.str, words: c.text.words }; c.text = Object.assign(GW.clone(st), keep); c.motion.pos = GW.P([Math.round(s.w / 2), Math.round(s.h * pos)]); GW.TextR.drop(c.id); }
+    s = s || GW.seq(); o = Object.assign({}, getOpts(), o || {}); const st = CAP.styleText(s, o); const pos = CAP.posY(s, o);
+    const cs = CAP.captionClips(s); for (const c of cs) { const keep = { str: c.text.str, words: c.text.words };
+      if (o.keywords != null && GW.CapAnim && keep.words) { const K = o.keywords ? GW.CapAnim.keywords(keep.words.map(w => w.w)) : new Set(); keep.words = keep.words.map((w, j) => { const n = Object.assign({}, w); if (K.has(j)) n.k = 1; else delete n.k; return n; }); } c.text = Object.assign(GW.clone(st), keep); c.motion.pos = GW.P([Math.round(s.w / 2), Math.round(s.h * pos)]); GW.TextR.drop(c.id); }
     if (cs.length) { GW.commit('نمط الترجمة'); GW.invalidate(); } return cs.length;
   };
   CAP.fromClips = (s) => CAP.captionClips(s).sort((a, b) => a.start - b.start).map(c => ({ t0: c.start, t1: c.start + c.dur, text: c.text.str.replace(/\n/g, ' ') }));
@@ -290,6 +327,8 @@
   .cap-sty div{font-size:10.5px;padding:2px 5px;color:var(--text2);background:var(--bg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cap-sty.on{border-color:var(--accent,#ff6a2b);box-shadow:0 0 0 1px var(--accent,#ff6a2b)}
   .cap-sty.on div{color:#fff;background:var(--bg4)}
+  .cap-sub{border-bottom:0;border-top:1px solid var(--line)}.cap-sub>summary{padding:5px 2px;font-weight:600;font-size:var(--fs1)}
+  .cap-p .hint{color:var(--mute);font-size:var(--fs0);line-height:1.7}
   .cap-tag{font-size:10px;color:var(--accent,#ff6a2b);border:1px solid currentColor;border-radius:3px;padding:0 4px;margin-inline-start:4px}
   .cap-acts{display:flex;flex-wrap:wrap;gap:4px}
   .cap-det{border-bottom:1px solid var(--line)}
@@ -358,7 +397,7 @@
     const live = el('div'); live.dataset.a = 'live'; body.append(live);
     const acts = el('div', 'ptool cap-acts');
     acts.append(btn('إنشاء الترجمة على الخط الزمني', () => CAP.create(), 'pri', 'مقطع نص لكل عبارة على مسار فيديو جديد في الأعلى'),
-      btn('تصدير SRT', () => exportSub('srt')), btn('تصدير VTT', () => exportSub('vtt')), btn('استيراد SRT…', () => importSub()),
+      btn('ترجمة إلى لغة أخرى…', () => translateDialog(), '', 'عبر المونتير الذكي (اختياري)'), btn('تصدير SRT', () => exportSub('srt')), btn('تصدير VTT', () => exportSub('vtt')), btn('استيراد SRT…', () => importSub()),
       btn('مسح', async () => { if (await GW.ask('مسح التفريغ', 'حذف نص التفريغ من هذا التسلسل؟ (مقاطع الترجمة على الخط الزمني تبقى)', 'مسح')) { delete s.transcript; GW.commit('مسح التفريغ'); renderBody(); } }));
     if (CAP.renderTextEdit) acts.append(btn(CAP.textMode ? 'عرض المقاطع' : 'التعديل بالنص', () => { CAP.textMode = !CAP.textMode; renderBody(); }, CAP.textMode ? 'pri' : '', 'حدد كلمات في النص لحذفها من الخط الزمني'));
     body.append(acts);
@@ -396,31 +435,116 @@
   }
   function styleSection() {
     const F = UI.form; const o = getOpts(); const s = GW.seq(); const f = el('div', 'form');
-    const grid = el('div', 'cap-styles');
+    const grid = el('div', 'cap-styles'); grid.dataset.a = 'styles';
     for (const sty of CAP.STYLES) {
-      const card = el('div', 'cap-sty' + (o.style === sty.id ? ' on' : '')); const cv = document.createElement('canvas'); cv.width = 236; cv.height = 96; card.append(cv, el('div', '', esc(sty.n))); card.title = sty.n;
-      card.onclick = () => { o.style = sty.id; saveOpts(); grid.querySelectorAll('.cap-sty').forEach(x => x.classList.toggle('on', x === card)); };
-      grid.append(card); requestAnimationFrame(() => drawPreview(cv, sty.id));
+      const card = el('div', 'cap-sty' + (CAP.preset(o.style).id === sty.id ? ' on' : '')); const cv = document.createElement('canvas'); cv.width = 236; cv.height = 110; card.append(cv, el('div', '', esc(sty.n))); card.title = sty.n; card.dataset.id = sty.id;
+      card.onclick = () => { o.style = sty.id; for (const k of OVR) o[k] = ''; if (sty.pos) o.pos = sty.pos; if (sty.lines) o.lines = sty.lines; saveOpts(); renderBody(); };
+      grid.append(card);
     }
-    f.append(grid);
-    f.append(F.frow('كلمات لكل ترجمة', F.rangeIn(o.maxWords, 1, 12, 1, v => { o.maxWords = v; saveOpts(); })),
-      F.frow('عدد الأسطر', F.segIn([[1, 'سطر'], [2, 'سطران']], o.lines, v => { o.lines = v; saveOpts(); })),
-      F.frow('الموضع', F.segIn(CAP.POS.map(p => [p[0], p[1]]), o.pos, v => { o.pos = v; saveOpts(); })),
-      F.frow('حجم الخط', F.rangeIn(o.size, 40, 220, 5, v => { o.size = v; saveOpts(); })),
-      F.frow('الخط', F.selectIn([['', 'حسب النمط'], ...GW.FONTS.map(n => [n, n])], o.font, v => { o.font = v; saveOpts(); })));
-    const row = el('div', 'cap-acts');
-    row.append(btn('تطبيق على الترجمات الموجودة', () => { const n = CAP.restyle(); GW.toast(n ? 'تم تحديث ' + n + ' مقطع' : 'لا توجد مقاطع ترجمة بعد'); }),
+    f.append(grid); startPreviews(grid);
+    const apply = el('div', 'cap-acts');
+    apply.append(btn('تطبيق على كل الترجمات', () => { const n = CAP.restyle(); GW.toast(n ? 'تم تحديث ' + n + ' مقطع' : 'لا توجد مقاطع ترجمة بعد'); }, 'pri', 'النمط والحركة والموضع على كل مقاطع الترجمة، مع الإبقاء على النص والتوقيت'),
       btn(vertical(s) ? 'إعدادات أفقية' : 'إعدادات الشورتات', () => { const d = defOpts({ w: vertical(s) ? 2 : 1, h: vertical(s) ? 1 : 2 }); Object.assign(o, { maxWords: d.maxWords, lines: d.lines, pos: d.pos }); saveOpts(); renderBody(); }, '', 'ضبط عدد الكلمات والأسطر والموضع'));
-    f.append(row);
+    f.append(apply);
+    const P0 = CAP.preset(o.style); const T0 = CAP.styleText(s, o); const ch = (k) => (v) => { o[k] = v; saveOpts(); repaintPreviews(); };
+    const sub = (title, id, rows) => { const d = el('details', 'cap-det cap-sub'); d.open = !!subOpen[id]; d.ontoggle = () => { subOpen[id] = d.open; }; d.append(el('summary', '', esc(title))); const b = el('div', 'form'); b.append(...rows); d.append(b); return d; };
+    const opt = (list) => [['', 'حسب النمط'], ...list];
+    const reset = (keys) => btn('حسب النمط', () => { for (const k of keys) o[k] = ''; saveOpts(); renderBody(); }, 'ghost');
+    const durIn = (k, v) => F.rangeIn(set(o[k]) ? o[k] : v, .04, 1.2, .02, ch(k));
+    f.append(sub('الحركة', 'anim', [
+      F.frow('الدخول', F.selectIn(opt(GW.CapAnim.IN), o.animIn, ch('animIn'))), F.frow('الخروج', F.selectIn(opt(GW.CapAnim.OUT), o.animOut, ch('animOut'))),
+      F.frow('مدة الدخول', durIn('inDur', T0.ca.inDur)), F.frow('مدة الخروج', durIn('outDur', T0.ca.outDur)),
+      F.frow('التسارع', F.selectIn(opt(GW.CapAnim.EASE), o.ease, ch('ease'))),
+      F.frow('الوحدة', F.selectIn(opt([['block', 'الترجمة كاملة'], ['word', 'كلمة بعد كلمة']]), o.unit, ch('unit'))), F.frow('الفاصل بين الكلمات', F.rangeIn(set(o.stagger) ? o.stagger : T0.ca.stagger, 0, .3, .01, ch('stagger'))),
+      reset(['animIn', 'animOut', 'inDur', 'outDur', 'ease', 'unit', 'stagger'])]));
+    f.append(sub('تمييز الكلمة النشطة', 'emph', [
+      F.frow('أسلوب التمييز', F.selectIn(opt(GW.CapAnim.EMPH), o.emph, ch('emph'))), F.frow('حركة التمييز', F.selectIn(opt(GW.CapAnim.MOTION), o.emMotion, ch('emMotion'))),
+      F.frow('لون التمييز', F.colorIn(set(o.hiColor) ? o.hiColor : (T0.kara === 'box' ? T0.hiBg || '#7c3aed' : T0.hiColor || '#ffd400'), ch('hiColor'))), F.frow('حجم التمييز', F.rangeIn(set(o.hiScale) ? o.hiScale : (T0.hiScale || 1), 1, 1.5, .01, ch('hiScale'))),
+      F.frow('الكلمات المهمة', [F.checkIn(set(o.kw) ? +o.kw : T0.ca.kw, ch('kw')), el('span', '', ' تلوين الأرقام والأسماء والكلمات المفتاحية '), F.colorIn(set(o.kwColor) ? o.kwColor : T0.ca.kwColor, ch('kwColor'))]),
+      F.frow('رموز تعبيرية', [F.checkIn(o.emoji, v => { o.emoji = v; saveOpts(); }), el('span', '', ' إضافة رمز تعبيري مناسب (عند الإنشاء — مغلق افتراضيًا)')]),
+      reset(['emph', 'emMotion', 'hiColor', 'hiScale', 'kw', 'kwColor'])]));
+    const uf = GW.MapUI && GW.MapUI.userFonts ? GW.MapUI.userFonts().map(x => x.name) : [];
+    const fonts = [['', 'حسب النمط (' + (P0.t.font || BASE.font) + ')'], ...['thmanyah sans', 'thmanyah serif display', 'thmanyah serif text'].map(n => [n, n + ' (مثبّت)']), ...GW.FONTS.map(n => [n, n]), ...uf.map(n => [n, n + ' (مستورد)'])];
+    if (o.font && !fonts.some(x => x[0] === o.font)) fonts.push([o.font, o.font]);
+    const imp = btn('استيراد خط…', async () => { if (!GW.MapUI || !GW.MapUI.importFont) return; const n = await GW.MapUI.importFont(null); if (n) { o.font = n; saveOpts(); renderBody(); } }, 'ghost', 'استيراد ملف خط (ttf / otf)');
+    f.append(sub('الخط والمظهر', 'font', [
+      F.frow('الخط', [F.selectIn(fonts, o.font, v => { o.font = v; saveOpts(); repaintPreviews(); }), imp]),
+      F.frow('السماكة', F.selectIn(opt([[400, '400'], [500, '500'], [600, '600'], [700, '700'], [800, '800'], [900, '900']]), o.weight, ch('weight'))),
+      F.frow('حجم الخط', F.rangeIn(o.size, 40, 220, 5, ch('size'))), F.frow('اللون', F.colorIn(set(o.color) ? o.color : T0.color, ch('color'))),
+      F.frow('الحد', [F.rangeIn(set(o.stroke) ? o.stroke : (P0.t.stroke != null ? P0.t.stroke : BASE.stroke), 0, 14, .5, ch('stroke')), F.colorIn(set(o.strokeColor) ? o.strokeColor : T0.strokeColor, ch('strokeColor'))]),
+      F.frow('الظل', F.checkIn(set(o.shadow) ? +o.shadow : T0.shadow, ch('shadow'))),
+      F.frow('الخلفية', F.selectIn(opt([['none', 'بدون'], ['block', 'صندوق للترجمة'], ['line', 'صندوق لكل سطر'], ['word', 'صندوق لكل كلمة']]), o.box, ch('box'))),
+      F.frow('لون الخلفية', [F.colorIn(set(o.bgColor) ? o.bgColor : T0.bgColor, ch('bgColor')), F.rangeIn(set(o.bgOp) ? o.bgOp : T0.bgOp, 0, 100, 1, ch('bgOp'))]),
+      F.frow('استدارة / هامش', [F.rangeIn(set(o.bgRad) ? o.bgRad : (P0.t.bgRad || 8), 0, 40, 1, ch('bgRad')), F.rangeIn(set(o.bgPad) ? o.bgPad : (P0.t.bgPad || 18), 0, 50, 1, ch('bgPad'))]),
+      F.frow('تباعد الأسطر', F.rangeIn(set(o.leading) ? o.leading : T0.leading, .8, 2, .05, ch('leading'))),
+      F.frow('حروف لاتينية كبيرة', F.checkIn(o.upper, v => { o.upper = v; saveOpts(); repaintPreviews(); })),
+      reset(['weight', 'color', 'stroke', 'strokeColor', 'shadow', 'box', 'bgColor', 'bgOp', 'bgRad', 'bgPad', 'leading'])]));
+    f.append(sub('التقسيم والموضع', 'layout', [
+      F.frow('كلمات لكل ترجمة', F.rangeIn(o.maxWords, 1, 12, 1, v => { o.maxWords = v; saveOpts(); })),
+      F.frow('عدد الأسطر', F.segIn([[1, 'سطر'], [2, 'سطران']], o.lines, v => { o.lines = v; saveOpts(); })),
+      F.frow('أقصى كلمات في السطر', F.rangeIn(o.perLine || 0, 0, 8, 1, v => { o.perLine = v; saveOpts(); })),
+      F.frow('الموضع', F.segIn(CAP.POS.map(p => [p[0], p[1]]), o.pos, v => { o.pos = v; saveOpts(); })),
+      F.frow('هوامش الأمان', [F.checkIn(o.safe !== 0, v => { o.safe = v; saveOpts(); }), el('span', '', ' إبقاء الترجمة بعيدًا عن واجهة الشورتات أعلى وأسفل الشاشة')])]));
     return f;
   }
-  function drawPreview(cv, id) {
-    const st = CAP.styleText({ w: 1080, h: 1920 }, Object.assign({}, getOpts(), { style: id, size: 100, font: '' }));
-    const fake = { id: 'capprev_' + id, dur: 2, text: Object.assign(st, { str: 'هذا مثال للترجمة', animIn: 'none', animOut: 'none', words: [{ s: 0, e: .5 }, { s: .5, e: 1 }, { s: 1, e: 1.5 }], kara: st.kara }) };
-    const e = GW.TextR.draw(fake, .7, 236, 96, 236 / 1000); const g = cv.getContext('2d');
-    g.fillStyle = '#1a1f2a'; g.fillRect(0, 0, 236, 96); const gr = g.createLinearGradient(0, 0, 236, 96); gr.addColorStop(0, '#2b3a55'); gr.addColorStop(1, '#4a3a2a'); g.fillStyle = gr; g.fillRect(0, 0, 236, 96);
+  const subOpen = {};
+  // live preset cards: one RAF loop redraws the visible cards (animation loops every 2.6 s)
+  let prevRaf = 0, prevGrid = null;
+  const SAMPLE = 'مثال حي للترجمة 2026';
+  function previewText(id) {
+    const o = Object.assign({}, getOpts(), { style: id, size: 100 }); if (CAP.preset(getOpts().style).id !== id) for (const k of OVR) o[k] = '';
+    const st = CAP.styleText({ w: 1080, h: 1920 }, o); const ws = SAMPLE.split(' ');
+    const words = ws.map((w, i) => ({ w, s: .25 + i * .32, e: .25 + (i + 1) * .32 })); if (st.ca.kw) words[3].k = 1;
+    return { id: 'capprev_' + id, dur: 2.6, text: Object.assign(st, { str: ws.join(' '), words }) };
+  }
+  function drawPreview(cv, id, t) {
+    const fake = previewText(id); const W = cv.width, H = cv.height;
+    const mw = GW.TextR.measure(fake.text, 1).w * Math.max(1, fake.text.hiScale || 1) + (fake.text.bg ? fake.text.bgPad * 2 : 0); const e = GW.TextR.draw(fake, t, W, H, Math.min(W / 1150, W * .86 / mw)); const g = cv.getContext('2d');
+    const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, '#2b3a55'); gr.addColorStop(1, '#4a3a2a'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
     g.drawImage(e.canvas, 0, 0); GW.TextR.drop(fake.id);
   }
+  CAP.drawPreview = drawPreview; CAP.previewText = previewText;
+  function startPreviews(grid) {
+    prevGrid = grid; if (prevRaf) return; const t0 = performance.now(); let last = 0;
+    const tick = (now) => {
+      prevRaf = 0; if (!prevGrid || !prevGrid.isConnected) { prevGrid = null; return; }
+      if (now - last > 45) { last = now; const t = ((now - t0) / 1000) % 2.6; const vis = prevGrid.offsetParent !== null;
+        if (vis) for (const card of prevGrid.querySelectorAll('.cap-sty')) { const r = card.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) continue; drawPreview(card.querySelector('canvas'), card.dataset.id, t); } }
+      prevRaf = requestAnimationFrame(tick);
+    };
+    prevRaf = requestAnimationFrame(tick);
+  }
+  function repaintPreviews() { /* the RAF loop picks the new options up on its next frame */ }
+  /* ---- translation of the transcript through the AI editor (optional) ---- */
+  CAP.translateAI = async (lang) => {
+    const s = GW.seq(); const tr = CAP.transcript(s); if (!tr || !tr.segs.length) { GW.toast('لا يوجد تفريغ للترجمة'); return null; }
+    if (!GW.AI) { GW.toast('المونتير الذكي غير متاح', 'err'); return null; }
+    await GW.AI.refresh(); if (!GW.AI.ready()) { GW.toast('الترجمة إلى لغات أخرى تحتاج إعداد «المونتير الذكي» بمفتاح API', 'err'); GW.AI.settings(); return null; }
+    GW.toast('جارٍ الترجمة عبر المونتير الذكي…');
+    const src = tr.segs.map(g => g.text); const out = [];
+    for (let i = 0; i < src.length; i += 120) {
+      const part = src.slice(i, i + 120);
+      const txt = await GW.AI.complete(`Translate these ${part.length} subtitle lines into the language with code "${lang}". Keep the meaning, keep them short and natural for on-screen captions, keep numbers and names. Return ONLY a JSON array of ${part.length} strings in the same order.\n\n` + JSON.stringify(part));
+      const m = /\[[\s\S]*\]/.exec(txt); let arr = null; try { arr = JSON.parse(m ? m[0] : txt); } catch (e) {}
+      if (!Array.isArray(arr) || arr.length !== part.length) throw new Error('رد غير متوقع من المساعد (عدد الأسطر لا يطابق)');
+      out.push(...arr.map(String));
+    }
+    return CAP.applyTranslation(out, lang, s);
+  };
+  CAP.applyTranslation = (texts, lang, s) => {
+    s = s || GW.seq(); const tr = CAP.transcript(s); if (!tr) throw new Error('no transcript');
+    if (!Array.isArray(texts) || texts.length !== tr.segs.length) throw new Error('texts must have ' + tr.segs.length + ' items (one per transcript segment)');
+    tr.segs.forEach((g, i) => { g.text = String(texts[i]).trim(); g.words = []; }); // timings re-spread evenly by alignWords
+    tr.lang = lang || tr.lang; tr.translated = 'ai'; GW.commit('ترجمة التفريغ'); renderBody();
+    GW.toast('تمت الترجمة — توقيت الكلمات تقديري. اضغط «إنشاء الترجمة على الخط الزمني»'); return tr;
+  };
+  async function translateDialog() {
+    const body = el('div', 'form'); const F = UI.form; let lang = 'en';
+    body.append(F.frow('اللغة', F.selectIn([['en', 'English'], ['fr', 'Français'], ['es', 'Español'], ['de', 'Deutsch'], ['tr', 'Türkçe'], ['ur', 'اردو'], ['fa', 'فارسی'], ['id', 'Bahasa Indonesia'], ['ru', 'Русский'], ['ar', 'العربية']], lang, v => { lang = v; })),
+      el('p', 'hint', 'تتم الترجمة عبر «المونتير الذكي» (نموذج ذكاء اصطناعي عام، بمفتاحك) ويُرسل نص التفريغ فقط. راجع الترجمة قبل النشر. توقيت الكلمات بعد الترجمة تقديري (موزّع بالتساوي داخل كل مقطع). لترجمة دقيقة التوقيت إلى الإنجليزية استخدم خيار whisper «ترجمة إلى الإنجليزية» عند التفريغ.'));
+    GW.modal({ title: 'ترجمة إلى لغة أخرى', body, width: 520, buttons: [{ label: 'إلغاء', value: null }, { label: 'ترجمة', primary: true, action: async () => { try { await CAP.translateAI(lang); } catch (e) { GW.toast('فشلت الترجمة: ' + e.message, 'err'); } } }] });
+  }
+  CAP.translateDialog = translateDialog;
   async function exportSub(kind) {
     const s = GW.seq(); const tr = CAP.transcript(s); const segs = tr && tr.segs.length ? tr.segs : CAP.fromClips(s);
     if (!segs.length) { GW.toast('لا يوجد نص لتصديره'); return; }
@@ -477,6 +601,26 @@
     dlgEl.append(el('div', '', `<small style="color:var(--mute)">المحرك: whisper.cpp ${esc(st.version || '')} (رخصة MIT) · النماذج من huggingface.co/ggerganov/whisper.cpp · المجلد: <span style="direction:ltr;display:inline-block">${esc(st.modelsDir)}</span></small>`));
   }
   CAP.modelsDialog = modelsDialog;
+
+  /* ---------- automation (GW.API) — used by the MCP bridge and «المونتير الذكي» ---------- */
+  const A = GW.API && GW.API.methods;
+  if (A) {
+    const lbl = (x) => { const H = GW.hist; if (H.labels[H.idx] && !/^المساعد: /.test(H.labels[H.idx])) { H.labels[H.idx] = 'المساعد: ' + x; GW.bus.emit('hist'); } };
+    // getTranscript({from, to, words}) → {lang, segs:[{i, t0, t1, text, words?}]}
+    A.getTranscript = ({ from, to, words } = {}) => { const tr = CAP.transcript(); if (!tr) return { lang: null, segs: [] }; const r = (v) => Math.round(v * 100) / 100; return { lang: tr.lang, translated: tr.translate ? 'en' : tr.translated || null, segs: tr.segs.map((g, i) => Object.assign({ i, t0: r(g.t0), t1: r(g.t1), text: g.text }, words ? { words: (g.words || []).map(w => [w.w, r(w.t0), r(w.t1)]) } : {})).filter(g => (from == null || g.t1 >= +from) && (to == null || g.t0 <= +to)) }; };
+    A.listCaptionPresets = () => CAP.STYLES.map(x => ({ id: x.id, name: x.n, in: (x.ca || {}).in, emphasis: x.t.kara || 'color', box: !!x.t.bg }));
+    // transcribe({src:'sel'|'seq', lang}) → {segments}
+    A.transcribe = async ({ src = 'seq', lang } = {}) => { const r = await UI.transcribe(Object.assign({ src }, lang ? { lang } : {})); if (!r) throw new Error('transcription did not run (no audio, cancelled, engine/model missing — see the captions panel)'); lbl('تفريغ الصوت'); return { lang: r.lang, segments: r.segs.length }; };
+    // createCaptions({preset, maxWords, lines, pos, size, keywords}) → {count, track}
+    A.createCaptions = ({ preset, style, maxWords, lines, pos, size, keywords, perLine } = {}) => {
+      const o = {}; const id = preset || style; if (id) { if (!CAP.STYLES.some(x => x.id === id) && !ALIAS[id]) throw new Error('unknown preset "' + id + '" (' + CAP.STYLES.map(x => x.id).join(', ') + ')'); o.style = id; const P = CAP.preset(id); if (P.pos && !pos) o.pos = P.pos; for (const k of OVR) o[k] = ''; }
+      if (maxWords != null) o.maxWords = Math.max(1, Math.min(12, +maxWords)); if (lines != null) o.lines = Math.max(1, Math.min(3, +lines)); if (pos) o.pos = pos; if (size != null) o.size = +size; if (keywords != null) o.keywords = !!keywords; if (perLine != null) o.perLine = +perLine;
+      if (!CAP.transcript() || !CAP.transcript().segs.length) throw new Error('no transcript yet: call transcribe first');
+      const made = CAP.create(o); lbl('إنشاء الترجمة'); return { count: made.length, track: made[0] ? 'V' + (made[0].ti + 1) : null, preset: CAP.preset(o.style || getOpts().style).id };
+    };
+    A.restyleCaptions = ({ preset, style, pos, size, keywords } = {}) => { const o = {}; const id = preset || style; if (id) { o.style = id; for (const k of OVR) o[k] = ''; } if (pos) o.pos = pos; if (size != null) o.size = +size; if (keywords != null) o.keywords = !!keywords; const n = CAP.restyle(o); lbl('نمط الترجمة'); return { count: n }; };
+    A.translateCaptions = ({ lang, texts } = {}) => { const tr = CAP.applyTranslation(texts, lang); lbl('ترجمة التفريغ'); return { segments: tr.segs.length, lang: tr.lang }; };
+  }
 
   /* ---------- wiring ---------- */
   GW.bus.on('time', () => markCurrent(false));

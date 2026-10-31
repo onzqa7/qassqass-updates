@@ -22,6 +22,8 @@
   const camNow = (c) => Cm.at(c.map.scene.cam, lt(c), c.map.scene.mode);
   const eraOf = (c) => G.era(GW.pv(c.map.scene.year, lt(c)), c.map.scene.eraMode);
   const byKeyOf = (c) => new Map((G.features(eraOf(c), 0) || []).map(f => [f.key, f]));
+  const EV_ICO = { capture: 'flag', region: 'area', battle: 'swords', advance: 'arrow', strike: 'target', retreat: 'undo', victory: 'crown', truce: 'pause' };
+  WU.EV_ICO = EV_ICO;
   const ST = WU.st = { q: {}, ev: null, srcCC: '', provQ: '', cityQ: '', pend: null, moveQ: '', move: { dur: 3, style: 'curve' } };
 
   /* ---------------- hooks used by ui_map.js ---------------- */
@@ -31,6 +33,9 @@
   WU.pickHook = (k, L, ll, X, Y) => {
     const p = ST.pend; if (!p || !ll || p.layer !== L.id) return false;
     if (p.kind === 'moveTo') { const near = nearestPlace(ll, 30); WR.addMove(L, { to: near ? [near[0], near[1]] : [+ll[0].toFixed(4), +ll[1].toFixed(4)], name: near ? (near[3] || near[2]) : '', dur: ST.move.dur, style: ST.move.style, t: ST.move.t }); ST.pend = null; M().mode = 'nav'; changed('تحرك إلى مدينة'); rerender(); return true; }
+    if (p.kind === 'evAt' || p.kind === 'evLine') { const ev = (L.events || []).find(e => e.id === p.ev); if (!ev) return false; const pt = [+ll[0].toFixed(4), +ll[1].toFixed(4)];
+      if (p.kind === 'evAt') { const near = nearestPlace(ll, 40); ev.at = near ? [near[0], near[1]] : pt; ev.place = near ? (near[3] || near[2]) : ''; ST.pend = null; M().mode = 'nav'; } else { (ev.line = ev.line || []).push(pt); }
+      changed('موقع الحدث'); rerender(); return true; }
     if (p.kind === 'event') {
       const ev = (L.events || []).find(e => e.id === p.ev); if (!ev) return false;
       // a city within ~14 px of the click wins over the province under it
@@ -89,8 +94,8 @@
   /* ---------------- layer properties ---------------- */
   WU.props = (c, L, box) => {
     const set = (k, now) => (v) => { L[k] = v; changed('خصائص ' + L.name, !now); };
-    const place = () => { const w = h('div', 'mp-row'); w.append(btn(M().mode === 'place' ? 'انقر على الخريطة للتحديد' : 'تحديد الموقع من الشاشة', () => { M().mode = 'place'; rerender(); }), h('span', 'kv', `${(+GW.pv(L.lon, 0)).toFixed(2)}°, ${(+GW.pv(L.lat, 0)).toFixed(2)}°`)); return w; };
-    const draw = (label) => { const w = h('div', 'mp-row'); w.append(btn(M().mode === 'draw' ? 'وضع الرسم فعّال' : label, () => { M().mode = 'draw'; rerender(); }), btn('مسح النقاط', () => { L.pts = []; changed('مسح'); rerender(); }), h('span', 'kv', (L.pts || []).length + ' نقاط')); return w; };
+    const place = () => { const w = h('div', 'mp-row'); w.append(btn(GW.ico('pin', 13) + ' حدد على الخريطة', () => M().enter('place', 'لتحديد الموقع'), M().mode === 'place' ? 'pri' : ''), h('span', 'kv', `${(+GW.pv(L.lon, 0)).toFixed(2)}°, ${(+GW.pv(L.lat, 0)).toFixed(2)}°`)); return w; };
+    const draw = (label) => { const w = h('div', 'mp-row'); w.append(btn(GW.ico('pen', 13) + ' ' + label, () => M().enter('draw', label), M().mode === 'draw' ? 'pri' : ''), btn('مسح النقاط', () => { L.pts = []; changed('مسح'); rerender(); }), h('span', 'kv', (L.pts || []).length + ' نقاط')); return w; };
     const cityPick = (on) => { const w = h('div'); const i = txt('', () => go(), 'ابحث عن مدينة…'); const res = h('div', 'mp-results'); const go = () => { res.innerHTML = ''; for (const p of placeSearch(i.value, 6)) { const it = h('div', 'mp-res', `<b>${esc(p[3] || p[2])}</b><span>${esc(p[2])} · ${esc(p[7])}</span>`); it.onclick = () => on(p); res.append(it); } }; w.append(i, res); return w; };
     switch (L.type) {
       case 'campaign': return campaignProps(c, L, box, set);
@@ -99,15 +104,15 @@
           row('سيفان', chk(L.swords, set('swords', 1))), row('دخان', chk(L.smoke, set('smoke', 1))), row('شرر', chk(L.sparks, set('sparks', 1))), row('موجات صدمية', chk(L.rings, set('rings', 1))));
         break;
       case 'strike':
-        box.append(h('div', 'mp-note', 'النقطة الأولى = موقع الإطلاق، وبقية النقاط = الأهداف.'), draw('رسم الإطلاق والأهداف'), row('النوع', sel([['missile', 'صواريخ'], ['artillery', 'مدفعية']], L.kind, set('kind', 1))), row('عدد المقذوفات', num(L.count, 1, set('count', 1))), row('الفاصل (ث)', num(L.interval, .05, set('interval', 1))), row('زمن الطيران (ث)', num(L.flight, .1, set('flight', 1))),
+        box.append(h('div', 'mp-note', 'النقطة الأولى = موقع الإطلاق، وبقية النقاط = الأهداف.'), draw('ارسم الإطلاق ثم الأهداف على الخريطة'), row('النوع', sel([['missile', 'صواريخ'], ['artillery', 'مدفعية']], L.kind, set('kind', 1))), row('عدد المقذوفات', num(L.count, 1, set('count', 1))), row('الفاصل (ث)', num(L.interval, .05, set('interval', 1))), row('زمن الطيران (ث)', num(L.flight, .1, set('flight', 1))),
           row('ارتفاع القوس', rng(L.arc, 0, 1, .02, set('arc'))), row('تشتت الإصابات (px)', num(L.spread, 1, set('spread', 1))), row('ذيل', chk(L.trail, set('trail', 1))), row('حفرة', chk(L.crater, set('crater', 1))), row('اهتزاز الشاشة', rng(L.shake || 0, 0, 2, .05, set('shake'))));
         break;
       case 'troops': {
         const icons = [['armor', 'مدرعات (ناتو)'], ['inf', 'مشاة (ناتو)'], ['art', 'مدفعية (ناتو)'], ['hq', 'قيادة (ناتو)'], ['tank', 'دبابة'], ['soldier', 'جندي'], ...(GW.ShapeLib && GW.ShapeLib.mapIcons ? GW.ShapeLib.mapIcons() : [])];
-        box.append(draw('رسم مسار القوات'), row('الرمز', sel(icons, L.icon, set('icon', 1))), row('اللون', col(L.color, set('color'))), row('عدد الوحدات', num(L.count, 1, set('count', 1))), row('الفاصل بين الوحدات (ث)', num(L.spacing, .05, set('spacing', 1))), row('مدة المسير (ث)', num(L.travel, .1, set('travel', 1))), row('الحجم', rng(L.size, .4, 3, .05, set('size'))), row('غبار', chk(L.dust, set('dust', 1))), row('إظهار المسار', chk(L.route, set('route', 1))));
+        box.append(draw('ارسم مسار القوات على الخريطة'), row('الرمز', sel(icons, L.icon, set('icon', 1))), row('اللون', col(L.color, set('color'))), row('عدد الوحدات', num(L.count, 1, set('count', 1))), row('الفاصل بين الوحدات (ث)', num(L.spacing, .05, set('spacing', 1))), row('مدة المسير (ث)', num(L.travel, .1, set('travel', 1))), row('الحجم', rng(L.size, .4, 3, .05, set('size'))), row('غبار', chk(L.dust, set('dust', 1))), row('إظهار المسار', chk(L.route, set('route', 1))));
         break; }
       case 'air':
-        box.append(draw('رسم مسار الطائرات'), row('الطائرة', sel([['jet', 'مقاتلة'], ['plane', 'طائرة'], ['heli', 'مروحية']], L.icon, set('icon', 1))), row('عدد الطائرات', num(L.count, 1, set('count', 1))), row('الفاصل (ث)', num(L.spacing, .05, set('spacing', 1))), row('مدة العبور (ث)', num(L.travel, .1, set('travel', 1))), row('عدد القنابل', num(L.bombs, 1, set('bombs', 1))), row('الحجم', rng(L.size, .4, 3, .05, set('size'))), row('اللون', col(L.color, set('color'))));
+        box.append(draw('ارسم مسار الطائرات على الخريطة'), row('الطائرة', sel([['jet', 'مقاتلة'], ['plane', 'طائرة'], ['heli', 'مروحية']], L.icon, set('icon', 1))), row('عدد الطائرات', num(L.count, 1, set('count', 1))), row('الفاصل (ث)', num(L.spacing, .05, set('spacing', 1))), row('مدة العبور (ث)', num(L.travel, .1, set('travel', 1))), row('عدد القنابل', num(L.bombs, 1, set('bombs', 1))), row('الحجم', rng(L.size, .4, 3, .05, set('size'))), row('اللون', col(L.color, set('color'))));
         break;
       case 'encircle':
         box.append(place(), cityPick(p => { L.lon = p[0]; L.lat = p[1]; if (!L.text) L.text = p[3] || p[2]; changed('المدينة المطوقة'); rerender(); }), row('النص', txt(L.text, set('text'))), row('نصف القطر (كم)', num(L.km, 5, set('km', 1))), row('اتجاه الهجوم (درجة)', num(L.dir, 5, set('dir', 1))), row('زمن الإغلاق (ث)', num(L.close, .1, set('close', 1))), row('اللون', col(L.color, set('color'))));
@@ -154,7 +159,8 @@
     (L.sides || []).forEach((sd, i) => {
       const d = h('div', 'mp-war-side'); d.style.borderInlineStartColor = sd.color;
       d.append(row('الاسم', txt(sd.name, v => { sd.name = v; changed('اسم الطرف', 1); })), row('اللون', col(sd.color, v => { sd.color = v; GW.invalidate(); })), row('شفافية التعبئة', rng(sd.fill == null ? .5 : sd.fill, 0, 1, .02, v => { sd.fill = v; GW.invalidate(); })),
-        row('نمط الحدود', sel([['solid', 'متصل'], ['dashed', 'متقطع'], ['glow', 'متوهج'], ['none', 'بدون']], sd.border || 'solid', v => { sd.border = v; changed('نمط الحدود'); })));
+        row('نمط الحدود', sel([['solid', 'متصل'], ['dashed', 'متقطع'], ['glow', 'متوهج'], ['none', 'بدون']], sd.border || 'solid', v => { sd.border = v; changed('نمط الحدود'); })),
+        row('النقش', sel([['solid', 'مصمت'], ['weave', 'نسيج متقاطع']], sd.pattern || 'solid', v => { sd.pattern = v === 'solid' ? undefined : v; changed('نقش الطرف'); rerender(); })), M().weaveRows ? M().weaveRows(sd, rerender) : h('div'));
       const chips = h('div', 'mp-chips'); for (const k of sd.countries || []) { const f = byKey.get(k); const b = h('button', 'chip on'); b.innerHTML = esc(f ? G.name(f, 'ar', era) : k) + ' ' + GW.ico('close', 11); b.onclick = () => { sd.countries.splice(sd.countries.indexOf(k), 1); changed('إزالة دولة'); rerender(); }; chips.append(b); }
       const add = txt('', () => {}, 'أضف دولة واضغط Enter'); add.onkeydown = (e) => { e.stopPropagation(); if (e.key !== 'Enter') return; const f = WR.findCountry(add.value, era); if (!f) { GW.toast('لم أتعرف على: ' + add.value, 'err'); return; } sd.countries = sd.countries || []; if (!sd.countries.includes(f.key)) sd.countries.push(f.key); if (/^الطرف/.test(sd.name)) sd.name = G.name(f, 'ar', era); changed('إضافة دولة'); rerender(); };
       d.append(chips, add);
@@ -169,14 +175,20 @@
     const sideOpts = (L.sides || []).map(sd => [sd.id, sd.name]);
     for (const ev of evs) {
       const on = ST.ev === ev.id; const sd = (L.sides || []).find(x => x.id === ev.to);
-      const names = [...(ev.cities || []).map(x => x.a || x.n), ...(ev.units || []).map(k => (m.units.get(k) || {}).name || k)].slice(0, 3).join('، ') || 'لم يُحدد هدف';
-      const r = h('div', 'mp-layer' + (on ? ' on' : '')); r.innerHTML = `<i class="mp-war-dot" style="background:${esc(sd ? sd.color : '#888')}"></i><span class="nm">${esc(names)}</span><span class="kv">${(+ev.t).toFixed(1)}ث</span>`;
+      const kind = ev.kind || 'capture'; const KN = (WR.EV_KINDS[kind] || WR.EV_KINDS.capture).ar;
+      const names = kind === 'victory' ? 'انتصار ' + (sd ? sd.name : '') : kind === 'truce' ? 'هدنة' + (ev.line && ev.line.length > 1 ? '' : ' (ارسم الخط)') : [...(ev.place ? [ev.place] : []), ...(ev.cities || []).map(x => x.a || x.n), ...(ev.units || []).map(k => (m.units.get(k) || {}).name || k)].slice(0, 3).join('، ') || 'لم يُحدد هدف';
+      const r = h('div', 'mp-layer mx-ev' + (on ? ' on' : '')); r.innerHTML = `<i class="mp-war-dot" style="background:${esc(sd ? sd.color : '#888')}"></i>${GW.ico(EV_ICO[kind] || 'swords', 13)}<span class="mx-evk">${esc(KN)}</span><span class="nm">${esc(names)}</span><span class="kv">${(+ev.t).toFixed(1)}ث</span>`;
       const goB = h('button', 'ib', GW.ico('play', 13)); goB.title = 'انتقل إلى الحدث'; goB.onclick = (e) => { e.stopPropagation(); GW.seek(c.start + (L.start || 0) + ev.t - (c.in || 0) + .01); };
       const del = h('button', 'ib', GW.ico('close', 13)); del.onclick = (e) => { e.stopPropagation(); L.events.splice(L.events.indexOf(ev), 1); if (ST.ev === ev.id) ST.ev = null; changed('حذف حدث'); rerender(); };
       r.append(goB, del); r.onclick = () => { ST.ev = on ? null : ev.id; ST.srcCC = ''; rerender(); }; box.append(r);
       if (on) box.append(eventEditor(c, L, ev, m, era, byKey, sideOpts));
     }
-    const ab = h('div', 'mp-row'); ab.append(btn(GW.ico('plus', 13) + ' حدث سيطرة عند المؤشر', () => { const t = +Math.max(0, lt(c) - (c.in || 0) - (L.start || 0)).toFixed(2); const sd = L.sides || []; const ev = { id: GW.uid(), t, dur: 2.5, from: sd[1] ? sd[1].id : null, to: sd[0] ? sd[0].id : null, units: [], cities: [], origin: 'border', fx: 'clash', caption: 1 }; (L.events = L.events || []).push(ev); ST.ev = ev.id; changed('حدث سيطرة'); rerender(); }, 'pri'),
+    if (evs.length) box.append(M().B.keyRuler(c, evs, (e) => e.t, (e, t) => { e.t = t; }, () => {}, (e) => { L.events.splice(L.events.indexOf(e), 1); }, 'أحداث الحرب (اسحب لتغيير الوقت)', L.start || 0));
+    const addEv = (kind) => { const t = +Math.max(0, lt(c) - (c.in || 0) - (L.start || 0)).toFixed(2); const sd = L.sides || []; const K = WR.EV_KINDS[kind] || WR.EV_KINDS.capture; const ev = { id: GW.uid(), t, dur: K.dur, from: sd[1] ? sd[1].id : null, to: sd[0] ? sd[0].id : null, units: [], cities: [], origin: 'border', fx: K.fx, caption: kind === 'victory' || kind === 'truce' ? 0 : 1 }; if (kind !== 'capture') ev.kind = kind; if (kind === 'retreat') { ev.from = sd[0] ? sd[0].id : null; ev.to = sd[1] ? sd[1].id : null; } (L.events = L.events || []).push(ev); ST.ev = ev.id; changed('حدث: ' + K.ar);
+      if (kind === 'battle' || kind === 'strike') { ST.pend = { kind: 'evAt', layer: L.id, ev: ev.id }; M().enter('pick', 'لتحديد مكان ' + K.ar); } else if (kind === 'truce') { ST.pend = { kind: 'evLine', layer: L.id, ev: ev.id }; M().enter('pick', 'لرسم خط الهدنة (كل نقرة تضيف نقطة)'); } else if (kind === 'capture' || kind === 'retreat' || kind === 'advance') { ST.pend = { kind: 'event', layer: L.id, ev: ev.id }; M().enter('pick', 'لاختيار المدن والمحافظات التي تنتقل'); } else rerender(); };
+    const kinds = h('div', 'mx-evadd'); for (const k of ['capture', 'battle', 'strike', 'advance', 'retreat', 'victory', 'truce']) { const b = h('button', 'chip'); b.innerHTML = GW.ico(EV_ICO[k], 12) + ' ' + esc(WR.EV_KINDS[k].ar); b.onclick = () => addEv(k); b.dataset.ev = k; kinds.append(b); }
+    box.append(h('div', 'mp-note', 'أضف حدثاً عند مؤشر التشغيل:'), kinds);
+    const ab = h('div', 'mp-row'); ab.append(
       btn(GW.ico('camera', 13) + ' أضف حركة كاميرا لكل حدث', () => { const keys = WR.cameraKeys(L, scn, { frac: .42, tilt: 18 }); if (!keys.length) { GW.toast('حدد أهدافاً للأحداث أولاً'); return; } WR.applyCameraKeys(scn, keys); changed('حركات كاميرا للأحداث'); rerender(); GW.bus.emit('camkeys'); GW.toast('أضيفت ' + keys.length + ' مفاتيح كاميرا'); }));
     box.append(ab);
     // drawn regions (historical eras)
@@ -189,6 +201,21 @@
   }
   function eventEditor(c, L, ev, m, era, byKey, sideOpts) {
     const w = h('div', 'mp-props mp-war-ev'); const set = (k, now) => (v) => { ev[k] = v; changed('حدث سيطرة', !now); };
+    const kind = ev.kind || 'capture';
+    if (kind === 'battle' || kind === 'strike' || kind === 'victory' || kind === 'truce') {
+      w.append(row('الوقت (ث)', num(ev.t, .1, v => { ev.t = Math.max(0, v); changed('وقت الحدث'); rerender(); }), btn('عند المؤشر', () => { ev.t = +Math.max(0, lt(c) - (c.in || 0) - (L.start || 0)).toFixed(2); changed('وقت الحدث'); rerender(); })), row('المدة (ث)', num(ev.dur || 3, .1, set('dur', 1))));
+      if (kind === 'battle' || kind === 'strike') {
+        const pickOn = ST.pend && ST.pend.kind === 'evAt' && ST.pend.ev === ev.id;
+        w.append(row('المكان', h('span', 'kv', esc(ev.place || (ev.at ? ev.at.map(x => (+x).toFixed(2)).join('°, ') + '°' : 'لم يُحدد'))), btn(GW.ico('pin', 13) + ' حدد على الخريطة', () => { ST.pend = { kind: 'evAt', layer: L.id, ev: ev.id }; M().enter('pick', 'لتحديد مكان الحدث'); }, pickOn ? 'pri' : '')));
+        const q = txt('', () => go(), 'أو ابحث عن مدينة…'); const res = h('div', 'mp-results'); const go = () => { res.innerHTML = ''; for (const p of placeSearch(q.value, 5)) { const it = h('div', 'mp-res', `<b>${esc(p[3] || p[2])}</b><span>${esc(p[2])}</span>`); it.onclick = () => { ev.at = [p[0], p[1]]; ev.place = p[3] || p[2]; changed('مكان الحدث'); rerender(); }; res.append(it); } }; w.append(q, res);
+        w.append(row('المؤثر', sel([['clash', 'اشتباك'], ['strike', 'قصف'], ['none', 'بدون']], ev.fx || 'clash', set('fx', 1))), row('عنوان الحدث', chk(ev.caption !== 0, v => { ev.caption = v ? 1 : 0; changed('عنوان الحدث'); })), row('نص مخصص', txt(ev.text, set('text'), 'معركة …')));
+      } else {
+        w.append(row('المنتصر', sel(sideOpts, ev.to, set('to', 1))), row('الخاسر', sel(sideOpts, ev.from, set('from', 1))), row('بطاقة العنوان', chk(ev.card !== 0, v => { ev.card = v ? 1 : 0; changed('بطاقة العنوان'); })), row('نص العنوان', txt(ev.title, set('title'), kind === 'victory' ? 'انتصار …' : 'هدنة')), row('سطر فرعي', txt(ev.sub, set('sub'), kind === 'victory' ? 'سقوط …' : 'تقسيم …')), row('إبقاء البطاقة حتى النهاية', chk(ev.hold, set('hold', 1))));
+        if (kind === 'victory') w.append(h('div', 'mp-note', 'عند النصر يأخذ المنتصر كل ما تبقى من أراضي الخاسر ومدنه بتلوين متدرج، ثم تظهر بطاقة «انتصار …».'));
+        else { const pickOn = ST.pend && ST.pend.kind === 'evLine' && ST.pend.ev === ev.id; w.append(h('div', 'mp-note', 'ارسم خط التقسيم: ما يقع من أراضي الخاسر في جهة المنتصر ينتقل إليه.'), h('div', 'mp-row')); w.lastChild.append(btn(GW.ico('pen', 13) + (pickOn ? ' انقر نقاط الخط…' : ' ارسم خط الهدنة على الخريطة'), () => { ST.pend = { kind: 'evLine', layer: L.id, ev: ev.id }; M().enter('pick', 'لرسم خط الهدنة (كل نقرة تضيف نقطة)'); }, pickOn ? 'pri' : ''), btn('مسح الخط', () => { ev.line = []; changed('مسح الخط'); rerender(); }), h('span', 'kv', (ev.line || []).length + ' نقاط')); }
+      }
+      return w;
+    }
     w.append(row('الوقت (ث)', num(ev.t, .1, v => { ev.t = Math.max(0, v); changed('وقت الحدث'); rerender(); }), btn('عند المؤشر', () => { ev.t = +Math.max(0, lt(c) - (c.in || 0) - (L.start || 0)).toFixed(2); changed('وقت الحدث'); rerender(); })), row('المدة (ث)', num(ev.dur || 2.5, .1, set('dur', 1))),
       row('من', sel(sideOpts, ev.from, set('from', 1))), row('إلى', sel(sideOpts, ev.to, set('to', 1))), row('بداية الاجتياح', sel([['border', 'من أقرب حدود للمهاجم'], ['city', 'من المدينة']], ev.origin || 'border', set('origin', 1))),
       row('مؤثر المعركة', sel([['clash', 'اشتباك'], ['strike', 'قصف'], ['none', 'بدون']], ev.fx || 'none', set('fx', 1))), row('اهتزاز مع القصف', chk(ev.shake, set('shake', 1))), row('عنوان الحدث', chk(ev.caption !== 0, v => { ev.caption = v ? 1 : 0; changed('عنوان الحدث'); })), row('نص مخصص', txt(ev.text, set('text'), 'سقوط مدينة …')));

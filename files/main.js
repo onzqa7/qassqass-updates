@@ -22,7 +22,7 @@ const MIME = {
   '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf', '.otf': 'font/otf', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
   '.webp': 'image/webp', '.gif': 'image/gif', '.bmp': 'image/bmp', '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
   '.mp4': 'video/mp4', '.m4v': 'video/mp4', '.mov': 'video/quicktime', '.webm': 'video/webm', '.mkv': 'video/x-matroska', '.avi': 'video/x-msvideo', '.ogv': 'video/ogg',
-  '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.m4a': 'audio/mp4', '.aac': 'audio/aac', '.ogg': 'audio/ogg', '.flac': 'audio/flac', '.opus': 'audio/ogg'
+  '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.m4a': 'audio/mp4', '.aac': 'audio/aac', '.ogg': 'audio/ogg', '.flac': 'audio/flac', '.opus': 'audio/ogg', '.mjs': 'text/javascript; charset=utf-8', '.wasm': 'application/wasm', '.onnx': 'application/octet-stream'
 };
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true } }]);
@@ -140,12 +140,13 @@ app.on('window-all-closed', () => app.quit());
 
 /* ---------------- IPC: dialogs & files ---------------- */
 const FILTERS = {
-  media: [{ name: 'وسائط', extensions: ['mp4', 'mov', 'm4v', 'webm', 'mkv', 'avi', 'wmv', 'mts', 'm2ts', 'mpg', 'mpeg', 'flv', '3gp', 'mxf', 'mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac', 'opus', 'wma', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'tif', 'tiff', 'svg'] }, { name: 'كل الملفات', extensions: ['*'] }],
+  media: [{ name: 'وسائط', extensions: ['mp4', 'mov', 'm4v', 'webm', 'mkv', 'avi', 'wmv', 'mts', 'm2ts', 'mpg', 'mpeg', 'flv', '3gp', 'mxf', 'mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac', 'opus', 'wma', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'tif', 'tiff', 'svg', 'glb', 'gltf', 'obj', 'fbx', 'stl', 'ply'] }, { name: 'كل الملفات', extensions: ['*'] }],
   project: [{ name: 'مشروع قص قص', extensions: ['qass', 'gwproj'] }],
   image: [{ name: 'صور', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg'] }],
   json: [{ name: 'JSON', extensions: ['json'] }],
   cube: [{ name: 'LUT (.cube)', extensions: ['cube'] }],
   font: [{ name: 'خطوط', extensions: ['ttf', 'otf', 'woff', 'woff2'] }],
+  model3d: [{ name: 'نماذج ثلاثية الأبعاد', extensions: ['glb', 'gltf', 'obj', 'fbx', 'stl', 'ply'] }, { name: 'كل الملفات', extensions: ['*'] }],
   track: [{ name: 'مسارات (GPX / GeoJSON / KML)', extensions: ['gpx', 'geojson', 'json', 'kml'] }, { name: 'كل الملفات', extensions: ['*'] }]
 };
 ipcMain.handle('dlg:open', async (e, o = {}) => {
@@ -394,6 +395,35 @@ ipcMain.handle('asr:remove-model', async (e, id) => ASR.removeModel(id));
 ipcMain.handle('asr:import-model', async (e, p) => ASR.importModel(p));
 ipcMain.handle('asr:open-models', async () => { await fs.promises.mkdir(ASR.modelsDir(), { recursive: true }); return shell.openPath(ASR.modelsDir()); });
 /* ===== /whisper ===== */
+/* ===== segmentation ===== (background removal «قص الخلفية»: U²-Net-p ONNX model downloaded on demand into userData/seg; inference runs in the renderer via onnxruntime-web) */
+const SEG = (() => {
+  const core = require('./app/js/asr_core.js');
+  const MODELS = [{ id: 'u2netp', file: 'u2netp.onnx', size: 4574861, sha256: '309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8', license: 'Apache-2.0 (U²-Net, Qin et al.)',
+    urls: ['https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx', 'https://huggingface.co/tomjackson2023/rembg/resolve/main/u2netp.onnx'] }];
+  const st = { dl: null };
+  const dir = () => process.env.QASS_SEG_MODELS || path.join(app.getPath('userData'), 'seg');
+  const sz = (f) => { try { return fs.statSync(path.join(dir(), f)).size; } catch (e) { return 0; } };
+  const send = (p) => { try { if (win && !win.isDestroyed()) win.webContents.send('seg:progress', p); } catch (e) {} };
+  function status() { return { dir: dir(), models: MODELS.map(m => ({ id: m.id, file: m.file, size: m.size, license: m.license, path: path.join(dir(), m.file), installed: sz(m.file) === m.size, partial: sz(m.file + '.part'), downloading: !!(st.dl && st.dl.id === m.id) })) }; }
+  async function dl(id) {
+    const m = MODELS.find(x => x.id === (id || 'u2netp')); if (!m) return { ok: false, error: 'unknown model' };
+    if (st.dl) return { ok: false, error: 'busy' };
+    const ac = new AbortController(); st.dl = { id: m.id, ac }; let err = null;
+    try {
+      for (const url of MODELS[0] === m && process.env.QASS_SEG_BASEURL ? [process.env.QASS_SEG_BASEURL + m.file] : m.urls) {
+        try { await core.download(url, path.join(dir(), m.file), { fetch: (u, o) => net.fetch(u, o), expectedSize: m.size, sha256: m.sha256, signal: ac.signal, onProgress: (p) => send({ id: m.id, phase: 'download', got: p.got != null ? p.got : p.done, total: p.total }) }); err = null; break; }
+        catch (e) { err = e; if (e && e.cancelled) break; }
+      }
+      send({ id: m.id, phase: err ? (err.cancelled ? 'cancelled' : 'error') : 'done', error: err ? String(err.message || err) : '' });
+      return err ? { ok: false, error: String(err.message || err) } : { ok: true, path: path.join(dir(), m.file) };
+    } finally { st.dl = null; }
+  }
+  return { status, dl, cancel: () => { if (st.dl) st.dl.ac.abort(); return true; } };
+})();
+ipcMain.handle('seg:status', () => SEG.status());
+ipcMain.handle('seg:download', (e, id) => SEG.dl(id));
+ipcMain.handle('seg:cancel', () => SEG.cancel());
+/* ===== /segmentation ===== */
 
 /* ===== api ===== (local automation API for an AI assistant: JSON-RPC 2.0 over http://127.0.0.1:<random port>/, token in <userData>/api.json;
    off unless the user enables "السماح للمساعد الذكي بالتحكم"; every call is forwarded to GW.API in the renderer — see app/js/api.js, tools/mcp/) */
@@ -657,3 +687,124 @@ ipcMain.handle('fs:roots', async () => { // drives (Windows) or home / root (oth
   return out;
 });
 /* ===== /project organisation ===== */
+
+/* ===== ofx ===== (experimental OpenFX bridge «إضافات OFX (تجريبي)»: tools/ofxhost/qq-ofxhost loads plugins installed on this machine in place
+   (never copied) and bakes one effect onto a clip — logic in app/js/ofx_bridge.js; UI in app/js/ui_ofx.js; exe shipped in resources/bin/ofx) */
+const OFX = require('./app/js/ofx_bridge.js').create({
+  ffmpegPath, userData: () => app.getPath('userData'),
+  hostCandidates: () => { // installer: resources/bin/ofx · in-app update payload: <current>/app/bin/ofx · dev: bin/win/ofx or the Linux test build
+    const exe = process.platform === 'win32' ? 'qq-ofxhost.exe' : 'qq-ofxhost'; const inAsar = __dirname.includes('.asar');
+    return [app.isPackaged ? path.join(process.resourcesPath, 'bin', 'ofx', exe) : null, !inAsar && process.platform === 'win32' ? path.join(__dirname, 'app', 'bin', 'ofx', exe) : null,
+      app.isPackaged ? path.join(process.resourcesPath, 'app.asar.unpacked', 'app', 'bin', 'ofx', exe) : null,
+      process.platform === 'win32' ? path.join(__dirname, 'bin', 'win', 'ofx', exe) : path.join(__dirname, 'tools', 'ofxhost', 'build', exe)].filter(Boolean); },
+  send: (ch, d) => { if (win && !win.isDestroyed()) win.webContents.send(ch, d); }
+});
+ipcMain.handle('ofx:info', async () => { const h = OFX.hostPath(); return { host: h, hostExists: fs.existsSync(h), defaultFolder: OFX.defaultFolder(), platform: process.platform, dir: OFX.dir() }; });
+ipcMain.handle('ofx:scan', async (e, o) => OFX.scan(o || {}));
+ipcMain.handle('ofx:render', async (e, o) => OFX.render(o || {}));
+ipcMain.handle('ofx:cancel', async (e, id) => OFX.cancel(id));
+ipcMain.handle('ofx:presets', async (e, o) => OFX.presets(o || {}));
+ipcMain.handle('ofx:pickFolder', async (e, def) => { const r = await dialog.showOpenDialog(win, { title: 'مجلد إضافات OFX', defaultPath: def || undefined, properties: ['openDirectory'] }); return r.canceled ? null : r.filePaths[0]; });
+ipcMain.handle('ofx:fx', async (e, o) => { // live effect frame: {op:'render', bundle, index, inst, w, h, time, fps, fmt, params, pixels} → {ok, json, pixels}
+  const { pixels, hostName, ...json } = o || {}; const r = await OFX.serveRequest(json, pixels, { hostName: hostName || '', timeout: json.op === 'render' ? 120000 : 30000 });
+  return { ok: r.ok, json: r.json, pixels: r.payload && r.payload.length ? r.payload : null };
+});
+ipcMain.handle('ofx:fxStop', async () => { OFX.serveStop('STOPPED'); return true; });
+app.on('before-quit', () => { try { OFX.serveStop('QUIT'); } catch (e) {} });
+ipcMain.handle('ofx:openLog', async () => { await fs.promises.mkdir(OFX.dir(), { recursive: true }); return shell.openPath(OFX.dir()); });
+/* ===== /ofx ===== */
+
+/* ===== adobe import ===== («استيراد من أدوبي»: reads the user's own Adobe / Red Giant / Video Copilot preset files in place —
+   nothing is copied; the indexer app/js/adobe_scan.js runs in a worker thread and the library is cached in <userData>/adobe-library.json) */
+{
+  const ADB = { job: null };
+  const libPath = () => path.join(app.getPath('userData'), 'adobe-library.json');
+  const send = (d) => { if (win && !win.isDestroyed()) win.webContents.send('adobe:progress', d); };
+  ipcMain.handle('adobe:defaults', async () => require('./app/js/adobe_scan.js').defaults());
+  ipcMain.handle('adobe:library', async () => { try { return JSON.parse(await fs.promises.readFile(libPath(), 'utf8')); } catch (e) { return null; } });
+  ipcMain.handle('adobe:clear', async () => { try { await fs.promises.rm(libPath(), { force: true }); } catch (e) {} return true; });
+  ipcMain.handle('adobe:scan', async (e, opts) => {
+    if (ADB.job) return { busy: true };
+    const run = () => new Promise((resolve, reject) => {
+      let W = null;
+      try { const { Worker } = require('worker_threads'); W = new Worker(path.join(__dirname, 'app', 'js', 'adobe_scan.js'), { workerData: { __adobeScan: 1, opts: opts || {} }, resourceLimits: { maxOldGenerationSizeMb: 6144 } }); } catch (er) { W = null; }
+      if (!W) { require('./app/js/adobe_scan.js').index(opts || {}, send).then(resolve, reject); return; }
+      ADB.worker = W; let got = false; const inline = () => require('./app/js/adobe_scan.js').index(opts || {}, send).then(resolve, reject);
+      W.on('message', (m) => { got = true; if (m.progress) send(m.progress); else if (m.lib) resolve(m.lib); else if (m.error) reject(new Error(m.error)); });
+      W.on('error', (er) => { if (!got) inline(); else reject(er); }); W.on('exit', (c) => { ADB.worker = null; if (c && got) reject(new Error('worker exit ' + c)); });
+    });
+    ADB.job = run().then(async (lib) => { await fs.promises.mkdir(path.dirname(libPath()), { recursive: true }); await fs.promises.writeFile(libPath(), JSON.stringify(lib)); return { ok: true, counts: lib.counts, ms: lib.ms }; }, (er) => ({ ok: false, error: String(er && er.message || er) }));
+    try { return await ADB.job; } finally { ADB.job = null; }
+  });
+  ipcMain.handle('adobe:cancel', async () => { if (ADB.worker) { try { await ADB.worker.terminate(); } catch (e) {} } return true; });
+  ipcMain.handle('adobe:readBin', async (e, p) => { const st = await fs.promises.stat(p); if (st.size > 256e6) throw new Error('file too large'); return new Uint8Array(await fs.promises.readFile(p)); });
+  ipcMain.handle('adobe:pickFolder', async (e, def) => { const r = await dialog.showOpenDialog(win, { title: 'مجلد أدوبي / Red Giant / Video Copilot', defaultPath: def || undefined, properties: ['openDirectory'] }); return r.canceled ? null : r.filePaths[0]; });
+}
+/* ===== /adobe import ===== */
+
+/* ===== ai ===== («المونتير الذكي»: optional in-app assistant. The user's own Anthropic API key is encrypted with Electron safeStorage
+   into <userData>/ai-key.bin and only ever leaves this process as the x-api-key header of requests to api.anthropic.com
+   (net.fetch). It is never returned to the renderer, never logged, never written in plain text. Renderer side: app/js/ui_ai.js, app/js/ai_tools.js) */
+{
+  const { safeStorage } = require('electron');
+  const AI_URL = 'https://api.anthropic.com/v1/messages', AI_MODELS = 'https://api.anthropic.com/v1/models';
+  // test-only override (unpackaged builds, loopback only) so the harness can use a mock server — a real key never goes anywhere but Anthropic
+  const testBase = () => { const u = process.env.QASSQASS_AI_TEST_URL; return !app.isPackaged && u && /^http:\/\/127\.0\.0\.1:\d+\/?$/.test(u) ? u.replace(/\/$/, '') : null; };
+  const msgUrl = () => testBase() ? testBase() + '/v1/messages' : AI_URL;
+  const modelsUrl = () => testBase() ? testBase() + '/v1/models' : AI_MODELS;
+  const ud = () => app.getPath('userData');
+  const keyFile = () => path.join(ud(), 'ai-key.bin'), setFile = () => path.join(ud(), 'ai-settings.json');
+  const DEF = { provider: 'anthropic', model: 'claude-opus-5-5', maxSteps: 25, maxTokens: 8192 };
+  const readSet = () => { try { return Object.assign({}, DEF, JSON.parse(fs.readFileSync(setFile(), 'utf8'))); } catch (e) { return Object.assign({}, DEF); } };
+  const writeSet = (o) => { fs.mkdirSync(ud(), { recursive: true }); fs.writeFileSync(setFile(), JSON.stringify(o, null, 2)); };
+  let memKey = null; // only when the OS offers no encryption: kept for this session, never written
+  // test harness only (unpackaged + env): exercise the persisted path on Linux CI without a keyring (basic_text obfuscation)
+  if (!app.isPackaged && process.env.QASSQASS_AI_TEST_BASICENC === '1' && process.platform === 'linux') app.whenReady().then(() => { try { safeStorage.setUsePlainTextEncryption(true); } catch (e) {} });
+  const encOk = () => { try { return safeStorage.isEncryptionAvailable(); } catch (e) { return false; } };
+  const backend = () => { try { return process.platform === 'linux' && safeStorage.getSelectedStorageBackend ? safeStorage.getSelectedStorageBackend() : (encOk() ? 'os' : 'none'); } catch (e) { return 'unknown'; } };
+  function getKey() {
+    if (memKey) return memKey;
+    try { const b = fs.readFileSync(keyFile()); return encOk() ? safeStorage.decryptString(b) : null; } catch (e) { return null; }
+  }
+  const scrub = (s, key) => { s = String(s == null ? '' : s); if (key && key.length > 8) s = s.split(key).join('[key]'); return s.replace(/sk-ant-[A-Za-z0-9_\-]{6,}/g, 'sk-ant-…'); };
+  const status = () => { const k = getKey(); const st = readSet(); return { provider: st.provider, model: st.model, maxSteps: st.maxSteps, maxTokens: st.maxTokens, hasKey: !!k, keyHint: k ? '…' + k.slice(-4) : '', persisted: !memKey && !!k, encryption: encOk(), backend: backend(), endpoint: testBase() ? 'test' : 'api.anthropic.com' }; };
+  ipcMain.handle('ai:status', async () => status());
+  ipcMain.handle('ai:setKey', async (e, key) => {
+    key = String(key || '').trim(); if (!key) return { ok: false, error: 'empty' };
+    if (key.length < 20 || /\s/.test(key)) return { ok: false, error: 'format' };
+    if (encOk()) { fs.mkdirSync(ud(), { recursive: true }); fs.writeFileSync(keyFile(), safeStorage.encryptString(key), { mode: 0o600 }); memKey = null; }
+    else memKey = key;
+    return Object.assign({ ok: true }, status());
+  });
+  ipcMain.handle('ai:clearKey', async () => { memKey = null; try { fs.rmSync(keyFile(), { force: true }); } catch (e) {} return status(); });
+  ipcMain.handle('ai:setSettings', async (e, o) => {
+    const st = readSet(); o = o || {};
+    if (o.provider === 'anthropic' || o.provider === 'mcp') st.provider = o.provider;
+    if (typeof o.model === 'string' && /^[a-zA-Z0-9._:\-]{3,80}$/.test(o.model)) st.model = o.model;
+    if (o.maxSteps != null) st.maxSteps = Math.max(1, Math.min(80, Math.round(+o.maxSteps) || DEF.maxSteps));
+    if (o.maxTokens != null) st.maxTokens = Math.max(512, Math.min(32000, Math.round(+o.maxTokens) || DEF.maxTokens));
+    writeSet(st); return status();
+  });
+  const jobs = new Map();
+  ipcMain.handle('ai:cancel', async (e, id) => { const j = jobs.get(id); if (j) j.abort(); return !!j; });
+  ipcMain.handle('ai:models', async () => {
+    const key = getKey(); if (!key) return { ok: false, error: 'no-key' };
+    try { const r = await net.fetch(modelsUrl() + '?limit=100', { headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' }, signal: AbortSignal.timeout(20000) }); const j = await r.json(); if (!r.ok) return { ok: false, status: r.status, error: scrub((j.error && j.error.message) || r.statusText, key) }; return { ok: true, models: (j.data || []).map(m => ({ id: m.id, name: m.display_name || m.id })) }; }
+    catch (er) { return { ok: false, error: scrub(er.message, key) }; }
+  });
+  // one Messages API round-trip. body = {system, messages, tools, max_tokens?, model?} built by the renderer; the key is added here.
+  ipcMain.handle('ai:messages', async (e, id, body) => {
+    const key = getKey(); if (!key) return { ok: false, error: 'no-key' };
+    const st = readSet(); body = Object.assign({}, body || {}); body.model = body.model || st.model; body.max_tokens = body.max_tokens || st.maxTokens; delete body.stream;
+    const ac = new AbortController(); if (id) jobs.set(id, ac); const timer = setTimeout(() => ac.abort(), 300000);
+    try {
+      const r = await net.fetch(msgUrl(), { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' }, body: JSON.stringify(body), signal: ac.signal });
+      const txt = await r.text(); let j = null; try { j = JSON.parse(txt); } catch (er) {}
+      if (!r.ok) return { ok: false, status: r.status, error: scrub((j && j.error && (j.error.type + ': ' + j.error.message)) || txt.slice(0, 300) || r.statusText, key) };
+      return { ok: true, result: j };
+    } catch (er) { return { ok: false, cancelled: ac.signal.aborted, error: scrub(ac.signal.aborted ? 'cancelled' : er.message, key) }; }
+    finally { clearTimeout(timer); if (id) jobs.delete(id); }
+  });
+  ipcMain.handle('ai:playbook', async () => { try { return fs.readFileSync(path.join(__dirname, 'app', 'ai', 'editing_playbook_ar.md'), 'utf8'); } catch (e) { return ''; } });
+}
+/* ===== /ai ===== */

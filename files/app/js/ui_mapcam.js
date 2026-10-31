@@ -256,7 +256,8 @@
     for (const cv of [V.cv, V.ov]) { const w = Math.round(V.stage.clientWidth * dpr), h = Math.round(V.stage.clientHeight * dpr); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; V.memo = null; } }
     const sw = Math.round(V.sc.clientWidth * dpr), sh = Math.round(V.sc.clientHeight * dpr); if (V.sc.width !== sw || V.sc.height !== sh) { V.sc.width = sw; V.sc.height = sh; }
     const s = GW.seq(); const c = f && f.c; const inside = c && s.t >= c.start && s.t < c.start + c.dur;
-    V.empty.hidden = !!inside; if (!inside) { V.empty.textContent = c ? 'ضع مؤشر التشغيل داخل مقطع الخريطة لتحريك الكاميرا.' : 'حدد مقطع خريطة في الخط الزمني (أو أنشئ واحداً من لوحة الخرائط) لتحريك كاميرته هنا. كل حركة للخريطة تتم في هذه اللوحة: اسحب للتحريك، العجلة للتقريب، الزر الأيمن للإمالة والاتجاه، ونقرتان على دولة للتركيز عليها.'; }
+    V.empty.hidden = !!inside; if (!inside) { const ek = c ? 'out:' + c.id : 'none'; if (V.emptyK !== ek) { V.emptyK = ek; emptyState(c); } } else V.emptyK = null;
+    { const sk = f && f.c ? f.c.id + ':' + scn(f.c).layers.length : ''; if (sk !== V.stripK) { V.stripK = sk; const want = stripH(f && f.c); if (V.stripPx !== want) { V.stripPx = want; V.sc.parentElement.style.height = want + 'px'; } } }
     const busy = interacting(); const playing = GW.pb.playing;
     const lt = inside ? s.t - c.start : 0;
     const q = busy || playing ? .5 : 1;
@@ -279,6 +280,7 @@
     if (!cv) try { cv = A.render(scn(c), lt + (c.in || 0), lw, lh, { bg: c.map.bg || 'full', dur: c.dur, quality: fast ? .8 : 1, fast }); } catch (e) { console.error('mapcam render', e); }
     g.fillStyle = '#05070a'; g.fillRect(f.x * dpr, f.y * dpr, f.w * dpr, f.h * dpr);
     if (cv) { g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(cv, 0, 0, cv.width, cv.height, f.x * dpr, f.y * dpr, f.w * dpr, f.h * dpr); }
+    if (cv && fast) GW.MapCamFrame = { id: c.id, lt, at: performance.now(), cv: V.cv, sx: f.x * dpr, sy: f.y * dpr, sw: f.w * dpr, sh: f.h * dpr };
   }
   // camera target path across the keys (dots per key, the current position ring)
   function drawPath(g, f, c) {
@@ -315,13 +317,33 @@
   }
   // mini strip: clip range, playhead (scrub), key diamonds (drag to retime the key time, right-click = interpolation)
   function stripGeo(c) { const w = V.sc.clientWidth; const pad = 10; return { w, pad, X: (t) => pad + (t / Math.max(.001, c.dur)) * (w - pad * 2), T: (x) => (x - pad) / Math.max(1, w - pad * 2) * c.dur }; }
+  // map timeline: camera-key row + one bar per layer (top of the list first), drag to retime
+  const KEYROW = 26, ROWH = 18, MAXROWS = 8;
+  const stripRows = (c) => c ? [...scn(c).layers].reverse().slice(0, MAXROWS) : [];
+  function stripH(c) { return c ? KEYROW + 6 + Math.max(1, stripRows(c).length) * ROWH : 30; }
+  function emptyState(c) {
+    V.empty.innerHTML = ''; const p = document.createElement('div'); p.className = 'mcv-emptyc';
+    p.innerHTML = c ? '<b>ضع مؤشر التشغيل داخل مقطع الخريطة</b><span>لتظهر الخريطة هنا وتتحكم بكاميرتها.</span>' : '<b>استوديو الخرائط</b><span>حدد مقطع خريطة في الخط الزمني لتعديله هنا، أو ابدأ خريطة جديدة. اسحب للتحريك، العجلة للتقريب، الزر الأيمن للإمالة، ونقرتان على دولة للتركيز عليها.</span>';
+    const row = document.createElement('div'); row.className = 'mcv-erow';
+    const mk = (html, fn, cls) => { const b = document.createElement('button'); b.className = 'btn ' + (cls || ''); b.innerHTML = html; b.onclick = fn; row.append(b); };
+    if (c) mk(GW.ico('goto', 14) + ' انتقل إلى المقطع', () => GW.seek(c.start + .01), 'pri');
+    else { mk(GW.ico('globe', 14) + ' خريطة جديدة', () => GW.UI.addMapClip(A.Scene.applyDocLook(A.newScene({ mode: 'globe' }), 'doc_dark')), 'pri'); if (GW.MapUX) mk(GW.ico('swords', 14) + ' حرب بين دولتين', () => GW.MapUX.openWizard({ target: 'new' })); }
+    p.append(row); V.empty.append(p);
+  }
   function stripKeys(c) { const by = new Map(); for (const k of scn(c).cam.keys || []) { const t = k.t - (c.in || 0); const key = Math.round(t * fps()); if (!by.has(key)) by.set(key, { t, recs: [] }); by.get(key).recs.push(k); } return [...by.values()]; }
   function drawStrip(c) {
     const g = V.sc.getContext('2d'); const dpr = devicePixelRatio || 1; g.setTransform(dpr, 0, 0, dpr, 0, 0); const w = V.sc.clientWidth, h = V.sc.clientHeight; g.clearRect(0, 0, w, h);
     if (!c) return; const G = stripGeo(c); const s = GW.seq(); const acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff6a2b';
     g.fillStyle = 'rgba(255,255,255,.06)'; g.fillRect(G.X(0), 6, G.X(c.dur) - G.X(0), h - 12);
     g.fillStyle = 'rgba(255,255,255,.18)'; for (let t = 0; t <= c.dur + 1e-6; t += 1) { const x = Math.round(G.X(t)) + .5; g.fillRect(x, h - 9, 1, t % 5 === 0 ? 6 : 3); }
-    const yy = h / 2 - 1; g.strokeStyle = 'rgba(255,255,255,.12)'; g.beginPath(); g.moveTo(G.X(0), yy); g.lineTo(G.X(c.dur), yy); g.stroke();
+    const yy = KEYROW / 2; g.strokeStyle = 'rgba(255,255,255,.12)'; g.beginPath(); g.moveTo(G.X(0), yy); g.lineTo(G.X(c.dur), yy); g.stroke();
+    g.font = '600 10px Cairo, "IBM Plex Sans Arabic", sans-serif'; g.textBaseline = 'middle';
+    stripRows(c).forEach((L, i) => {
+      const y0 = KEYROW + 4 + i * ROWH; const s0 = L.start || 0, e0 = L.dur != null ? s0 + L.dur : c.dur; const x0 = G.X(Math.max(0, s0)), x1 = G.X(Math.min(c.dur, e0)); const on = M.layerId === L.id;
+      g.fillStyle = on ? 'rgba(255,106,43,.85)' : L.on ? 'rgba(120,140,170,.55)' : 'rgba(120,120,120,.25)'; g.beginPath(); if (g.roundRect) g.roundRect(x0, y0 + 2, Math.max(3, x1 - x0), ROWH - 4, 3); else g.rect(x0, y0 + 2, Math.max(3, x1 - x0), ROWH - 4); g.fill();
+      g.save(); g.beginPath(); g.rect(x0, y0, Math.max(0, x1 - x0), ROWH); g.clip(); g.fillStyle = '#fff'; g.textAlign = 'right'; g.direction = 'rtl'; g.fillText(L.name || '', Math.min(x1 - 6, x0 + 6 + g.measureText(L.name || '').width), y0 + ROWH / 2); g.direction = 'ltr'; g.restore();
+      if (L.type === 'campaign') for (const ev of L.events || []) { const x = G.X(s0 + ev.t); g.fillStyle = ev.kind === 'victory' ? '#ffd34d' : '#fff'; g.fillRect(Math.round(x) - 1, y0 + 3, 2, ROWH - 6); }
+    });
     for (const it of stripKeys(c)) { const x = G.X(it.t); const sel = it.recs.some(r => CK.isSel(r, null)); const k0 = it.recs[0]; g.fillStyle = sel ? '#5aa9ff' : acc; g.beginPath(); if (k0.interp === 'hold') g.rect(x - 4.5, yy - 4.5, 9, 9); else if (k0.roving) g.arc(x, yy, 4.5, 0, 7); else { g.moveTo(x, yy - 6); g.lineTo(x + 6, yy); g.lineTo(x, yy + 6); g.lineTo(x - 6, yy); g.closePath(); } g.fill(); g.strokeStyle = 'rgba(0,0,0,.6)'; g.lineWidth = 1; g.stroke(); }
     const px = G.X(clamp(s.t - c.start, 0, c.dur)); g.fillStyle = '#2f8ef0'; g.fillRect(Math.round(px) - 1, 0, 2, h);
   }
@@ -343,9 +365,19 @@
     ov.addEventListener('contextmenu', (e) => e.preventDefault());
     // strip
     const sc = V.sc;
-    const hitStrip = (x, y) => { const c = viewClip(); if (!c) return null; const G = stripGeo(c); return stripKeys(c).find(it => Math.abs(G.X(it.t) - x) < 7 && Math.abs(y - (sc.clientHeight / 2 - 1)) < 9) || null; };
+    const hitStrip = (x, y) => { const c = viewClip(); if (!c) return null; const G = stripGeo(c); return stripKeys(c).find(it => Math.abs(G.X(it.t) - x) < 7 && Math.abs(y - KEYROW / 2) < 9) || null; };
     sc.addEventListener('pointerdown', (e) => {
       const c = viewClip(); if (!c) return; const r = sc.getBoundingClientRect(); const x = e.clientX - r.left, y = e.clientY - r.top; const G = stripGeo(c); sc.setPointerCapture(e.pointerId);
+      // layer bars: move / resize / retime campaign events; click selects the layer
+      if (e.button === 0 && y > KEYROW) { const rows = stripRows(c); const L = rows[Math.floor((y - KEYROW - 4) / ROWH)];
+        if (L) { const s0 = L.start || 0, e0 = L.dur != null ? s0 + L.dur : c.dur; const x0 = G.X(s0), x1 = G.X(Math.min(c.dur, e0)); const ev = L.type === 'campaign' ? (L.events || []).find(q => Math.abs(G.X(s0 + q.t) - x) < 5) : null;
+          const mode = ev ? 'ev' : Math.abs(x - x1) < 6 && L.dur != null ? 'end' : Math.abs(x - x0) < 6 ? 'start' : x > x0 && x < x1 ? 'move' : null;
+          if (mode) { M.layerId = L.id; const t0 = ev ? ev.t : s0; const d0 = L.dur; let moved = false;
+            sc.onpointermove = (ev2) => { const dx = ev2.clientX - r.left - x; if (!moved && Math.abs(dx) < 3) return; moved = true; const dt = dx / Math.max(1, G.w - 2 * G.pad) * c.dur; const sn = (v) => GW.snapFrame(v, fps());
+              if (mode === 'ev') ev.t = Math.max(0, sn(t0 + dt)); else if (mode === 'move') L.start = clamp(sn(t0 + dt), 0, c.dur - .1); else if (mode === 'start') { const nS = clamp(sn(t0 + dt), 0, (d0 != null ? s0 + d0 : c.dur) - .1); if (d0 != null) L.dur = s0 + d0 - nS; L.start = nS; } else L.dur = Math.max(.1, sn(d0 + dt));
+              V.ver++; GW.invalidate(); };
+            sc.onpointerup = () => { sc.onpointermove = sc.onpointerup = null; if (moved) { GW.commit(mode === 'ev' ? 'تحريك حدث' : 'توقيت الطبقة'); } if (M.render) M.render(); V.ver++; };
+            return; } } }
       const it = e.button === 0 ? hitStrip(x, y) : null;
       if (it) {
         CK.sel = it.recs.map(rec => ({ rec, g: null })); let moved = false; const t0s = it.recs.map(k => k.t);
@@ -371,6 +403,14 @@
     if (!V.bar) return; const c = CK.clip(); const b = V.bar; b.innerHTML = '';
     const btn = (html, title, fn, a) => { const x = document.createElement('button'); x.className = 'btn sm ico ghost'; x.innerHTML = html; x.title = title; x.onclick = fn; if (a) x.dataset.a = a; return x; };
     const sep = () => { const s = document.createElement('i'); s.className = 'mcv-sep'; return s; };
+    // studio toolbar «استوديو الخرائط»: add, undo/redo, play, quality, back to editing
+    const st = document.createElement('div'); st.className = 'mcv-studio';
+    if (GW.MapUX) { const ad = btn(GW.ico('plus', 14) + '<span>إضافة</span>', 'إضافة طبقة إلى الخريطة', () => GW.MapUX.openGallery(), 'add'); ad.className = 'btn sm pri mcv-add'; ad.disabled = !c; st.append(ad); }
+    st.append(btn(GW.ico('undo', 14), 'تراجع (Ctrl+Z)', () => GW.hist && GW.hist.undo()), btn(GW.ico('redo', 14), 'إعادة (Ctrl+Shift+Z)', () => GW.hist && GW.hist.redo()));
+    const pl = btn(GW.ico(GW.pb.playing ? 'stop' : 'play', 14), 'تشغيل / إيقاف (مسافة)', () => { if (GW.pb.playing) GW.stop(); else GW.play(1); setTimeout(buildBar, 30); }, 'play'); st.append(pl);
+    const qs = document.createElement('select'); qs.className = 'sel'; qs.title = 'جودة المعاينة'; for (const [v, n] of [[.6, 'سريعة'], [.85, 'متوازنة'], [1, 'عالية']]) { const o = document.createElement('option'); o.value = v; o.textContent = n; qs.append(o); } qs.value = String(GW.mapPreviewQ || 1); qs.onchange = () => { GW.mapPreviewQ = +qs.value; V.key = null; GW.invalidate(); }; st.append(qs);
+    if (GW.active && GW.active.ws === 'maps') { const bk = btn(GW.ico('scissors', 14) + '<span>عودة للمونتاج</span>', 'العودة إلى مساحة التحرير', () => GW.setWorkspace('edit')); bk.className = 'btn sm ghost mcv-back'; st.append(bk); }
+    b.append(st, sep());
     const ttl = document.createElement('b'); ttl.className = 'mcv-ttl'; ttl.textContent = c ? c.name : 'كاميرا الخريطة'; b.append(ttl);
     if (!c) return;
     const seg = document.createElement('div'); seg.className = 'seg mcv-mode';
@@ -403,6 +443,8 @@
 .mcv-stage canvas{position:absolute;inset:0;width:100%;height:100%}
 .mcv-stage canvas[data-a=ov]{outline:none;touch-action:none}
 .mcv-empty{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--mute,#888);font-size:12.5px;line-height:1.8;pointer-events:none}
+.mcv-studio{display:flex;align-items:center;gap:3px}.mcv-add{gap:4px}.mcv-back{gap:5px}.mcv-studio .sel{width:86px}
+.mcv-emptyc{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:440px}.mcv-emptyc b{color:#fff;font-size:15px}.mcv-erow{display:flex;gap:8px;margin-top:6px;pointer-events:auto}
 .mcv-strip{height:30px;border-top:1px solid var(--line,#262626);position:relative;cursor:pointer}
 .mcv-strip canvas{position:absolute;inset:0;width:100%;height:100%}
 .fx-h.camsec.rec .fxn::after{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:#d42a3a;margin-inline-start:7px;vertical-align:1px}

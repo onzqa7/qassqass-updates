@@ -7,7 +7,7 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const T = (ar, en) => GW.lang === 'en' ? en : ar;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const PANEL_ICO = { project: 'folder', browser: 'drive', source: 'film', program: 'play', timeline: 'scissors', fxc: 'wand', effects: 'sparkle', graphics: 'shapes', lumetri: 'color', scopes: 'scopes', mixer: 'mixer', sfx: 'music', markers: 'marker', history: 'history', maps: 'globe', mapcam: 'camera', captions: 'caption', tts: 'sound', textanim: 'text' };
+  const PANEL_ICO = { project: 'folder', browser: 'drive', source: 'film', program: 'play', timeline: 'scissors', fxc: 'wand', effects: 'sparkle', graphics: 'shapes', lumetri: 'color', scopes: 'scopes', mixer: 'mixer', sfx: 'music', markers: 'marker', history: 'history', maps: 'globe', mapcam: 'camera', captions: 'caption', tts: 'sound', textanim: 'text', esound: 'wave', aclip: 'wave', meters: 'meter', vo: 'mic', cstrip: 'image', deliver: 'export' };
   GW.PANEL_ICO = PANEL_ICO;
 
   /* ---- top bar ---- */
@@ -26,8 +26,9 @@
           { label: T('اختصارات لوحة المفاتيح', 'Keyboard shortcuts'), key: 'Ctrl+/', action: () => GW.cmd.shortcuts() },
           '-',
           { label: GW.lang === 'en' ? 'العربية' : 'English', action: () => GW.setLang(GW.lang === 'en' ? 'ar' : 'en') },
-          { label: T('إعادة ضبط مساحة العمل', 'Reset workspace'), action: () => { try { localStorage.removeItem('gws.layout.' + GW.active.ws); } catch (e) {} GW.setWorkspace(GW.active.ws); } },
+          { label: T('إعادة ضبط مساحة العمل', 'Reset workspace'), action: () => GW.resetWorkspace() },
           { label: T('نصائح البدء', 'Getting-started tips'), action: () => GW.UI.tips(true) },
+          ...(GW.UI.ofx ? [{ label: T('إضافات OFX (تجريبي)…', 'OFX plugins (experimental)…'), action: () => GW.UI.ofx() }] : []),
           '-',
           ...(GW.UI.checkUpdates ? [{ label: T('التحقق من التحديثات…', 'Check for updates…'), action: () => GW.UI.checkUpdates() }] : []),
           { label: T('حول قص قص', 'About QassQass'), action: () => GW.cmd.about() }
@@ -56,11 +57,11 @@
         const mb = document.createElement('button'); mb.className = 'tab-more'; mb.title = T('خيارات اللوحة', 'Panel options'); mb.innerHTML = GW.ico('more', 14);
         mb.onclick = (e) => {
           e.stopPropagation(); const r = mb.getBoundingClientRect(); const fr = tabs.parentElement;
-          const open = ['project', 'browser', 'source', 'program', 'timeline', 'fxc', 'effects', 'graphics', 'lumetri', 'scopes', 'mixer', 'sfx', 'markers', 'history', 'maps', 'mapcam'].filter(id => GW.panels[id]).map(id => ({ label: GW.panels[id].title, action: () => GW.showPanel(id) }));
+          const open = (GW.PANEL_LIST || []).filter(id => GW.panels[id]).map(id => ({ label: GW.panels[id].title, action: () => GW.showPanel(id) }));
           const m = GW.menu(r.left, r.bottom + 4, [
             { label: fr.classList.contains('max') ? T('استعادة حجم اللوحة', 'Restore panel size') : T('تكبير اللوحة', 'Maximize panel'), key: '`', action: () => GW.UI.togglePanelMax(fr) },
             '-', { label: T('فتح لوحة', 'Open panel'), sub: open }, '-',
-            { label: T('إعادة ضبط مساحة العمل', 'Reset workspace'), action: () => { try { localStorage.removeItem('gws.layout.' + GW.active.ws); } catch (e) {} GW.setWorkspace(GW.active.ws); } }
+            { label: T('إعادة ضبط مساحة العمل', 'Reset workspace'), action: () => GW.resetWorkspace() }
           ]);
           m.style.left = Math.max(6, Math.min(innerWidth - m.offsetWidth - 6, GW.lang === 'en' ? r.right - m.offsetWidth : r.left)) + 'px';
         };

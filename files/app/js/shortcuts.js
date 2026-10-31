@@ -165,7 +165,7 @@
   def('view.fullscreen', 'ملء الشاشة', ['F11'], () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); }, { fixed: 1 });
   def('view.safe', 'إظهار هوامش الأمان', [], () => C().safe());
   def('view.home', 'الشاشة الرئيسية', [], () => GW.UI.home && GW.UI.home());
-  ['edit', 'color', 'effects', 'audio', 'graphics', 'maps'].forEach((ws, i) => def('view.ws.' + ws, 'مساحة عمل: ' + ((GW.WS && GW.WS[ws]) ? GW.WS[ws].n : ws), ['Alt+Shift+' + (i + 1)], () => GW.setWorkspace(ws)));
+  ['edit', 'color', 'effects', 'audio', 'graphics', 'maps', 'review'].forEach((ws, i) => def('view.ws.' + ws, 'مساحة عمل: ' + ((GW.WS && GW.WS[ws]) ? GW.WS[ws].n : ws), ['Alt+Shift+' + (i + 1)], () => GW.setWorkspace(ws)));
   const RESERVED = { F12: 'أدوات المطور', 'Ctrl+Shift+I': 'أدوات المطور' };
 
   /* ---------------- presets ---------------- */

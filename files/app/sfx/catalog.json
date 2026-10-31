@@ -982,7 +982,8 @@
 ],
 "license": "CC-BY-4.0",
 "author": "IFartInUrGeneralDirection (freesound) via tgstation",
-"source": "https://freesound.org/s/46092/"
+"source": "https://freesound.org/s/46092/",
+"amb": 1
 },
 {
 "id": "police_siren",
@@ -1719,7 +1720,8 @@
 ],
 "license": "CC-BY-SA-3.0",
 "author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
-"source": "https://github.com/0ad/0ad"
+"source": "https://github.com/0ad/0ad",
+"amb": 1
 },
 {
 "id": "harbor",
@@ -1736,7 +1738,8 @@
 ],
 "license": "CC-BY-SA-3.0",
 "author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
-"source": "https://github.com/0ad/0ad"
+"source": "https://github.com/0ad/0ad",
+"amb": 1
 },
 {
 "id": "steps_concrete",
@@ -1854,7 +1857,8 @@
 ],
 "license": "CC0-1.0",
 "author": "Ali@k (freesound)",
-"source": "https://freesound.org/people/Ali@k/sounds/128907/"
+"source": "https://freesound.org/people/Ali@k/sounds/128907/",
+"amb": 1
 },
 {
 "id": "thunder",
@@ -1904,7 +1908,8 @@
 ],
 "license": "CC0-1.0",
 "author": "bruno.auzet (freesound)",
-"source": "https://freesound.org/people/bruno.auzet/sounds/531041/"
+"source": "https://freesound.org/people/bruno.auzet/sounds/531041/",
+"amb": 1
 },
 {
 "id": "wind",
@@ -1921,7 +1926,8 @@
 ],
 "license": "CC-BY-SA-3.0",
 "author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
-"source": "https://github.com/0ad/0ad"
+"source": "https://github.com/0ad/0ad",
+"amb": 1
 },
 {
 "id": "wind_storm",
@@ -1937,7 +1943,8 @@
 ],
 "license": "CC-BY-SA-3.0",
 "author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
-"source": "https://github.com/0ad/0ad"
+"source": "https://github.com/0ad/0ad",
+"amb": 1
 },
 {
 "id": "snowstorm",
@@ -1954,7 +1961,8 @@
 ],
 "license": "CC0-1.0",
 "author": "guyburns (freesound)",
-"source": "https://freesound.org/people/guyburns/sounds/473815/"
+"source": "https://freesound.org/people/guyburns/sounds/473815/",
+"amb": 1
 },
 {
 "id": "fire",
@@ -1970,7 +1978,8 @@
 ],
 "license": "CC-BY-4.0",
 "author": "Taken and edited from source",
-"source": "https://freesound.org/people/juskiddink/sounds/215658/"
+"source": "https://freesound.org/people/juskiddink/sounds/215658/",
+"amb": 1
 },
 {
 "id": "flames",
@@ -2004,7 +2013,8 @@
 ],
 "license": "CC-BY-SA-3.0",
 "author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
-"source": "https://github.com/0ad/0ad"
+"source": "https://github.com/0ad/0ad",
+"amb": 1
 },
 {
 "id": "waves_crash",
@@ -2021,7 +2031,8 @@
 ],
 "license": "CC-BY-SA-3.0",
 "author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
-"source": "https://github.com/0ad/0ad"
+"source": "https://github.com/0ad/0ad",
+"amb": 1
 },
 {
 "id": "river",
@@ -2038,7 +2049,8 @@
 ],
 "license": "CC-BY-SA-3.0",
 "author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
-"source": "https://github.com/0ad/0ad"
+"source": "https://github.com/0ad/0ad",
+"amb": 1
 },
 {
 "id": "birds",
@@ -2056,7 +2068,8 @@
 ],
 "license": "CC0-1.0",
 "author": "Modding (freesound)",
-"source": "https://freesound.org/people/Modding/sounds/574108/"
+"source": "https://freesound.org/people/Modding/sounds/574108/",
+"amb": 1
 },
 {
 "id": "forest_day",
@@ -2072,7 +2085,8 @@
 ],
 "license": "CC-BY-SA-3.0",
 "author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
-"source": "https://github.com/0ad/0ad"
+"source": "https://github.com/0ad/0ad",
+"amb": 1
 },
 {
 "id": "crickets_night",
@@ -2089,7 +2103,8 @@
 ],
 "license": "CC0-1.0",
 "author": "rsn267 (freesound)",
-"source": "https://freesound.org/people/rsn267/sounds/275595/"
+"source": "https://freesound.org/people/rsn267/sounds/275595/",
+"amb": 1
 },
 {
 "id": "crow",
@@ -2312,6 +2327,318 @@
 ],
 "license": "CC0-1.0",
 "author": "Sonic Pi samples (freesound CC0 originals)",
-"source": "https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/README.md"
+"source": "https://github.com/sonic-pi-net/sonic-pi/blob/main/etc/samples/README.md",
+"amb": 1
+},
+{
+"id": "tape_rip",
+"cat": "paper",
+"file": "sfx/paper/tape_rip.mp3",
+"ar": "سحب شريط لاصق",
+"use": "لصق صورة أو قصاصة في مشهد كولاج",
+"dur": 0.31,
+"tags": [
+"شريط",
+"لاصق",
+"لصق",
+"كولاج",
+"tape",
+"rip",
+"collage"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "tape_snap",
+"cat": "paper",
+"file": "sfx/paper/tape_snap.mp3",
+"ar": "قطع الشريط اللاصق",
+"use": "تثبيت سريع لقصاصة أو ملصق",
+"dur": 0.29,
+"tags": [
+"شريط",
+"لاصق",
+"قطع",
+"tape",
+"snap"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "stamp_office",
+"cat": "paper",
+"file": "sfx/paper/stamp_office.mp3",
+"ar": "ختم مكتبي",
+"use": "ختم «سري للغاية» أو «مرفوض» على وثيقة",
+"dur": 0.84,
+"tags": [
+"ختم",
+"وثيقة",
+"سري",
+"مكتب",
+"stamp",
+"document"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors, adapted from tom_woysky's “Stamp.wav” (freesound)",
+"source": "https://freesound.org/people/tom_woysky/sounds/348316/"
+},
+{
+"id": "paper_drop",
+"cat": "paper",
+"file": "sfx/paper/paper_drop.mp3",
+"ar": "سقوط ورقة على الطاولة",
+"use": "ظهور وثيقة أو صورة تنزلق إلى الإطار",
+"dur": 0.77,
+"tags": [
+"ورقة",
+"سقوط",
+"انزلاق",
+"وثيقة",
+"paper",
+"slide",
+"drop"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "paper_pickup",
+"cat": "paper",
+"file": "sfx/paper/paper_pickup.mp3",
+"ar": "رفع ورقة / فتح خريطة",
+"use": "فتح خريطة ورقية أو رفع وثيقة",
+"dur": 0.5,
+"tags": [
+"ورقة",
+"خريطة",
+"فتح",
+"رفع",
+"paper",
+"map",
+"unfold"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "photocopier",
+"cat": "paper",
+"file": "sfx/paper/photocopier.mp3",
+"ar": "آلة نسخ (طباعة صورة)",
+"use": "طباعة صورة أو نسخة من وثيقة — مظهر فوتوكوبي",
+"dur": 5.98,
+"tags": [
+"طباعة",
+"نسخ",
+"فوتوكوبي",
+"طابعة",
+"photocopy",
+"print",
+"copier"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "cloth_rip",
+"cat": "paper",
+"file": "sfx/paper/cloth_rip.mp3",
+"ar": "تمزيق قماش",
+"use": "تمزيق راية أو كشف خلفية ممزقة",
+"dur": 1.15,
+"tags": [
+"تمزيق",
+"قماش",
+"راية",
+"rip",
+"tear"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
+},
+{
+"id": "marker_draw",
+"cat": "paper",
+"file": "sfx/paper/marker_draw.mp3",
+"ar": "رسم بالقلم على الخريطة",
+"use": "رسم سهم أو دائرة أو مسار بخط اليد",
+"dur": 2.45,
+"tags": [
+"قلم",
+"رسم",
+"خربشة",
+"خريطة",
+"سهم",
+"marker",
+"draw",
+"map",
+"scribble"
+],
+"license": "CC-BY-SA-3.0",
+"author": "sadboysuss (tgstation)",
+"source": "https://github.com/tgstation/tgstation/blob/17399f685f600b9c11923fa4c9d8c0eddd08e6c7/sound/effects/writing_pen/attribution.txt"
+},
+{
+"id": "sword_clash",
+"cat": "war",
+"file": "sfx/war/sword_clash.mp3",
+"ar": "اشتباك سيوف",
+"use": "معارك تاريخية — التحام الجيوش",
+"dur": 1.82,
+"tags": [
+"سيوف",
+"سيف",
+"اشتباك",
+"معركة",
+"قديمة",
+"sword",
+"clash",
+"melee"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "arrows_volley",
+"cat": "war",
+"file": "sfx/war/arrows_volley.mp3",
+"ar": "وابل سهام",
+"use": "رماة يطلقون السهام في معركة تاريخية",
+"dur": 0.62,
+"tags": [
+"سهام",
+"وابل",
+"رماة",
+"قوس",
+"arrows",
+"volley",
+"archers"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "bow_release",
+"cat": "war",
+"file": "sfx/war/bow_release.mp3",
+"ar": "إطلاق سهم",
+"use": "رامٍ واحد يطلق سهمًا",
+"dur": 0.72,
+"tags": [
+"قوس",
+"سهم",
+"إطلاق",
+"bow",
+"arrow"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "cavalry_gallop",
+"cat": "war",
+"file": "sfx/war/cavalry_gallop.mp3",
+"ar": "خيول تعدو (فرسان)",
+"use": "هجوم الفرسان أو وصول رسول على حصان",
+"dur": 5.98,
+"tags": [
+"خيول",
+"فرسان",
+"عدو",
+"هجوم",
+"cavalry",
+"horses",
+"gallop",
+"charge"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "ballista",
+"cat": "war",
+"file": "sfx/war/ballista.mp3",
+"ar": "قذّاف (بالستا)",
+"use": "حصار مدينة في العصور القديمة",
+"dur": 1.56,
+"tags": [
+"حصار",
+"قذاف",
+"منجنيق",
+"ballista",
+"siege"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "catapult",
+"cat": "war",
+"file": "sfx/war/catapult.mp3",
+"ar": "منجنيق يقذف",
+"use": "قذف الحجارة على الأسوار",
+"dur": 0.91,
+"tags": [
+"منجنيق",
+"حصار",
+"أسوار",
+"catapult",
+"trebuchet",
+"siege"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "battering_ram",
+"cat": "war",
+"file": "sfx/war/battering_ram.mp3",
+"ar": "كبش حصار يضرب البوابة",
+"use": "اقتحام بوابة مدينة أو قلعة",
+"dur": 2.09,
+"tags": [
+"كبش",
+"حصار",
+"بوابة",
+"قلعة",
+"battering",
+"ram",
+"gate"
+],
+"license": "CC-BY-SA-3.0",
+"author": "Wildfire Games (0 A.D.) — http://www.wildfiregames.com/",
+"source": "https://github.com/0ad/0ad"
+},
+{
+"id": "cannon_old",
+"cat": "war",
+"file": "sfx/war/cannon_old.mp3",
+"ar": "مدفع قديم",
+"use": "معارك القرون 16–19 والحصون",
+"dur": 1.51,
+"tags": [
+"مدفع",
+"قديم",
+"حصن",
+"cannon"
+],
+"license": "CC-BY-SA-3.0",
+"author": "tgstation contributors (Space Station 13)",
+"source": "https://github.com/tgstation/tgstation"
 }
 ]

@@ -22,6 +22,7 @@
     s2: { ar: 'قمر صناعي بلا غيوم', base: 's2', baseTex: 'sat', grade: { sat: 1.1, bri: 1.03, con: 1.08 }, border: 'rgba(255,255,255,.7)', bw: 1.1, ink: '#ffffff', halo: 'rgba(0,0,0,.75)', atmo: [.35, .6, 1], stars: .8 },
     // documentary look (YouTube history maps): dark desaturated imagery, deep navy sea, soft-shadow labels, faint borders
     doc_dark: { ar: 'وثائقي داكن (الأندلس)', base: 'esri_img', baseTex: 'sat', doc: 1, grade: { sat: .78, bri: .82, con: 1.22, gamma: 1.04, ge: 0 }, oceanTint: '#07182b', tintA: .8, labelW: 800, border: 'rgba(240,232,210,.14)', bw: .7, ink: '#f2efe9', halo: 'soft', atmo: [.16, .22, .3], stars: .2, space: [.003, .004, .006], post: { vig: .45 } },
+    woven: { ar: 'منسوج وثائقي', base: 'esri_img', baseTex: 'sat', doc: 1, woven: 1, grade: { sat: .36, bri: .64, con: 1.18, gamma: 1.05, ge: 0 }, oceanTint: '#0b1016', tintA: .62, labelW: 700, border: 'rgba(225,222,215,.12)', bw: .6, ink: '#ecebe6', halo: 'soft', atmo: [.1, .12, .15], stars: .08, space: [.003, .003, .004], post: { vig: .8, paper: .16 } },
     doc_light: { ar: 'وثائقي فاتح', base: 'esri_img', baseTex: 'sat', doc: 1, grade: { sat: .62, bri: .88, con: 1.06, gamma: 1.04, ge: 0 }, oceanTint: '#1d2c3e', tintA: .62, labelW: 800, border: 'rgba(245,238,220,.22)', bw: .8, ink: '#f7f4ee', halo: 'soft', atmo: [.3, .42, .6], stars: .3, space: [.006, .008, .012], post: { vig: .35 } },
     ghost: { ar: 'قمر صناعي داكن', base: 'esri_img', baseTex: 'sat', grade: { sat: .12, bri: .58, con: 1.25, tint: [.55, .68, .85], tintAmt: .3 }, border: 'rgba(210,225,245,.5)', bw: 1, ink: '#f1f5fa', halo: 'rgba(0,0,0,.8)', atmo: [.3, .45, .7], stars: .6 },
     daynight: { ar: 'ليل ونهار', base: 'esri_img', baseTex: 'sat', light: 1, grade: { sat: 1.05 }, border: 'rgba(255,255,255,.55)', bw: 1, ink: '#ffffff', halo: 'rgba(0,0,0,.75)', atmo: [.35, .6, 1], stars: 1 },
@@ -44,7 +45,7 @@
     neon: { ar: 'نيون', vector: 1, ocean: '#05040c', ocean2: '#0b0920', land: '#0c0b1e', fill: 'political', palette: 'neon', fillA: .12, border: '#7a5cff', bw: 1.1, glow: 1, coast: '#38e1ff', ink: '#eeeaff', halo: 'rgba(10,8,26,.9)', atmo: [.48, .36, 1], stars: .8, grid: 1, gridC: 'rgba(122,92,255,.12)' },
     desert: { ar: 'عمليات صحراوية', vector: 1, ocean: '#151a16', ocean2: '#1d241e', land: '#6d6047', border: '#a69169', bw: 1, coast: '#cdb98e', hill: .5, ink: '#f5ecd8', halo: 'rgba(24,22,16,.85)', atmo: [.75, .65, .45], stars: .4 },
   };
-  S.STYLE_ORDER = ['cinema', 'satellite', 'doc_dark', 'doc_light', 's2', 'ghost', 'daynight', 'night', 'natgeo', 'physical', 'relief', 'topo', 'oceans', 'carto_dark', 'voyager', 'political', 'history', 'parchment', 'news', 'newsdark', 'ops', 'desert', 'blueprint', 'neon', 'streets'];
+  S.STYLE_ORDER = ['cinema', 'satellite', 'doc_dark', 'woven', 'doc_light', 's2', 'ghost', 'daynight', 'night', 'natgeo', 'physical', 'relief', 'topo', 'oceans', 'carto_dark', 'voyager', 'political', 'history', 'parchment', 'news', 'newsdark', 'ops', 'desert', 'blueprint', 'neon', 'streets'];
 
   S.blank = () => ({
     v: 3, mode: 'globe', style: 'cinema', year: GW.P(2025), eraMode: 'auto',
@@ -126,6 +127,19 @@
     sc.style = S.STYLES[style] ? style : 'doc_dark';
     Object.assign(sc.look, { cities: 0, countryLabels: 0, oceans: 1, regions: 0, provinces: 0, borders: 1, borderW: .8, fill: null, hill: null, vig: .5, grain: .03, labelSize: 1, refLabels: 0, sat: 1, bri: 1 });
     for (const L of sc.layers || []) { if (L.type === 'country') Object.assign(L, S.docCountry({ color: L.color, fill: L.pattern === 'solid' ? .55 : L.fill, pattern: L.pattern, outline: L.outline === 'dashed' ? 'dashed' : 'solid' })); else if (L.type === 'label' && L.style === 'outline') L.style = 'soft'; }
+    return sc;
+  };
+  // «منسوج وثائقي»: dark desaturated satellite, strong soft vignette, paper grain, drifting clouds; regions in muted translucent
+  // colours with a fine woven texture, thin light-grey outline and a subtle inner shadow (country layers and war factions)
+  S.WOVEN = ['#5a4a7a', '#3f6e55', '#a8473a', '#7a6a3a', '#3d5f7a'];
+  S.wovenCountry = (o = {}) => Object.assign({ pattern: 'weave', fill: .6, patA: .5, patS: 1, patR: 0, outline: 'solid', line: '#cfcfcc', stroke: .7, glow: 0, inner: 1, labelStyle: 'soft' }, o);
+  S.applyWovenLook = (sc, o = {}) => {
+    sc.style = 'woven'; Object.assign(sc.look, { graticule: 0, cities: 0, countryLabels: 0, oceans: 0, regions: 0, provinces: 0, borders: 1, borderW: .7, fill: null, hill: null, vig: .8, grain: .06, paper: .16, labelSize: 1, refLabels: 0, sat: null, bri: null });
+    let n = 0; for (const L of sc.layers || []) {
+      if (L.type === 'country') { Object.assign(L, S.wovenCountry({ color: S.WOVEN[n++ % 3] })); }
+      if (L.type === 'campaign') (L.sides || []).forEach((sd, i) => Object.assign(sd, { pattern: 'weave', fill: .6, patA: .5, color: [S.WOVEN[2], S.WOVEN[0], S.WOVEN[1]][i % 3] }));
+    }
+    if (o.clouds !== 0 && !(sc.layers || []).some(L => L.type === 'clouds') && S.LAYERS.clouds) sc.layers.unshift(S.newLayer('clouds', { cover: .32, opacity: .55, shadow: .3, speed: 1.4, wind: 20, name: 'سحب منسوج' }));
     return sc;
   };
   // keyframable layer props: {v, k:[{t,v,e}]} (same model as clip params), evaluated at layer-local time
