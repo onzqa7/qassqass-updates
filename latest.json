@@ -1,8 +1,8 @@
 {
- "version": "3.0.2",
- "date": "2026-10-31T22:43:09.464Z",
- "notes_ar": "اختيار دقة الخريطة (HD، Full HD، 2K، 4K). إصلاح النص المثبّت على الخريطة: يبقى في مكانه مهما غيّرت زوم الكاميرا.",
- "notes_en": "Choose map resolution (HD, Full HD, 2K, 4K). Fixed pinned text drifting when the camera zooms.",
+ "version": "3.0.3",
+ "date": "2026-10-31T22:51:49.040Z",
+ "notes_ar": "قسم «التوقيت والحركة» صار مفتوح من البداية ويظهر فيه شريط الظهور والاختفاء وخيار «تبقى حتى النهاية» والشرح.",
+ "notes_en": "Timing & motion section open by default, with the visibility bar, 'stay until end' option and help note.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -39,8 +39,8 @@
   },
   {
    "path": "app/css/app.css",
-   "size": 164908,
-   "sha256": "a7e54e4abfeb51f5f350729687547b6b921b071151ce9eeff3bdd6b9f1b0d007"
+   "size": 164983,
+   "sha256": "4ff4ab61c6cadd1f41c0cd1860cf5030a91f35bac5526f193acbe17b377b25aa"
   },
   {
    "path": "app/fonts/amiri-arabic-400-normal.woff2",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 299471,
-   "sha256": "17d69e4ed88f1e7656c3fa41fe9a705870055fd803c469928425a75b75cc6370"
+   "size": 299519,
+   "sha256": "c6906fe68ada59a4465f290f98c7caa62f6ecfcd29d710cfa7aae39aca643958"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 303303,
-   "sha256": "ccff19c151ad5d4b831704e712ff3de86ee61f03ad23c6354726c9b21fe05ff6"
+   "size": 303357,
+   "sha256": "a31c1be08ac6960f82076d4cf914a2db6573a4a256385140534c66584b01aa60"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -1039,8 +1039,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 112222,
-   "sha256": "4daa7008066d6cbdebaed7adaf9593ae3b14c6da1d637372f93e45b4906b4a33"
+   "size": 112191,
+   "sha256": "ff2ce28e23453e44cb8d824db35afc466fc557dbc948efaa84a25ef028c4e6ac"
   },
   {
    "path": "app/js/ui_mapcam.js",
@@ -1049,8 +1049,8 @@
   },
   {
    "path": "app/js/ui_mapux.js",
-   "size": 58195,
-   "sha256": "a5fbcdaca056b5c2fb0e847ce798a12e9a5050a606ab676de66f27a39684fdc4"
+   "size": 58320,
+   "sha256": "acac09dc5ccd990d1aaa6e1e0acb4e1fa943dcdccc0eff794a24c07fdec7e80c"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -4710,7 +4710,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "27797999f43901c7c88542063d9e3f9dd01f25c563817a993357ba7ec50688b6"
+   "sha256": "c85e7e93dfca7a9fbedaf16e98b463ea57993368103c2c95300e9abb7d02c11f"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4723,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "BUBIhylpHT87HftAvIOHnqFKnsIijcsx+gM9QNSO3VWGGbmdBElWNxBwXsvEiB72AEu2NwzTwwUp+Y4TFRbIAQ=="
+ "sig": "JBfkLl/sNKzQIDaGw3xPr3esOGkFG8qAMaTeedIDkwouGHdnEjVgm5ZvCMbwu7KK1QmeW6HUpqr5QB9PTm3iAw=="
 }

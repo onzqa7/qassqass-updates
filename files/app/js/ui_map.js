@@ -664,7 +664,7 @@
     box.append(h('div', 'mp-sub', esc(S.LAYERS[L.type].ar)));
     box.append(row('الاسم', txt(L.name, set('name'))));
     // ---- visual timing: when the layer appears / disappears (clip-local seconds) ----
-    const anims = { fade: 'تلاشي', grow: 'نمو', draw: 'رسم تدريجي', pop: 'ظهور مرن', wipe: 'مسح', spread: 'انتشار', none: 'فوراً (بدون حركة)' };
+    const anims = { fade: 'تلاشي', grow: 'نمو', draw: 'رسم تدريجي', pop: 'ظهور مرن', wipe: 'مسح', spread: 'انتشار', none: 'فوراً' };
     const D = () => Math.max(.1, c.dur), fmt = (v) => (+v).toFixed(2);
     const endOf = () => L.dur != null ? Math.min(D(), (L.start || 0) + L.dur) : D();
     const tw = h('div', 'mxt'); const stat = h('div', 'mxt-stat'); const bar = h('div', 'mxt-bar'); const seg = h('div', 'mxt-seg'); const rin = h('div', 'mxt-in'); const rout = h('div', 'mxt-out'); const ph = h('div', 'mxt-ph'); const hA = h('div', 'mxt-h mxt-ha'); const hB = h('div', 'mxt-h mxt-hb');
@@ -702,8 +702,8 @@
     box.append(row('تختفي عند (ث)', fB, btn('عند المؤشر', () => { const a = L.start || 0; L.dur = +Math.max(.1, t0() - a).toFixed(2); commit(); })));
     box.append(row('', ue));
     box.append(row('طريقة الظهور', sel(Object.entries(anims), L.in || 'fade', v => { L.in = v; commit('حركة الدخول'); }), (() => { const n = num(L.inDur || .8, .1, v => { L.inDur = Math.max(0, v); commit('حركة الدخول'); }); n.title = 'مدة حركة الظهور بالثواني'; return n; })(), btn('معاينة', () => preview(L.start || 0, L.inDur || .8))));
-    box.append(row('طريقة الاختفاء', sel([['none', 'فجأة (بدون حركة)'], ['fade', 'تلاشي']], L.out || 'none', v => { L.out = v; commit('حركة الخروج'); }), (() => { const n = num(L.outDur || .5, .1, v => { L.outDur = Math.max(0, v); commit('حركة الخروج'); }); n.title = 'مدة حركة الاختفاء بالثواني'; return n; })(), btn('معاينة', () => preview(endOf() - (L.outDur || .5), (L.outDur || .5)))));
-    box.append(h('div', 'mp-note', 'الشريط يمثل مقطع الخريطة كاملاً: الجزء الملوّن هو وقت ظهور الطبقة، والتظليل في أوله وآخره هو حركة الظهور والاختفاء، والخط البرتقالي هو المؤشر. اسحب الطرفين لتغيير الوقت، أو اسحب الوسط لتحريكه.'));
+    box.append(row('طريقة الاختفاء', sel([['none', 'فجأة'], ['fade', 'تلاشي']], L.out || 'none', v => { L.out = v; commit('حركة الخروج'); }), (() => { const n = num(L.outDur || .5, .1, v => { L.outDur = Math.max(0, v); commit('حركة الخروج'); }); n.title = 'مدة حركة الاختفاء بالثواني'; return n; })(), btn('معاينة', () => preview(endOf() - (L.outDur || .5), (L.outDur || .5)))));
+    box.append(h('div', 'mp-note mxt-note', 'الشريط يمثل مقطع الخريطة كاملاً: الجزء الملوّن هو وقت ظهور الطبقة، والتظليل في أوله وآخره هو حركة الظهور والاختفاء، والخط البرتقالي هو المؤشر. اسحب الطرفين لتغيير الوقت، أو اسحب الوسط لتحريكه.'));
     paint(); M._tPaint = () => { if (tw.isConnected) paint(); }; if (!M._tHook) { M._tHook = 1; GW.bus.on('time', () => M._tPaint && M._tPaint()); }
     const pats = [['solid', 'مصمت'], ['weave', 'نسيج متقاطع'], ['hatch', 'خطوط مائلة'], ['cross', 'شبكة'], ['dots', 'نقاط']];
     // «نسيج متقاطع» texture controls (scale / opacity / angle) + the muted woven palette

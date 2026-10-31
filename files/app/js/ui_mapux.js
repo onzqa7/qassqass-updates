@@ -177,14 +177,14 @@
     w.append(h('div', 'mx-ih', GW.ico(ICO[L.type] || 'layers', 16) + `<b>${esc(K.ar)}</b>`));
     if (L.lock) { w.append(h('div', 'mx-locked', GW.ico('lock', 14) + '<span>الطبقة مقفلة — افتح القفل لتعديلها.</span>'), btn(GW.ico('unlock', 13) + ' فك القفل', () => { L.lock = 0; changed('فك قفل'); rerender(); })); return w; }
     const box = h('div'); B().fillProps(c, L, box); if (GW.FXUI && GW.FXUI.props) { const fx = GW.FXUI.props(c, L); if (fx && fx.childNodes.length) box.append(...fx.childNodes); }
-    const ess = ESS[L.type]; const main = h('div', 'mx-main'); const adv = B().sec('خيارات متقدمة', false, 'mxadv_' + L.type); adv.classList.add('mx-more'); const tim = B().sec('التوقيت والحركة', false, 'mxtime'); tim.classList.add('mx-more');
+    const ess = ESS[L.type]; const main = h('div', 'mx-main'); const adv = B().sec('خيارات متقدمة', false, 'mxadv_' + L.type); adv.classList.add('mx-more'); const tim = B().sec('التوقيت والحركة', true, 'mxtime'); tim.classList.add('mx-more');
     const kids = [...box.childNodes].filter(n => !(n.classList && n.classList.contains('mp-sub') && (K.ar || '').startsWith(n.textContent.trim()))); // type headings (shown above)
     let inAdv = false;
     if (L.type === 'campaign') { // events first; sides and display options folded
       const sides = B().sec('الأطراف وألوانها', false, 'mxsides'); sides.classList.add('mx-more'); let grp = 'main';
       for (const n of kids) {
         if (n.classList && n.classList.contains('mp-sub')) { const t = n.textContent.trim(); if (t === 'الأطراف') { grp = 'sides'; continue; } if (t === 'أحداث السيطرة') { grp = 'main'; n.textContent = 'مجرى الحرب (الأحداث بالترتيب)'; } else if (t.startsWith('مناطق مرسومة') || t === 'العرض') grp = 'adv'; }
-        const lab = n.classList && n.classList.contains('frow') ? (n.querySelector(':scope > label') || {}).textContent : null; if (lab && TIMING.includes(lab.trim())) { tim.body.append(n); continue; }
+        const lab = n.classList && n.classList.contains('frow') ? (n.querySelector(':scope > label') || {}).textContent : null; if ((lab != null && TIMING.includes(lab.trim())) || (n.classList && n.classList.contains('mxt-note'))) { tim.body.append(n); continue; }
         (grp === 'sides' ? sides.body : grp === 'adv' ? adv.body : main).append(n);
       }
       w.append(main, sides, adv, tim); addHints(w); return w;
@@ -192,7 +192,7 @@
     for (const n of kids) {
       const lab = n.classList && n.classList.contains('frow') ? (n.querySelector(':scope > label') || {}).textContent : null;
       if (n.classList && n.classList.contains('mp-sub')) inAdv = !!ess && ADV_HEAD.includes(n.textContent.trim());
-      if (lab && TIMING.includes(lab.trim())) { tim.body.append(n); continue; }
+      if ((lab != null && TIMING.includes(lab.trim())) || (n.classList && n.classList.contains('mxt-note'))) { tim.body.append(n); continue; }
       if (!ess || L.type === 'campaign') { main.append(n); continue; }
       if (inAdv) { adv.body.append(n); continue; }
       if (lab != null) { (lab.trim() === 'الاسم' || ess.includes(lab.trim()) ? main : adv.body).append(n); continue; }
