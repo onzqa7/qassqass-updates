@@ -72,7 +72,8 @@
     q('wzIn').onclick = () => TL.setWaveZoom(TL.waveZoom * 2); q('wzOut').onclick = () => TL.setWaveZoom(TL.waveZoom / 2); q('wz').onclick = () => TL.setWaveZoom(1);
     el.querySelectorAll('[data-h]').forEach(b => b.onclick = () => TL.setTrackHeights(PRESET[b.dataset.h]));
     q('opts').onclick = (e) => { const r = e.currentTarget.getBoundingClientRect(); GW.menu(r.right, r.bottom, [{ label: 'إظهار الصور المصغرة', check: TL.thumbs, action: () => { TL.thumbs = !TL.thumbs; TL.invalidate(); } }, { label: 'إظهار موجات الصوت', check: TL.waves, action: () => { TL.waves = !TL.waves; TL.invalidate(); } }, '-', { label: 'ارتفاع المسارات', sub: [['s', 'صغير'], ['m', 'متوسط'], ['l', 'كبير']].map(([k, n]) => ({ label: n, action: () => TL.setTrackHeights(PRESET[k]) })) }, { label: 'ملاءمة التسلسل', key: '\\', action: () => TL.fit() }, '-', { label: 'إضافة مسار فيديو', action: () => GW.cmd.addTrack('v') }, { label: 'إضافة مسار صوت', action: () => GW.cmd.addTrack('a') }, { label: 'حذف المسارات الفارغة', action: GW.cmd.delEmptyTracks }]); };
-    q('tc').onclick = async () => { const s = GW.seq(); const v = await GW.prompt('انتقال إلى', 'التوقيت (سا:د:ث:إطار)', GW.fmtTC(s.t, s.fps)); if (v) { const t = GW.parseTC(v, s.fps); if (t != null) GW.seek(t); } };
+    GW.gotoTime = async () => { const s = GW.seq(); const v = await GW.prompt('انتقال إلى', 'التوقيت: 90 أو 1:30 أو 00:01:30:12', GW.fmtTC(s.t, s.fps)); if (v) { const t = String(v).split(':').length === 4 ? GW.parseTC(v, s.fps) : GW.parseTime(v, s.fps); if (t != null && t >= 0) GW.seek(t); else GW.toast('توقيت غير صالح', 'err'); } };
+    q('tc').onclick = () => GW.gotoTime();
     initRuler(q('ruler')); initTracks(); initHScroll(); initVScroll();
     q('body').addEventListener('wheel', onWheel, { passive: false });
     q('ruler').addEventListener('wheel', onWheel, { passive: false });
@@ -849,7 +850,7 @@
     const items = [
       { label: 'قص', key: 'Ctrl+X', action: () => Cm.copy(true) }, { label: 'نسخ', key: 'Ctrl+C', action: () => Cm.copy() }, { label: 'لصق السمات', action: Cm.pasteAttrs }, '-',
       { label: c.on === 0 ? 'تفعيل' : 'تعطيل', key: 'Shift+E', action: Cm.toggleEnable }, { label: c.link ? 'فك الربط' : 'ربط', key: 'Ctrl+L', action: Cm.link }, '-',
-      { label: 'السرعة / المدة…', key: 'Ctrl+R', action: Cm.speed }, { label: 'تجميد الإطار عند المؤشر', action: Cm.freeze }, { label: 'إضافة تعديل عند المؤشر', key: 'Ctrl+K', action: () => Cm.addEdit(false) }, '-',
+      { label: 'السرعة / المدة…', key: 'Ctrl+R', action: Cm.speed }, { label: 'المدة…', key: 'Ctrl+Shift+R', action: () => GW.UI.durationDialog([...GW.sel.clips].map(id => GW.seq().clips.find(c => c.id === id)).filter(Boolean)) }, { label: 'تجميد الإطار عند المؤشر', action: Cm.freeze }, { label: 'إضافة تعديل عند المؤشر', key: 'Ctrl+K', action: () => Cm.addEdit(false) }, '-',
       { label: 'مسح', key: 'Delete', action: () => Cm.del(false) }, { label: 'مسح مع إزاحة', key: 'Shift+Delete', action: () => Cm.del(true) }, '-',
       { label: 'إعادة تسمية…', cmd: 'clip.rename', action: Cm.rename }, { label: 'لون التسمية', sub: GW.LABEL_SET.map(([n, col]) => ({ label: n, action: () => Cm.label(col) })) },
       '-', { label: 'تداخل (Nest)…', cmd: 'seq.nest', action: () => Cm.nest(false) }, { label: 'إنشاء تسلسل فرعي', cmd: 'seq.subseq', action: () => Cm.nest(true) }

@@ -289,7 +289,7 @@
   /* ================= new items ================= */
   function freeVTrack(s, t, dur) { for (let i = 0; i < s.vt.length; i++) { if (s.vt[i].lock) continue; if (!s.clips.some(c => c.tt === 'v' && c.ti === i && c.start < t + dur && c.start + c.dur > t)) { if (i >= GW.TL.target.v) return i; } } GW.ops.ensureTrack(s, 'v', s.vt.length); return s.vt.length - 1; }
   UI.addTextClip = (presetIdx, posPx) => {
-    const s = GW.seq(); const t = s.t; const dur = 5; const ti = freeVTrack(s, t, dur);
+    const s = GW.seq(); const t = s.t; const dur = GW.durDefaults.text || 5; const ti = freeVTrack(s, t, dur);
     const p = presetIdx != null ? GW.TITLE_PRESETS[presetIdx] : null;
     const c = GW.newClip('text', { ti, start: t, dur, name: p ? p.n : 'نص' });
     if (p) Object.assign(c.text, GW.clone(p.t));
@@ -298,10 +298,10 @@
     s.clips.push(c); GW.sel.clips.clear(); GW.sel.clips.add(c.id); GW.commit('إضافة نص'); GW.bus.emit('selection');
     egTab = 'edit'; if (!GW.isShown('graphics')) GW.showPanel('graphics'); renderEG();
   };
-  UI.addGenerator = (kind) => { const s = GW.seq(); const ti = freeVTrack(s, s.t, 5); const c = GW.newClip(kind, { ti, start: s.t, dur: 5 }); if (kind === 'adjust') c.fx.push(GW.newFx('lumetri')); s.clips.push(c); GW.sel.clips.clear(); GW.sel.clips.add(c.id); GW.commit(kind === 'color' ? 'لون ثابت' : kind === 'null' ? 'طبقة فارغة' : kind === 'camera' ? 'كاميرا' : 'طبقة ضبط'); GW.bus.emit('selection'); };
+  UI.addGenerator = (kind) => { const s = GW.seq(); const D = GW.durDefaults.still || 5; const ti = freeVTrack(s, s.t, D); const c = GW.newClip(kind, { ti, start: s.t, dur: D }); if (kind === 'adjust') c.fx.push(GW.newFx('lumetri')); s.clips.push(c); GW.sel.clips.clear(); GW.sel.clips.add(c.id); GW.commit(kind === 'color' ? 'لون ثابت' : kind === 'null' ? 'طبقة فارغة' : kind === 'camera' ? 'كاميرا' : 'طبقة ضبط'); GW.bus.emit('selection'); };
   UI.addShapeLayer = (type) => { if (!GW.Shape) return null; const c = GW.Shape.add(type); egTab = 'edit'; renderEG(); return c; }; // «شكل جديد»: vector shape layer (shape.js)
   UI.addShape = (kind) => {
-    const s = GW.seq(); const ti = freeVTrack(s, s.t, 5); const c = GW.newClip('color', { ti, start: s.t, dur: 5, color: kind === 'bar' ? '#d6202f' : '#2f8ef0', name: kind === 'ellipse' ? 'دائرة' : kind === 'bar' ? 'شريط' : 'مستطيل' });
+    const s = GW.seq(); const D = GW.durDefaults.still || 5; const ti = freeVTrack(s, s.t, D); const c = GW.newClip('color', { ti, start: s.t, dur: D, color: kind === 'bar' ? '#d6202f' : '#2f8ef0', name: kind === 'ellipse' ? 'دائرة' : kind === 'bar' ? 'شريط' : 'مستطيل' });
     const mk = { id: GW.uid(), type: kind === 'ellipse' ? 'ellipse' : 'rect', on: 1, mode: 'add', inv: 0, feather: GW.P(0), opacity: GW.P(100), expansion: GW.P(0), center: GW.P(kind === 'bar' ? [s.w / 2, s.h * .86] : [s.w / 2, s.h / 2]), size: GW.P(kind === 'bar' ? [s.w * .9, s.h * .1] : kind === 'ellipse' ? [s.h * .4, s.h * .4] : [s.w * .4, s.h * .3]), rot: GW.P(0) };
     c.masks.push(mk); s.clips.push(c); GW.sel.clips.clear(); GW.sel.clips.add(c.id); GW.commit('شكل'); GW.bus.emit('selection');
   };
@@ -544,6 +544,31 @@
       const sp = clamp((+q('sp').value || 100) / 100, .05, 20); const ripple = q('ripple').checked; const all = new Set(clips); clips.forEach(x => GW.linked(s, x).forEach(l => all.add(l)));
       for (const x of all) { const old = x.dur; const nd = x.dur * (x.speed || 1) / sp; x.speed = sp; x.dur = nd; if (ripple) for (const o of s.clips) if (!all.has(o) && o.tt === x.tt && o.ti === x.ti && o.start >= x.start + old - 1e-6) o.start += nd - old; }
       GW.commit('السرعة / المدة');
+    } }] });
+  };
+  // «المدة…»: set the length of the selected clips directly (no speed change) — maps, text, graphics, stills, and media within their source
+  UI.durationDialog = (clips) => {
+    if (!clips || !clips.length) { GW.toast('حدد مقطعًا'); return; } const s = GW.seq(); const c = clips[0];
+    const body = document.createElement('div');
+    body.innerHTML = `<label class="fld"><span>المدة (دقائق:ثوانٍ — مثال 2:30 أو 90)</span><input class="inp" data-k="d" value="${GW.fmtMS(c.dur)}"></label><label class="chk"><input type="checkbox" data-k="ripple" checked> إزاحة المقاطع التالية</label><div class="hint" data-k="note"></div>`;
+    const q = k => body.querySelector(`[data-k=${k}]`); const inp = q('d'); inp.onkeydown = e => e.stopPropagation();
+    const upd = () => { const v = GW.parseTime(inp.value, s.fps); q('note').textContent = v > 0 ? '= ' + GW.fmtTC(v, s.fps) : 'اكتب مدة صحيحة'; }; inp.oninput = upd; upd();
+    setTimeout(() => { inp.focus(); inp.select(); }, 30);
+    GW.modal({ title: 'المدة', body, buttons: [{ label: 'إلغاء' }, { label: 'موافق', primary: true, action: () => {
+      const v = GW.parseTime(inp.value, s.fps); if (!(v > 0)) { GW.toast('مدة غير صالحة', 'err'); return false; } const ripple = q('ripple').checked; let capped = 0;
+      const all = new Set(clips); clips.forEach(x => GW.linked(s, x).forEach(l => all.add(l)));
+      for (const x of all) { const old = x.dur; const mx = GW.maxLen ? GW.maxLen(x) : Infinity; let nd = Math.max(1 / (s.fps || 30), v); const lim = isFinite(mx) ? (mx - (x.in || 0)) / (x.speed || 1) : Infinity; if (nd > lim) { nd = lim; capped = 1; } x.dur = nd;
+        if (ripple) for (const o of s.clips) if (!all.has(o) && o.tt === x.tt && o.ti === x.ti && o.start >= x.start + old - 1e-6) o.start += nd - old; }
+      GW.commit('المدة'); GW.invalidate(); if (GW.TL) GW.TL.invalidate(); if (capped) GW.toast('بعض المقاطع أقصر من المدة المطلوبة فأُخذ أقصى طولها');
+    } }] });
+  };
+  // «المدد الافتراضية…» for new maps, text and graphics / images
+  UI.durDefaultsDialog = () => {
+    const D = GW.durDefaults; const body = document.createElement('div');
+    body.innerHTML = `<label class="fld"><span>الخريطة الجديدة (دقائق:ثوانٍ)</span><input class="inp" data-k="map" value="${GW.fmtMS(D.map)}"></label><label class="fld"><span>النص الجديد</span><input class="inp" data-k="text" value="${GW.fmtMS(D.text)}"></label><label class="fld"><span>الصور والأشكال والألوان</span><input class="inp" data-k="still" value="${GW.fmtMS(D.still)}"></label><div class="hint">اكتب 90 أو 1:30 أو 2m. تُطبق على ما تضيفه من الآن.</div>`;
+    body.querySelectorAll('input').forEach(i => i.onkeydown = e => e.stopPropagation());
+    GW.modal({ title: 'المدد الافتراضية', body, buttons: [{ label: 'إلغاء' }, { label: 'حفظ', primary: true, action: () => {
+      for (const k of ['map', 'text', 'still']) { const v = GW.parseTime(body.querySelector(`[data-k=${k}]`).value); if (v > 0) D[k] = v; } GW.saveDurDefaults(); GW.toast('حُفظت المدد الافتراضية');
     } }] });
   };
   UI.shortcuts = () => {

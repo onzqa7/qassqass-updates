@@ -214,3 +214,17 @@ GW.scrub = (opts) => {
   el.refresh = show;
   return el;
 };
+
+/* «90» = 90 s · «1:30» = 1 min 30 s · «1:02:30» = h:m:s · «00:01:30:12» = timecode with frames · «2.5» = 2.5 s */
+GW.parseTime = (str, fps) => {
+  str = String(str == null ? '' : str).trim().replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[،,]/g, '.'); if (!str) return null;
+  if (/^\d+(\.\d+)?\s*(s|ث)?$/.test(str)) return parseFloat(str);
+  if (/^\d+(\.\d+)?\s*(m|د)$/.test(str)) return parseFloat(str) * 60;
+  const p = str.split(':'); if (p.some(x => !/^\d+(\.\d+)?$/.test(x))) return null; const n = p.map(Number);
+  if (n.length === 2) return n[0] * 60 + n[1]; if (n.length === 3) return n[0] * 3600 + n[1] * 60 + n[2];
+  if (n.length === 4) return n[0] * 3600 + n[1] * 60 + n[2] + n[3] / (fps || 30); return null;
+};
+GW.fmtMS = (t) => { t = Math.max(0, +t || 0); const m = Math.floor(t / 60), s = t - m * 60; return m + ':' + (s < 10 ? '0' : '') + (Math.round(s * 100) / 100); };
+/* default lengths for new items «المدد الافتراضية» (seconds) */
+GW.durDefaults = (() => { let d = {}; try { d = JSON.parse(localStorage.getItem('qq.durs') || '{}') || {}; } catch (e) {} return Object.assign({ map: 10, text: 5, still: 5 }, d); })();
+GW.saveDurDefaults = () => { try { localStorage.setItem('qq.durs', JSON.stringify(GW.durDefaults)); } catch (e) {} };

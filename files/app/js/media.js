@@ -66,7 +66,7 @@
     for (const f of files) {
       if (f.path && have.has(f.path)) { dups.push(f.path); continue; } if (f.path) have.add(f.path);
       const kind = GW.mediaKind(f.name);
-      const m = { id: GW.uid(), kind, name: f.name, path: f.path || null, size: f.size || 0, dur: kind === 'image' ? 5 : 0, w: 0, h: 0, fps: 0, hasAudio: kind === 'audio', hasVideo: kind !== 'audio', label: GW.LABELS[kind], added: Date.now() };
+      const m = { id: GW.uid(), kind, name: f.name, path: f.path || null, size: f.size || 0, dur: kind === 'image' ? (GW.durDefaults ? GW.durDefaults.still : 5) : 0, w: 0, h: 0, fps: 0, hasAudio: kind === 'audio', hasVideo: kind !== 'audio', label: GW.LABELS[kind], added: Date.now() };
       const r = M.ensureRt(m); if (f.file) r.blobUrl = URL.createObjectURL(f.file), r.file = f.file;
       GW.prj.media.push(m); added.push(m);
     }
@@ -119,7 +119,7 @@
       let probe = null;
       if (m.path && api()) { try { probe = await probeQ(() => api().ffProbe(m.path)); } catch (e) {} }
       if (probe) {
-        if (probe.duration) m.dur = m.kind === 'image' ? 5 : probe.duration;
+        if (probe.duration) m.dur = m.kind === 'image' ? (GW.durDefaults ? GW.durDefaults.still : 5) : probe.duration;
         if (probe.video && m.kind !== 'audio') { m.w = probe.video.w; m.h = probe.video.h; m.fps = probe.video.fps || 0; m.alpha = probe.video.alpha ? 1 : 0; m.codec = probe.video.codec; m.bits = probe.video.bits || 8; if (probe.rotate && Math.abs(probe.rotate) % 180 === 90) { const t = m.w; m.w = m.h; m.h = t; } }
         m.hasAudio = !!probe.audio; if (m.kind === 'video' && !probe.video) { m.kind = 'audio'; m.hasVideo = false; m.label = GW.LABELS.audio; }
       }

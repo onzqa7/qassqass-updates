@@ -1,8 +1,8 @@
 {
- "version": "3.0.7",
- "date": "2026-10-31T23:35:51.595Z",
- "notes_ar": "اختيار الدول صار بالبحث مع السنة بدل النقر على الخريطة. الإمبراطوريات التاريخية تظهر كاملة. «حركة الاستيلاء» لكل حدث: زحف، مسح، تلاشي، ومضة.",
- "notes_en": "Countries are chosen by search with a year instead of clicking. Historical empires show complete. Capture animation per event: spread, sweep, fade, flash.",
+ "version": "3.0.8",
+ "date": "2026-11-01T00:39:41.958Z",
+ "notes_ar": "مدة الخريطة بالدقائق والثواني. أمر «المدة…» (Ctrl+Shift+R) لأي عنصر. «المدد الافتراضية» للعناصر الجديدة. الانتقال لتوقيت بكتابة 90 أو 1:30 بالنقر على التوقيت.",
+ "notes_en": "Map duration in min:sec. Duration… (Ctrl+Shift+R) for any item. Default durations for new items. Go to a time by clicking the timecode (90 or 1:30).",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 301107,
-   "sha256": "692d1b5fdb27414e39e3a35b75c5c9c8b30e0826286871ee70b9de001408e2a6"
+   "size": 302300,
+   "sha256": "c21f5cca3e7b03435ecc27cde3b6e27a5148956e11bdb1d6ed2372a8821bb360"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 305002,
-   "sha256": "b44d0613518e1828f1345efe1a1e26bbbaa8154a368e70c5a20be947c9db5d60"
+   "size": 306243,
+   "sha256": "1ae4a68f20057f3e4cb20f986b08e5a5ad1aa22ae41f33abbfacf817fb490e1d"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -764,8 +764,8 @@
   },
   {
    "path": "app/js/app.js",
-   "size": 55843,
-   "sha256": "c0338e81e3eec51bb02e4ed6a690eade54b039a25cefd345186696a796108991"
+   "size": 56123,
+   "sha256": "f30833c95e76d4347f476684414577f451b1909451e80fec94072f1e838c244d"
   },
   {
    "path": "app/js/asr_core.js",
@@ -899,8 +899,8 @@
   },
   {
    "path": "app/js/media.js",
-   "size": 38278,
-   "sha256": "ee72026a47917fba2e70bcfd0b007e57686932e25e54b660b3b379a587510983"
+   "size": 38362,
+   "sha256": "ea35813ccd453f3a99c9980fc50151b077c72a698d6e35ba1c385525e0bd9e76"
   },
   {
    "path": "app/js/mg.js",
@@ -954,8 +954,8 @@
   },
   {
    "path": "app/js/shortcuts.js",
-   "size": 40787,
-   "sha256": "6327ba3aeb91bde039e80c0c60def3b1bca790566b0d82448f093100ec4d5657"
+   "size": 40868,
+   "sha256": "4fb52e3e849b3026d9c42ae307e0cc9e055def24108c4bcce548289493e5b442"
   },
   {
    "path": "app/js/text.js",
@@ -1039,8 +1039,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 115311,
-   "sha256": "a751d634aa95e720a59f614267aa719f6de53f2dc4f121c85adbf4826c084d95"
+   "size": 115976,
+   "sha256": "c432837883e3f4c446ebdbc0476a53c672dc69e57aa393da686da65c54a1ecdb"
   },
   {
    "path": "app/js/ui_mapcam.js",
@@ -1049,13 +1049,13 @@
   },
   {
    "path": "app/js/ui_mapux.js",
-   "size": 58320,
-   "sha256": "acac09dc5ccd990d1aaa6e1e0acb4e1fa943dcdccc0eff794a24c07fdec7e80c"
+   "size": 58994,
+   "sha256": "4e1ecb51dfa00ec9698c7ee4a6a9b69ceefd5c169cd7b8af44dca82990ef63ab"
   },
   {
    "path": "app/js/ui_monitors.js",
-   "size": 35758,
-   "sha256": "c0319061c8247bc4248f185d74aebde55268981ccd41be9fa84a7f1cbd49ab09"
+   "size": 35922,
+   "sha256": "f01e7ecc0c513c70dd65f285066fedc58fd7a11d88af204789ae6e3849f709dd"
   },
   {
    "path": "app/js/ui_ofx.js",
@@ -1064,8 +1064,8 @@
   },
   {
    "path": "app/js/ui_panels.js",
-   "size": 75706,
-   "sha256": "726b16fdd6853b4b959d00df033a1bf8f208cb3e4a3157eae3af2c6aa69c6ef3"
+   "size": 79105,
+   "sha256": "4b8d88f6a1c2fbdb815ad25af11fb45d5036c5defddf0bff0063a0dce184323d"
   },
   {
    "path": "app/js/ui_photocrop.js",
@@ -1089,8 +1089,8 @@
   },
   {
    "path": "app/js/ui_timeline.js",
-   "size": 92136,
-   "sha256": "48926ea7623543bddedc39500f7e23418ef4da3b88a3e3363e0e111d0e84937e"
+   "size": 92476,
+   "sha256": "46096765c1e7da2cb97742cd089cbf5fd9f2246c6e387dc18628ba3327c379be"
   },
   {
    "path": "app/js/ui_tts.js",
@@ -1124,8 +1124,8 @@
   },
   {
    "path": "app/js/util.js",
-   "size": 13898,
-   "sha256": "2c4b987738566efc9642a2aab831a10b791ffd26074ddae3115748628cf56f0b"
+   "size": 15211,
+   "sha256": "b5559d4f17d49e7526d92968b3a3da6636e7a573f54b75c9e1a0e4aa252a1871"
   },
   {
    "path": "app/js/xform.js",
@@ -4710,7 +4710,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "3a851284128e931a029d56399111e38664487f4939bedf02fea0a75031ed04e7"
+   "sha256": "d801c8d07f4521bc8379dc32058a475b1accc61a2095c26dad5328e9f4ae5184"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4723,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "ZW9mMOtjMTo5J45h8t2rWJnUWEtFz//vyAXXg4biyHGaoQCTJRduwu7kim6dGoR5N0+BO8vrk1ua8juRTQjBBQ=="
+ "sig": "IkkC0nZBZ/AW0XzJFzrAn1jGSDrD8uenW7+8IN4733gNco3+nemZwNP40qukkXtC54c+pl/SCd9IIVgDPJhRCA=="
 }

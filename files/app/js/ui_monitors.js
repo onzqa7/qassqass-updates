@@ -102,6 +102,7 @@
     q('loop').onclick = (e) => { GW.pb.loop = !GW.pb.loop; e.currentTarget.classList.toggle('on', GW.pb.loop); };
     q('safe').onclick = (e) => { PG.toggleSafe(); e.currentTarget.classList.toggle('on', PG.safe); };
     q('snap').onclick = GW.cmd.exportFrame;
+    { const tc = q('tc'); tc.style.cursor = 'pointer'; tc.title = 'انقر للانتقال إلى توقيت'; tc.onclick = () => GW.gotoTime && GW.gotoTime(); }
     q('full').onclick = () => PG.toggleFull();
     { const b = q('proxy'); const sync = () => b.classList.toggle('on', !!GW.Media.cfg.proxies); sync(); b.onclick = () => GW.Media.toggleProxies(); b.oncontextmenu = (e) => { e.preventDefault(); GW.Media.proxyMenu(e.clientX, e.clientY); }; GW.bus.on('proxies', sync); }
     q('res').onchange = (e) => PG.setRes(e.target.value === 'auto' ? 'auto' : +e.target.value);
