@@ -550,12 +550,12 @@
   UI.durationDialog = (clips) => {
     if (!clips || !clips.length) { GW.toast('حدد مقطعًا'); return; } const s = GW.seq(); const c = clips[0];
     const body = document.createElement('div');
-    body.innerHTML = `<label class="fld"><span>المدة (دقائق:ثوانٍ — مثال 2:30 أو 90)</span><input class="inp" data-k="d" value="${GW.fmtMS(c.dur)}"></label><label class="chk"><input type="checkbox" data-k="ripple" checked> إزاحة المقاطع التالية</label><div class="hint" data-k="note"></div>`;
-    const q = k => body.querySelector(`[data-k=${k}]`); const inp = q('d'); inp.onkeydown = e => e.stopPropagation();
-    const upd = () => { const v = GW.parseTime(inp.value, s.fps); q('note').textContent = v > 0 ? '= ' + GW.fmtTC(v, s.fps) : 'اكتب مدة صحيحة'; }; inp.oninput = upd; upd();
-    setTimeout(() => { inp.focus(); inp.select(); }, 30);
+    body.innerHTML = `<div class="fld"><span>المدة</span><div data-k="cnt"></div></div><label class="chk"><input type="checkbox" data-k="ripple" checked> إزاحة المقاطع التالية</label><div class="hint" data-k="note"></div>`;
+    const q = k => body.querySelector(`[data-k=${k}]`); let val = c.dur;
+    const upd = () => { q('note').textContent = '= ' + GW.fmtTC(val, s.fps); };
+    const cnt = GW.durCounter(c.dur, v => { val = v; upd(); }); q('cnt').append(cnt); upd();
     GW.modal({ title: 'المدة', body, buttons: [{ label: 'إلغاء' }, { label: 'موافق', primary: true, action: () => {
-      const v = GW.parseTime(inp.value, s.fps); if (!(v > 0)) { GW.toast('مدة غير صالحة', 'err'); return false; } const ripple = q('ripple').checked; let capped = 0;
+      const v = val; if (!(v > 0)) { GW.toast('مدة غير صالحة', 'err'); return false; } const ripple = q('ripple').checked; let capped = 0;
       const all = new Set(clips); clips.forEach(x => GW.linked(s, x).forEach(l => all.add(l)));
       for (const x of all) { const old = x.dur; const mx = GW.maxLen ? GW.maxLen(x) : Infinity; let nd = Math.max(1 / (s.fps || 30), v); const lim = isFinite(mx) ? (mx - (x.in || 0)) / (x.speed || 1) : Infinity; if (nd > lim) { nd = lim; capped = 1; } x.dur = nd;
         if (ripple) for (const o of s.clips) if (!all.has(o) && o.tt === x.tt && o.ti === x.ti && o.start >= x.start + old - 1e-6) o.start += nd - old; }
@@ -565,10 +565,11 @@
   // «المدد الافتراضية…» for new maps, text and graphics / images
   UI.durDefaultsDialog = () => {
     const D = GW.durDefaults; const body = document.createElement('div');
-    body.innerHTML = `<label class="fld"><span>الخريطة الجديدة (دقائق:ثوانٍ)</span><input class="inp" data-k="map" value="${GW.fmtMS(D.map)}"></label><label class="fld"><span>النص الجديد</span><input class="inp" data-k="text" value="${GW.fmtMS(D.text)}"></label><label class="fld"><span>الصور والأشكال والألوان</span><input class="inp" data-k="still" value="${GW.fmtMS(D.still)}"></label><div class="hint">اكتب 90 أو 1:30 أو 2m. تُطبق على ما تضيفه من الآن.</div>`;
-    body.querySelectorAll('input').forEach(i => i.onkeydown = e => e.stopPropagation());
+    const vals = { map: D.map, text: D.text, still: D.still };
+    for (const [k, n] of [['map', 'الخريطة الجديدة'], ['text', 'النص الجديد'], ['still', 'الصور والأشكال والألوان']]) { const f = document.createElement('div'); f.className = 'fld'; const sp = document.createElement('span'); sp.textContent = n; f.append(sp, GW.durCounter(D[k], v => { vals[k] = v; })); body.append(f); }
+    const hn = document.createElement('div'); hn.className = 'hint'; hn.textContent = 'تُطبق على ما تضيفه من الآن.'; body.append(hn);
     GW.modal({ title: 'المدد الافتراضية', body, buttons: [{ label: 'إلغاء' }, { label: 'حفظ', primary: true, action: () => {
-      for (const k of ['map', 'text', 'still']) { const v = GW.parseTime(body.querySelector(`[data-k=${k}]`).value); if (v > 0) D[k] = v; } GW.saveDurDefaults(); GW.toast('حُفظت المدد الافتراضية');
+      Object.assign(D, vals); GW.saveDurDefaults(); GW.toast('حُفظت المدد الافتراضية');
     } }] });
   };
   UI.shortcuts = () => {

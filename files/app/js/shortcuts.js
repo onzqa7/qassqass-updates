@@ -83,7 +83,6 @@
   def('clip.rename', 'إعادة تسمية…', ['F2'], () => C().rename());
   def('clip.reveal', 'إظهار في لوحة المشروع', ['Shift+F'], () => C().reveal());
   def('clip.speed', 'السرعة / المدة…', ['Ctrl+R'], () => C().speed());
-  def('clip.duration', 'المدة…', ['Ctrl+Shift+R'], () => C().duration());
   def('clip.enable', 'تفعيل / تعطيل', ['Shift+E'], () => C().toggleEnable());
   def('clip.link', 'ربط / فك ربط', ['Ctrl+L'], () => C().link());
   def('clip.detachAudio', 'فصل الصوت عن الفيديو', [], () => C().detachAudio());

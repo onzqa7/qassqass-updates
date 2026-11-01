@@ -850,7 +850,7 @@
     const items = [
       { label: 'قص', key: 'Ctrl+X', action: () => Cm.copy(true) }, { label: 'نسخ', key: 'Ctrl+C', action: () => Cm.copy() }, { label: 'لصق السمات', action: Cm.pasteAttrs }, '-',
       { label: c.on === 0 ? 'تفعيل' : 'تعطيل', key: 'Shift+E', action: Cm.toggleEnable }, { label: c.link ? 'فك الربط' : 'ربط', key: 'Ctrl+L', action: Cm.link }, '-',
-      { label: 'السرعة / المدة…', key: 'Ctrl+R', action: Cm.speed }, { label: 'المدة…', key: 'Ctrl+Shift+R', action: () => GW.UI.durationDialog([...GW.sel.clips].map(id => GW.seq().clips.find(c => c.id === id)).filter(Boolean)) }, { label: 'تجميد الإطار عند المؤشر', action: Cm.freeze }, { label: 'إضافة تعديل عند المؤشر', key: 'Ctrl+K', action: () => Cm.addEdit(false) }, '-',
+      { label: 'السرعة / المدة…', key: 'Ctrl+R', action: Cm.speed }, { label: 'المدة…', action: () => GW.UI.durationDialog([...GW.sel.clips].map(id => GW.seq().clips.find(c => c.id === id)).filter(Boolean)) }, { label: 'تجميد الإطار عند المؤشر', action: Cm.freeze }, { label: 'إضافة تعديل عند المؤشر', key: 'Ctrl+K', action: () => Cm.addEdit(false) }, '-',
       { label: 'مسح', key: 'Delete', action: () => Cm.del(false) }, { label: 'مسح مع إزاحة', key: 'Shift+Delete', action: () => Cm.del(true) }, '-',
       { label: 'إعادة تسمية…', cmd: 'clip.rename', action: Cm.rename }, { label: 'لون التسمية', sub: GW.LABEL_SET.map(([n, col]) => ({ label: n, action: () => Cm.label(col) })) },
       '-', { label: 'تداخل (Nest)…', cmd: 'seq.nest', action: () => Cm.nest(false) }, { label: 'إنشاء تسلسل فرعي', cmd: 'seq.subseq', action: () => Cm.nest(true) }

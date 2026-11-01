@@ -228,3 +228,28 @@ GW.fmtMS = (t) => { t = Math.max(0, +t || 0); const m = Math.floor(t / 60), s = 
 /* default lengths for new items «المدد الافتراضية» (seconds) */
 GW.durDefaults = (() => { let d = {}; try { d = JSON.parse(localStorage.getItem('qq.durs') || '{}') || {}; } catch (e) {} return Object.assign({ map: 10, text: 5, still: 5 }, d); })();
 GW.saveDurDefaults = () => { try { localStorage.setItem('qq.durs', JSON.stringify(GW.durDefaults)); } catch (e) {} };
+
+/* duration counter «عداد»: minutes and seconds with − / + buttons (hold to repeat, mouse wheel); typing stays optional */
+GW.durCounter = (sec, onChange, o = {}) => {
+  const w = document.createElement('div'); w.className = 'dcount'; w.dir = 'rtl'; let v = Math.max(o.min || .1, +sec || 0);
+  const part = (label, get, set, step) => {
+    const b = document.createElement('div'); b.className = 'dc-part';
+    const minus = document.createElement('button'); minus.type = 'button'; minus.className = 'dc-btn'; minus.textContent = '−';
+    const plus = document.createElement('button'); plus.type = 'button'; plus.className = 'dc-btn'; plus.textContent = '+';
+    const inp = document.createElement('input'); inp.className = 'dc-num'; inp.inputMode = 'numeric';
+    const lab = document.createElement('span'); lab.className = 'dc-lab'; lab.textContent = label;
+    const nudge = (d) => { set(get() + d); };
+    const hold = (btn, d) => { let t1, t2; const stop = () => { clearTimeout(t1); clearInterval(t2); }; btn.onpointerdown = (e) => { e.preventDefault(); nudge(d); t1 = setTimeout(() => { t2 = setInterval(() => nudge(d), 70); }, 380); }; btn.onpointerup = btn.onpointerleave = btn.onpointercancel = stop; };
+    hold(plus, step); hold(minus, -step);
+    inp.onkeydown = (e) => { e.stopPropagation(); if (e.key === 'ArrowUp') { e.preventDefault(); nudge(step); } else if (e.key === 'ArrowDown') { e.preventDefault(); nudge(-step); } else if (e.key === 'Enter') inp.blur(); };
+    inp.onchange = () => { const n = parseFloat(String(inp.value).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))); if (isFinite(n)) set(n, true); else paint(); };
+    inp.onwheel = (e) => { e.preventDefault(); nudge(e.deltaY < 0 ? step : -step); };
+    b.append(plus, inp, minus, lab); b.inp = inp; return b;
+  };
+  const mins = () => Math.floor(v / 60), secs = () => Math.round((v - mins() * 60) * 10) / 10;
+  const setV = (nv) => { v = Math.max(o.min || .1, Math.min(o.max || 36000, Math.round(nv * 10) / 10)); paint(); onChange && onChange(v); };
+  const M = part('دقيقة', mins, (n, abs) => setV(abs ? Math.max(0, n) * 60 + secs() : v + (n - mins()) * 60), 1);
+  const S = part('ثانية', secs, (n, abs) => setV(abs ? mins() * 60 + Math.max(0, n) : v + (n - secs())), 1);
+  const paint = () => { M.inp.value = mins(); S.inp.value = secs(); };
+  w.append(M, S); paint(); w.get = () => v; w.set = (nv) => { v = nv; paint(); }; return w;
+};

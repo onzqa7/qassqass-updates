@@ -346,7 +346,7 @@
       '-', { label: 'الشاشة الرئيسية', action: () => GW.UI.home() }, { label: 'اختصارات لوحة المفاتيح', action: C.shortcuts }
     ]],
     ['مقطع', () => [
-      { label: 'إعادة تسمية…', action: C.rename }, { label: 'السرعة / المدة…', key: 'Ctrl+R', action: C.speed }, { label: 'المدة…', key: 'Ctrl+Shift+R', action: () => GW.UI.durationDialog(sel()) }, { label: 'المدد الافتراضية للعناصر الجديدة…', action: () => GW.UI.durDefaultsDialog() },
+      { label: 'إعادة تسمية…', action: C.rename }, { label: 'السرعة / المدة…', key: 'Ctrl+R', action: C.speed }, { label: 'المدة…', action: () => GW.UI.durationDialog(sel()) }, { label: 'المدد الافتراضية للعناصر الجديدة…', action: () => GW.UI.durDefaultsDialog() },
       { label: 'تفعيل / تعطيل', key: 'Shift+E', action: C.toggleEnable }, { label: 'ربط / فك ربط', key: 'Ctrl+L', action: C.link }, { label: 'فصل الصوت عن الفيديو', action: C.detachAudio },
       '-', { label: 'ملاءمة حجم الإطار', action: () => C.fitFrame(false) }, { label: 'ملء الإطار', action: () => C.fitFrame(true) }, { label: 'تجميد الإطار عند المؤشر', action: C.freeze },
       '-', { label: 'لون التسمية', sub: LBL() }
@@ -438,7 +438,7 @@
       if (K === 'm') return run(C.exportMedia); if (K === 'e' && sh) return run(C.exportFrame);
       if (K === 'k') return run(() => C.addEdit(sh)); if (K === 'd') return run(() => C.defaultTrans(sh));
       if (K === 'c') return run(() => C.copy()); if (K === 'x') return run(sh ? C.clearIO : () => C.copy(true)); if (K === 'v') return run(alt ? C.pasteAttrs : () => C.paste(sh));
-      if (K === 'a') return run(sh ? C.deselect : C.selectAll); if (K === 'l') return run(C.link); if (K === 'r') return run(sh ? C.duration : C.speed);
+      if (K === 'a') return run(sh ? C.deselect : C.selectAll); if (K === 'l') return run(C.link); if (K === 'r') return run(C.speed);
       if (K === 't') return run(() => C.newText()); if (K === 'g') return run(C.newMap); if (K === 'n' && alt) return run(C.newProject);
       if (K === '/' && sh) return run(C.duplicate); if (K === 'm' && sh) return run(() => C.nextMarker(-1));
       return;

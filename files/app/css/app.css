@@ -1759,3 +1759,11 @@ html[dir=ltr] .mxt-in{background:linear-gradient(to right,rgba(76,194,255,.55),r
 /* full-screen preview (Premiere style) */
 .mon-view:fullscreen{background:#000!important;width:100vw;height:100vh}
 .mon-view:fullscreen .mon-overlay{display:none}
+
+/* duration counter */
+.dcount{display:inline-flex;gap:10px;align-items:center;flex-wrap:wrap}
+.dc-part{display:inline-flex;align-items:center;gap:4px}
+.dc-btn{width:26px;height:26px;border-radius:6px;border:1px solid var(--line,#333);background:var(--bg3,#22262d);color:var(--text,#eee);font-size:16px;line-height:1;cursor:pointer;user-select:none;touch-action:none}
+.dc-btn:hover{background:var(--acc,#ff6a2b);color:#fff;border-color:transparent}
+.dc-num{width:48px;height:26px;text-align:center;border-radius:6px;border:1px solid var(--line,#333);background:var(--bg1,#111);color:var(--text,#eee);font:600 13px var(--mono,monospace)}
+.dc-lab{font-size:12px;color:var(--text2,#aaa);margin-inline-start:2px}

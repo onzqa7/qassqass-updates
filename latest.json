@@ -1,8 +1,8 @@
 {
- "version": "3.0.8",
- "date": "2026-11-01T00:39:41.958Z",
- "notes_ar": "مدة الخريطة بالدقائق والثواني. أمر «المدة…» (Ctrl+Shift+R) لأي عنصر. «المدد الافتراضية» للعناصر الجديدة. الانتقال لتوقيت بكتابة 90 أو 1:30 بالنقر على التوقيت.",
- "notes_en": "Map duration in min:sec. Duration… (Ctrl+Shift+R) for any item. Default durations for new items. Go to a time by clicking the timecode (90 or 1:30).",
+ "version": "3.0.9",
+ "date": "2026-11-01T12:22:23.739Z",
+ "notes_ar": "المدة صارت عداد دقائق وثواني بأزرار + و −، وتطلع من الزر الأيمن على المقطع بدون اختصار.",
+ "notes_en": "Duration is now a minutes/seconds counter with + / − buttons, from the clip right-click menu (no shortcut).",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -39,8 +39,8 @@
   },
   {
    "path": "app/css/app.css",
-   "size": 165148,
-   "sha256": "23806356050847f670367b49639e4d0fa17cb4cc4a7d03fa33f31f3babcc2583"
+   "size": 165858,
+   "sha256": "bc6786a49e8bc1c5c86a31d54377b543c36b5420e98c24a7dd970b1301ae3a76"
   },
   {
    "path": "app/fonts/amiri-arabic-400-normal.woff2",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 302300,
-   "sha256": "c21f5cca3e7b03435ecc27cde3b6e27a5148956e11bdb1d6ed2372a8821bb360"
+   "size": 302405,
+   "sha256": "d4a8520101c8237a326cc5f62bfebbd91c35df8c90506da2541462cbaaf47c73"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 306243,
-   "sha256": "1ae4a68f20057f3e4cb20f986b08e5a5ad1aa22ae41f33abbfacf817fb490e1d"
+   "size": 306354,
+   "sha256": "04cca3189a23a859c9cadc3cb2ebf7629095eb0ebb52b86e0673b75e0b11cfb4"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -764,8 +764,8 @@
   },
   {
    "path": "app/js/app.js",
-   "size": 56123,
-   "sha256": "f30833c95e76d4347f476684414577f451b1909451e80fec94072f1e838c244d"
+   "size": 56084,
+   "sha256": "46bc7afb79426b104d1922c6f09be6f5f2f7d9b11106aeb8963f722c31fb76af"
   },
   {
    "path": "app/js/asr_core.js",
@@ -954,8 +954,8 @@
   },
   {
    "path": "app/js/shortcuts.js",
-   "size": 40868,
-   "sha256": "4fb52e3e849b3026d9c42ae307e0cc9e055def24108c4bcce548289493e5b442"
+   "size": 40787,
+   "sha256": "6327ba3aeb91bde039e80c0c60def3b1bca790566b0d82448f093100ec4d5657"
   },
   {
    "path": "app/js/text.js",
@@ -1039,8 +1039,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 115976,
-   "sha256": "c432837883e3f4c446ebdbc0476a53c672dc69e57aa393da686da65c54a1ecdb"
+   "size": 115712,
+   "sha256": "2808a0dfd4323a52a8058c3fd621eb9dd03c46a492f7d814c4816cf1d73899fc"
   },
   {
    "path": "app/js/ui_mapcam.js",
@@ -1049,8 +1049,8 @@
   },
   {
    "path": "app/js/ui_mapux.js",
-   "size": 58994,
-   "sha256": "4e1ecb51dfa00ec9698c7ee4a6a9b69ceefd5c169cd7b8af44dca82990ef63ab"
+   "size": 58695,
+   "sha256": "e27beda73c84a13a82182e248e9d3905df5af3729414f45a689a0d379857c202"
   },
   {
    "path": "app/js/ui_monitors.js",
@@ -1064,8 +1064,8 @@
   },
   {
    "path": "app/js/ui_panels.js",
-   "size": 79105,
-   "sha256": "4b8d88f6a1c2fbdb815ad25af11fb45d5036c5defddf0bff0063a0dce184323d"
+   "size": 78712,
+   "sha256": "74e974e5714361f54f9a99380b00b115486b09ac3dd06875d19eaf67a65c2648"
   },
   {
    "path": "app/js/ui_photocrop.js",
@@ -1089,8 +1089,8 @@
   },
   {
    "path": "app/js/ui_timeline.js",
-   "size": 92476,
-   "sha256": "46096765c1e7da2cb97742cd089cbf5fd9f2246c6e387dc18628ba3327c379be"
+   "size": 92455,
+   "sha256": "535cffa732255c382222b61779c43d13db4f77e4f620a96767265b8cd4157d48"
   },
   {
    "path": "app/js/ui_tts.js",
@@ -1124,8 +1124,8 @@
   },
   {
    "path": "app/js/util.js",
-   "size": 15211,
-   "sha256": "b5559d4f17d49e7526d92968b3a3da6636e7a573f54b75c9e1a0e4aa252a1871"
+   "size": 17663,
+   "sha256": "797467777113ef757498db3bf282b4f5022d87771d23dff1a6e2b01d5b20ff13"
   },
   {
    "path": "app/js/xform.js",
@@ -4710,7 +4710,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "d801c8d07f4521bc8379dc32058a475b1accc61a2095c26dad5328e9f4ae5184"
+   "sha256": "7fd2a53fa88f44de7d751bebd4ffeb7e8dfc10dfb50e153df8fb543f3f022970"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4723,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "IkkC0nZBZ/AW0XzJFzrAn1jGSDrD8uenW7+8IN4733gNco3+nemZwNP40qukkXtC54c+pl/SCd9IIVgDPJhRCA=="
+ "sig": "re+IRWDUnq2Ysll8D1fSk4EQn/49NJmuHrejvmRJvkd6Mn7goW8ArQ9aDxHD+yOahcEI+TxPetaN/E3HW52sCg=="
 }
