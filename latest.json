@@ -1,8 +1,8 @@
 {
- "version": "3.0.9",
- "date": "2026-11-01T12:22:23.739Z",
- "notes_ar": "المدة صارت عداد دقائق وثواني بأزرار + و −، وتطلع من الزر الأيمن على المقطع بدون اختصار.",
- "notes_en": "Duration is now a minutes/seconds counter with + / − buttons, from the clip right-click menu (no shortcut).",
+ "version": "3.1.0",
+ "date": "2026-11-01T12:27:39.980Z",
+ "notes_ar": "ضبط صورة القائد: معاينة في اللوحة، واختيار شكل الإطار (9 أشكال) مع التكبير والتحريك والتدوير، وأخذ الصورة من الخط الزمني.",
+ "notes_en": "Leader photo: preview in the panel, frame shape picker (9 shapes) with zoom, pan and rotate, and grab from the timeline.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 302405,
-   "sha256": "d4a8520101c8237a326cc5f62bfebbd91c35df8c90506da2541462cbaaf47c73"
+   "size": 302712,
+   "sha256": "12bccc41fc44f413d13a9969e307332548dd621adaea57351c6b9029bec2650c"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 306354,
-   "sha256": "04cca3189a23a859c9cadc3cb2ebf7629095eb0ebb52b86e0673b75e0b11cfb4"
+   "size": 306679,
+   "sha256": "1255eaa35fbe6113865a228f44e617e9e16bf9ee338f3719b95419f1aa5fff17"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -1039,8 +1039,8 @@
   },
   {
    "path": "app/js/ui_map.js",
-   "size": 115712,
-   "sha256": "2808a0dfd4323a52a8058c3fd621eb9dd03c46a492f7d814c4816cf1d73899fc"
+   "size": 116513,
+   "sha256": "a4b5b87184f1cd01763ed4551ccce6f0d621e675e85240bf0f361c1c2a10a877"
   },
   {
    "path": "app/js/ui_mapcam.js",
@@ -1069,8 +1069,8 @@
   },
   {
    "path": "app/js/ui_photocrop.js",
-   "size": 13112,
-   "sha256": "f11fc872f2c7114282c956586da43ab0865fa9525287d6e0b7ecf7c007eb9be7"
+   "size": 14908,
+   "sha256": "0d5e16a62979106e4cf996d68aed1e64703cbb27b74fb1d23020f3872dc844fe"
   },
   {
    "path": "app/js/ui_project.js",
@@ -4710,7 +4710,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "7fd2a53fa88f44de7d751bebd4ffeb7e8dfc10dfb50e153df8fb543f3f022970"
+   "sha256": "ee7f349817830dd569d34402e6038eebc8e8f0aa748bc913e6df4fcd722bda8d"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4723,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "re+IRWDUnq2Ysll8D1fSk4EQn/49NJmuHrejvmRJvkd6Mn7goW8ArQ9aDxHD+yOahcEI+TxPetaN/E3HW52sCg=="
+ "sig": "O91yzma4Z7Z4MUfuSjszvJfrpOLAgMiriXjcRD9dK086L30/CELkImRwcmv9YkOTe5z7EdvMxtdYwYzrmAlpAg=="
 }

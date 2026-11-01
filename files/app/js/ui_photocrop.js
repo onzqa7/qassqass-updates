@@ -28,6 +28,7 @@
     }
   };
   // shape of a map image layer (leader): display style first, else the portrait shape
+  PC.SHAPES = [['circle', 'دائرة'], ['square', 'مربع'], ['rounded', 'مربع مستدير'], ['hex', 'سداسي'], ['shield', 'درع'], ['medallion', 'ميدالية'], ['coin', 'عملة'], ['heraldic', 'شعار نبالة'], ['banner', 'راية']];
   PC.shapeFor = (Ly) => Ly.disp === 'banner' ? 'banner' : (Ly.disp && WR() && WR().frameShape[Ly.disp]) ? Ly.disp : (Ly.shape || 'circle');
   PC.norm = (c) => ({ x: +(+(c && c.x) || 0).toFixed(4), y: +(+(c && c.y) || 0).toFixed(4), scale: +Math.max(.2, Math.min(8, +(c && c.scale) || 1)).toFixed(4), rot: +(+(c && c.rot) || 0).toFixed(2) });
   // render a frame preview (also used by tests): canvas with the cropped photo inside the mask
@@ -44,7 +45,7 @@
   const loadImg = (src) => new Promise((res, rej) => { if (src && src.naturalWidth) return res(src); const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = () => rej(new Error(tr('تعذر فتح الصورة'))); im.src = src; });
 
   PC.open = async (o = {}) => {
-    const im = await loadImg(o.image || o.src); const shape = o.shape || 'circle'; let crop = PC.norm(o.crop); const crop0 = PC.norm(o.crop);
+    const im = await loadImg(o.image || o.src); let shape = o.shape || 'circle'; let crop = PC.norm(o.crop); const crop0 = PC.norm(o.crop);
     const body = document.createElement('div'); body.className = 'pc-dlg';
     const cv = document.createElement('canvas'); cv.width = 420; cv.height = 420; cv.className = 'pc-cv'; cv.title = tr('اسحب لتحريك الصورة، استخدم العجلة للتكبير');
     const ctl = document.createElement('div'); ctl.className = 'pc-ctl';
@@ -55,7 +56,9 @@
     const bar = document.createElement('div'); bar.className = 'pc-bar';
     const b = (ico, label, f) => { const e = document.createElement('button'); e.className = 'btn sm'; e.innerHTML = GW.ico(ico, 13) + ' ' + GW.esc(label); e.onclick = () => { f(); sync(); upd(); }; return e; };
     bar.append(b('reset', tr('إعادة الضبط'), () => { crop = PC.norm(null); }), b('zoom', tr('تقريب الوجه'), () => { crop.scale = Math.max(crop.scale, 1.6); crop.y = .12; }), b('undo', tr('كما كانت'), () => { crop = PC.norm(crop0); }));
-    ctl.append(zr, rr, bar); body.append(cv, ctl);
+    // shape chips «شكل الإطار» (only when the caller can change it)
+    let shp = null; if (o.onShape) { shp = document.createElement('div'); shp.className = 'pc-shapes'; for (const [k, n] of PC.SHAPES) { const e = document.createElement('button'); e.className = 'chip' + (k === shape ? ' on' : ''); e.dataset.k = k; const mini = document.createElement('canvas'); mini.width = mini.height = 44; PC.render(mini, im, k, crop, { fill: .9, ghost: false, bg: 'transparent' }); e.append(mini, document.createTextNode(tr(n))); e.onclick = () => { shape = k; o.onShape(k); shp.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x.dataset.k === k)); upd(); }; shp.append(e); } }
+    ctl.append(zr, rr, bar); body.append(...(shp ? [shp] : []), cv, ctl);
     let grid = false;
     const upd = () => { crop = PC.norm(crop); PC.render(cv, im, shape, crop, { grid }); o.onChange && o.onChange(Object.assign({}, crop)); };
     // drag / wheel; screen px → box fraction
@@ -77,7 +80,10 @@
   PC.forLayer = async (c, Ly) => {
     const sc = sceneOf(c); if (!Ly || !sc) return null; const src = sc.images && sc.images[Ly.img]; if (!src) { GW.toast(tr('اختر صورة القائد أولًا')); return null; }
     const before = Ly.crop ? Object.assign({}, Ly.crop) : null;
-    const r = await PC.open({ src, shape: PC.shapeFor(Ly), crop: Ly.crop, title: tr('قص صورة القائد'), onChange: (cr) => { Ly.crop = cr; GW.invalidate(); } });
+    const shape0 = { shape: Ly.shape, disp: Ly.disp };
+    const onShape = (k) => { if (k === 'banner' || k === 'medallion' || k === 'coin' || k === 'heraldic') Ly.disp = k; else { if (['banner', 'medallion', 'coin', 'heraldic'].includes(Ly.disp)) delete Ly.disp; Ly.shape = k; } GW.invalidate(); };
+    const r = await PC.open({ src, shape: PC.shapeFor(Ly), crop: Ly.crop, title: tr('ضبط صورة القائد'), onShape, onChange: (cr) => { Ly.crop = cr; GW.invalidate(); } });
+    if (!r) { Ly.shape = shape0.shape; if (shape0.disp == null) delete Ly.disp; else Ly.disp = shape0.disp; }
     if (r) { Ly.crop = r; GW.commit(tr('قص صورة القائد')); } else { if (before) Ly.crop = before; else delete Ly.crop; }
     GW.invalidate(); return r;
   };
@@ -120,6 +126,11 @@
 .pc-ctl .frow label{width:70px;font-size:12px}
 .pc-ctl .frow input{flex:1}
 .pc-ctl .frow .val{width:44px;font-size:11px;direction:ltr;text-align:left;color:var(--text2)}
-.pc-bar{display:flex;gap:6px;flex-wrap:wrap}`;
+.pc-bar{display:flex;gap:6px;flex-wrap:wrap}
+.pc-shapes{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.pc-shapes .chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 6px;font-size:11px;height:auto}
+.pc-shapes canvas{width:36px;height:36px}
+.pc-thumb{display:flex;gap:10px;align-items:center;margin:6px 0}
+.pc-thumb canvas{width:84px;height:84px;border-radius:8px;cursor:pointer;background:#15171b}`;
   document.head.append(css);
 })();
