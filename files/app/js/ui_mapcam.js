@@ -227,12 +227,16 @@
 
   /* ================= «كاميرا الخريطة» viewer panel ================= */
   const V = CK.view = { path: true, safe: true, ver: 0, memo: null };
+  const prefs = (() => { try { return JSON.parse(localStorage.getItem('qq.mcvCols') || '{}') || {}; } catch (e) { return {}; } })();
+  V.frameC = () => prefs.frameC || '#ffd400'; V.stageC = () => prefs.stageC || '#2a2d33';
+  V.setPref = (k, v) => { prefs[k] = v; try { localStorage.setItem('qq.mcvCols', JSON.stringify(prefs)); } catch (e) {} if (V.stage) V.stage.style.background = V.stageC() === 'none' ? '' : V.stageC(); V.ovDirty = true; GW.invalidate(); };
   { const inv0 = GW.invalidate; GW.invalidate = () => { V.ver++; inv0(); }; }
   const viewClip = () => { const c = CK.clip(); if (c) return c; const s = GW.seq(); return s.clips.filter(x => isMap(x) && s.t >= x.start && s.t < x.start + x.dur).sort((a, b) => b.ti - a.ti)[0] || null; };
   GW.registerPanel('mapcam', 'كاميرا الخريطة', (el) => {
     el.classList.add('mcv-root');
     el.innerHTML = `<div class="mcv" dir="rtl"><div class="mcv-bar" data-a="bar"></div><div class="mcv-stage" data-a="stage" dir="ltr"><canvas data-a="cv"></canvas><canvas data-a="ov" tabindex="0"></canvas><div class="mcv-empty" data-a="empty" dir="rtl"></div></div><div class="mcv-strip" data-a="strip" dir="ltr"><canvas data-a="sc"></canvas></div></div>`;
     V.el = el; V.stage = el.querySelector('[data-a=stage]'); V.cv = el.querySelector('[data-a=cv]'); V.ov = el.querySelector('[data-a=ov]'); V.sc = el.querySelector('[data-a=sc]'); V.bar = el.querySelector('[data-a=bar]'); V.empty = el.querySelector('[data-a=empty]');
+    if (V.stage) V.stage.style.background = V.stageC();
     initViewer(); buildBar(); V.ver++; tick();
   });
   const fit = () => {
@@ -302,7 +306,7 @@
     const g = V.ov.getContext('2d'); const dpr = devicePixelRatio || 1; g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, V.ov.width, V.ov.height);
     if (!f) return;
     // frame border + safe areas (exactly what the export shows)
-    g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 1; g.strokeRect(Math.round(f.x) + .5, Math.round(f.y) + .5, Math.round(f.w) - 1, Math.round(f.h) - 1);
+    { const fc = V.frameC(); if (fc !== 'none') { g.strokeStyle = fc; g.lineWidth = 2; g.strokeRect(Math.round(f.x) + 1, Math.round(f.y) + 1, Math.round(f.w) - 2, Math.round(f.h) - 2); } }
     if (V.safe && c) { g.strokeStyle = 'rgba(255,255,255,.22)'; g.setLineDash([4, 4]); for (const m of [.05, .1]) g.strokeRect(f.x + f.w * m + .5, f.y + f.h * m + .5, f.w * (1 - 2 * m), f.h * (1 - 2 * m)); g.setLineDash([]); const cx = f.x + f.w / 2, cy = f.y + f.h / 2; g.beginPath(); g.moveTo(cx - 7, cy); g.lineTo(cx + 7, cy); g.moveTo(cx, cy - 7); g.lineTo(cx, cy + 7); g.stroke(); }
     if (!c) return;
     if (V.path && !GW.pb.playing) { try { drawPath(g, f, c); } catch (e) { console.error(e); } }
@@ -427,6 +431,16 @@
     b.append(sep(), q);
     const tg = (label, k, title) => { const x = document.createElement('button'); x.className = 'btn sm ghost mcv-tg' + (V[k] ? ' on' : ''); x.textContent = label; x.title = title; x.onclick = () => { V[k] = !V[k]; x.classList.toggle('on', V[k]); V.ovDirty = true; }; return x; };
     b.append(sep(), tg('المسار', 'path', 'إظهار مسار حركة الكاميرا'), tg('الإطار الآمن', 'safe', 'إظهار حدود الإطار الآمن'));
+    { const x = document.createElement('button'); x.className = 'btn sm ghost'; x.textContent = 'الألوان'; x.title = 'لون الخلفية حول الإطار، لون حدود الإطار 16:9، ولون خلفية الفيديو';
+      x.onclick = () => { const pop = document.createElement('div'); document.querySelectorAll('.fcol-pop').forEach(e => e.remove());
+        const p = GW.colorPop(x, { title: 'لون حدود إطار 16:9', value: V.frameC(), transparent: 'شفاف', onPick: v => { V.setPref('frameC', v); } });
+        const add = (title, val, cb, tlabel) => { const t = document.createElement('div'); t.className = 'fcol-t'; t.textContent = title; const r = document.createElement('div'); r.className = 'fcol-row';
+          for (const c of ['#0b0d10', '#2a2d33', '#4a4f57', '#7a808a', '#c9ccd1', '#ffffff', '#1d2b3a', '#3a2a1d']) { const b = document.createElement('button'); b.className = 'fcol-sw' + (val === c ? ' on' : ''); b.style.background = c; b.onclick = () => { cb(c); p.remove(); }; r.append(b); }
+          const ci = document.createElement('input'); ci.type = 'color'; ci.value = /^#[0-9a-f]{6}$/i.test(val || '') ? val : '#000000'; ci.oninput = () => cb(ci.value); r.append(ci); p.append(t, r);
+          if (tlabel) { const tb = document.createElement('button'); tb.className = 'btn sm'; tb.textContent = tlabel; tb.onclick = () => { cb('none'); p.remove(); }; p.append(tb); } };
+        add('لون الخلفية حول الإطار (للمعاينة فقط)', V.stageC(), v => V.setPref('stageC', v));
+        add('لون خلفية الفيديو خلف المقطع الصغير (يظهر في التصدير)', GW.seq().bg || 'none', v => { const s = GW.seq(); if (v === 'none') delete s.bg; else s.bg = v; GW.commit('لون خلفية التسلسل'); GW.invalidate(); }, 'بدون (أسود)');
+        void pop; }; b.append(x); }
     refreshBar();
   }
 

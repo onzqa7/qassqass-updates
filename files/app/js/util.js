@@ -253,3 +253,18 @@ GW.durCounter = (sec, onChange, o = {}) => {
   const paint = () => { M.inp.value = mins(); S.inp.value = secs(); };
   w.append(M, S); paint(); w.get = () => v; w.set = (nv) => { v = nv; paint(); }; return w;
 };
+
+/* small colour popover: GW.colorPop(anchor, {title, value, swatches, transparent: 'label', onPick(v|'none')}) */
+GW.colorPop = (anchor, o = {}) => {
+  document.querySelectorAll('.fcol-pop').forEach(e => e.remove());
+  const pop = document.createElement('div'); pop.className = 'fcol-pop'; pop.dir = 'rtl';
+  const t = document.createElement('div'); t.className = 'fcol-t'; t.textContent = o.title || ''; pop.append(t);
+  const row = document.createElement('div'); row.className = 'fcol-row';
+  for (const c of o.swatches || ['#ffd400', '#ff6a2b', '#ff3b5c', '#4cc2ff', '#3ddc84', '#b26bff', '#ffffff', '#000000']) { const b = document.createElement('button'); b.className = 'fcol-sw' + (o.value === c ? ' on' : ''); b.style.background = c; b.title = c; b.onclick = () => { o.onPick(c); pop.remove(); }; row.append(b); }
+  const ci = document.createElement('input'); ci.type = 'color'; ci.value = /^#[0-9a-f]{6}$/i.test(o.value || '') ? o.value : '#808080'; ci.oninput = () => o.onPick(ci.value); row.append(ci); pop.append(row);
+  if (o.transparent) { const tb = document.createElement('button'); tb.className = 'btn sm' + (o.value === 'none' ? ' pri' : ''); tb.textContent = o.transparent; tb.onclick = () => { o.onPick('none'); pop.remove(); }; pop.append(tb); }
+  document.body.append(pop); const r = anchor.getBoundingClientRect(); pop.style.left = Math.max(8, Math.min(innerWidth - pop.offsetWidth - 8, r.left + r.width / 2 - pop.offsetWidth / 2)) + 'px';
+  pop.style.top = (r.top - pop.offsetHeight - 8 > 8 ? r.top - pop.offsetHeight - 8 : r.bottom + 8) + 'px';
+  setTimeout(() => { const off = (e) => { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener('pointerdown', off, true); } }; document.addEventListener('pointerdown', off, true); }, 0);
+  return pop;
+};

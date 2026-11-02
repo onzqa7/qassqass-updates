@@ -1,8 +1,8 @@
 {
- "version": "3.2.1",
- "date": "2026-11-02T20:52:11.506Z",
- "notes_ar": "إطار المقطع في المعاينة صار أصفر وواضح، وزر جديد تحت المعاينة لاختيار لونه أو جعله شفافاً.",
- "notes_en": "The clip frame in the preview is now a clear yellow; a new button under the preview picks its colour or makes it transparent.",
+ "version": "3.2.2",
+ "date": "2026-11-02T20:58:16.105Z",
+ "notes_ar": "لون حدود إطار 16:9 والخلفية حوله في كاميرا الخريطة، ولون خلفية الفيديو خلف المقطع الصغير. لوحة السيطرة بأشكال جديدة: شريط علوي أو سفلي بطرف في كل جهة، أو كل طرف في زاوية.",
+ "notes_en": "16:9 frame border and surrounding colours in the map camera, plus a video background colour behind smaller clips. New control-panel layouts: top/bottom bar with a side at each end, or each side in a corner.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 304568,
-   "sha256": "b90baa0f260ff2363706725c4317bb5bf4a92ba72668beb9ccf9d4ead2074acc"
+   "size": 305675,
+   "sha256": "ddf17e9d5565505dc60df24929aa3429ab4b136b207918a8eaf95533625920db"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 308589,
-   "sha256": "2e3768c605be18b9cf1efd2fcb86c629c384913c20729f05bb0380b88d6e3a4f"
+   "size": 309735,
+   "sha256": "a2c513a015a6a51613e15f731dc41a5de98d4a0094d0a6f968ddab6bb034e0b9"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -819,8 +819,8 @@
   },
   {
    "path": "app/js/atlas/war.js",
-   "size": 113883,
-   "sha256": "0c43ad1f8889f9c4d7d5b720e58e3af1436fe5fe7099d6fed2a1f89b6113cdd4"
+   "size": 118177,
+   "sha256": "218d1ed198cd7d3f22362977ec2cdbb9922dad258e745926ff8b83fb806992e9"
   },
   {
    "path": "app/js/audio.js",
@@ -924,8 +924,8 @@
   },
   {
    "path": "app/js/render.js",
-   "size": 18644,
-   "sha256": "621cd9430dd2b450408799e582e37c43752d9c6c62ae85b5cc951ba4c2bf79bb"
+   "size": 18824,
+   "sha256": "609b2973c023a3969e8075476ebda03463d6adf45c593378b5ca620faa0e6a48"
   },
   {
    "path": "app/js/s3d.js",
@@ -1044,8 +1044,8 @@
   },
   {
    "path": "app/js/ui_mapcam.js",
-   "size": 50867,
-   "sha256": "a0e668a6c8f7d7d14ca55cd0d0987303e78cc64af63491505f902758efd32a6c"
+   "size": 53298,
+   "sha256": "e9f162da4025955f1212cf0589eb0051fecd2b285caf06e566ba6382219ca642"
   },
   {
    "path": "app/js/ui_mapux.js",
@@ -1054,8 +1054,8 @@
   },
   {
    "path": "app/js/ui_monitors.js",
-   "size": 38810,
-   "sha256": "3604ca698889742a53ff819e4df7597e13c97d5eb84aad17bb56ecbf05530bf8"
+   "size": 39771,
+   "sha256": "9443c613dae42ada6d2a43e9b9d027dc1eed45dca8f6497b6e20d6410fe9bd48"
   },
   {
    "path": "app/js/ui_ofx.js",
@@ -1114,8 +1114,8 @@
   },
   {
    "path": "app/js/ui_war.js",
-   "size": 41557,
-   "sha256": "5ed2ffb4b2cf3b9e323cdc14e12f7bc7be18ab2955494275647f1224ffbb9a19"
+   "size": 41833,
+   "sha256": "2f01d9db1bd41c72182bb360ba1766ddd81923297f2b4a2695e2733a16921d77"
   },
   {
    "path": "app/js/ui_workspaces.js",
@@ -1124,8 +1124,8 @@
   },
   {
    "path": "app/js/util.js",
-   "size": 17663,
-   "sha256": "797467777113ef757498db3bf282b4f5022d87771d23dff1a6e2b01d5b20ff13"
+   "size": 19458,
+   "sha256": "72ecd9d1c8f6acd565f17a430ca51ec9f43011712722f0433b8ad5e318d274c5"
   },
   {
    "path": "app/js/xform.js",
@@ -4740,7 +4740,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "fe96d945cde9aeb1492b36d419a5408e006ccde440f8ec47ecdfebff1e3acc4d"
+   "sha256": "2cc92672a5acd80cb8918866fb9af89af78ea4b24d7eb785af98e52ccdeefb18"
   },
   {
    "path": "preload.js",
@@ -4753,5 +4753,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "YB2Qq3VB5U1asuvZLuwveEpayJwHLI5NcRmCh7r86xOZH+3duMVngWyklWTBhuw00K+WQFDopmLO3k2zu/HaBg=="
+ "sig": "l8w1b1KrrYyz87Vl1y04b3qSTnE050qSPWS+JxT3DjEC4m4rSK+ZBgDohGFrgeiDlo9gtmVOpHg0WWyzvXGdCQ=="
 }

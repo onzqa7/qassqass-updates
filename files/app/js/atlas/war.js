@@ -615,8 +615,42 @@
     for (const c of m.cities.values()) { const o = st.cityOwn.get(c.key); if (out[o]) out[o].cities++; }
     const baseSides = [...lost]; return { out, baseSides };
   };
+  const cityWord = (n) => n + ' ' + (n === 1 ? 'مدينة' : n === 2 ? 'مدينتان' : n >= 3 && n <= 10 ? 'مدن' : 'مدينة');
+  // other control-panel layouts: «شريط علوي» / «شريط سفلي» (one bar, sides at both ends) and «كل طرف في جهة» (a card per side in the corners)
+  function scoreAlt(g, L, m, sc, s, W, H, k, fam, ls, pin) {
+    const sides = L.sides || []; const panel = (x, y, w, h, r) => { g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 16 * k; g.fillStyle = 'rgba(10,12,16,.8)'; g.beginPath(); if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h); g.fill(); g.shadowBlur = 0; };
+    const pct = (id) => { const v = sc.out[id].pct; return v.toFixed(v < 10 ? 1 : 0) + '%'; };
+    let title = L.legendTitle; if (!title) { const bs = sc.baseSides.map(id => sideOf(L, id)).filter(Boolean); title = bs.length === 1 ? 'السيطرة على أراضي ' + bs[0].name : 'السيطرة الميدانية'; }
+    g.save(); g.globalAlpha = s.a * pin;
+    if (ls === 'top' || ls === 'bottom') {
+      const w = Math.min(W - 80 * k, 980 * k), h = 74 * k, x0 = (W - w) / 2, y0 = ls === 'top' ? 34 * k : H - 34 * k - h; g.translate(0, (1 - pin) * (ls === 'top' ? -14 : 14) * k);
+      Object.defineProperty(L, '__sb', { value: [x0, y0, x0 + w, y0 + h], configurable: true, writable: true, enumerable: false });
+      panel(x0, y0, w, h, 8 * k); const A = sides[0], B = sides[1]; const px = 22 * k, pad = 20 * k;
+      V.haloText(g, title, W / 2, y0 + 17 * k, 14 * k, '#cfc6b3', null, fam, 700, 'center');
+      const bw = w * .36, bx = W / 2 - bw / 2, by = y0 + h * .58; let sum = 0; for (const sd of sides) sum += sc.out[sd.id].pct; sum = Math.max(sum, 100);
+      let xx = bx + bw; for (const sd of sides) { const ww = bw * sc.out[sd.id].pct / sum; g.fillStyle = sd.color; g.fillRect(xx - ww, by - 5 * k, ww, 10 * k); xx -= ww; } // first side grows from the right (RTL)
+      g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = 1 * k; g.strokeRect(bx, by - 5 * k, bw, 10 * k);
+      const end = (sd, right) => { if (!sd) return; const ex = right ? x0 + w - pad : x0 + pad, al = right ? 'right' : 'left'; g.fillStyle = sd.color; g.fillRect(right ? ex - 6 * k : ex, y0 + h * .3, 6 * k, h * .5);
+        const nx = right ? ex - 16 * k : ex + 16 * k; V.haloText(g, sd.name || '', nx, y0 + h * .4, px, '#ffffff', null, fam, 800, al);
+        const sub = pct(sd.id) + (m.cities.size ? '  ·  ' + cityWord(sc.out[sd.id].cities) : ''); V.haloText(g, sub, nx, y0 + h * .72, px * .8, '#d8d2c4', null, fam, 700, al); };
+      end(A, true); end(B, false);
+    } else { // split: one card per side, side 1 top-right, side 2 top-left, more sides in the bottom corners
+      const w = 330 * k, h = (m.cities.size ? 104 : 86) * k, mg = 36 * k; const spots = [[W - mg - w, mg], [mg, mg], [W - mg - w, H - mg - h], [mg, H - mg - h]]; const boxes = [];
+      g.translate(0, (1 - pin) * -12 * k);
+      sides.slice(0, 4).forEach((sd, i) => { const [x0, y0] = spots[i]; boxes.push([x0, y0, x0 + w, y0 + h]); const right = i % 2 === 0; panel(x0, y0, w, h, 8 * k);
+        g.fillStyle = sd.color; g.fillRect(right ? x0 + w - 6 * k : x0, y0, 6 * k, h);
+        const tx = right ? x0 + w - 22 * k : x0 + 22 * k, al = right ? 'right' : 'left';
+        V.haloText(g, sd.name || '', tx, y0 + 26 * k, 22 * k, '#ffffff', null, fam, 800, al);
+        V.haloText(g, pct(sd.id), right ? x0 + 20 * k : x0 + w - 20 * k, y0 + 30 * k, 34 * k, '#ffffff', null, 'Barlow Condensed', 700, right ? 'left' : 'right');
+        const bw = w - 44 * k, bx = x0 + 22 * k, by = y0 + 58 * k; g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(bx, by, bw, 8 * k); const f = clamp(sc.out[sd.id].pct / 100, 0, 1); g.fillStyle = sd.color; if (right) g.fillRect(bx + bw * (1 - f), by, bw * f, 8 * k); else g.fillRect(bx, by, bw * f, 8 * k);
+        if (m.cities.size) V.haloText(g, cityWord(sc.out[sd.id].cities), tx, y0 + 86 * k, 15 * k, '#cfc6b3', null, fam, 700, al); });
+      if (boxes.length) Object.defineProperty(L, '__sb', { value: boxes[0], configurable: true, writable: true, enumerable: false });
+    }
+    g.restore();
+  }
   function scoreboard(g, L, m, st, s, W, H, k, fam) {
     const sides = L.sides || []; if (!sides.length) return; const sc = WR.score(L, m, st); const pin = S.easeOut(s.pin);
+    const ls = L.legendStyle || 'box'; if (ls === 'top' || ls === 'bottom' || ls === 'split') return scoreAlt(g, L, m, sc, s, W, H, k, fam, ls, pin);
     const px = 21 * k, rowH = 44 * k, pad = 18 * k; const w = 390 * k; const titleH = 38 * k; const h = pad + titleH + rowH * sides.length + 22 * k + pad;
     const pos = L.legendPos || 'tl'; const m0 = 40 * k; const x0 = pos.includes('l') ? m0 : W - m0 - w, y0 = pos.includes('t') ? m0 : H - m0 - h; Object.defineProperty(L, '__sb', { value: [x0, y0, x0 + w, y0 + h], configurable: true, writable: true, enumerable: false });
     let title = L.legendTitle; if (!title) { const bs = sc.baseSides.map(id => sideOf(L, id)).filter(Boolean); title = bs.length === 1 ? 'السيطرة على أراضي ' + bs[0].name : 'السيطرة الميدانية'; }

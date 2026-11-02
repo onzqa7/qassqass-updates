@@ -214,6 +214,7 @@
     if (GW.MapUI && GW.MapUI.syncPins) try { GW.MapUI.syncPins(s); } catch (e) {} // pinned layers follow live camera edits (no stale bake)
     const r = o.scale || 1, W = Math.max(2, Math.round(s.w * r / 2) * 2), H = Math.max(2, Math.round(s.h * r / 2) * 2);
     let acc = R.fbo(W, H); R.clear(acc);
+    if (s.bg && !o.alpha) { const rgb = GW.hexf(s.bg); R.pass('fill', acc, [], { col: [...rgb, 1] }); } // «لون خلفية التسلسل» behind clips smaller than the frame
     const prevFC = FC; FC = { s, t, cam: null };
     try {
     const ord = GW.X && GW.X.uses3D(s) ? order3D(s, t) : null;
