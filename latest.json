@@ -1,8 +1,8 @@
 {
- "version": "3.1.1",
- "date": "2026-11-02T17:10:30.954Z",
- "notes_ar": "الراية بشكل جديد مثل المرجع: عمود خشبي وعارضتان، لوحة اسم فاتحة، وقماش زيتوني تملؤه صورة القائد.",
- "notes_en": "New banner like the reference: wooden pole and two rods, light name plate, olive cloth filled by the leader's portrait.",
+ "version": "3.2.0",
+ "date": "2026-11-02T20:26:32.466Z",
+ "notes_ar": "تتبع مثل أفتر إفكت: تتبع الوجه تلقائياً بالذكاء الاصطناعي (بدون إنترنت)، وتتبع شخص أو جسم بمربع يكبر ويصغر معه. النتيجة مفاتيح: طبقة تلحقه (مع الحجم)، تمويه للوجه، أو تكبير ومتابعة الهدف.",
+ "notes_en": "After Effects-style tracking: automatic AI face tracking (offline) and person/object box tracking with scale. Results as keyframes: a layer that follows (with size), face blur, or zoom-and-follow reframe.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 302712,
-   "sha256": "12bccc41fc44f413d13a9969e307332548dd621adaea57351c6b9029bec2650c"
+   "size": 304453,
+   "sha256": "4458ebe5634b9f01205123646118ef391ff993eac92dc111be6422a1e2981afe"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 306679,
-   "sha256": "1255eaa35fbe6113865a228f44e617e9e16bf9ee338f3719b95419f1aa5fff17"
+   "size": 308468,
+   "sha256": "f4b1c52a9d41297b7f1e401cdd659edf858e165c34398b929bd0fda89c21d223"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -974,8 +974,8 @@
   },
   {
    "path": "app/js/track.js",
-   "size": 34933,
-   "sha256": "12a9dab7eda6f962bef089d18d3eeee708f5844cdd420a31a740623cc76fe4bc"
+   "size": 52460,
+   "sha256": "9f3081ab4061a25db0027c2feee8c5ca3e0bfbbb78eea53840db7bc8bf7fd9ab"
   },
   {
    "path": "app/js/tts_core.js",
@@ -1146,6 +1146,36 @@
    "path": "app/lib/d3-geo.min.js",
    "size": 36329,
    "sha256": "23e574f1e8d4716d622bce45356a379b66a277162b145f5f147e4c8daefb73d2"
+  },
+  {
+   "path": "app/lib/faceapi/LICENSE.txt",
+   "size": 1067,
+   "sha256": "9a3442b79acaf4fbc7c2e07b7e2d8f84af9bb3871bf08a69d80304ab00640e9a"
+  },
+  {
+   "path": "app/lib/faceapi/face-api.js",
+   "size": 1333943,
+   "sha256": "0160f7af3a8c78cece45c7ecc765383bad74becfd438bb787cdd627b2d6f2cf6"
+  },
+  {
+   "path": "app/lib/faceapi/ssd_mobilenetv1_model-weights_manifest.json",
+   "size": 28233,
+   "sha256": "888f744dffbc84f5f060d1f8427d9742341943a2dfaaf9205d10029b7e7a2955"
+  },
+  {
+   "path": "app/lib/faceapi/ssd_mobilenetv1_model.bin",
+   "size": 5616957,
+   "sha256": "2835640602d53718aa6ae9a42896327eaa21beefed056c218d32ca7d79e1e2f8"
+  },
+  {
+   "path": "app/lib/faceapi/tiny_face_detector_model-weights_manifest.json",
+   "size": 3219,
+   "sha256": "5d1af4849ac48d5b985f4a9b16010c512353ddd6fcc63d50fd0bc9e9e64296e5"
+  },
+  {
+   "path": "app/lib/faceapi/tiny_face_detector_model.bin",
+   "size": 193321,
+   "sha256": "b7503ce7df31039b1c43316a9b865cab6a70dd748cc602d3fa28b551503c3871"
   },
   {
    "path": "app/lib/ort/VERSION.txt",
@@ -4710,7 +4740,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "91460d31168cba2964d85f854ec0c7bd40bc30af15dc1a6e8c531d1c34993b12"
+   "sha256": "e913cdd876f8a891dbc49031e6d767ab76e226837ac576336c22064b6b8c535b"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4753,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "drlGlePlMQorphlaJviZkS0+YM1ECF47FJ2hyBp3IO1FdWsM8g1LdOJo0nwUf7DCyaVm2iXLW08HKDW9IX78Cw=="
+ "sig": "a0vyh+Qwa1eL6+PtBNbqS1MI/SpEHp09zWVvaXewBuPyd0AWOWB5GXY4sIsWc28+9LujgFNH0TcMoMEQa5kbDQ=="
 }
