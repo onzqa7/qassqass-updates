@@ -753,7 +753,7 @@
   /* ================= leader banner «راية» ================= */
   function bannerColor(sc, Ly) {
     if (Ly.faction) { const [lid, sid] = String(Ly.faction).split(':'); const C = (sc.layers || []).find(x => x.id === lid); const sd = C && sideOf(C, sid); if (sd) return sd.color; }
-    return Ly.bannerC || Ly.ring || '#5b6b3a';
+    return Ly.bannerC || '#5b6b3a'; // olive cloth like the reference (the photo-frame ring colour is not used here)
   }
   WR.bannerColor = bannerColor;
   // woven fabric texture (threads + slubs), cached tile used as an overlay on the cloth
@@ -808,57 +808,58 @@
     const gust = .55 + .45 * Math.sin(lt * .37 + seed) * Math.sin(lt * .23 + seed * .7);
     const sway = (Math.sin(lt * 1.15 + seed) * .018 + Math.sin(lt * 2.3 + seed * 2) * .006) * (.7 + .6 * gust);
     g.translate(top[0], top[1] + 6 * sz); g.rotate(sway);
-    // finial: brass crescent-blade + collar
-    g.fillStyle = brassG(g, -5 * sz, -22 * sz, 5 * sz, -4 * sz); g.beginPath(); g.moveTo(0, -23 * sz); g.quadraticCurveTo(6 * sz, -13 * sz, 0, -6 * sz); g.quadraticCurveTo(-6 * sz, -13 * sz, 0, -23 * sz); g.fill();
-    g.beginPath(); g.arc(0, -5 * sz, 2.8 * sz, 0, TAU); g.fill(); g.fillRect(-2.2 * sz, -3.4 * sz, 4.4 * sz, 3 * sz);
-    const cbw = bw * .62 + 10 * sz; g.fillStyle = brassG(g, 0, -3 * sz, 0, 3 * sz); g.beginPath(); if (g.roundRect) g.roundRect(-cbw, -2.3 * sz, cbw * 2, 4.6 * sz, 2.2 * sz); else g.rect(-cbw, -2.3 * sz, cbw * 2, 4.6 * sz); g.fill();
-    for (const sg of [-1, 1]) { g.beginPath(); g.arc(sg * (cbw + 3 * sz), 0, 3.6 * sz, 0, TAU); g.fillStyle = brassG(g, sg * cbw, -4 * sz, sg * cbw, 4 * sz); g.fill(); g.beginPath(); g.arc(sg * (cbw + 3 * sz), 0, 1.4 * sz, 0, TAU); g.fillStyle = '#4b3514'; g.fill(); }
-    // cloth geometry
+    // «راية» like the reference: dark wooden pole + top crossbar with a small finial, a cream name plate,
+    // a flat cloth panel holding the portrait (thin fabric border in the side colour) and a weighted bottom rod
     const H = bh * unroll; const ww = bw / 2;
-    const wave = (y, side) => { const f = y / bh; return (Math.sin(lt * 2.4 - y / (15 * sz) + side * .7 + seed) * 2.3 * sz + Math.sin(lt * 4.1 - y / (7 * sz) + seed * 1.3) * .7 * sz) * f * (.6 + .6 * gust); };
-    const drift = (y) => Math.sin(lt * 1.3 + seed) * 4.5 * sz * Math.pow(y / bh, 1.6) * gust; // the free hem drifts with the wind
+    const wood = (x0, y0, x1, y1) => { const gr = g.createLinearGradient(0, y0, 0, y1); gr.addColorStop(0, '#5a4630'); gr.addColorStop(.5, '#3a2b1c'); gr.addColorStop(1, '#1d150d'); return gr; };
+    const rod = (y, half, th) => { g.fillStyle = wood(0, y - th / 2, 0, y + th / 2); g.beginPath(); if (g.roundRect) g.roundRect(-half, y - th / 2, half * 2, th, th / 2); else g.rect(-half, y - th / 2, half * 2, th); g.fill();
+      for (const sg of [-1, 1]) { g.beginPath(); g.arc(sg * half, y, th * .85, 0, TAU); g.fillStyle = '#2a1f14'; g.fill(); g.beginPath(); g.arc(sg * half - sg * th * .2, y - th * .25, th * .3, 0, TAU); g.fillStyle = 'rgba(255,230,190,.25)'; g.fill(); } };
+    // finial knob above the crossbar
+    g.fillStyle = '#2a1f14'; g.beginPath(); g.arc(0, -9 * sz, 3.6 * sz, 0, TAU); g.fill(); g.fillRect(-1.6 * sz, -7 * sz, 3.2 * sz, 7 * sz);
+    g.fillStyle = 'rgba(255,230,190,.22)'; g.beginPath(); g.arc(-1.2 * sz, -10.2 * sz, 1.2 * sz, 0, TAU); g.fill();
+    // cloth (flat panel, gentle wind on the free lower part)
+    const wave = (y, side) => { const f = Math.max(0, y / bh); return (Math.sin(lt * 2.1 - y / (18 * sz) + side * .6 + seed) * 1.6 * sz) * f * (.6 + .6 * gust); };
+    const drift = (y) => Math.sin(lt * 1.2 + seed) * 3 * sz * Math.pow(Math.max(0, y) / bh, 1.6) * gust;
+    const y0 = 2 * sz;
     if (H > 2) {
-      const P = new Path2D(); const n = 16; P.moveTo(-ww, 3 * sz);
-      for (let i = 0; i <= n; i++) { const y = 3 * sz + H * i / n; P.lineTo(-ww + wave(y, -1) + drift(y), y); }
-      const notch = Math.min(H * .2, 26 * sz) * unroll; P.lineTo(-ww * .02 + wave(H, 0) + drift(H), H + 3 * sz - notch);
-      for (let i = n; i >= 0; i--) { const y = 3 * sz + H * i / n; P.lineTo(ww + wave(y, 1) + drift(y), y); }
+      const P = new Path2D(); const n = 14; P.moveTo(-ww, y0);
+      for (let i = 0; i <= n; i++) { const y = y0 + H * i / n; P.lineTo(-ww + wave(y, -1) + drift(y), y); }
+      for (let i = n; i >= 0; i--) { const y = y0 + H * i / n; P.lineTo(ww + wave(y, 1) + drift(y), y); }
       P.closePath();
-      g.save(); g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 14 * sz; g.shadowOffsetY = 4 * sz; g.fillStyle = cloth; g.fill(P); g.restore();
+      g.save(); g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 12 * sz; g.shadowOffsetY = 4 * sz; g.fillStyle = cloth; g.fill(P); g.restore();
       g.save(); g.clip(P);
-      // folds: vertical light/dark bands drifting with the wave (cloth lit from the upper left)
-      const fg = g.createLinearGradient(-ww, 0, ww, 0); for (let i = 0; i <= 10; i++) { const f = i / 10; const v = Math.sin(f * 10 + lt * 1.7 + seed) * .5 + .5; const lit = .25 * (1 - f); fg.addColorStop(f, v > .5 ? rgba(light, (v - .5) * .55 + lit * .4) : rgba(dark, (.5 - v) * .7)); } g.fillStyle = fg; g.fillRect(-ww - 8 * sz, 0, bw + 16 * sz, H + 12 * sz);
-      // diagonal ripples travelling down (wind)
-      for (let r = 0; r < 3; r++) { const yy = ((lt * 22 * sz + r * bh / 3 + seed * 3) % (bh * 1.2)) - bh * .1; const rg = g.createLinearGradient(0, yy - 14 * sz, 0, yy + 14 * sz); rg.addColorStop(0, 'rgba(255,255,255,0)'); rg.addColorStop(.5, rgba(light, .16 * gust)); rg.addColorStop(1, 'rgba(0,0,0,0)'); g.save(); g.transform(1, 0, -.35, 1, 0, 0); g.fillStyle = rg; g.fillRect(-ww - 30 * sz, yy - 14 * sz, bw + 60 * sz, 28 * sz); g.restore(); }
-      // fabric weave + sheen + top/bottom shading
-      if (!WR.fast) { g.save(); g.globalCompositeOperation = 'overlay'; g.globalAlpha = .38; g.fillStyle = g.createPattern(weaveTile(), 'repeat'); g.scale(sz * .9, sz * .9); g.fillRect(-ww / (sz * .9) - 10, 0, bw / (sz * .9) + 20, H / (sz * .9) + 10); g.restore(); }
-      const sh = g.createLinearGradient(-ww, 0, ww * .4, H); sh.addColorStop(0, 'rgba(255,240,210,.14)'); sh.addColorStop(.45, 'rgba(255,240,210,0)'); g.fillStyle = sh; g.fillRect(-ww - 5 * sz, 0, bw + 10 * sz, H + 10 * sz);
-      const vg = g.createLinearGradient(0, 0, 0, H); vg.addColorStop(0, 'rgba(0,0,0,.42)'); vg.addColorStop(.1, 'rgba(0,0,0,0)'); vg.addColorStop(.78, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.34)'); g.fillStyle = vg; g.fillRect(-ww - 5 * sz, 0, bw + 10 * sz, H + 10 * sz);
-      g.lineJoin = 'round'; g.lineWidth = 6 * sz; g.strokeStyle = rgba(dark, .8); g.stroke(P);
+      // portrait fills the panel inside a thin fabric border
+      const bd = 6 * sz, px0 = -ww + bd, py0 = y0 + bd, pw = bw - bd * 2, ph = bh - bd * 2;
+      const im = V.img(sc, Ly.img);
+      g.save(); g.beginPath(); g.rect(px0 + drift(py0 + ph / 2) * .5, py0, pw, Math.max(0, Math.min(ph, H - bd * 2))); g.clip();
+      g.fillStyle = shade(cloth, -.35); g.fillRect(px0 - 4 * sz, py0, pw + 8 * sz, ph);
+      if (im) { if (!WR.fast) g.filter = 'saturate(.8) contrast(1.05) sepia(.1)'; V.drawCrop(g, im, Ly.crop, px0 + drift(py0 + ph / 2) * .5, py0, pw, ph, .3); g.filter = 'none'; }
+      else { g.fillStyle = 'rgba(240,230,210,.25)'; g.beginPath(); g.arc(0, py0 + ph * .4, pw * .2, 0, TAU); g.fill(); g.beginPath(); g.ellipse(0, py0 + ph * .98, pw * .38, ph * .28, 0, Math.PI, 0); g.fill(); }
+      const tint = g.createLinearGradient(0, py0, 0, py0 + ph); tint.addColorStop(0, rgba(col, .16)); tint.addColorStop(1, rgba(col, .28)); g.globalCompositeOperation = 'soft-light'; g.fillStyle = tint; g.fillRect(px0, py0, pw, ph); g.globalCompositeOperation = 'source-over';
       g.restore();
-      // gold trim: double piping inside the edge
-      g.save(); g.lineJoin = 'round'; g.translate(0, 4 * sz); g.scale(.87, .9); g.lineWidth = 1.6 * sz; g.strokeStyle = 'rgba(120,84,30,.75)'; g.stroke(P); g.lineWidth = 1.1 * sz; g.strokeStyle = brassG(g, -ww, 0, ww, H); g.stroke(P); g.restore();
-      g.save(); g.translate(0, 6 * sz); g.scale(.8, .86); g.lineWidth = .6 * sz; g.strokeStyle = 'rgba(232,200,120,.55)'; g.stroke(P); g.restore();
-      // fringe on the swallow-tail hem (tassels swing with the wind)
-      if (unroll > .9) { g.save(); g.globalAlpha *= clamp((unroll - .9) / .1, 0, 1); g.lineCap = 'round';
-        const hem = (f) => { const x = -ww + f * bw; const yb = H + 3 * sz - notch * (1 - Math.abs(f - .5) * 2); return [x + wave(H, f * 2 - 1) + drift(H), yb]; };
-        for (let i = 0; i <= 22; i++) { const f = i / 22; const [x, y] = hem(f); const sw = Math.sin(lt * 3 + i * .7 + seed) * 1.6 * sz * gust; g.strokeStyle = i % 2 ? '#c99a4a' : '#e8c87a'; g.lineWidth = 1.1 * sz; g.beginPath(); g.moveTo(x, y - 1 * sz); g.lineTo(x + sw, y + 7 * sz); g.stroke(); }
-        g.restore(); }
-      // portrait window: arch-topped, crop-aware, desaturated, vignette, double gold frame with a keystone
-      const pw = bw * .66, ph = pw * 1.12, px0 = -pw / 2, py0 = 12 * sz;
-      if (H > py0 + 8 * sz) {
-        const win = new Path2D(); win.moveTo(px0, py0 + ph); win.lineTo(px0, py0 + pw / 2); win.arc(0, py0 + pw / 2, pw / 2, Math.PI, 0); win.lineTo(px0 + pw, py0 + ph); win.closePath();
-        g.save(); g.beginPath(); g.rect(-ww - 10 * sz, 0, bw + 20 * sz, H); g.clip(); g.save(); g.clip(win); g.fillStyle = '#1d1c19'; g.fillRect(px0, py0, pw, ph);
-        const im = V.img(sc, Ly.img);
-        if (im) { if (!WR.fast) g.filter = 'saturate(.72) contrast(1.06) sepia(.12)'; V.drawCrop(g, im, Ly.crop, px0, py0, pw, ph, .3); g.filter = 'none'; }
-        else { g.fillStyle = 'rgba(240,230,210,.28)'; g.beginPath(); g.arc(0, py0 + ph * .42, pw * .2, 0, TAU); g.fill(); g.beginPath(); g.ellipse(0, py0 + ph * .95, pw * .36, ph * .26, 0, Math.PI, 0); g.fill(); }
-        const vgn = g.createRadialGradient(0, py0 + ph * .45, pw * .2, 0, py0 + ph * .5, pw * .85); vgn.addColorStop(0, 'rgba(0,0,0,0)'); vgn.addColorStop(1, 'rgba(10,8,4,.62)'); g.fillStyle = vgn; g.fillRect(px0, py0, pw, ph); g.restore();
-        g.lineWidth = 2.6 * sz; g.strokeStyle = 'rgba(40,26,8,.7)'; g.stroke(win); g.lineWidth = 1.8 * sz; g.strokeStyle = brassG(g, px0, py0, px0 + pw, py0 + ph); g.stroke(win);
-        g.save(); g.translate(0, 0); const w2 = new Path2D(); w2.addPath(win, new DOMMatrix().translate(0, py0 + ph / 2).scale(1.09, 1.06).translate(0, -(py0 + ph / 2))); g.lineWidth = .7 * sz; g.strokeStyle = 'rgba(226,190,110,.7)'; g.stroke(w2); g.restore();
-        g.fillStyle = brassG(g, -4 * sz, py0 - 6 * sz, 4 * sz, py0 + 2 * sz); g.beginPath(); g.moveTo(0, py0 - 6.5 * sz); g.lineTo(4 * sz, py0 - 1.5 * sz); g.lineTo(0, py0 + 2.5 * sz); g.lineTo(-4 * sz, py0 - 1.5 * sz); g.closePath(); g.fill();
-        g.restore();
-      }
-      const ryy = Math.min(H - 6 * sz, py0 + ph + 13 * sz);
-      if (unroll > .85 && (Ly.name || Ly.sub)) WR.ribbon(g, Ly, ryy, bw * .95, sz, fam, clamp((unroll - .85) / .15, 0, 1));
+      // cloth folds + fabric weave + soft vignette (reads as printed fabric, not a photo)
+      const fg = g.createLinearGradient(-ww, 0, ww, 0); for (let i = 0; i <= 8; i++) { const f = i / 8; const v = Math.sin(f * 8 + lt * 1.4 + seed) * .5 + .5; fg.addColorStop(f, v > .5 ? rgba(light, (v - .5) * .22) : rgba(dark, (.5 - v) * .3)); } g.fillStyle = fg; g.fillRect(-ww - 6 * sz, 0, bw + 12 * sz, H + 10 * sz);
+      if (!WR.fast) { g.save(); g.globalCompositeOperation = 'overlay'; g.globalAlpha = .3; g.fillStyle = g.createPattern(weaveTile(), 'repeat'); g.scale(sz * .9, sz * .9); g.fillRect(-ww / (sz * .9) - 10, 0, bw / (sz * .9) + 20, H / (sz * .9) + 10); g.restore(); }
+      const vg = g.createLinearGradient(0, 0, 0, H); vg.addColorStop(0, 'rgba(0,0,0,.35)'); vg.addColorStop(.12, 'rgba(0,0,0,0)'); vg.addColorStop(.85, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.3)'); g.fillStyle = vg; g.fillRect(-ww - 5 * sz, 0, bw + 10 * sz, H + 10 * sz);
+      g.lineWidth = 2 * sz; g.strokeStyle = rgba(dark, .85); g.stroke(P);
+      g.restore();
+      // bottom rod (weights the cloth)
+      rod(y0 + H + 1.5 * sz + drift(y0 + H) * .6, ww + 7 * sz, 4.2 * sz);
+    }
+    // top crossbar
+    rod(0, ww + 9 * sz, 4.6 * sz);
+    // name plate: cream card with dark text, hung on the crossbar (like the reference)
+    if (Ly.name || Ly.sub) {
+      const nm = String(Ly.name || ''), sb = String(Ly.sub || ''); const f1 = 11.5 * sz, f2 = 8.5 * sz;
+      g.font = `800 ${f1}px "${fam}", sans-serif`; const w1 = nm ? g.measureText(nm).width : 0; g.font = `600 ${f2}px "${fam}", sans-serif`; const w2 = sb ? g.measureText(sb).width : 0;
+      const pwid = Math.max(w1, w2) + 16 * sz, phh = (nm ? f1 * 1.45 : 0) + (sb ? f2 * 1.4 : 0) + 6 * sz; const py = 5 * sz;
+      g.save(); g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 6 * sz; g.shadowOffsetY = 2 * sz; g.fillStyle = '#ece6d6'; g.fillRect(-pwid / 2, py, pwid, phh); g.restore();
+      g.lineWidth = 1.2 * sz; g.strokeStyle = '#2b2620'; g.strokeRect(-pwid / 2 + 1.5 * sz, py + 1.5 * sz, pwid - 3 * sz, phh - 3 * sz);
+      g.fillStyle = '#16130f'; g.textAlign = 'center'; g.textBaseline = 'middle'; let ty = py + 3 * sz;
+      if (nm) { g.font = `800 ${f1}px "${fam}", sans-serif`; g.fillText(nm, 0, ty + f1 * .72); ty += f1 * 1.45; }
+      if (sb) { g.font = `600 ${f2}px "${fam}", sans-serif`; g.fillStyle = '#4a4338'; g.fillText(sb, 0, ty + f2 * .7); }
+      // plate hangs from the bar on two short cords
+      g.strokeStyle = '#2a1f14'; g.lineWidth = 1 * sz; g.beginPath(); g.moveTo(-pwid * .3, 0); g.lineTo(-pwid * .3, py); g.moveTo(pwid * .3, 0); g.lineTo(pwid * .3, py); g.stroke();
     }
     g.restore();
   };

@@ -1,8 +1,8 @@
 {
- "version": "3.1.0",
- "date": "2026-11-01T12:27:39.980Z",
- "notes_ar": "ضبط صورة القائد: معاينة في اللوحة، واختيار شكل الإطار (9 أشكال) مع التكبير والتحريك والتدوير، وأخذ الصورة من الخط الزمني.",
- "notes_en": "Leader photo: preview in the panel, frame shape picker (9 shapes) with zoom, pan and rotate, and grab from the timeline.",
+ "version": "3.1.1",
+ "date": "2026-11-02T17:10:30.954Z",
+ "notes_ar": "الراية بشكل جديد مثل المرجع: عمود خشبي وعارضتان، لوحة اسم فاتحة، وقماش زيتوني تملؤه صورة القائد.",
+ "notes_en": "New banner like the reference: wooden pole and two rods, light name plate, olive cloth filled by the leader's portrait.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -819,8 +819,8 @@
   },
   {
    "path": "app/js/atlas/war.js",
-   "size": 115009,
-   "sha256": "3ac91b7f88c0f6872fb11bf679bc96bb7f6b705c6eb38945149aabcb5d373ec0"
+   "size": 113883,
+   "sha256": "0c43ad1f8889f9c4d7d5b720e58e3af1436fe5fe7099d6fed2a1f89b6113cdd4"
   },
   {
    "path": "app/js/audio.js",
@@ -4710,7 +4710,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "ee7f349817830dd569d34402e6038eebc8e8f0aa748bc913e6df4fcd722bda8d"
+   "sha256": "91460d31168cba2964d85f854ec0c7bd40bc30af15dc1a6e8c531d1c34993b12"
   },
   {
    "path": "preload.js",
@@ -4723,5 +4723,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "O91yzma4Z7Z4MUfuSjszvJfrpOLAgMiriXjcRD9dK086L30/CELkImRwcmv9YkOTe5z7EdvMxtdYwYzrmAlpAg=="
+ "sig": "drlGlePlMQorphlaJviZkS0+YM1ECF47FJ2hyBp3IO1FdWsM8g1LdOJo0nwUf7DCyaVm2iXLW08HKDW9IX78Cw=="
 }
