@@ -160,7 +160,7 @@ GW.menu = (x, y, items) => {
     else b.onclick = () => { GW.closeMenus(); it.action && it.action(); };
     m.append(b);
   }
-  document.body.append(m);
+  (document.fullscreenElement || document.body).append(m);
   const r = m.getBoundingClientRect();
   m.style.left = Math.max(4, Math.min(x, innerWidth - r.width - 4)) + 'px';
   m.style.top = Math.max(4, Math.min(y, innerHeight - r.height - 4)) + 'px';
@@ -174,7 +174,7 @@ GW.subMenu = (x, y, items, parent) => {
     const b = document.createElement('button'); b.className = 'ctx-i'; b.innerHTML = `<span>${GW.esc(it.label)}</span>${it.check ? '<i>✓</i>' : ''}`;
     b.onclick = () => { GW.closeMenus(); it.action && it.action(); }; m.append(b);
   }
-  document.body.append(m); const r = m.getBoundingClientRect();
+  (document.fullscreenElement || document.body).append(m); const r = m.getBoundingClientRect();
   m.style.left = Math.max(4, x - r.width + 2) + 'px'; m.style.top = Math.min(y, innerHeight - r.height - 4) + 'px';
 };
 GW.closeMenus = () => GW.$$('.ctx').forEach(m => m.remove());
@@ -263,7 +263,7 @@ GW.colorPop = (anchor, o = {}) => {
   for (const c of o.swatches || ['#ffd400', '#ff6a2b', '#ff3b5c', '#4cc2ff', '#3ddc84', '#b26bff', '#ffffff', '#000000']) { const b = document.createElement('button'); b.className = 'fcol-sw' + (o.value === c ? ' on' : ''); b.style.background = c; b.title = c; b.onclick = () => { o.onPick(c); pop.remove(); }; row.append(b); }
   const ci = document.createElement('input'); ci.type = 'color'; ci.value = /^#[0-9a-f]{6}$/i.test(o.value || '') ? o.value : '#808080'; ci.oninput = () => o.onPick(ci.value); row.append(ci); pop.append(row);
   if (o.transparent) { const tb = document.createElement('button'); tb.className = 'btn sm' + (o.value === 'none' ? ' pri' : ''); tb.textContent = o.transparent; tb.onclick = () => { o.onPick('none'); pop.remove(); }; pop.append(tb); }
-  document.body.append(pop); const r = anchor.getBoundingClientRect(); pop.style.left = Math.max(8, Math.min(innerWidth - pop.offsetWidth - 8, r.left + r.width / 2 - pop.offsetWidth / 2)) + 'px';
+  (document.fullscreenElement || document.body).append(pop); const r = anchor.getBoundingClientRect(); pop.style.left = Math.max(8, Math.min(innerWidth - pop.offsetWidth - 8, r.left + r.width / 2 - pop.offsetWidth / 2)) + 'px';
   pop.style.top = (r.top - pop.offsetHeight - 8 > 8 ? r.top - pop.offsetHeight - 8 : r.bottom + 8) + 'px';
   setTimeout(() => { const off = (e) => { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener('pointerdown', off, true); } }; document.addEventListener('pointerdown', off, true); }, 0);
   return pop;

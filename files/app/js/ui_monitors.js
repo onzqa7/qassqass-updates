@@ -133,8 +133,23 @@
       const setBg = (v) => { const s2 = GW.seq(); if (v === 'none') delete s2.bg; else s2.bg = v; GW.commit('لون خلفية التسلسل'); GW.invalidate(); };
       for (const c of ['#000000', '#1d1f24', '#3a3f47', '#7a808a', '#ffffff', '#0e2236', '#2b1d10', '#16261a']) { const b = document.createElement('button'); b.className = 'fcol-sw' + (cur === c ? ' on' : ''); b.style.background = c; b.onclick = () => { setBg(c); pop.remove(); }; r2.append(b); }
       const ci2 = document.createElement('input'); ci2.type = 'color'; ci2.value = /^#[0-9a-f]{6}$/i.test(cur) ? cur : '#000000'; ci2.oninput = () => setBg(ci2.value); r2.append(ci2); pop.append(t2, r2); }
-    document.body.append(pop); const r = anchor.getBoundingClientRect(); pop.style.left = Math.max(8, Math.min(innerWidth - pop.offsetWidth - 8, r.left + r.width / 2 - pop.offsetWidth / 2)) + 'px'; pop.style.top = Math.max(8, r.top - pop.offsetHeight - 8) + 'px';
+    (document.fullscreenElement || document.body).append(pop); const r = anchor.getBoundingClientRect(); pop.style.left = Math.max(8, Math.min(innerWidth - pop.offsetWidth - 8, r.left + r.width / 2 - pop.offsetWidth / 2)) + 'px'; pop.style.top = Math.max(8, r.top - pop.offsetHeight - 8) + 'px';
     setTimeout(() => { const off = (e) => { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener('pointerdown', off, true); } }; document.addEventListener('pointerdown', off, true); }, 0);
+  };
+  // right-click on the picture: quick options (full screen first)
+  PG.ctxMenu = (x, y) => {
+    const fs = document.fullscreenElement === PG.view; const s = GW.seq();
+    GW.menu(x, y, [
+      { label: fs ? 'خروج من ملء الشاشة' : 'ملء الشاشة', key: 'Ctrl+`', action: () => PG.toggleFull() },
+      '-', { label: GW.pb.playing ? 'إيقاف مؤقت' : 'تشغيل', key: 'Space', action: () => GW.play(1) },
+      { label: 'تكرار التشغيل', check: !!GW.pb.loop, action: () => { GW.pb.loop = !GW.pb.loop; const b = PG.el.querySelector('[data-a=loop]'); if (b) b.classList.toggle('on', GW.pb.loop); } },
+      '-', { label: 'التكبير', sub: [['fit', 'ملاءمة'], [.25, '25%'], [.5, '50%'], [1, '100%']].map(([v, n]) => ({ label: n, check: String(PG.zoom) === String(v), action: () => { PG.zoom = v; const z = PG.el.querySelector('[data-a=zoom]'); if (z) z.value = String(v); GW.invalidate(); } })) },
+      { label: 'دقة التشغيل', sub: [['auto', 'تلقائي'], [1, 'كاملة'], [.5, '1/2'], [.25, '1/4']].map(([v, n]) => ({ label: n, check: String(PG.res) === String(v), action: () => PG.setRes(v) })) },
+      { label: 'هوامش الأمان', check: !!PG.safe, action: () => { PG.toggleSafe(); const b = PG.el.querySelector('[data-a=safe]'); if (b) b.classList.toggle('on', PG.safe); } },
+      { label: 'لون إطار المقطع والخلفية…', action: () => PG.frameColMenu(PG.el.querySelector('[data-a=fcol]') || PG.view) },
+      '-', { label: 'تصدير الإطار الحالي كصورة', action: () => GW.cmd.exportFrame() },
+      { label: 'الانتقال إلى توقيت…', action: () => GW.gotoTime && GW.gotoTime() }, void s
+    ].filter(Boolean));
   };
   PG.toggleSafe = () => { PG.safe = !PG.safe; GW.invalidate(); };
 
@@ -330,7 +345,7 @@
       const up = () => { ov.removeEventListener('pointermove', mv); ov.removeEventListener('pointerup', up); GW.commit(mk ? 'تعديل القناع' : 'تحويل'); };
       ov.addEventListener('pointermove', mv); ov.addEventListener('pointerup', up);
     });
-    ov.addEventListener('contextmenu', e => { if (GW.MapUI && GW.MapUI.active()) e.preventDefault(); });
+    PG.view.addEventListener('contextmenu', e => { e.preventDefault(); if (e.target.closest && e.target.closest('.trk-bar,.ctx')) return; if (GW.MapUI && GW.MapUI.active() && GW.MapUI.mode && GW.MapUI.mode !== 'nav' && GW.MapUI.mode !== 'off') return; PG.ctxMenu(e.clientX, e.clientY); }); // picture + full screen (the overlay is hidden there)
     ov.addEventListener('pointermove', e => {
       if (GW.Track && !e.buttons && GW.Track.active()) { const r = ov.getBoundingClientRect(); ov.style.cursor = GW.Track.cursor(e.clientX - r.left, e.clientY - r.top); return; }
       if (GW.MapUI && !e.buttons && GW.MapUI.active()) { const r = ov.getBoundingClientRect(); GW.MapUI.move(e.clientX - r.left, e.clientY - r.top); ov.style.cursor = GW.MapUI.mode === 'nav' ? 'grab' : 'crosshair'; return; }

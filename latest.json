@@ -1,8 +1,8 @@
 {
- "version": "3.2.2",
- "date": "2026-11-02T20:58:16.105Z",
- "notes_ar": "لون حدود إطار 16:9 والخلفية حوله في كاميرا الخريطة، ولون خلفية الفيديو خلف المقطع الصغير. لوحة السيطرة بأشكال جديدة: شريط علوي أو سفلي بطرف في كل جهة، أو كل طرف في زاوية.",
- "notes_en": "16:9 frame border and surrounding colours in the map camera, plus a video background colour behind smaller clips. New control-panel layouts: top/bottom bar with a side at each end, or each side in a corner.",
+ "version": "3.2.3",
+ "date": "2026-11-02T21:33:07.166Z",
+ "notes_ar": "زر الماوس الأيمن على المعاينة يفتح قائمة: ملء الشاشة، تشغيل، تكرار، التكبير، الدقة، هوامش الأمان، الألوان، تصدير الإطار، والانتقال لتوقيت. القائمة تعمل داخل ملء الشاشة أيضاً.",
+ "notes_en": "Right-click on the preview opens a menu: full screen, play, loop, zoom, resolution, safe margins, colours, export frame, go to time. Works inside full screen too.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 305675,
-   "sha256": "ddf17e9d5565505dc60df24929aa3429ab4b136b207918a8eaf95533625920db"
+   "size": 305948,
+   "sha256": "9d5595f793c8e312085d89b286337d4076f1279319d18f9c970908a196477b87"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 309735,
-   "sha256": "a2c513a015a6a51613e15f731dc41a5de98d4a0094d0a6f968ddab6bb034e0b9"
+   "size": 310020,
+   "sha256": "2e7f1080a441bdf6bce80ae43ef408e9c1de5f9c4f172612b066f8d0cdc61fee"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -1054,8 +1054,8 @@
   },
   {
    "path": "app/js/ui_monitors.js",
-   "size": 39771,
-   "sha256": "9443c613dae42ada6d2a43e9b9d027dc1eed45dca8f6497b6e20d6410fe9bd48"
+   "size": 41791,
+   "sha256": "ad4ee8aeb4ce6856e7bff7bb4177a285e22990522f1fbda6a463b283fa22c6e2"
   },
   {
    "path": "app/js/ui_ofx.js",
@@ -1124,8 +1124,8 @@
   },
   {
    "path": "app/js/util.js",
-   "size": 19458,
-   "sha256": "72ecd9d1c8f6acd565f17a430ca51ec9f43011712722f0433b8ad5e318d274c5"
+   "size": 19554,
+   "sha256": "45aede2c7e8baea7eef046cc3287fcb4a0475274e20f44ba9d383bf9d0b3f712"
   },
   {
    "path": "app/js/xform.js",
@@ -4740,7 +4740,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "2cc92672a5acd80cb8918866fb9af89af78ea4b24d7eb785af98e52ccdeefb18"
+   "sha256": "91eb559a6c159788a24bdb20534ecf7f49b4fafdbbc97810f0f6239c42d08fb1"
   },
   {
    "path": "preload.js",
@@ -4753,5 +4753,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "l8w1b1KrrYyz87Vl1y04b3qSTnE050qSPWS+JxT3DjEC4m4rSK+ZBgDohGFrgeiDlo9gtmVOpHg0WWyzvXGdCQ=="
+ "sig": "0ZhlRYRs8ZJ2SGCfYm1VJW2pFX9tMIoY0ofLAz1ruiMrv3awXv/9oUyqKnKedcr7GWkX9F0jEnvwPadAlVsLCw=="
 }
