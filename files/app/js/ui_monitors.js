@@ -11,6 +11,7 @@
     overwrite: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="1" fill="#5aa9ff33"/><path d="M12 2v6M9 5l3 3 3-3" stroke="#5aa9ff"/></svg>',
     lift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="18" height="7" rx="1"/><path d="M12 10V3M9 6l3-3 3 3"/></svg>', extract: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="7" height="7" rx="1"/><rect x="14" y="12" width="7" height="7" rx="1"/><path d="M12 10V3M9 6l3-3 3 3"/></svg>',
     camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h4l2-3h4l2 3h4v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+    fcol: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="1"/><circle cx="4" cy="4" r="1.6" fill="currentColor"/><circle cx="20" cy="4" r="1.6" fill="currentColor"/><circle cx="4" cy="20" r="1.6" fill="currentColor"/><circle cx="20" cy="20" r="1.6" fill="currentColor"/></svg>',
     full: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
     safe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/><rect x="6" y="8" width="12" height="8" stroke-dasharray="2 2"/></svg>',
     loop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a6 6 0 016-6h8M15 3l3 3-3 3M20 12a6 6 0 01-6 6H6M9 21l-3-3 3-3"/></svg>'
@@ -90,7 +91,7 @@
         <button class="tb" data-a="in" title="تحديد الدخول (I)">${SVG.in}</button><button class="tb" data-a="out" title="تحديد الخروج (O)">${SVG.out}</button><span class="sep"></span>
         <button class="tb" data-a="goin" title="انتقال للدخول">${SVG.goin}</button><button class="tb" data-a="back" title="إطار للخلف (←)">${SVG.back}</button><button class="tb" data-a="play" title="تشغيل / إيقاف (مسافة)">${SVG.play}</button><button class="tb" data-a="fwd" title="إطار للأمام (→)">${SVG.fwd}</button><button class="tb" data-a="goout" title="انتقال للخروج">${SVG.goout}</button><span class="sep"></span>
         <button class="tb" data-a="lift" title="رفع (;)">${SVG.lift}</button><button class="tb" data-a="extract" title="استخراج (')">${SVG.extract}</button><span class="sep"></span>
-        <button class="tb" data-a="loop" title="تكرار التشغيل">${SVG.loop}</button><button class="tb" data-a="safe" title="هوامش الأمان">${SVG.safe}</button><button class="tb" data-a="full" title="ملء الشاشة للمعاينة (Ctrl+\`)">${SVG.full}</button><button class="tb" data-a="proxy" title="تبديل البروكسي (زر أيمن: إعدادات البروكسي)">${SVG.proxy}</button><button class="tb" data-a="snap" title="تصدير الإطار (Ctrl+Shift+E)">${SVG.camera}</button>
+        <button class="tb" data-a="loop" title="تكرار التشغيل">${SVG.loop}</button><button class="tb" data-a="safe" title="هوامش الأمان">${SVG.safe}</button><button class="tb" data-a="fcol" title="لون إطار المقطع">${SVG.fcol}</button><button class="tb" data-a="full" title="ملء الشاشة للمعاينة (Ctrl+\`)">${SVG.full}</button><button class="tb" data-a="proxy" title="تبديل البروكسي (زر أيمن: إعدادات البروكسي)">${SVG.proxy}</button><button class="tb" data-a="snap" title="تصدير الإطار (Ctrl+Shift+E)">${SVG.camera}</button>
       </div></div>`;
     PG.el = el; const q = a => el.querySelector(`[data-a=${a}]`);
     PG.view = q('view'); PG.cv = q('cv'); PG.ov = q('ov');
@@ -104,6 +105,7 @@
     q('snap').onclick = GW.cmd.exportFrame;
     { const tc = q('tc'); tc.style.cursor = 'pointer'; tc.title = 'انقر للانتقال إلى توقيت'; tc.onclick = () => GW.gotoTime && GW.gotoTime(); }
     q('full').onclick = () => PG.toggleFull();
+    { const b = q('fcol'); b.onclick = () => PG.frameColMenu(b); if (PG.frameCol() !== 'none') b.style.color = PG.frameCol(); }
     { const b = q('proxy'); const sync = () => b.classList.toggle('on', !!GW.Media.cfg.proxies); sync(); b.onclick = () => GW.Media.toggleProxies(); b.oncontextmenu = (e) => { e.preventDefault(); GW.Media.proxyMenu(e.clientX, e.clientY); }; GW.bus.on('proxies', sync); }
     q('res').onchange = (e) => PG.setRes(e.target.value === 'auto' ? 'auto' : +e.target.value);
     q('zoom').onchange = (e) => { PG.zoom = e.target.value === 'fit' ? 'fit' : +e.target.value; GW.invalidate(); };
@@ -116,6 +118,20 @@
   // Premiere-style full-screen preview: only the picture on black; Esc / the same shortcut exits; playback keys keep working
   PG.toggleFull = () => { if (!PG.view) return; if (document.fullscreenElement) { document.exitFullscreen().catch(() => {}); return; } PG.view.requestFullscreen().then(() => { try { PG.view.focus(); } catch (e) {} if (!PG._fsHint) { PG._fsHint = 1; GW.toast('ملء الشاشة: مسافة للتشغيل، Esc للخروج'); } }).catch(() => {}); };
   document.addEventListener('fullscreenchange', () => { if (PG.view) PG.view.classList.toggle('mon-fs', document.fullscreenElement === PG.view); GW.invalidate(); });
+  // colour of the selected clip's frame in the preview «لون إطار المقطع» (or transparent)
+  PG.frameCol = () => { if (PG._fc == null) { try { PG._fc = localStorage.getItem('qq.frameCol') || '#ffd400'; } catch (e) { PG._fc = '#ffd400'; } } return PG._fc; };
+  PG.setFrameCol = (v) => { PG._fc = v; try { localStorage.setItem('qq.frameCol', v); } catch (e) {} const b = PG.el && PG.el.querySelector('[data-a=fcol]'); if (b) b.style.color = v === 'none' ? '' : v; GW.invalidate(); };
+  PG.frameColMenu = (anchor) => {
+    document.querySelectorAll('.fcol-pop').forEach(e => e.remove());
+    const pop = document.createElement('div'); pop.className = 'fcol-pop'; pop.dir = 'rtl';
+    const t = document.createElement('div'); t.className = 'fcol-t'; t.textContent = 'لون إطار المقطع'; pop.append(t);
+    const row = document.createElement('div'); row.className = 'fcol-row';
+    for (const c of ['#ffd400', '#ff6a2b', '#ff3b5c', '#4cc2ff', '#3ddc84', '#b26bff', '#ffffff', '#000000']) { const b = document.createElement('button'); b.className = 'fcol-sw' + (PG.frameCol() === c ? ' on' : ''); b.style.background = c; b.title = c; b.onclick = () => { PG.setFrameCol(c); pop.remove(); }; row.append(b); }
+    const ci = document.createElement('input'); ci.type = 'color'; ci.value = PG.frameCol() === 'none' ? '#ffd400' : PG.frameCol(); ci.title = 'لون مخصص'; ci.oninput = () => PG.setFrameCol(ci.value); row.append(ci); pop.append(row);
+    const tb = document.createElement('button'); tb.className = 'btn sm' + (PG.frameCol() === 'none' ? ' pri' : ''); tb.textContent = 'شفاف (إخفاء الإطار)'; tb.onclick = () => { PG.setFrameCol('none'); pop.remove(); }; pop.append(tb);
+    document.body.append(pop); const r = anchor.getBoundingClientRect(); pop.style.left = Math.max(8, Math.min(innerWidth - pop.offsetWidth - 8, r.left + r.width / 2 - pop.offsetWidth / 2)) + 'px'; pop.style.top = Math.max(8, r.top - pop.offsetHeight - 8) + 'px';
+    setTimeout(() => { const off = (e) => { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener('pointerdown', off, true); } }; document.addEventListener('pointerdown', off, true); }, 0);
+  };
   PG.toggleSafe = () => { PG.safe = !PG.safe; GW.invalidate(); };
 
   let adapt = 1, lastDraw = 0, late = 0; PG.playCap = .5;
@@ -198,7 +214,7 @@
     if (GW.X && GW.X.is3D(c)) { // 3D layer: projected quad + anchor, drag = move in its XY plane
       const s = GW.seq(), L = GW.X.layerMap(s, c, s.t); const vis = corners.every(p => GW.X.apply(L.A, p[0], p[1], 0)[2] > GW.X.NEAR);
       if (vis) {
-        const q = corners.map(p => mp(p[0], p[1])); g.strokeStyle = '#4cc2ff'; g.lineWidth = 1.2; g.beginPath(); q.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.stroke();
+        const q = corners.map(p => mp(p[0], p[1])); g.strokeStyle = PG.frameCol() === 'none' ? 'rgba(0,0,0,0)' : PG.frameCol(); g.lineWidth = 1.2; g.beginPath(); q.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.stroke();
         const an = GW.pv(c.motion.anchor, lt); const ap = mp(an[0], an[1]); const L3 = (dx, dy, col) => { const e = mp(an[0] + dx, an[1] + dy); g.strokeStyle = col; g.beginPath(); g.moveTo(ap[0], ap[1]); g.lineTo(e[0], e[1]); g.stroke(); };
         const ax = Math.max(20, Math.min(c.sw, c.sh) * .12); L3(ax, 0, '#ff5a5a'); L3(0, ax, '#5aff7a');
         g.strokeStyle = '#fff'; g.beginPath(); g.arc(ap[0], ap[1], 5, 0, 7); g.stroke();
@@ -208,11 +224,12 @@
     const pts = corners.map(p => mp(p[0], p[1]));
     // v5 overlay: thin cyan outline (dark halo for legibility over any picture), small round handles with an ember ring
     const halo = (fn) => { g.save(); g.strokeStyle = 'rgba(0,0,0,.55)'; g.lineWidth = 3; fn(); g.restore(); fn(); };
-    g.strokeStyle = c.kind === 'null' ? '#ef5350' : '#4cc2ff'; g.lineWidth = c.kind === 'null' ? 1.5 : 1;
-    g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); halo(() => g.stroke());
+    const FC = PG.frameCol(); const hide = FC === 'none';
+    g.strokeStyle = c.kind === 'null' ? '#ef5350' : FC; g.lineWidth = c.kind === 'null' ? 1.5 : 1.6;
+    if (!hide) { g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); halo(() => g.stroke()); }
     const mids = pts.map((p, i) => { const q = pts[(i + 1) % 4]; return [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]; });
     g.lineWidth = 1.25;
-    for (const p of [...pts, ...mids]) { g.beginPath(); g.arc(p[0], p[1], 4, 0, 7); g.fillStyle = '#fff'; g.fill(); g.strokeStyle = '#ff6a2b'; g.stroke(); }
+    if (!hide) for (const p of [...pts, ...mids]) { g.beginPath(); g.arc(p[0], p[1], 4, 0, 7); g.fillStyle = '#fff'; g.fill(); g.strokeStyle = FC; g.stroke(); }
     const an = GW.pv(c.motion.anchor, lt); const ap = mp(an[0], an[1]);
     g.strokeStyle = '#fff'; g.lineWidth = 1; g.beginPath(); g.arc(ap[0], ap[1], 6, 0, 7); g.moveTo(ap[0] - 10, ap[1]); g.lineTo(ap[0] + 10, ap[1]); g.moveTo(ap[0], ap[1] - 10); g.lineTo(ap[0], ap[1] + 10); halo(() => g.stroke());
     PG.hot = { c, pts, mids, ap, mp, lt };

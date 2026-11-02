@@ -1767,3 +1767,11 @@ html[dir=ltr] .mxt-in{background:linear-gradient(to right,rgba(76,194,255,.55),r
 .dc-btn:hover{background:var(--acc,#ff6a2b);color:#fff;border-color:transparent}
 .dc-num{width:48px;height:26px;text-align:center;border-radius:6px;border:1px solid var(--line,#333);background:var(--bg1,#111);color:var(--text,#eee);font:600 13px var(--mono,monospace)}
 .dc-lab{font-size:12px;color:var(--text2,#aaa);margin-inline-start:2px}
+
+/* clip frame colour picker */
+.fcol-pop{position:fixed;z-index:9999;background:var(--bg2,#1b1e24);border:1px solid var(--line2,#333);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.fcol-t{font-size:12px;color:var(--text2,#aaa)}
+.fcol-row{display:flex;gap:6px;align-items:center}
+.fcol-sw{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.25);cursor:pointer;padding:0}
+.fcol-sw.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.35)}
+.fcol-row input[type=color]{width:26px;height:24px;border:0;background:none;padding:0;cursor:pointer}

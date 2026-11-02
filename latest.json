@@ -1,8 +1,8 @@
 {
- "version": "3.2.0",
- "date": "2026-11-02T20:26:32.466Z",
- "notes_ar": "تتبع مثل أفتر إفكت: تتبع الوجه تلقائياً بالذكاء الاصطناعي (بدون إنترنت)، وتتبع شخص أو جسم بمربع يكبر ويصغر معه. النتيجة مفاتيح: طبقة تلحقه (مع الحجم)، تمويه للوجه، أو تكبير ومتابعة الهدف.",
- "notes_en": "After Effects-style tracking: automatic AI face tracking (offline) and person/object box tracking with scale. Results as keyframes: a layer that follows (with size), face blur, or zoom-and-follow reframe.",
+ "version": "3.2.1",
+ "date": "2026-11-02T20:52:11.506Z",
+ "notes_ar": "إطار المقطع في المعاينة صار أصفر وواضح، وزر جديد تحت المعاينة لاختيار لونه أو جعله شفافاً.",
+ "notes_en": "The clip frame in the preview is now a clear yellow; a new button under the preview picks its colour or makes it transparent.",
  "minBootstrap": 1,
  "electron": "37.10.3",
  "base": "files/",
@@ -39,8 +39,8 @@
   },
   {
    "path": "app/css/app.css",
-   "size": 165858,
-   "sha256": "bc6786a49e8bc1c5c86a31d54377b543c36b5420e98c24a7dd970b1301ae3a76"
+   "size": 166497,
+   "sha256": "aabf198f722b10a67db937f9a37b8090d32084bbaf073c28f633e757f7e2b2af"
   },
   {
    "path": "app/fonts/amiri-arabic-400-normal.woff2",
@@ -699,13 +699,13 @@
   },
   {
    "path": "app/i18n/en.js",
-   "size": 304453,
-   "sha256": "4458ebe5634b9f01205123646118ef391ff993eac92dc111be6422a1e2981afe"
+   "size": 304568,
+   "sha256": "b90baa0f260ff2363706725c4317bb5bf4a92ba72668beb9ccf9d4ead2074acc"
   },
   {
    "path": "app/i18n/en.json",
-   "size": 308468,
-   "sha256": "f4b1c52a9d41297b7f1e401cdd659edf858e165c34398b929bd0fda89c21d223"
+   "size": 308589,
+   "sha256": "2e3768c605be18b9cf1efd2fcb86c629c384913c20729f05bb0380b88d6e3a4f"
   },
   {
    "path": "app/i18n/sfx_en.json",
@@ -1054,8 +1054,8 @@
   },
   {
    "path": "app/js/ui_monitors.js",
-   "size": 35922,
-   "sha256": "f01e7ecc0c513c70dd65f285066fedc58fd7a11d88af204789ae6e3849f709dd"
+   "size": 38810,
+   "sha256": "3604ca698889742a53ff819e4df7597e13c97d5eb84aad17bb56ecbf05530bf8"
   },
   {
    "path": "app/js/ui_ofx.js",
@@ -4740,7 +4740,7 @@
   {
    "path": "package.json",
    "size": 1657,
-   "sha256": "e913cdd876f8a891dbc49031e6d767ab76e226837ac576336c22064b6b8c535b"
+   "sha256": "fe96d945cde9aeb1492b36d419a5408e006ccde440f8ec47ecdfebff1e3acc4d"
   },
   {
    "path": "preload.js",
@@ -4753,5 +4753,5 @@
    "sha256": "aa930d1e2adc18a2b8219c983ec3a4e04dcb89371415812b80401834b22db4f7"
   }
  ],
- "sig": "a0vyh+Qwa1eL6+PtBNbqS1MI/SpEHp09zWVvaXewBuPyd0AWOWB5GXY4sIsWc28+9LujgFNH0TcMoMEQa5kbDQ=="
+ "sig": "YB2Qq3VB5U1asuvZLuwveEpayJwHLI5NcRmCh7r86xOZH+3duMVngWyklWTBhuw00K+WQFDopmLO3k2zu/HaBg=="
 }
